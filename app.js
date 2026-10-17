@@ -1,0 +1,509 @@
+import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
+import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS } from './food.js';
+
+const MP_VER = '1.1.1';
+const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
+const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
+const qs = new URLSearchParams(location.search);
+const SPEED = Math.max(1, +qs.get('speed') || 1); // test hook: ?speed=30 runs timers 30x faster
+const $ = id => document.getElementById(id);
+const store = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem('kova.' + k)) ?? d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem('kova.' + k, JSON.stringify(v)),
+};
+const settings = Object.assign({ name: 'Mitchell', speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
+
+/* ---------- workout definition (bodyweight + household items only) ---------- */
+const MOVES = {
+  march:   { name: 'March on the spot', clip: 'warmup', how: 'Lift your knees, swing your arms, breathe easy.' },
+  pushup:  { name: 'Wall push-ups', clip: 'wallpushups', counted: true, view: 'side', how: 'Hands on the wall at shoulder height, body straight, bend your elbows and push back. Easier: step closer to the wall.' },
+  squat:   { name: 'Sit-to-stand squats', clip: 'squats', counted: true, view: 'side', how: 'Stand up from a sturdy chair and sit back down slowly. Easier: push on your thighs.' },
+  knees:   { name: 'Standing knee lifts', clip: 'kneelifts', counted: true, view: 'front', how: 'Lift each knee towards hip height, one side at a time. Hold a chair for balance if needed.' },
+  bridge:  { name: 'Glute bridges', clip: 'bridges', counted: true, view: 'side', how: 'On a towel or carpet, knees bent. Squeeze your bum and lift your hips. Turn side-on to the camera.' },
+  lunge:   { name: 'Step-back lunges', clip: 'lunges', counted: true, view: 'side', how: 'Small step back, keep hold of the chair, and bend both knees a little. Easier: just tap the foot back.', cue: 'Small step, keep hold of the chair' },
+  deadbug: { name: 'Dead bug', clip: 'deadbug', view: 'side', how: 'On a towel or carpet, arms up and knees bent. Lower ONE arm and the OPPOSITE leg slowly, then swap. Keep your back pressed down. Easier: legs only.', cue: 'Lower ONE arm and the OPPOSITE leg slowly' },
+};
+const STRETCHES = [['Calf stretch', 'Hands on the wall, one leg back, heel down.'], ['Front-of-thigh stretch', 'Hold a chair, bring one heel towards your bum.'], ['Chest stretch', 'Hand on a door frame, turn gently away.'], ['Hamstring stretch', 'Heel forward on the floor, hinge at the hips.']];
+const ORDER = ['pushup', 'squat', 'knees', 'bridge', 'lunge', 'deadbug'];
+function buildPlan() {
+  const s = [{ kind: 'warm', move: 'march', dur: 180, label: 'Warm-up' }];
+  s.push({ kind: 'rest', dur: 15, next: ORDER[0], label: 'Get ready', round: 1 });
+  for (let r = 1; r <= 2; r++) ORDER.forEach((m, i) => {
+    s.push({ kind: 'work', move: m, dur: 30, round: r, label: `Round ${r} of 2` });
+    const last = r === 2 && i === ORDER.length - 1;
+    s.push({ kind: 'rest', dur: 30, round: i === ORDER.length - 1 ? r + 1 : r, label: last ? 'Rest' : `Round ${i === ORDER.length - 1 ? r + 1 : r} of 2`, next: last ? 'cool' : ORDER[(i + 1) % ORDER.length] });
+  });
+  STRETCHES.forEach(([n, h]) => s.push({ kind: 'cool', name: n, how: h, dur: 45, label: 'Cool-down' }));
+  return s;
+}
+const PLAN = buildPlan();
+$('planList').innerHTML = [['Warm-up: march on the spot', '3 min'], ...ORDER.map(m => [MOVES[m].name, '2 × 30s']), ['Cool-down stretches', '3 min']].map(([a, b]) => `<li><span>${a}</span><span>${b}</span></li>`).join('');
+
+/* ---------- trainer demo clips (media/ first, then bundled clips/, else poster/avatar placeholder) ---------- */
+const MEDIA = { march: 'warmup', pushup: 'wall-pushups', squat: 'squats', knees: 'knee-lifts', bridge: 'glute-bridges', lunge: 'lunges', deadbug: 'dead-bug', cool: 'cooldown' };
+const BUNDLED = { march: 'warmup', pushup: 'wallpushups', squat: 'squats', knees: 'kneelifts', bridge: 'bridges', lunge: 'lunges', deadbug: 'deadbug', cool: 'cooldown' };
+const probeCache = {};
+async function exists(u) { // HEAD probe, cached 60s, so clips dropped into media/ later get picked up
+  const c = probeCache[u]; if (c && Date.now() - c.t < 60000) return c.ok;
+  let ok = false; try { ok = (await fetch(u, { method: 'HEAD', cache: 'no-store' })).ok; } catch {}
+  probeCache[u] = { ok, t: Date.now() }; return ok;
+}
+async function setDemo(v, key) {
+  if (!v || !MEDIA[key]) return;
+  const tile = v.parentElement, want = v.dataset.key = key;
+  const [mp4, jpg] = [`media/${MEDIA[key]}.mp4`, `media/${MEDIA[key]}.jpg`];
+  const [hasMp4, hasJpg] = await Promise.all([exists(mp4), exists(jpg)]);
+  if (v.dataset.key !== want) return; // superseded
+  const src = hasMp4 ? mp4 : `clips/${BUNDLED[key]}.mp4`;
+  if (hasJpg) v.poster = jpg; else v.removeAttribute('poster');
+  if (v.getAttribute('src') === src) return;
+  tile.classList.remove('missing');
+  v.onerror = () => tile.classList.add('missing'); // poster/avatar placeholder stays visible
+  v.src = src; v.playbackRate = 1; v.play().catch(() => {});
+}
+// Fix explanations for "show me" moments. joints = landmark ids to colour red on the user's skeleton.
+const FIX = {
+  pushup: { straight: ['Body in one straight line', 'Watch me. Squeeze your tummy and bum so you stay in one straight line from head to heels.', [11, 12, 23, 24, 27, 28]],
+            shallow: ['Elbows bend to about 90°', 'Watch me. Bend your elbows more and bring your chest towards the wall, hands at shoulder height.', [11, 12, 13, 14, 15, 16]],
+            fast: ['2 seconds in, 2 seconds out', 'Watch my speed. Slowly in towards the wall, slowly push back.', [13, 14]],
+            any: ['Hands at shoulder height', 'Watch me. Hands on the wall at shoulder height, body straight, elbows bend and push back.', [11, 12, 13, 14, 15, 16]] },
+  squat: { shallow: ['Knees bent at 90°', 'Watch me. Sit right back until you touch the chair, knees bent to about 90 degrees, then stand tall.', [23, 24, 25, 26]],
+           fast: ['Slow sit, slow stand', 'Watch my speed. Lower for two seconds, stand for two.', [25, 26]],
+           any: ['Sit back, chest up', 'Watch me. Feet hip-width apart, sit back to the chair, chest up, then stand tall.', [23, 24, 25, 26]] },
+  knees: { any: ['Knee up to hip height', 'Watch me. Lift each knee up towards hip height and stand tall.', [23, 24, 25, 26]] },
+  bridge: { shallow: ['Knees, hips, shoulders in line', 'Watch me. Squeeze your bum and lift until your knees, hips and shoulders make a straight line.', [11, 12, 23, 24, 25, 26]],
+            fast: ['Lift, hold, lower slowly', 'Watch me. Lift, hold for a second at the top, then lower slowly.', [23, 24]],
+            any: ['Squeeze and lift', 'Watch me. Feet flat, squeeze your bum and lift your hips.', [23, 24]] },
+  lunge: { shallow: ['Small step, hold the chair', 'Watch me. A small step back, keep hold of the chair, and bend both knees a little more with your chest up.', [23, 24, 25, 26, 27, 28]],
+           fast: ['Step back slowly', 'Watch my speed. Step back slowly and come up with control.', [25, 26]],
+           any: ['Small step, hold the chair', 'Watch me. Keep hold of the chair, take a small step back and bend both knees a little.', [25, 26]] },
+  deadbug: { any: ['ONE arm + OPPOSITE leg', 'Watch my pace, but lower just ONE arm and the OPPOSITE leg slowly, then swap. Keep your lower back pressed into the floor.', [23, 24]] },
+  march: { any: ['Knees up, arms swing', 'Watch me. Lift your knees and swing your arms.', [25, 26]] },
+};
+const SHOW_COOLDOWN = 45000;
+async function showMe(move, issue = 'any', { manual = false } = {}) {
+  if (!sess || sess.showing || !FIX[move]) return false;
+  const t = performance.now(); sess.lastShow ||= {};
+  if (!manual && t - (sess.lastShow[move] || -1e9) < SHOW_COOLDOWN) return false;
+  sess.lastShow[move] = t;
+  const [label, text, joints] = FIX[move][issue] || FIX[move].any;
+  sess.showing = true; sess.badJoints = new Set(joints); sess.badUntil = Infinity; window.__kova.showCount = (window.__kova.showCount || 0) + 1;
+  const tile = $('demoTile'), v = $('demoVid');
+  tile.hidden = false; tile.classList.add('expanded'); $('stage').classList.add('showing'); setDemo(v, move); $('youTag').hidden = false;
+  $('fixLabel').textContent = label; $('fixLabel').hidden = false; v.playbackRate = 0.6; v.currentTime = 0; v.play().catch(() => {});
+  setCue(label, true); say(text, { kind: 'high' });
+  await new Promise(r => setTimeout(r, SPEED > 1 ? 3000 : Math.max(6500, text.length * 70)));
+  if (!sess) return true;
+  tile.classList.remove('expanded'); $('stage').classList.remove('showing'); $('youTag').hidden = true; $('fixLabel').hidden = true; v.playbackRate = 1;
+  sess.showing = false; sess.badStreak = 0; sess.badUntil = performance.now() + 3000; sess.lastTick = performance.now();
+  const st = cur(); tile.hidden = st.kind === 'rest';
+  if (st.kind === 'work' || st.kind === 'warm') { coach.startWork(); setCue('Your turn!'); say('Your turn!', { kind: 'high' }); } else setCue('Breathe and shake it out');
+  return true;
+}
+
+/* ---------- audio: speech + beeps ---------- */
+let actx = null, voice = null;
+function pickVoice() { const v = speechSynthesis.getVoices(); voice = v.find(x => /en[-_]GB/i.test(x.lang)) || v.find(x => /^en/i.test(x.lang)) || null; }
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function say(text, { kind = 'coach' } = {}) {
+  bubble(text);
+  if (!settings.speech || !('speechSynthesis' in window)) return;
+  if (kind === 'high') speechSynthesis.cancel();
+  else if (speechSynthesis.pending) return; // don't pile up
+  const u = new SpeechSynthesisUtterance(text);
+  if (voice) u.voice = voice; u.lang = voice?.lang || 'en-GB'; u.rate = kind === 'count' ? 1.15 : 1.0;
+  speechSynthesis.speak(u);
+}
+function unlockAudio() {
+  try { actx ||= new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch {}
+  if ('speechSynthesis' in window) { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; speechSynthesis.speak(u); }
+}
+function beep(f = 880, ms = 140, when = 0) {
+  if (!settings.beeps || !actx) return;
+  const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime + when;
+  o.frequency.value = f; o.type = 'sine'; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.25, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+  o.connect(g).connect(actx.destination); o.start(t); o.stop(t + ms / 1000 + 0.02);
+}
+const chime = () => { beep(660, 120); beep(990, 180, 0.12); };
+let bubbleT; function bubble(text) { const b = $('bubble'); b.textContent = text; b.classList.add('pop'); clearTimeout(bubbleT); bubbleT = setTimeout(() => b.classList.remove('pop'), 250); }
+function toast(t, ms = 2500) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms); }
+
+/* ---------- optional LLM hook (text only, off by default) ---------- */
+async function llm(prompt) {
+  if (!settings.llm || !settings.llmKey || !settings.llmUrl) return null;
+  try {
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
+    const r = await fetch(settings.llmUrl, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${settings.llmKey}` },
+      body: JSON.stringify({ model: settings.llmModel || 'gpt-4o-mini', max_tokens: 180, messages: [
+        { role: 'system', content: `You are Kova, a warm, upbeat British home-fitness coach for ${settings.name}, a total beginner using bodyweight only (no equipment to buy). Be brief, kind, specific and non-judgemental. Never suggest extreme or very-low-calorie diets. Not medical advice.` },
+        { role: 'user', content: prompt }] }) });
+    clearTimeout(to); if (!r.ok) return null;
+    const j = await r.json(); return j.choices?.[0]?.message?.content?.trim() || null;
+  } catch { return null; }
+}
+
+/* ---------- camera + pose ---------- */
+let landmarker = null, stream = null, facing = 'user', lastVideoTime = -1, lastPose = null;
+const video = $('video'), canvas = $('overlay'), ctx = canvas.getContext('2d');
+async function initPose() {
+  if (landmarker) return landmarker;
+  const { FilesetResolver, PoseLandmarker } = await import(`${MP_URL}/vision_bundle.mjs`);
+  const fileset = await FilesetResolver.forVisionTasks(`${MP_URL}/wasm`);
+  const opts = d => ({ baseOptions: { modelAssetPath: MODEL, delegate: d }, runningMode: 'VIDEO', numPoses: 1, minPoseDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+  try { landmarker = await PoseLandmarker.createFromOptions(fileset, opts('GPU')); landmarker._delegate = 'GPU'; }
+  catch (e) { console.warn('GPU delegate failed, using CPU', e); landmarker = await PoseLandmarker.createFromOptions(fileset, opts('CPU')); landmarker._delegate = 'CPU'; }
+  window.__kova.delegate = landmarker._delegate;
+  landmarker.CONN = PoseLandmarker.POSE_CONNECTIONS;
+  return landmarker;
+}
+async function startCamera() {
+  stream?.getTracks().forEach(t => t.stop());
+  stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } } });
+  video.srcObject = stream; await video.play().catch(() => {});
+  $('mirror').classList.toggle('flip', facing === 'user');
+}
+$('flipBtn').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCamera(); } catch (e) { toast('Could not switch camera'); facing = 'user'; } };
+function draw(res) {
+  if (canvas.width !== video.videoWidth) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; }
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const lm = res?.landmarks?.[0]; if (!lm) return;
+  const W = canvas.width, H = canvas.height;
+  ctx.lineWidth = Math.max(3, W / 200);
+  const bad = sess && sess.badJoints && performance.now() < (sess.badUntil || 0) ? sess.badJoints : null; // "You vs Kova": red = fix this, green = good
+  const RED = '#ff4d4d', GOOD = bad ? '#3ddc84' : 'rgba(22,212,192,.9)';
+  for (const { start, end } of landmarker.CONN) { const a = lm[start], b = lm[end]; if ((a.visibility ?? 1) < .5 || (b.visibility ?? 1) < .5) continue; ctx.strokeStyle = bad && (bad.has(start) || bad.has(end)) ? RED : GOOD; ctx.beginPath(); ctx.moveTo(a.x * W, a.y * H); ctx.lineTo(b.x * W, b.y * H); ctx.stroke(); }
+  for (let i = 11; i < 33; i++) { const p = lm[i]; if ((p.visibility ?? 1) < .5) continue; const r = bad?.has(i); ctx.fillStyle = r ? RED : '#fff'; ctx.beginPath(); ctx.arc(p.x * W, p.y * H, ctx.lineWidth * (r ? 2.2 : 1.3), 0, 7); ctx.fill(); }
+}
+function poseLoop() {
+  if (!sess) return;
+  if (landmarker && video.readyState >= 2 && video.currentTime !== lastVideoTime) {
+    lastVideoTime = video.currentTime;
+    try { const res = landmarker.detectForVideo(video, performance.now()); lastPose = res; draw(res); onPose(res); } catch (e) { console.warn(e); }
+  }
+  requestAnimationFrame(poseLoop);
+}
+
+/* ---------- session flow ---------- */
+let sess = null, coach = null, wakeLock = null;
+async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request('screen'); } catch {} }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && sess) keepAwake(); });
+const fmtT = s => { s = Math.max(0, Math.ceil(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+function show(id) { document.querySelectorAll('#tab-workout .screen').forEach(s => s.classList.toggle('active', s.id === id)); }
+
+async function startWorkout() {
+  if (sess) return;
+  unlockAudio(); switchTab('workout');
+  coach = new CoachEngine({ name: settings.name, say, now: () => performance.now() });
+  sess = { i: -1, t: 0, paused: false, totals: Object.fromEntries(ORDER.filter(m => MOVES[m].counted).map(m => [m, 0])), started: Date.now(), analyser: null, lastTick: performance.now(), inFrame: false };
+  window.__kova.sess = sess;
+  show('screen-session'); keepAwake();
+  $('moveName').textContent = 'Getting ready'; setCue('Starting camera…');
+  coach.line('greet', { force: true });
+  try { await startCamera(); } catch (e) { setCue('Camera blocked. Allow camera access and reload.', true); console.warn(e); }
+  initPose().then(() => setCue('')).catch(e => { console.error('pose init failed', e); setCue('Pose model failed to load. Check your connection.', true); });
+  requestAnimationFrame(poseLoop);
+  next(); sess.timer = setInterval(tick, 100);
+}
+function cur() { return PLAN[sess.i]; }
+function next() {
+  const prev = cur();
+  if (prev?.kind === 'work' && sess.analyser) {
+    if (MOVES[prev.move].counted) sess.totals[prev.move] += sess.analyser.rc.reps;
+    const reps = sess.analyser.rc.reps;
+    if (MOVES[prev.move].counted) llm(`${settings.name} just did ${reps} reps of ${MOVES[prev.move].name} in 30s (round ${prev.round}). Give one short encouraging line.`).then(t => t && sess && bubble(t));
+  }
+  sess.i++;
+  if (sess.i >= PLAN.length) return finish(true);
+  const s = cur(); sess.t = s.dur; sess.analyser = null; sess.said = {};
+  $('restPanel').hidden = s.kind !== 'rest'; $('demoTile').hidden = s.kind === 'rest';
+  $('roundTag').textContent = s.label; $('stepTag').textContent = `${sess.i + 1}/${PLAN.length}`;
+  $('repCount').textContent = s.kind === 'work' && MOVES[s.move].counted ? '0' : '';
+  if (s.kind === 'rest') {
+    const nm = s.next === 'cool' ? 'Cool-down stretches' : MOVES[s.next].name;
+    $('moveName').textContent = 'Rest'; $('nextName').textContent = nm;
+    $('nextHow').textContent = s.next === 'cool' ? 'Slow, gentle stretches. Hold each one and breathe.' : MOVES[s.next].how;
+    setDemo($('nextClip'), s.next === 'cool' ? 'cool' : s.next); setDemo($('demoVid'), s.next === 'cool' ? 'cool' : s.next);
+    setCue('Breathe and shake it out');
+    say(`${sess.i > 2 ? coach.pick('rest') + ' ' : ''}Next up: ${nm}.`, { kind: 'high' });
+  } else if (s.kind === 'cool') {
+    setDemo($('demoVid'), 'cool'); $('moveName').textContent = s.name; setCue(s.how); say(`${s.name}. ${s.how} Hold for 20 to 30 seconds each side.`, { kind: 'high' });
+  } else {
+    const m = MOVES[s.move]; $('moveName').textContent = m.name;
+    sess.analyser = makeAnalyser(s.move); coach.startWork(); setDemo($('demoVid'), s.move); sess.badStreak = 0; sess.repBad = false;
+    setCue(m.cue || (m.view === 'side' ? 'Turn side-on to the camera' : 'Face the camera'));
+    say(s.kind === 'warm' ? `Let's warm up. March on the spot for 3 minutes.` : `Go! ${m.name}.${m.cue ? ' ' + m.cue + '.' : ''}`, { kind: 'high' }); beep(1200, 250);
+  }
+  ring();
+}
+function tick() {
+  const now = performance.now(), dt = (now - sess.lastTick) / 1000 * SPEED; sess.lastTick = now;
+  if (sess.paused || sess.showing) return;
+  sess.t -= dt; const s = cur();
+  if (s.kind === 'rest' || s.kind === 'cool') for (const k of [3, 2, 1]) if (sess.t <= k && !sess.said['b' + k]) { sess.said['b' + k] = 1; beep(660, 120); }
+  if (s.kind === 'warm') {
+    if (sess.t <= 120 && !sess.said.w2) { sess.said.w2 = 1; coach.line('idle', { force: true }); }
+    if (sess.t <= 10 && !sess.said.w10) { sess.said.w10 = 1; say('10 seconds left of the warm-up.', { kind: 'high' }); }
+  }
+  if (sess.t <= 0) { beep(440, 350); next(); return; }
+  ring();
+}
+function ring() { const s = cur(); if (!s) return; $('ringProg').style.strokeDashoffset = 326.7 * (1 - Math.max(0, sess.t) / s.dur); $('timeLeft').textContent = fmtT(sess.t); }
+function setCue(t, warn = false) { const c = $('cueLine'); c.textContent = t; c.classList.toggle('warn', warn); }
+
+function onPose(res) {
+  window.__kova.frames = (window.__kova.frames || 0) + 1;
+  const s = cur(); if (!s || sess.paused || sess.showing) return;
+  const lm = res.landmarks?.[0], w = res.worldLandmarks?.[0];
+  if (s.kind === 'rest') return;
+  const t = performance.now();
+  let result = { ready: false };
+  if (lm && w) result = sess.analyser ? sess.analyser.frame(lm, w, t) : { ready: allVisible(lm, [LM.LS, LM.RS, LM.LH, LM.RH]) };
+  sess.inFrame = result.ready;
+  if (!result.ready) setCue('Step back so I can see your whole body', true);
+  else if ($('cueLine').classList.contains('warn')) setCue((s.kind === 'work' && MOVES[s.move].cue) || '');
+  if (s.kind === 'cool') return;
+  if (s.kind === 'work' && result.ready) trackForm(s.move, result);
+  if (sess.showing) return;
+  const line = coach.onFrame({ move: s.move, result, timeLeft: s.kind === 'work' ? sess.t : 99, counted: s.kind === 'work' && !!MOVES[s.move].counted });
+  if (line && result.ready) setCue(line, /lower|straight|slow|higher|back/i.test(line));
+  if (s.kind === 'work' && sess.analyser?.rc) $('repCount').textContent = MOVES[s.move].counted ? sess.analyser.rc.reps : '';
+}
+// Bad-rep tracking: 2+ bad reps in a row triggers a "show me" demo (max once per 45s per move).
+function trackForm(move, result) {
+  const FLAGJ = { straight: [11, 12, 23, 24, 27, 28] };
+  for (const f of result.flags || []) { sess.repBad = true; sess.lastIssue = f; sess.badJoints = new Set(FLAGJ[f] || []); sess.badUntil = performance.now() + 2500; }
+  for (const ev of result.events || []) {
+    if (ev.type === 'shallow') { sess.badStreak = (sess.badStreak || 0) + 1; sess.lastIssue = 'shallow'; sess.badJoints = new Set((FIX[move]?.shallow || FIX[move]?.any || [, , []])[2]); sess.badUntil = performance.now() + 2500; }
+    if (ev.type === 'rep') {
+      const fast = move !== 'knees' && ev.ms < 1000;
+      if (sess.repBad || fast) { sess.badStreak = (sess.badStreak || 0) + 1; if (fast && !sess.repBad) sess.lastIssue = 'fast'; }
+      else sess.badStreak = 0;
+      sess.repBad = false;
+    }
+  }
+  if (!sess.showing && sess.badStreak >= 2) showMe(move, sess.lastIssue);
+}
+
+function pause(p = !sess?.paused) { if (!sess) return; sess.paused = p; $('pauseBtn').textContent = p ? 'Resume' : 'Pause'; say(p ? 'Paused. Say resume when you\'re ready.' : 'And we\'re back.', { kind: 'high' }); }
+$('pauseBtn').onclick = () => pause();
+$('skipBtn').onclick = () => sess && next();
+$('endBtn').onclick = () => sess && finish(false);
+async function finish(completed) {
+  const s = cur(); if (s?.kind === 'work' && sess.analyser && MOVES[s.move].counted) sess.totals[s.move] += sess.analyser.rc.reps;
+  clearInterval(sess.timer); stream?.getTracks().forEach(t => t.stop()); stream = null; wakeLock?.release?.(); wakeLock = null;
+  const hist = store.get('sessions', []), prev = hist[hist.length - 1];
+  const rec = { date: new Date().toISOString(), totals: sess.totals, minutes: Math.round((Date.now() - sess.started) / 60000), completed };
+  hist.push(rec); store.set('sessions', hist);
+  const labels = Object.fromEntries(Object.entries(MOVES).map(([k, v]) => [k, v.name.toLowerCase()]));
+  const summary = coach.summary(sess.totals, prev, labels);
+  $('summaryText').textContent = summary;
+  $('totalsTable').innerHTML = Object.entries(sess.totals).map(([k, v]) => `<tr><td>${MOVES[k].name}</td><td>${v}${prev ? ` <small class="muted">(last ${prev.totals[k] ?? 0})</small>` : ''}</td></tr>`).join('');
+  sess = null; window.__kova.sess = null; show('screen-end'); say(summary + ' Fancy doing your food check-in?', { kind: 'high' });
+  $('endFoodTip') ? ($('endFoodTip').textContent = 'Refuel idea: ' + mealSuggestion()) : $('totalsTable').insertAdjacentHTML('afterend', `<div class="card note small" id="endFoodTip">Refuel idea: ${mealSuggestion()}</div>`);
+  renderProgress();
+  const extra = await llm(`Session finished (${completed ? 'complete' : 'ended early'}). Reps today: ${JSON.stringify(rec.totals)}. Last session: ${prev ? JSON.stringify(prev.totals) : 'none'}. Give a 2-sentence warm summary and one bodyweight-only progression tip.`);
+  if (extra) $('summaryText').textContent = extra;
+}
+$('startBtn').onclick = startWorkout;
+$('againBtn').onclick = () => show('screen-start');
+$('endFoodBtn').onclick = () => switchTab('food');
+
+/* ---------- tabs ---------- */
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats();
+}
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
+
+/* ---------- food check-in ---------- */
+const foodHist = () => store.get('food', {});
+const today = () => foodHist()[dayKey()]?.entries || {};
+$('foodForm').innerHTML = MEALS.map(m => `<div class="meal"><label for="f-${m.id}">${m.icon} ${m.label}</label><div class="row"><textarea id="f-${m.id}" placeholder="${{ breakfast: 'e.g. porridge with banana, coffee', lunch: 'e.g. ham sandwich, crisps', dinner: 'e.g. chicken curry and rice', snacks: 'e.g. biscuits, an apple', drinks: 'e.g. 2 teas, a can of coke, water' }[m.id]}"></textarea><button type="button" class="dict" data-meal="${m.id}" title="Dictate">🎙️</button></div></div>`).join('');
+$('glp1').checked = settings.glp1; $('glp1').onchange = e => { settings.glp1 = e.target.checked; store.set('settings', settings); };
+function loadFood() { const e = today(); MEALS.forEach(m => $('f-' + m.id).value = e[m.id] || ''); }
+loadFood();
+function renderFoodStats() { const h = foodHist(); $('foodStreak').textContent = streak(h); $('foodScoreToday').textContent = h[dayKey()]?.score ?? '–'; }
+renderFoodStats();
+async function analyseFood({ speak = true } = {}) {
+  const entries = Object.fromEntries(MEALS.map(m => [m.id, $('f-' + m.id).value.trim()]));
+  const r = analyseDay(entries, foodOpts());
+  const h = foodHist(); h[dayKey()] = { entries, score: r.score, at: Date.now() }; store.set('food', h);
+  const html = [`<div class="res"><h4>Score: ${r.score}/10 · 🔥 ${streak(h)} day streak</h4><p>${r.headline}</p></div>`];
+  for (const m of MEALS) {
+    const a = r.meals[m.id]; if (a.empty && !a.flags.length) continue;
+    html.push(`<div class="res"><h4>${m.icon} ${m.label} ${a.ok ? '<span class="ok">✓ looks good</span>' : ''}</h4>${a.flags.map(f => `<div class="flag">• ${f.msg}</div>`).join('')}${a.swaps.length ? `<b>Try:</b><ul>${a.swaps.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}</div>`);
+  }
+  if (r.ideas.length) html.push(`<div class="res"><h4>Easy whole-meal ideas</h4><ul>${r.ideas.map(s => `<li>${s}</li>`).join('')}</ul></div>`);
+  html.push(`<p class="small muted">${r.tips[0]}</p><div id="llmFood"></div>`);
+  $('foodResult').innerHTML = html.join(''); renderFoodStats();
+  if (speak) say(`Thanks ${settings.name}. Today's food score is ${r.score} out of 10. ${r.headline}`, { kind: 'high' });
+  const extra = await llm(`Food check-in for today (free text): ${JSON.stringify(entries)}. Rule-based flags: ${JSON.stringify(Object.fromEntries(MEALS.map(m => [m.id, r.meals[m.id].flags.map(f => f.k)])))}. ${settings.glp1 ? 'User takes a GLP-1-type medication; emphasise protein at small meals.' : ''} Give 3 short, kind, specific swap ideas for a moderate calorie deficit.`);
+  if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Kova's extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
+  return r;
+}
+$('analyseBtn').onclick = () => { unlockAudio(); analyseFood(); };
+
+const country = () => settings.country && settings.country !== 'auto' ? settings.country : detectCountry();
+function foodOpts() { return { glp1: settings.glp1, fussy: settings.fussy, likes: settings.likes, dislikes: settings.dislikes, country: country() }; }
+function renderFoodProfile() {
+  const c = country(), rm = READY_MEALS[c];
+  $('readyCountry').textContent = `(${COUNTRIES[c]})`; $('readyStores').textContent = rm.stores + ' Availability varies, so check labels.';
+  $('readyTypes').innerHTML = filterByDislikes(rm.types, settings.dislikes).map(x => `<li>${x}</li>`).join('');
+  $('labelGuide').innerHTML = LABEL_GUIDE.map(x => `<li>${x}</li>`).join('');
+  $('fussyCard').hidden = !settings.fussy; $('fussyList').innerHTML = fussyIdeas(settings, 6).map(x => `<li>${x}</li>`).join('');
+  $('foodPicker').innerHTML = PICKER_FOODS.map(f => `<button type="button" class="chip ${settings.likes.includes(f) ? 'like' : settings.dislikes.includes(f) ? 'no' : ''}" data-f="${f}">${settings.likes.includes(f) ? '👍 ' : settings.dislikes.includes(f) ? '🚫 ' : ''}${f}</button>`).join('');
+  $('foodPicker').querySelectorAll('.chip').forEach(b => b.onclick = () => { const f = b.dataset.f;
+    if (settings.likes.includes(f)) { settings.likes = settings.likes.filter(x => x !== f); settings.dislikes.push(f); }
+    else if (settings.dislikes.includes(f)) settings.dislikes = settings.dislikes.filter(x => x !== f);
+    else settings.likes.push(f);
+    store.set('settings', settings); renderFoodProfile(); });
+}
+function mealSuggestion() { // used by the coach (voice + end of workout)
+  const o = foodOpts(); const pool = o.fussy ? fussyIdeas(o, 6) : filterByDislikes(MEAL_IDEAS, o.dislikes);
+  return Math.random() < 0.35 ? readyMealTip(o.country, o.dislikes) : `How about ${(pool[Math.floor(Math.random() * pool.length)] || 'something with protein and veg').replace(/\.$/, '').replace(/^./, c => c.toLowerCase())}?`;
+}
+renderFoodProfile();
+
+/* ---------- progress + weigh-ins ---------- */
+const toKg = (v, u) => u === 'lb' ? v * 0.4536 : u === 'st' ? v * 6.35 : v;
+function saveWeight(v, u = 'kg') { if (!(v > 20 && v < 400)) return false; const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg: +toKg(v, u).toFixed(1) }); store.set('weights', w); renderProgress(); return true; }
+$('weightBtn').onclick = () => { if (saveWeight(+$('weightInput').value, $('weightUnit').value)) { $('weightInput').value = ''; toast('Weigh-in saved'); } else toast('Enter a valid weight'); };
+function renderProgress() {
+  const d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  const s = store.get('sessions', []);
+  $('sessionList').innerHTML = s.length ? s.slice().reverse().map(x => `<li><span>${d(x.date)}${x.completed ? '' : ' <small class="muted">(ended early)</small>'}</span><span>${Object.values(x.totals).reduce((a, b) => a + b, 0)} reps · ${x.minutes} min</span></li>`).join('') : '<li class="muted">No workouts yet. Your first one is waiting!</li>';
+  const f = foodHist();
+  $('foodList').innerHTML = Object.keys(f).length ? Object.keys(f).sort().reverse().map(k => `<li><span>${d(k + 'T12:00')}</span><span>${f[k].score}/10</span></li>`).join('') : '<li class="muted">No check-ins yet.</li>';
+  const w = store.get('weights', []);
+  $('weightList').innerHTML = w.length ? w.slice().reverse().map((x, i, a) => { const p = a[i + 1]; const dd = p ? (x.kg - p.kg).toFixed(1) : null; return `<li><span>${d(x.date)}</span><span>${x.kg} kg${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd})</small>` : ''}</span></li>`; }).join('') : '<li class="muted">No weigh-ins yet (optional).</li>';
+}
+renderProgress();
+
+/* ---------- settings ---------- */
+const S = { setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech: 'speech', setBeeps: 'beeps', setLlm: 'llm', setLlmUrl: 'llmUrl', setLlmModel: 'llmModel', setLlmKey: 'llmKey' };
+for (const [id, k] of Object.entries(S)) { const el = $(id); if (el.type === 'checkbox') el.checked = !!settings[k]; else el.value = settings[k] || (k === 'country' ? 'auto' : ''); }
+$('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.name ||= 'Mitchell'; settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
+$('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); location.reload(); } };
+function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}! I'm Kova. I'll watch your form through the camera, count your reps and cheer you on.`; }
+greetText();
+
+/* ---------- voice: "Hey Kova" wake word + commands + dictation ---------- */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const WAKE = /\b(?:hey|hi|ok|okay|a|hay)[\s,]+(kova|cova|cover|nova|coba|koba|kofa|kover|cobra)\b/i;
+const voiceState = { on: false, mode: 'idle', armedUntil: 0, dictate: null, rec: null };
+window.__kova = { voiceState, PLAN };
+$('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Kova".';
+function micUI() {
+  const b = $('micBtn'); b.classList.toggle('on', voiceState.on); b.classList.toggle('off', !voiceState.on); b.classList.toggle('armed', voiceState.mode !== 'idle');
+  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : 'Listening for "Hey Kova"';
+  $('listenBadge').hidden = voiceState.mode === 'idle'; $('listenBadge').textContent = voiceState.mode === 'dictate' ? '🎙️ Dictating…' : '🎙️ Listening…';
+  b.setAttribute('aria-pressed', voiceState.on);
+}
+function makeRec(continuous) {
+  const r = new SR(); r.lang = 'en-GB'; r.continuous = continuous; r.interimResults = false; r.maxAlternatives = 3;
+  r.onresult = e => {
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (!e.results[i].isFinal) continue;
+      const alts = [...e.results[i]].map(a => a.transcript.trim());
+      handleHeard(alts);
+    }
+  };
+  r.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { voiceState.on = false; micUI(); toast('Microphone permission was blocked'); } };
+  r.onend = () => { if (voiceState.on && continuous && voiceState.rec === r) setTimeout(() => { try { r.start(); } catch {} }, 250); else if (!continuous) { voiceState.mode = voiceState.mode === 'dictate' ? 'dictate' : 'idle'; micUI(); } };
+  return r;
+}
+function setMic(on) {
+  if (!SR) return toast('Voice isn\'t supported in this browser');
+  if (isIOS) return toast('On iPhone, use the Tap to talk button');
+  unlockAudio(); voiceState.on = on;
+  if (on) { voiceState.rec = makeRec(true); try { voiceState.rec.start(); } catch {} toast('Listening for "Hey Kova"'); }
+  else { const r = voiceState.rec; voiceState.rec = null; try { r?.stop(); } catch {} voiceState.mode = 'idle'; }
+  micUI();
+}
+$('micBtn').onclick = () => setMic(!voiceState.on);
+// Tap-to-talk: iOS (partial SR support) gets a one-shot recogniser; browsers without SR get a command menu.
+if (isIOS || !SR) { $('talkBtn').hidden = false; }
+$('talkBtn').onclick = () => {
+  unlockAudio();
+  if (!SR) { const c = prompt('Type a command for Kova (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
+  chime(); if (voiceState.mode !== 'dictate') voiceState.mode = 'armed'; voiceState.armedUntil = Date.now() + 8000; micUI();
+  const r = makeRec(false); voiceState.oneShot = r; try { r.start(); } catch {}
+};
+function handleHeard(alts) {
+  if ('speechSynthesis' in window && speechSynthesis.speaking && voiceState.mode !== 'dictate') return; // ignore Kova's own voice
+  const text = alts[0].toLowerCase();
+  if (voiceState.mode === 'dictate') {
+    const raw = alts[0]; const d = voiceState.dictate; voiceState.mode = 'idle'; voiceState.dictate = null; micUI();
+    return d?.(raw);
+  }
+  const m = alts.map(a => a.toLowerCase().match(WAKE)).find(Boolean);
+  if (m) {
+    const rest = alts[0].toLowerCase().slice((m.index ?? 0) + m[0].length).replace(/^[\s,.]+/, '');
+    chime();
+    if (rest.split(/\s+/).filter(Boolean).length) { voiceState.mode = 'idle'; micUI(); return runCommand(rest); }
+    voiceState.mode = 'armed'; voiceState.armedUntil = Date.now() + 7000; micUI();
+    clearTimeout(handleHeard.t); handleHeard.t = setTimeout(() => { if (voiceState.mode === 'armed') { voiceState.mode = 'idle'; micUI(); } }, 7000);
+    return;
+  }
+  if (voiceState.mode === 'armed' && Date.now() < voiceState.armedUntil) { voiceState.mode = 'idle'; micUI(); runCommand(text); }
+}
+function dictate(prompt, cb) {
+  say(prompt, { kind: 'high' }); voiceState.mode = 'dictate'; micUI();
+  voiceState.dictate = cb;
+  if (isIOS && SR) { // one-shot after the prompt finishes
+    setTimeout(() => { const r = makeRec(false); try { r.start(); } catch {} }, 1800);
+  }
+  clearTimeout(dictate.t); dictate.t = setTimeout(() => { if (voiceState.mode === 'dictate') { voiceState.mode = 'idle'; voiceState.dictate = null; micUI(); } }, 20000);
+}
+function foodDictation(i = 0) {
+  if (i >= MEALS.length) { analyseFood(); return; }
+  const m = MEALS[i];
+  const q = i === 0 ? `What did you eat today, ${settings.name}? Let's start with breakfast. Say skip to leave one blank, or done to finish.` : `And ${m.label.toLowerCase()}?`;
+  dictate(q, raw => {
+    const t = raw.toLowerCase().trim();
+    if (/^(done|finish|that's it|that's all)\b/.test(t)) return analyseFood();
+    if (!/^(skip|pass|next)$/.test(t)) $('f-' + m.id).value = ($('f-' + m.id).value ? $('f-' + m.id).value + ', ' : '') + raw;
+    foodDictation(i + 1);
+  });
+}
+document.querySelectorAll('.dict').forEach(b => b.onclick = () => {
+  if (!SR) return toast('Use your keyboard\'s mic button to dictate');
+  unlockAudio(); const id = b.dataset.meal; b.classList.add('rec');
+  voiceState.mode = 'dictate'; micUI();
+  voiceState.dictate = raw => { const el = $('f-' + id); el.value = (el.value ? el.value + ', ' : '') + raw; b.classList.remove('rec'); };
+  if (!voiceState.on) { const r = makeRec(false); r.addEventListener('end', () => b.classList.remove('rec')); try { r.start(); } catch {} }
+});
+function parseWeight(t) {
+  const st = t.match(/(\d+)\s*(?:stone|st)\s*(?:and\s*)?(\d+)?\s*(?:pounds|lbs?)?/);
+  if (st) return saveWeight(+st[1] * 6.35 + (+st[2] || 0) * 0.4536, 'kg');
+  const n = t.match(/(\d+(?:\.\d+)?)\s*(kg|kilos?|kilograms?|pounds|lbs?)?/);
+  if (!n) return false;
+  return saveWeight(+n[1], /pound|lb/.test(n[2] || '') ? 'lb' : 'kg');
+}
+function stepName(s) { return !s ? 'nothing, we\'re done' : s.kind === 'rest' ? 'a short rest' : s.kind === 'cool' ? s.name : MOVES[s.move].name; }
+function runCommand(raw) {
+  const t = raw.toLowerCase().replace(/[,!?]|\.(?!\d)/g, '').trim();
+  window.__kova.lastCommand = t;
+  if (/\b(start|begin)\b.*\b(workout|session|training)\b|^(start|let's go|lets go)$/.test(t)) { if (sess) return say('We\'re already going!', { kind: 'high' }); switchTab('workout'); show('screen-start'); return startWorkout(); }
+  if (/\b(pause|hold on|wait|stop for a sec)\b/.test(t)) return sess ? pause(true) : say('Nothing to pause right now.', { kind: 'high' });
+  if (/\b(resume|continue|carry on|unpause|go again)\b/.test(t)) return sess ? pause(false) : say('Say "start workout" to begin.', { kind: 'high' });
+  if (/\b(next|skip)\b/.test(t) && !/what'?s next/.test(t)) return sess ? (say('Skipping ahead.', { kind: 'high' }), next()) : say('Nothing to skip.', { kind: 'high' });
+  if (/\b(end|finish|stop) (the )?(workout|session)\b|^(end|finish|stop)$/.test(t)) return sess ? finish(false) : say('No workout running.', { kind: 'high' });
+  if (/\b(log|track|add|record)\b.*\b(food|meal|eat|ate)\b|food check|^food$/.test(t)) { if (sess) return say('Let\'s log food after the workout.', { kind: 'high' }); switchTab('food'); return foodDictation(0); }
+  if (/how many (reps|rep)|rep count|how am i doing/.test(t)) {
+    if (!sess) { const h = store.get('sessions', []), l = h[h.length - 1]; return say(l ? `Last session you did ${Object.values(l.totals).reduce((a, b) => a + b, 0)} reps in total.` : 'No reps logged yet. Let\'s start a workout!', { kind: 'high' }); }
+    const s = cur(); const here = s.kind === 'work' && sess.analyser?.rc ? sess.analyser.rc.reps : 0;
+    const total = Object.values(sess.totals).reduce((a, b) => a + b, 0) + here;
+    return say(s.kind === 'work' && MOVES[s.move].counted ? `${here} reps on this move, ${total} so far today.` : `${total} reps so far today.`, { kind: 'high' });
+  }
+  if (/weigh|weight/.test(t)) { const inline = t.match(/\d/); if (inline && parseWeight(t)) return say('Weigh-in saved. Remember, it\'s the trend over weeks that matters.', { kind: 'high' }); return dictate('Sure. What do you weigh today? You can say kilos, pounds, or stone.', r => say(parseWeight(r.toLowerCase()) ? 'Got it, weigh-in saved.' : 'Sorry, I didn\'t catch a number. You can type it on the Progress tab.', { kind: 'high' })); }
+  if (/show me|how do i|demo|show how/.test(t)) { if (!sess) return say('Start a workout and I\'ll show you each move.', { kind: 'high' }); const s = cur(); const mv = s.kind === 'rest' ? (s.next === 'cool' ? null : s.next) : s.kind === 'warm' ? 'march' : s.move; if (!mv) return say('Just gentle stretches now. Follow the timer.', { kind: 'high' }); return showMe(mv, sess.lastIssue || 'any', { manual: true }); }
+  if (/what (should|can) i (eat|have)|meal idea|hungry|dinner idea|lunch idea|ready meal/.test(t)) return say(mealSuggestion(), { kind: 'high' });
+  if (/what'?s next|what is next|what's coming|what next/.test(t)) { if (!sess) return say('Next is your Week 1 workout. Say "start workout" when you\'re ready.', { kind: 'high' }); const s = cur(); const n = s.kind === 'rest' ? PLAN[sess.i + 1] : PLAN[sess.i + 1]?.kind === 'rest' ? PLAN[sess.i + 2] : PLAN[sess.i + 1]; return say(`Up next: ${stepName(n)}.`, { kind: 'high' }); }
+  say('Sorry, I didn\'t catch that. Try pause, next, resume, or what\'s next.', { kind: 'high' });
+}
+window.__kova.runCommand = runCommand; window.__kova.showMe = showMe; window.__kova.trackForm = trackForm; window.__kova.handleHeard = handleHeard;
+micUI();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
