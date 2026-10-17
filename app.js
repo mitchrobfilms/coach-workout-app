@@ -2,7 +2,8 @@ import { getAuth } from './auth.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
-import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS } from './food.js';
+import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
+import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
 
 const MP_VER = '1.1.1';
 const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
@@ -400,7 +401,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
 
@@ -423,8 +424,10 @@ async function analyseFood({ speak = true } = {}) {
     html.push(`<div class="res"><h4>${m.icon} ${m.label} ${a.ok ? '<span class="ok">✓ looks good</span>' : ''}</h4>${a.flags.map(f => `<div class="flag">• ${f.msg}</div>`).join('')}${a.swaps.length ? `<b>Try:</b><ul>${a.swaps.map(s => `<li>${s}</li>`).join('')}</ul>` : ''}</div>`);
   }
   if (r.ideas.length) html.push(`<div class="res"><h4>Easy whole-meal ideas</h4><ul>${r.ideas.map(s => `<li>${s}</li>`).join('')}</ul></div>`);
+  const recs = myRecipes().slice(0, 3); if (r.ideas.length && recs.length) html.push(`<div class="res"><h4>🛒 Recipes with shopping lists</h4>${recs.map(x => `<button class="linkbtn" data-recipe="${x.id}">${x.name} →</button>`).join('<br>')}</div>`);
   html.push(`<p class="small muted">${r.tips[0]}</p><div id="llmFood"></div>`);
   $('foodResult').innerHTML = html.join(''); renderFoodStats();
+  $('foodResult').querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => openRecipe(b.dataset.recipe));
   if (speak) say(`Thanks ${settings.name}. Today's food score is ${r.score} out of 10. ${r.headline}`, { kind: 'high' });
   const extra = await llm(`Food check-in for today (free text): ${JSON.stringify(entries)}. Rule-based flags: ${JSON.stringify(Object.fromEntries(MEALS.map(m => [m.id, r.meals[m.id].flags.map(f => f.k)])))}. ${settings.glp1 ? 'User takes a GLP-1-type medication; emphasise protein at small meals.' : ''} Give 3 short, kind, specific swap ideas for a moderate calorie deficit.`);
   if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Kova's extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
@@ -632,6 +635,7 @@ function runCommand(raw) {
   }
   if (/weigh|weight/.test(t)) { const inline = t.match(/\d/); if (inline && parseWeight(t)) return say('Weigh-in saved. Remember, it\'s the trend over weeks that matters.', { kind: 'high' }); return dictate('Sure. What do you weigh today? You can say kilos, pounds, or stone.', r => say(parseWeight(r.toLowerCase()) ? 'Got it, weigh-in saved.' : 'Sorry, I didn\'t catch a number. You can type it on the Progress tab.', { kind: 'high' })); }
   if (/show me|how do i|demo|show how/.test(t)) { if (!sess) return say('Start a workout and I\'ll show you each move.', { kind: 'high' }); const s = cur(); const mv = s.kind === 'rest' ? (s.next === 'cool' ? null : s.next) : s.kind === 'warm' ? 'march' : s.move; if (!mv) return say('Just gentle stretches now. Follow the timer.', { kind: 'high' }); return showMe(mv, sess.lastIssue || 'any', { manual: true }); }
+  if (/shopping|what (do|should) i buy|what to buy|grocer/.test(t)) { if (sess) return say('Let\'s look at the shopping list after the workout.', { kind: 'high' }); switchTab('shop'); const n = Object.values(buildList(shop.recipes, shop.extra)).flat().filter(e => !shop.ticks[e.key]).length; return say(n ? `You've got ${n} things left to buy on this week's list.` : 'Your list is empty. Add a recipe or some weekly basics.', { kind: 'high' }); }
   if (/what (should|can) i (eat|have)|meal idea|hungry|dinner idea|lunch idea|ready meal/.test(t)) return say(mealSuggestion(), { kind: 'high' });
   if (/what'?s next|what is next|what's coming|what next/.test(t)) { if (!sess) return say('Next is your Week 1 workout. Say "start workout" when you\'re ready.', { kind: 'high' }); const s = cur(); const n = s.kind === 'rest' ? PLAN[sess.i + 1] : PLAN[sess.i + 1]?.kind === 'rest' ? PLAN[sess.i + 2] : PLAN[sess.i + 1]; return say(`Up next: ${stepName(n)}.`, { kind: 'high' }); }
   say('Sorry, I didn\'t catch that. Try pause, next, resume, or what\'s next.', { kind: 'high' });
@@ -685,3 +689,56 @@ $('obDone').onclick = finishOnboard; $('obSkip').onclick = finishOnboard;
 if (!user) openAuth();
 else if (!settings.onboarded) $('onboard').hidden = false;
 window.__kova.auth = auth; window.__kova.layout = layout; window.__kova.setSwapped = setSwapped;
+
+
+/* ---------- shopping lists (per account) ---------- */
+const shop = Object.assign({ recipes: [], extra: [], ticks: {}, store: null }, store.get('shop', {}));
+shop.store ||= ['UK', 'IE'].includes(country()) ? 'lidl' : 'any';
+const saveShop = () => store.set('shop', shop);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function myRecipes() {
+  const dis = settings.dislikes || [];
+  let list = RECIPES.filter(r => !mentionsDisliked(r.name + ' ' + r.ing.map(g => g.item).join(' '), dis));
+  if (settings.fussy) list = list.sort((a, b) => (/fussy|jacket|omelette|chicken, rice/i.test(b.name + b.meal) ? 1 : 0) - (/fussy|jacket|omelette|chicken, rice/i.test(a.name + a.meal) ? 1 : 0));
+  return list;
+}
+function tickRow(key, title, sub, { add = null } = {}) {
+  const on = !!shop.ticks[key];
+  return `<label class="tick ${on ? 'done' : ''}"><input type="checkbox" data-tick="${esc(key)}" ${on ? 'checked' : ''}><span class="t"><b>${esc(title)}</b>${sub ? `<small>${sub}</small>` : ''}</span>${add ? `<button type="button" class="add" data-add='${esc(JSON.stringify(add))}'>＋ List</button>` : ''}</label>`;
+}
+function renderShop() {
+  const list = buildList(shop.recipes, shop.extra); let n = 0, done = 0;
+  const html = AISLES.filter(a => list[a]?.length).map(a => `<div class="aisle">${a}</div>` + list[a].map(e => { n++; if (shop.ticks[e.key]) done++; return tickRow(e.key, e.item, [e.uses.join('; '), e.pack ? `Pack: ${esc(e.pack)}` : ''].filter(Boolean).join('<br>')); }).join('')).join('');
+  $('shopList').innerHTML = html || '<p class="small muted">Your list is empty. Tap "＋ Add to this week\'s list" on a recipe, or "＋ List" on the weekly basics below.</p>';
+  $('shopCount').textContent = n ? `${done}/${n}` : '';
+  $('recipeList').innerHTML = myRecipes().map(r => {
+    const on = shop.recipes.includes(r.id);
+    return `<div class="recipe" id="recipe-${r.id}"><h4>${esc(r.name)}</h4><div class="tags">${r.veg ? '<span class="v">Vegetarian</span>' : ''}<span>${esc(r.meal)}</span><span>Serves ${r.serves}</span><span>Protein ${r.protein}</span><span>${r.kcal} kcal</span><span>${r.mins} min</span></div>
+      <button type="button" class="addweek ${on ? 'on' : ''}" data-week="${r.id}">${on ? '✓ On this week\'s list (tap to remove)' : '＋ Add to this week\'s list'}</button>
+      <b class="small">Shopping list</b>${r.ing.map(g => { const q = fmtQty(g.q); return tickRow(shopKey(g.item), g.item, `<span class="qty">${esc(q.metric)}${q.imperial ? ` / ${esc(q.imperial)}` : ''}</span>${g.pack ? ` · Pack: ${esc(g.pack)}` : ''}`); }).join('')}
+      <details><summary class="small">Method</summary><ol>${r.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details></div>`;
+  }).join('') || '<p class="small muted">All recipes contain foods you marked as "won\'t eat". Edit your food profile in Settings.</p>';
+  $('storePick').innerHTML = Object.entries(STORES).map(([k, v]) => `<button type="button" class="chip ${shop.store === k ? 'on' : ''}" data-store="${k}">${v.name}</button>`).join('');
+  $('storeNote').textContent = `${STORES[shop.store].note} No prices shown; availability varies, so check labels.`;
+  const basics = storeBasics(shop.store), dis = settings.dislikes || [];
+  $('basicsList').innerHTML = Object.entries(basics).map(([cat, items]) => `<div class="card"><div class="row between"><div class="aisle">${cat}</div><button type="button" class="small" data-addcat="${esc(cat)}">＋ Add all to list</button></div>${items.filter(([it]) => !mentionsDisliked(it, dis)).map(([it, pack]) => tickRow(shopKey(it), it, `Typical pack: ${esc(pack)}`, { add: { item: it, aisle: cat === 'Snacks' && /fruit/i.test(it) ? 'Fruit' : cat, pack } })).join('')}</div>`).join('');
+  const root = $('tab-shop');
+  root.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { if (c.checked) shop.ticks[c.dataset.tick] = true; else delete shop.ticks[c.dataset.tick]; saveShop(); renderShop(); });
+  root.querySelectorAll('[data-week]').forEach(b => b.onclick = () => { const id = b.dataset.week; shop.recipes = shop.recipes.includes(id) ? shop.recipes.filter(x => x !== id) : [...shop.recipes, id]; saveShop(); renderShop(); toast(shop.recipes.includes(id) ? '🛒 Added to this week\'s list' : 'Removed from the list'); });
+  root.querySelectorAll('[data-add]').forEach(b => b.onclick = e => { e.preventDefault(); const x = JSON.parse(b.dataset.add); if (!shop.extra.some(y => shopKey(y.item) === shopKey(x.item))) shop.extra.push(x); saveShop(); renderShop(); toast('🛒 Added to your list'); });
+  root.querySelectorAll('[data-addcat]').forEach(b => b.onclick = () => { for (const [it, pack] of basics[b.dataset.addcat]) if (!mentionsDisliked(it, dis) && !shop.extra.some(y => shopKey(y.item) === shopKey(it))) shop.extra.push({ item: it, aisle: b.dataset.addcat, pack }); saveShop(); renderShop(); toast(`🛒 ${b.dataset.addcat} added`); });
+  root.querySelectorAll('[data-store]').forEach(b => b.onclick = () => { shop.store = b.dataset.store; saveShop(); renderShop(); });
+}
+$('shopClearTicked').onclick = () => {
+  const ticked = new Set(Object.keys(shop.ticks)); shop.extra = shop.extra.filter(x => !ticked.has(shopKey(x.item)));
+  shop.recipes = shop.recipes.filter(id => !RECIPES.find(r => r.id === id).ing.every(g => ticked.has(shopKey(g.item))));
+  shop.ticks = {}; saveShop(); renderShop(); toast('Ticked items cleared');
+};
+$('shopShare').onclick = async () => {
+  const list = buildList(shop.recipes, shop.extra);
+  const text = 'Kova shopping list\n' + AISLES.filter(a => list[a]?.length).map(a => `\n${a}\n` + list[a].map(e => `${shop.ticks[e.key] ? '[x]' : '[ ]'} ${e.item}${e.pack ? ` (${e.pack})` : ''}`).join('\n')).join('\n');
+  try { if (navigator.share) await navigator.share({ title: 'Shopping list', text }); else { await navigator.clipboard.writeText(text); toast('List copied'); } } catch {}
+};
+function openRecipe(id) { switchTab('shop'); setTimeout(() => $('recipe-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }
+document.querySelectorAll('[data-goshop]').forEach(b => b.onclick = () => { if (!sess) { switchTab('shop'); scrollTo(0, 0); } });
+window.__kova.shop = shop;

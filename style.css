@@ -183,3 +183,23 @@ details summary{cursor:pointer}
 .view.trainer .fixlabel,.view.trainer .who{z-index:4}
 .stage.portrait .view.trainer.big.floor::before{opacity:1}
 .stage.portrait .view.trainer.big.floor video{object-fit:contain}
+
+/* shopping */
+.shopcta{margin:4px 0 8px}
+.shoplist{border-color:var(--teal);box-shadow:0 0 0 1px rgba(22,212,192,.25)}
+.row.between{justify-content:space-between;align-items:center;flex-wrap:wrap}.row.between h3{margin:4px 0}
+.count{background:var(--teal);color:#032623;border-radius:999px;padding:1px 8px;font-size:.8rem;margin-left:4px}
+.aisle{margin:10px 0 4px;color:var(--teal);font-weight:800;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em}
+.tick{display:flex;gap:10px;align-items:flex-start;padding:8px 2px;border-bottom:1px solid var(--line)}
+.tick input{width:22px;height:22px;flex:none;margin-top:1px;accent-color:var(--teal)}
+.tick .t{flex:1}.tick .t small{display:block;color:var(--mut)}
+.tick.done .t b{text-decoration:line-through;color:var(--mut)}
+.tick .add{flex:none;padding:4px 10px;font-size:.8rem}
+.recipe{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0}
+.recipe h4{margin:0 0 4px}.recipe .tags{display:flex;gap:6px;flex-wrap:wrap;font-size:.75rem;color:var(--mut);margin-bottom:6px}
+.recipe .tags span{background:rgba(255,255,255,.06);border-radius:999px;padding:2px 8px}.recipe .tags .v{color:#3ddc84}
+.recipe .addweek{width:100%;margin:6px 0}.recipe .addweek.on{background:rgba(22,212,192,.15);border-color:var(--teal);color:var(--teal)}
+.recipe ol{margin:6px 0;padding-left:20px;font-size:.9rem;color:var(--mut)}
+.qty{color:var(--txt);font-weight:700}
+#tab-shop button.small{padding:6px 10px;font-size:.8rem}
+#storePick .chip.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal)}

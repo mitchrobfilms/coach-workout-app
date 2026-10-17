@@ -114,12 +114,14 @@
     <h2>Today's reps</h2><table class="totals" id="totalsTable"></table>
     <div class="card note small">Next time, make it harder with bodyweight only: slower 3-second lowering, a few extra reps, or a harder variation (feet further from the wall, no hands on the chair).</div>
     <button class="primary" id="endFoodBtn">🍽️ Do today's food check-in</button>
+    <button data-goshop>🛒 What to buy this week</button>
     <button id="againBtn">Back to start</button>
   </div>
 </section>
 
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
+  <button class="primary big shopcta" data-goshop>🛒 What to buy this week: recipes and shopping lists</button>
   <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Kova, log food" to dictate.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
   <label class="check"><input type="checkbox" id="glp1"> I take a GLP-1-type medication (e.g. semaglutide, tirzepatide, retatrutide)</label>
@@ -129,6 +131,17 @@
   <details class="card" id="fussyCard" hidden><summary><b>🍗 Simple meals you might like</b></summary><ul class="small" id="fussyList"></ul></details>
   <div id="foodResult"></div>
   <p class="small muted">General healthy-eating tips, not medical advice. Aim for a gentle calorie deficit; never crash or very-low-calorie diets. Speak to your GP or a dietitian for personal advice.</p>
+</section>
+
+<!-- SHOP TAB -->
+<section id="tab-shop" class="tab">
+  <div class="shophead"><h2>🛒 What to buy</h2><p class="small muted">No equipment, no fancy foods. Tick things off as you shop; your list is saved to your account on this phone. Availability varies, so check labels.</p></div>
+  <div class="card shoplist"><div class="row between"><h3>This week's list <span class="count" id="shopCount"></span></h3><div class="row"><button id="shopShare" class="small">Share / copy</button><button id="shopClearTicked" class="small">Clear ticked</button></div></div><div id="shopList"></div></div>
+  <h2>Recipes and their shopping lists</h2>
+  <div id="recipeList"></div>
+  <h2>Weekly basics to buy</h2>
+  <div class="chips" id="storePick"></div><p class="small muted" id="storeNote"></p>
+  <div id="basicsList"></div>
 </section>
 
 <!-- PROGRESS TAB -->
@@ -176,6 +189,7 @@
 <nav class="tabs">
   <button data-tab="workout" class="active">🏋️<span>Workout</span></button>
   <button data-tab="food">🍽️<span>Food</span></button>
+  <button data-tab="shop">🛒<span>Shop</span></button>
   <button data-tab="progress">📈<span>Progress</span></button>
   <button data-tab="settings">⚙️<span>Settings</span></button>
 </nav>
