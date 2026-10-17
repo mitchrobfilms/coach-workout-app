@@ -159,6 +159,21 @@ export function makeAnalyser(id) {
         return { ready: true, value: a, events: ev ? [ev] : [], flags: [] };
       } };
     }
+    case 'deadbug': { // heel-tap dead bug: hip angle (shoulder-hip-knee) opens as a heel taps down, closes as it returns
+      const L = new RepCounter({ mode: 'rise', top: 125, bottom: 105, minRepMs: 350 }), R = new RepCounter({ mode: 'rise', top: 125, bottom: 105, minRepMs: 350 });
+      const sL = new Smoother(0.45), sR = new Smoother(0.45);
+      const rc = { reps: 0, reset() { L.reset(); R.reset(); this.reps = 0; } };
+      return { rc, frame(lm, w, t) {
+        const okL = allVisible(lm, [LM.LS, LM.LH, LM.LK]), okR = allVisible(lm, [LM.RS, LM.RH, LM.RK]);
+        if (!okL && !okR) return { ready: false };
+        const events = [];
+        for (const [ok, c, sm, ids] of [[okL, L, sL, [LM.LS, LM.LH, LM.LK]], [okR, R, sR, [LM.RS, LM.RH, LM.RK]]]) {
+          if (!ok) continue; const ev = c.update(sm.push(angle(w[ids[0]], w[ids[1]], w[ids[2]])), t);
+          if (ev?.type === 'rep') { rc.reps++; events.push({ ...ev, reps: rc.reps }); }
+        }
+        return { ready: true, events: events.slice(0, 1), flags: [] };
+      } };
+    }
     default: // timed moves (march, deadbug, stretches): just need to be in frame
       return { rc: { reps: 0, reset() {} }, frame(lm) {
         return { ready: allVisible(lm, [LM.LS, LM.RS, LM.LH, LM.RH]), events: [], flags: [] };
@@ -180,7 +195,7 @@ export const PHRASES = {
   ten_s: ['10 seconds, finish strong!', 'Last 10 seconds, you can do it!', '10 seconds left, keep going!'],
   idle: ["You've got this, keep moving.", 'Keep it going, nice and easy.', "Let's go again, you've got this."],
   frame: ['Step back so I can see your whole body.', "I can't see all of you, step back a little."],
-  deadbug: ['Keep your back pressed down.', 'Lower ONE arm and the OPPOSITE leg slowly.', 'Slow and controlled, back flat to the floor.', 'Breathe out as you reach.'],
+  deadbug: ['Keep your back flat.', 'Arms up, tap one heel down.', 'Slow taps, back pressed into the floor.', 'Breathe out as the heel taps.'],
   lungeTip: ['Small step, keep hold of the chair.'],
   good: ['Lovely form.', 'Nice, that looks great.', 'Good, smooth rep.', 'Perfect, just like that.'],
   rest: ['Great set. Breathe.', 'Nice work. Shake it out.', 'Well done. Grab some water.'],

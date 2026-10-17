@@ -12,18 +12,57 @@
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img src="avatar.jpg" alt=""><span>Kova <b>Coach</b></span></div>
+  <div class="brand"><img class="trainer-avatar" src="avatar.jpg" alt=""><span>Kova <b>Coach</b></span></div>
   <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Kova"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
 <div id="heardChip" class="heard" hidden></div>
 
+<div class="overlay" id="authScreen" hidden>
+  <div class="authbox">
+    <img src="avatar.jpg" class="trainer-avatar big" alt="">
+    <h1>Kova <b>Coach</b></h1>
+    <div id="authAccounts"></div>
+    <form id="loginForm" hidden novalidate><h2>Log in</h2>
+      <label>Email <input id="loginEmail" type="email" autocomplete="username" inputmode="email"></label>
+      <label>PIN or password <input id="loginSecret" type="password" autocomplete="current-password"></label>
+      <p class="error" id="loginError" role="alert" hidden></p>
+      <button class="primary big" id="loginBtn" type="submit">Log in</button>
+      <button type="button" class="linkbtn" id="forgotBtn">Forgot PIN?</button>
+      <button type="button" class="linkbtn" id="toRegister">New here? Create an account</button>
+    </form>
+    <form id="registerForm" novalidate><h2>Create your account</h2>
+      <label>Name <input id="regName" type="text" autocomplete="name" value=""></label>
+      <label>Email <input id="regEmail" type="email" autocomplete="email" inputmode="email"></label>
+      <label>4-digit PIN or password (8+ characters) <input id="regSecret" type="password" autocomplete="new-password"></label>
+      <p class="error" id="regError" role="alert" hidden></p>
+      <button class="primary big" id="regBtn" type="submit">Create account</button>
+      <button type="button" class="linkbtn" id="toLogin" hidden>I already have an account</button>
+    </form>
+    <p class="small muted">🔒 Your account and all your data stay on this phone only. Nothing is sent to a server.</p>
+  </div>
+</div>
+<div class="overlay" id="onboard" hidden>
+  <div class="authbox">
+    <h2>Pick your trainer</h2>
+    <div class="trainers" id="trainerPick"></div>
+    <h3>Starting weight <span class="muted small">(optional)</span></h3>
+    <form id="obWeightForm" class="weightform" novalidate autocomplete="off">
+      <input name="weight" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="e.g. 85.5">
+      <div class="seg" role="radiogroup" aria-label="Unit"><button type="button" data-unit="kg" class="on">kg</button><button type="button" data-unit="st">st + lb</button><button type="button" data-unit="lb">lb</button></div>
+      <p class="error" role="alert" hidden></p>
+      <button type="submit" class="primary">Save weight</button>
+    </form>
+    <button class="primary big" id="obDone">Let's go</button>
+    <button class="linkbtn" id="obSkip">Skip for now</button>
+  </div>
+</div>
 <main>
 <!-- WORKOUT TAB -->
 <section id="tab-workout" class="tab active">
   <div id="screen-start" class="screen active">
     <div class="hero"><img src="hero.jpg" alt="Kova demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
-    <div class="card coachline"><img src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Kova. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
+    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Kova. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
     <div class="card note"><b>Set-up:</b> Prop your phone about 2m / 6ft away so your whole body is in view. You'll use a wall, a sturdy chair and a towel or carpet. That's it.</div>
@@ -32,29 +71,46 @@
   </div>
 
   <div id="screen-session" class="screen">
-    <div class="stage" id="stage">
-      <div class="mirror" id="mirror"><video id="video" playsinline muted autoplay></video><canvas id="overlay"></canvas></div>
-      <div class="demo" id="demoTile"><video id="demoVid" muted playsinline loop autoplay preload="auto"></video><span class="who">Kova</span><div class="fixlabel" id="fixLabel" hidden></div></div>
-      <span class="who you" id="youTag" hidden>You</span>
-      <div class="hud-top"><span class="tag" id="roundTag">Warm-up</span><span class="tag ghost" id="stepTag"></span>
-        <button class="iconbtn mic off" id="sessMic" title="Voice: Hey Kova"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲ Cam</button></div>
-      <div class="hud-center" id="restPanel" hidden>
-        <div class="nextup">Next up</div><div class="nextname" id="nextName"></div><p class="nexthow" id="nextHow"></p>
-        <div class="demo inline" id="nextTile"><video id="nextClip" muted playsinline loop autoplay preload="auto"></video></div>
+    <div class="stage portrait" id="stage">
+      <!-- Trainer (big by default) -->
+      <div class="view trainer big" id="trainerView">
+        <video id="trainerVid" muted playsinline loop autoplay preload="auto"></video>
+        <div class="fixlabel" id="fixLabel" hidden></div>
+        <span class="who">Kova</span>
       </div>
-      <div class="hud-bottom">
-        <div class="movebox"><div class="movename" id="moveName">Loading…</div><div class="cue" id="cueLine">Getting the camera ready…</div></div>
+      <!-- You (live camera + skeleton) -->
+      <div class="view you pip" id="youView">
+        <div class="mirror" id="mirror"><video id="video" playsinline muted autoplay></video><canvas id="overlay"></canvas></div>
+        <span class="who you">You</span>
+        <div class="youreps"><div id="repCount" class="reps">0</div><div class="small">reps</div></div>
+      </div>
+
+      <div class="classbar">
+        <div class="instructor"><img class="trainer-avatar" src="avatar.jpg" alt=""><div><div class="iname" id="trainerName">Kova</div><span class="livebadge"><span class="pulse"></span>Live coaching</span></div></div>
+        <div class="topbtns"><button class="iconbtn mic off" id="sessMic" title="Voice: Hey Kova"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲</button><button class="iconbtn" id="swapBtn" title="Swap views">⇄</button></div>
+      </div>
+      <div class="timeline" id="timeline"></div>
+
+      <div class="hudpanel">
         <div class="ringbox"><svg viewBox="0 0 120 120" class="ring"><circle cx="60" cy="60" r="52" class="track"/><circle cx="60" cy="60" r="52" class="prog" id="ringProg"/></svg>
-          <div class="ringtxt"><div id="repCount" class="reps">0</div><div id="timeLeft" class="time">0:00</div></div></div>
+          <div class="ringtxt"><div id="timeLeft" class="time">0:00</div><div class="small" id="roundTag">Warm-up</div></div></div>
+        <div class="meters">
+          <div class="movename" id="moveName">Loading…</div>
+          <div class="meter"><span>Form</span><div class="bar"><i id="formBar"></i></div><b id="formScore">–</b></div>
+          <div class="energy" id="energy"><div class="erow"><span>You today</span><div class="bar"><i id="eNow"></i></div><b id="eNowN">0</b></div><div class="erow last"><span>Last time</span><div class="bar"><i id="eLast"></i></div><b id="eLastN">–</b></div></div>
+        </div>
+        <span class="tag ghost" id="stepTag" hidden></span>
       </div>
-      <div class="coachpanel" id="coachPanel"><img src="avatar.jpg" alt="Kova"><div class="bubble" id="bubble">Hi Mitchell!</div></div>
+
+      <div class="hud-center" id="restPanel" hidden><div class="nextup">Next up</div><div class="nextname" id="nextName"></div><p class="nexthow" id="nextHow"></p></div>
+      <div class="captions"><div class="cue" id="cueLine"></div><div class="caption" id="bubble"></div></div>
       <div class="listening" id="listenBadge" hidden>🎙️ Listening…</div>
     </div>
     <div class="controls"><button id="pauseBtn">Pause</button><button id="skipBtn">Skip</button><button id="endBtn" class="danger">End</button></div>
   </div>
 
   <div id="screen-end" class="screen">
-    <div class="card coachline"><img src="avatar.jpg" alt=""><p id="summaryText"></p></div>
+    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="summaryText"></p></div>
     <h2>Today's reps</h2><table class="totals" id="totalsTable"></table>
     <div class="card note small">Next time, make it harder with bodyweight only: slower 3-second lowering, a few extra reps, or a harder variation (feet further from the wall, no hands on the chair).</div>
     <button class="primary" id="endFoodBtn">🍽️ Do today's food check-in</button>
@@ -64,7 +120,7 @@
 
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
-  <div class="card coachline"><img src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Kova, log food" to dictate.</p></div>
+  <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Kova, log food" to dictate.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
   <label class="check"><input type="checkbox" id="glp1"> I take a GLP-1-type medication (e.g. semaglutide, tirzepatide, retatrutide)</label>
   <form id="foodForm"></form>
@@ -93,6 +149,8 @@
 <!-- SETTINGS TAB -->
 <section id="tab-settings" class="tab">
   <h2>Settings</h2>
+  <div class="card"><b>Account</b><p class="small" id="acctInfo"></p><div class="row"><button id="switchAcct">Switch account</button><button id="logoutBtn">Log out</button></div><p class="small muted">Accounts are stored on this phone only.</p></div>
+  <h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div>
   <label>Your name <input id="setName" type="text"></label>
   <label class="check"><input type="checkbox" id="setSpeech" checked> Kova speaks out loud</label>
   <label class="check"><input type="checkbox" id="setBeeps" checked> Beeps</label>

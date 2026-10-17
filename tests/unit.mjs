@@ -42,3 +42,12 @@ const h = {}; const day = new Date(); for (let i = 0; i < 3; i++) { const x = ne
 assert(streak(h) === 3, 'streak 3');
 const all = JSON.stringify(await import('/workspace/coach-app/food.js')) + (await import('fs')).readFileSync('/workspace/coach-app/app.js', 'utf8') + (await import('fs')).readFileSync('/workspace/coach-app/index.html', 'utf8');
 assert(!/dumbbell|resistance band|yoga mat|buy a/i.test(all), 'no equipment-to-buy mentions');
+// heel-tap dead bug analyser: hip angle 90 -> 140 -> 90 on alternating legs
+import { makeAnalyser as mk } from '/workspace/coach-app/logic.js';
+{ const an = mk('deadbug'); let tt = 0;
+  const frame = (aL, aR) => { const lm = [], w = []; for (let i = 0; i < 33; i++) { lm[i] = { x: .5, y: .5, visibility: .9 }; w[i] = { x: 0, y: 0, z: 0 }; }
+    for (const [S, H, K, a] of [[11, 23, 25, aL], [12, 24, 26, aR]]) { w[S] = { x: -0.5, y: 0, z: 0 }; w[H] = { x: 0, y: 0, z: 0 }; const r = a * Math.PI / 180; w[K] = { x: -0.4 * Math.cos(r), y: -0.4 * Math.sin(r), z: 0 }; }
+    return an.frame(lm, w, tt += 50); };
+  const seq = []; for (let k = 0; k < 3; k++) { for (let a = 90; a <= 140; a += 5) seq.push([a, 90]); for (let a = 140; a >= 90; a -= 5) seq.push([a, 90]); for (let a = 90; a <= 140; a += 5) seq.push([90, a]); for (let a = 140; a >= 90; a -= 5) seq.push([90, a]); }
+  for (const [l, r] of seq) frame(l, r);
+  assert(an.rc.reps === 6, `dead bug heel taps counted per side (got ${an.rc.reps})`); }

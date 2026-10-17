@@ -1,3 +1,4 @@
+import { getAuth } from './auth.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
@@ -9,11 +10,12 @@ const MODEL = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/p
 const qs = new URLSearchParams(location.search);
 const SPEED = Math.max(1, +qs.get('speed') || 1); // test hook: ?speed=30 runs timers 30x faster
 const $ = id => document.getElementById(id);
+const auth = getAuth(), user = auth.currentUser(), PREFIX = auth.dataPrefix(user); // per-account data
 const store = {
-  get: (k, d) => { try { return JSON.parse(localStorage.getItem('kova.' + k)) ?? d; } catch { return d; } },
-  set: (k, v) => localStorage.setItem('kova.' + k, JSON.stringify(v)),
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(PREFIX + k)) ?? d; } catch { return d; } },
+  set: (k, v) => localStorage.setItem(PREFIX + k, JSON.stringify(v)),
 };
-const settings = Object.assign({ name: 'Mitchell', speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
+const settings = Object.assign({ name: user?.name || 'Mitchell', trainer: 'm', onboarded: false, speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
 
 /* ---------- workout definition (bodyweight + household items only) ---------- */
 const MOVES = {
@@ -23,7 +25,7 @@ const MOVES = {
   knees:   { name: 'Standing knee lifts', clip: 'kneelifts', counted: true, view: 'front', how: 'Lift each knee towards hip height, one side at a time. Hold a chair for balance if needed.' },
   bridge:  { name: 'Glute bridges', clip: 'bridges', counted: true, view: 'side', how: 'On a towel or carpet, knees bent. Squeeze your bum and lift your hips. Turn side-on to the camera.' },
   lunge:   { name: 'Step-back lunges', clip: 'lunges', counted: true, view: 'side', how: 'Small step back, keep hold of the chair, and bend both knees a little. Easier: just tap the foot back.', cue: 'Small step, keep hold of the chair' },
-  deadbug: { name: 'Dead bug', clip: 'deadbug', view: 'side', how: 'On a towel or carpet, arms up and knees bent. Lower ONE arm and the OPPOSITE leg slowly, then swap. Keep your back pressed down. Easier: legs only.', cue: 'Lower ONE arm and the OPPOSITE leg slowly' },
+  deadbug: { name: 'Dead bug', clip: 'deadbug', view: 'side', counted: true, how: 'On a towel or carpet: arms up, knees bent at 90°. Slowly tap one heel to the floor, bring it back, then the other. Keep your back flat. Easier: smaller taps.', cue: 'Arms up, tap one heel down, keep your back flat' },
 };
 const STRETCHES = [['Calf stretch', 'Hands on the wall, one leg back, heel down.'], ['Front-of-thigh stretch', 'Hold a chair, bring one heel towards your bum.'], ['Chest stretch', 'Hand on a door frame, turn gently away.'], ['Hamstring stretch', 'Heel forward on the floor, hinge at the hips.']];
 const ORDER = ['pushup', 'squat', 'knees', 'bridge', 'lunge', 'deadbug'];
@@ -50,18 +52,31 @@ async function exists(u) { // HEAD probe, cached 60s, so clips dropped into medi
   let ok = false; try { ok = (await fetch(u, { method: 'HEAD', cache: 'no-store' })).ok; } catch {}
   probeCache[u] = { ok, t: Date.now() }; return ok;
 }
-async function setDemo(v, key) {
+const TRAINERS = { m: { label: 'Kova (male)', voice: /\b(male|daniel|ryan|george|arthur|oliver|thomas|james|alfie)\b/i }, f: { label: 'Kova (female)', voice: /\b(female|woman|serena|kate|libby|sonia|hazel|susan|fiona|martha|amy|emma|maisie)\b/i } };
+async function firstExisting(list) { for (const u of list) if (await exists(u)) return u; return null; }
+// Candidates: trainer folder (hd first for the big view), then shared media/, then bundled clips/.
+function demoCandidates(key, hd) {
+  const n = MEDIA[key], t = settings.trainer || 'm';
+  return [...(hd ? [`media/${t}/${n}-hd.mp4`] : []), `media/${t}/${n}.mp4`, ...(hd ? [`media/${n}-hd.mp4`] : []), `media/${n}.mp4`];
+}
+async function setDemo(v, key, { hd = false } = {}) {
   if (!v || !MEDIA[key]) return;
-  const tile = v.parentElement, want = v.dataset.key = key;
-  const [mp4, jpg] = [`media/${MEDIA[key]}.mp4`, `media/${MEDIA[key]}.jpg`];
-  const [hasMp4, hasJpg] = await Promise.all([exists(mp4), exists(jpg)]);
+  const tile = v.parentElement, want = v.dataset.key = key + (hd ? ':hd' : '') + settings.trainer;
+  const [mp4, jpg] = await Promise.all([firstExisting(demoCandidates(key, hd)), firstExisting([`media/${settings.trainer}/${MEDIA[key]}.jpg`, `media/${MEDIA[key]}.jpg`])]);
   if (v.dataset.key !== want) return; // superseded
-  const src = hasMp4 ? mp4 : `clips/${BUNDLED[key]}.mp4`;
-  if (hasJpg) v.poster = jpg; else v.removeAttribute('poster');
+  const src = mp4 || `clips/${BUNDLED[key]}.mp4`;
+  if (jpg) { v.poster = jpg; tile.style.setProperty('--poster', `url("${jpg}")`); } else v.removeAttribute('poster');
   if (v.getAttribute('src') === src) return;
   tile.classList.remove('missing');
   v.onerror = () => tile.classList.add('missing'); // poster/avatar placeholder stays visible
+  tile.classList.toggle('floor', key === 'bridge' || key === 'deadbug'); // lying-down moves: never crop head/feet
   v.src = src; v.playbackRate = 1; v.play().catch(() => {});
+  window.__kova.trainerSrc = src;
+}
+async function applyTrainerAvatar() {
+  const src = (await firstExisting([`media/${settings.trainer}/avatar.jpg`])) || (settings.trainer === 'f' ? 'avatar-f.svg' : 'avatar.jpg');
+  document.querySelectorAll('.trainer-avatar').forEach(i => i.src = src);
+  document.documentElement.dataset.trainer = settings.trainer; pickVoice?.();
 }
 // Fix explanations for "show me" moments. joints = landmark ids to colour red on the user's skeleton.
 const FIX = {
@@ -79,7 +94,8 @@ const FIX = {
   lunge: { shallow: ['Small step, hold the chair', 'Watch me. A small step back, keep hold of the chair, and bend both knees a little more with your chest up.', [23, 24, 25, 26, 27, 28]],
            fast: ['Step back slowly', 'Watch my speed. Step back slowly and come up with control.', [25, 26]],
            any: ['Small step, hold the chair', 'Watch me. Keep hold of the chair, take a small step back and bend both knees a little.', [25, 26]] },
-  deadbug: { any: ['ONE arm + OPPOSITE leg', 'Watch my pace, but lower just ONE arm and the OPPOSITE leg slowly, then swap. Keep your lower back pressed into the floor.', [23, 24]] },
+  deadbug: { any: ['Tap one heel, back flat', 'Watch me. Arms up, knees at 90 degrees. Tap one heel down slowly, bring it back, then the other. Keep your back flat on the floor.', [23, 24, 25, 26]],
+             fast: ['Slow heel taps', 'Watch my speed. Slow heel taps, keep your back flat.', [25, 26, 27, 28]] },
   march: { any: ['Knees up, arms swing', 'Watch me. Lift your knees and swing your arms.', [25, 26]] },
 };
 const SHOW_COOLDOWN = 45000;
@@ -90,22 +106,88 @@ async function showMe(move, issue = 'any', { manual = false } = {}) {
   sess.lastShow[move] = t;
   const [label, text, joints] = FIX[move][issue] || FIX[move].any;
   sess.showing = true; sess.badJoints = new Set(joints); sess.badUntil = Infinity; window.__kova.showCount = (window.__kova.showCount || 0) + 1;
-  const tile = $('demoTile'), v = $('demoVid');
-  tile.hidden = false; tile.classList.add('expanded'); $('stage').classList.add('showing'); setDemo(v, move); $('youTag').hidden = false;
-  $('fixLabel').textContent = label; $('fixLabel').hidden = false; v.playbackRate = 0.6; v.currentTime = 0; v.play().catch(() => {});
+  const v = $('trainerVid'), wasSwapped = layout.swapped;
+  if (wasSwapped) setSwapped(false); // the trainer always takes the big view to demonstrate
+  $('stage').classList.add('showing'); await setDemo(v, move, { hd: true });
+  $('fixLabel').textContent = label; $('fixLabel').hidden = false; v.playbackRate = 0.6; try { v.currentTime = 0; } catch {} v.play().catch(() => {});
   setCue(label, true); say(text, { kind: 'high' });
   await new Promise(r => setTimeout(r, SPEED > 1 ? 3000 : Math.max(6500, text.length * 70)));
   if (!sess) return true;
-  tile.classList.remove('expanded'); $('stage').classList.remove('showing'); $('youTag').hidden = true; $('fixLabel').hidden = true; v.playbackRate = 1;
+  $('stage').classList.remove('showing'); $('fixLabel').hidden = true; v.playbackRate = 1;
+  if (wasSwapped) setSwapped(true);
   sess.showing = false; sess.badStreak = 0; sess.badUntil = performance.now() + 3000; sess.lastTick = performance.now();
-  const st = cur(); tile.hidden = st.kind === 'rest';
+  const st = cur();
+  if (st.kind === 'rest') setDemo(v, st.next === 'cool' ? 'cool' : st.next, { hd: true });
   if (st.kind === 'work' || st.kind === 'warm') { coach.startWork(); setCue('Your turn!'); say('Your turn!', { kind: 'high' }); } else setCue('Breathe and shake it out');
   return true;
 }
 
+/* ---------- class layout: trainer big, you small (tap to swap, drag the small tile in landscape) ---------- */
+const layout = { swapped: false, drag: null, pos: null };
+function setSwapped(on) {
+  layout.swapped = on;
+  $('trainerView').classList.toggle('big', !on); $('trainerView').classList.toggle('pip', on);
+  $('youView').classList.toggle('big', on); $('youView').classList.toggle('pip', !on);
+  applyPipPos();
+}
+function orient() {
+  const land = innerWidth > innerHeight;
+  $('stage').classList.toggle('landscape', land); $('stage').classList.toggle('portrait', !land); applyPipPos();
+}
+function applyPipPos() {
+  document.querySelectorAll('.view').forEach(v => v.style.transform = '');
+  const pip = document.querySelector('.view.pip');
+  if (pip && layout.pos && $('stage').classList.contains('landscape')) pip.style.transform = `translate(${layout.pos.x}px, ${layout.pos.y}px)`;
+}
+addEventListener('resize', orient); addEventListener('orientationchange', () => setTimeout(orient, 200)); orient();
+$('swapBtn').onclick = () => setSwapped(!layout.swapped);
+for (const el of [$('trainerView'), $('youView')]) {
+  el.addEventListener('pointerdown', e => {
+    if (!el.classList.contains('pip')) return;
+    layout.drag = { x0: e.clientX, y0: e.clientY, base: layout.pos || { x: 0, y: 0 }, moved: false }; el.setPointerCapture(e.pointerId);
+  });
+  el.addEventListener('pointermove', e => {
+    const d = layout.drag; if (!d || !el.classList.contains('pip') || !$('stage').classList.contains('landscape')) return;
+    const dx = e.clientX - d.x0, dy = e.clientY - d.y0; if (Math.hypot(dx, dy) > 8) d.moved = true;
+    if (!d.moved) return;
+    const st = $('stage').getBoundingClientRect(), r = el.getBoundingClientRect();
+    const base = el.style.transform ? { x: (layout.pos?.x || 0), y: (layout.pos?.y || 0) } : { x: 0, y: 0 };
+    const x = Math.min(0, Math.max(-(st.width - r.width - 24), d.base.x + dx)), y = Math.min(0, Math.max(-(st.height - r.height - 24), d.base.y + dy));
+    el.style.transform = `translate(${x}px, ${y}px)`; d.cur = { x, y }; void base;
+  });
+  el.addEventListener('pointerup', () => {
+    const d = layout.drag; layout.drag = null; if (!d) return;
+    if (d.moved) { layout.pos = d.cur || layout.pos; } else setSwapped(!layout.swapped); // tap = swap
+  });
+}
+function buildTimeline() {
+  const total = PLAN.reduce((a, s) => a + s.dur, 0);
+  $('timeline').innerHTML = PLAN.map((s, i) => `<div class="seg ${s.kind}" style="flex:${s.dur / total}" title="${s.kind === 'work' || s.kind === 'warm' ? MOVES[s.move].name : s.kind === 'cool' ? s.name : 'Rest'}"><i id="tl${i}"></i></div>`).join('');
+}
+buildTimeline();
+function updateTimeline() {
+  if (!sess) return;
+  PLAN.forEach((s, i) => { const el = $('tl' + i); if (!el) return; el.style.width = i < sess.i ? '100%' : i > sess.i ? '0%' : `${100 * (1 - Math.max(0, sess.t) / s.dur)}%`; el.parentElement.classList.toggle('now', i === sess.i); });
+}
+// Form score: rolling quality of recent reps (100 = clean rep, lower for shallow/fast/flagged reps).
+function formRep(q) {
+  sess.form = sess.form == null ? q : Math.round(sess.form * 0.7 + q * 0.3);
+  const f = sess.form; $('formScore').textContent = f; const bar = $('formBar'); bar.style.width = f + '%';
+  bar.style.background = f >= 75 ? '#3ddc84' : f >= 50 ? '#ffb547' : '#ff4d4d';
+}
+function updateEnergy() {
+  if (!sess) return;
+  const s = cur(), here = s?.kind === 'work' && sess.analyser?.rc ? sess.analyser.rc.reps : 0;
+  const now = Object.values(sess.totals).reduce((a, b) => a + b, 0) + here, last = sess.lastTotal;
+  const max = Math.max(now, last || 0, 1);
+  $('eNowN').textContent = now; $('eNow').style.width = `${100 * now / max}%`;
+  $('eLastN').textContent = last == null ? '–' : last; $('eLast').style.width = last == null ? '0%' : `${100 * last / max}%`;
+  $('energy').classList.toggle('ahead', last != null && now > last);
+}
+
 /* ---------- audio: speech + beeps ---------- */
 let actx = null, voice = null;
-function pickVoice() { const v = speechSynthesis.getVoices(); voice = v.find(x => /en[-_]GB/i.test(x.lang)) || v.find(x => /^en/i.test(x.lang)) || null; }
+function pickVoice() { if (!('speechSynthesis' in window)) return; const v = speechSynthesis.getVoices(), gb = v.filter(x => /en[-_]GB/i.test(x.lang)), re = TRAINERS[settings.trainer]?.voice; voice = (re && gb.find(x => re.test(x.name))) || gb[0] || (re && v.find(x => /^en/i.test(x.lang) && re.test(x.name))) || v.find(x => /^en/i.test(x.lang)) || null; }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 function say(text, { kind = 'coach' } = {}) {
   bubble(text);
@@ -128,7 +210,7 @@ function beep(f = 880, ms = 140, when = 0) {
   o.connect(g).connect(actx.destination); o.start(t); o.stop(t + ms / 1000 + 0.02);
 }
 const chime = () => { beep(660, 120); beep(990, 180, 0.12); };
-let bubbleT; function bubble(text) { const b = $('bubble'); b.textContent = text; b.classList.add('pop'); clearTimeout(bubbleT); bubbleT = setTimeout(() => b.classList.remove('pop'), 250); }
+let bubbleT; function bubble(text) { if (window.__kova) (window.__kova.captions ||= []).push(text); const b = $('bubble'); b.textContent = text; b.classList.add('show'); clearTimeout(bubbleT); bubbleT = setTimeout(() => b.classList.remove('show'), Math.max(3500, text.length * 80)); }
 function toast(t, ms = 2500) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms); }
 
 /* ---------- optional LLM hook (text only, off by default) ---------- */
@@ -199,7 +281,9 @@ async function startWorkout() {
   coach = new CoachEngine({ name: settings.name, say, now: () => performance.now() });
   sess = { i: -1, t: 0, paused: false, totals: Object.fromEntries(ORDER.filter(m => MOVES[m].counted).map(m => [m, 0])), started: Date.now(), analyser: null, lastTick: performance.now(), inFrame: false };
   window.__kova.sess = sess;
-  show('screen-session'); keepAwake();
+  const prevS = store.get('sessions', []).slice(-1)[0]; sess.lastTotal = prevS ? Object.values(prevS.totals).reduce((a, b) => a + b, 0) : null; sess.form = null;
+  $('formScore').textContent = '–'; $('formBar').style.width = '0%';
+  show('screen-session'); keepAwake(); orient(); setSwapped(false); updateEnergy();
   $('moveName').textContent = 'Getting ready'; setCue('Starting camera…');
   coach.line('greet', { force: true });
   try { await startCamera(); } catch (e) { setCue('Camera blocked. Allow camera access and reload.', true); console.warn(e); }
@@ -218,21 +302,21 @@ function next() {
   sess.i++;
   if (sess.i >= PLAN.length) return finish(true);
   const s = cur(); sess.t = s.dur; sess.analyser = null; sess.said = {};
-  $('restPanel').hidden = s.kind !== 'rest'; $('demoTile').hidden = s.kind === 'rest';
+  $('restPanel').hidden = s.kind !== 'rest'; $('stage').classList.toggle('resting', s.kind === 'rest');
   $('roundTag').textContent = s.label; $('stepTag').textContent = `${sess.i + 1}/${PLAN.length}`;
-  $('repCount').textContent = s.kind === 'work' && MOVES[s.move].counted ? '0' : '';
+  $('repCount').textContent = s.kind === 'work' && MOVES[s.move].counted ? '0' : '–'; updateTimeline(); updateEnergy();
   if (s.kind === 'rest') {
     const nm = s.next === 'cool' ? 'Cool-down stretches' : MOVES[s.next].name;
     $('moveName').textContent = 'Rest'; $('nextName').textContent = nm;
     $('nextHow').textContent = s.next === 'cool' ? 'Slow, gentle stretches. Hold each one and breathe.' : MOVES[s.next].how;
-    setDemo($('nextClip'), s.next === 'cool' ? 'cool' : s.next); setDemo($('demoVid'), s.next === 'cool' ? 'cool' : s.next);
+    setDemo($('trainerVid'), s.next === 'cool' ? 'cool' : s.next, { hd: true });
     setCue('Breathe and shake it out');
     say(`${sess.i > 2 ? coach.pick('rest') + ' ' : ''}Next up: ${nm}.`, { kind: 'high' });
   } else if (s.kind === 'cool') {
-    setDemo($('demoVid'), 'cool'); $('moveName').textContent = s.name; setCue(s.how); say(`${s.name}. ${s.how} Hold for 20 to 30 seconds each side.`, { kind: 'high' });
+    setDemo($('trainerVid'), 'cool', { hd: true }); $('moveName').textContent = s.name; setCue(s.how); say(`${s.name}. ${s.how} Hold for 20 to 30 seconds each side.`, { kind: 'high' });
   } else {
     const m = MOVES[s.move]; $('moveName').textContent = m.name;
-    sess.analyser = makeAnalyser(s.move); coach.startWork(); setDemo($('demoVid'), s.move); sess.badStreak = 0; sess.repBad = false;
+    sess.analyser = makeAnalyser(s.move); coach.startWork(); setDemo($('trainerVid'), s.move, { hd: true }); sess.badStreak = 0; sess.repBad = false;
     setCue(m.cue || (m.view === 'side' ? 'Turn side-on to the camera' : 'Face the camera'));
     say(s.kind === 'warm' ? `Let's warm up. March on the spot for 3 minutes.` : `Go! ${m.name}.${m.cue ? ' ' + m.cue + '.' : ''}`, { kind: 'high' }); beep(1200, 250);
   }
@@ -248,7 +332,7 @@ function tick() {
     if (sess.t <= 10 && !sess.said.w10) { sess.said.w10 = 1; say('10 seconds left of the warm-up.', { kind: 'high' }); }
   }
   if (sess.t <= 0) { beep(440, 350); next(); return; }
-  ring();
+  ring(); updateTimeline();
 }
 function ring() { const s = cur(); if (!s) return; $('ringProg').style.strokeDashoffset = 326.7 * (1 - Math.max(0, sess.t) / s.dur); $('timeLeft').textContent = fmtT(sess.t); }
 function setCue(t, warn = false) { const c = $('cueLine'); c.textContent = t; c.classList.toggle('warn', warn); }
@@ -276,11 +360,12 @@ function trackForm(move, result) {
   const FLAGJ = { straight: [11, 12, 23, 24, 27, 28] };
   for (const f of result.flags || []) { sess.repBad = true; sess.lastIssue = f; sess.badJoints = new Set(FLAGJ[f] || []); sess.badUntil = performance.now() + 2500; }
   for (const ev of result.events || []) {
-    if (ev.type === 'shallow') { sess.badStreak = (sess.badStreak || 0) + 1; sess.lastIssue = 'shallow'; sess.badJoints = new Set((FIX[move]?.shallow || FIX[move]?.any || [, , []])[2]); sess.badUntil = performance.now() + 2500; }
+    if (ev.type === 'shallow') { formRep(40); sess.badStreak = (sess.badStreak || 0) + 1; sess.lastIssue = 'shallow'; sess.badJoints = new Set((FIX[move]?.shallow || FIX[move]?.any || [, , []])[2]); sess.badUntil = performance.now() + 2500; }
     if (ev.type === 'rep') {
       const fast = move !== 'knees' && ev.ms < 1000;
-      if (sess.repBad || fast) { sess.badStreak = (sess.badStreak || 0) + 1; if (fast && !sess.repBad) sess.lastIssue = 'fast'; }
-      else sess.badStreak = 0;
+      if (sess.repBad || fast) { sess.badStreak = (sess.badStreak || 0) + 1; if (fast && !sess.repBad) sess.lastIssue = 'fast'; formRep(sess.repBad ? 60 : 70); }
+      else { sess.badStreak = 0; formRep(100); }
+      setTimeout(updateEnergy, 0);
       sess.repBad = false;
     }
   }
@@ -554,3 +639,49 @@ function runCommand(raw) {
 window.__kova.runCommand = runCommand; window.__kova.ttsStart = ttsStart; window.__kova.ttsEnd = ttsEnd; window.__kova.showMe = showMe; window.__kova.trackForm = trackForm; window.__kova.handleHeard = handleHeard;
 micUI();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+
+/* ---------- accounts (phone-only, see auth.js) + onboarding + trainer picker ---------- */
+function showErr(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
+function authView(which) { $('loginForm').hidden = which !== 'login'; $('registerForm').hidden = which !== 'register'; $('toLogin').hidden = !auth.listAccounts().length; }
+function renderAccounts() {
+  const list = auth.listAccounts();
+  $('authAccounts').innerHTML = list.length ? `<p class="small muted">Accounts on this phone</p>${list.map(a => `<button type="button" class="acct" data-email="${a.email}"><b>${a.name.replace(/</g, '&lt;')}</b><span>${a.email}</span></button>`).join('')}` : '';
+  $('authAccounts').querySelectorAll('.acct').forEach(b => b.onclick = () => { authView('login'); $('loginEmail').value = b.dataset.email; $('loginSecret').focus(); });
+}
+function openAuth() { renderAccounts(); authView(auth.listAccounts().length ? 'login' : 'register'); $('authScreen').hidden = false; }
+$('toRegister').onclick = () => authView('register');
+$('toLogin').onclick = () => authView('login');
+$('registerForm').addEventListener('submit', async e => {
+  e.preventDefault(); showErr('regError'); $('regBtn').disabled = true;
+  try { const u = await auth.signUp({ name: $('regName').value, email: $('regEmail').value, secret: $('regSecret').value }); localStorage.setItem(auth.dataPrefix(u) + 'settings', JSON.stringify({ ...JSON.parse(localStorage.getItem(auth.dataPrefix(u) + 'settings') || '{}'), name: u.name })); location.reload(); }
+  catch (err) { showErr('regError', err.message); } finally { $('regBtn').disabled = false; }
+});
+$('loginForm').addEventListener('submit', async e => {
+  e.preventDefault(); showErr('loginError'); $('loginBtn').disabled = true;
+  try { await auth.signIn({ email: $('loginEmail').value, secret: $('loginSecret').value }); location.reload(); }
+  catch (err) { showErr('loginError', err.message); } finally { $('loginBtn').disabled = false; }
+});
+$('forgotBtn').onclick = () => {
+  const email = $('loginEmail').value.trim().toLowerCase(), acc = auth.listAccounts().find(a => a.email === email);
+  if (!acc) return showErr('loginError', 'Type the email of the account first (or tap it above).');
+  if (!confirm(`Reset "${acc.name}" (${acc.email})?\n\nYour account lives only on this phone, so there's no way to recover the PIN. Resetting permanently deletes this account and ALL its workouts, weigh-ins and food logs on this phone. You can then create it again.`)) return;
+  auth.resetAccount(acc.id); renderAccounts(); authView('register'); $('regName').value = acc.name; $('regEmail').value = acc.email; $('regSecret').focus();
+  showErr('regError', 'Account reset. Choose a new PIN to start fresh.');
+};
+$('logoutBtn').onclick = () => { if (sess) return toast('End the workout first'); stopRec?.(); auth.signOut(); location.reload(); };
+$('switchAcct').onclick = $('logoutBtn').onclick;
+if (user) $('acctInfo').textContent = `Signed in as ${user.name} (${user.email}) on this phone.`;
+
+async function renderTrainerPickers() {
+  const hasF = await firstExisting(['media/f/warmup.mp4', 'media/f/wall-pushups.mp4']), hasM = await firstExisting(['media/m/warmup.mp4', 'media/m/wall-pushups.mp4']);
+  const av = { m: (await firstExisting(['media/m/avatar.jpg'])) || 'avatar.jpg', f: (await firstExisting(['media/f/avatar.jpg'])) || 'avatar-f.svg' };
+  const html = ['m', 'f'].map(t => `<button type="button" class="trainer ${settings.trainer === t ? 'on' : ''}" data-t="${t}"><img src="${av[t]}" alt=""><b>${TRAINERS[t].label}</b><small class="muted">${(t === 'f' ? hasF : hasM) ? 'Own demo videos' : t === 'm' ? 'Current demo videos' : 'Her videos are coming soon. Uses the current demos for now'}</small></button>`).join('');
+  for (const id of ['trainerPick', 'trainerPickSettings']) { $(id).innerHTML = html; $(id).querySelectorAll('.trainer').forEach(b => b.onclick = () => { settings.trainer = b.dataset.t; store.set('settings', settings); applyTrainerAvatar(); renderTrainerPickers(); probeCache && Object.keys(probeCache).forEach(k => delete probeCache[k]); }); }
+}
+renderTrainerPickers(); applyTrainerAvatar();
+bindWeightForm($('obWeightForm'), { onSaved: () => {} });
+const finishOnboard = () => { settings.onboarded = true; store.set('settings', settings); $('onboard').hidden = true; greetText(); };
+$('obDone').onclick = finishOnboard; $('obSkip').onclick = finishOnboard;
+if (!user) openAuth();
+else if (!settings.onboarded) $('onboard').hidden = false;
+window.__kova.auth = auth; window.__kova.layout = layout; window.__kova.setSwapped = setSwapped;

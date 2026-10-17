@@ -1,0 +1,20 @@
+import { LocalAuth, validate } from '../auth.js';
+class Mem { constructor() { this.m = new Map(); } get length() { return this.m.size; } key(i) { return [...this.m.keys()][i] ?? null; } getItem(k) { return this.m.has(k) ? this.m.get(k) : null; } setItem(k, v) { this.m.set(k, String(v)); } removeItem(k) { this.m.delete(k); } }
+let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
+const s = new Mem(); s.setItem('kova.weights', '[{"kg":85}]'); const a = new LocalAuth(s);
+ok(validate({ name: 'M', email: 'bad', secret: '1234' }), 'rejects bad email');
+ok(validate({ name: 'M', email: 'm@x.com', secret: '12' }), 'rejects short PIN');
+ok(!validate({ name: 'M', email: 'm@x.com', secret: '1234' }), 'accepts 4-digit PIN');
+const u = await a.signUp({ name: 'Mitchell', email: 'M@X.com', secret: '1234' });
+ok(a.currentUser()?.id === u.id, 'signed in after sign-up');
+const raw = s.getItem('kova.auth.accounts'); ok(!raw.includes('"1234"') && /"hash":"[A-Za-z0-9+/=]{40,}"/.test(raw) && /"salt"/.test(raw), 'PIN stored only as salted PBKDF2 hash');
+ok(s.getItem(`kova.u.${u.id}.weights`) === '[{"kg":85}]' && s.getItem('kova.weights') === null, 'legacy data migrated into first account');
+a.signOut(); ok(a.currentUser() === null, 'signed out');
+let e = null; try { await a.signIn({ email: 'm@x.com', secret: '9999' }); } catch (x) { e = x; } ok(e, 'wrong PIN rejected');
+ok((await a.signIn({ email: ' m@x.com ', secret: '1234' })).id === u.id, 'correct PIN signs in (email normalised)');
+const u2 = await a.signUp({ name: 'Sam', email: 's@x.com', secret: 'longpassword' });
+ok(a.dataPrefix() === `kova.u.${u2.id}.` && a.dataPrefix(u) !== a.dataPrefix(u2), 'per-account data prefix');
+s.setItem(`kova.u.${u2.id}.sessions`, '[]'); a.resetAccount(u2.id);
+ok(!a.listAccounts().some(x => x.id === u2.id) && s.getItem(`kova.u.${u2.id}.sessions`) === null && s.getItem(`kova.u.${u.id}.weights`), 'reset wipes only that account');
+e = null; try { await a.signUp({ name: 'X', email: 'm@x.com', secret: '1111' }); } catch (x) { e = x; } ok(e, 'duplicate email rejected');
+process.exitCode = fail ? 1 : 0; console.log(fail ? `${fail} failed` : 'all auth tests passed');
