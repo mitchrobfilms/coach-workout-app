@@ -1,4 +1,5 @@
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
+import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS } from './food.js';
 
 const MP_VER = '1.1.1';
@@ -366,9 +367,25 @@ function mealSuggestion() { // used by the coach (voice + end of workout)
 renderFoodProfile();
 
 /* ---------- progress + weigh-ins ---------- */
-const toKg = (v, u) => u === 'lb' ? v * 0.4536 : u === 'st' ? v * 6.35 : v;
-function saveWeight(v, u = 'kg') { if (!(v > 20 && v < 400)) return false; const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg: +toKg(v, u).toFixed(1) }); store.set('weights', w); renderProgress(); return true; }
-$('weightBtn').onclick = () => { if (saveWeight(+$('weightInput').value, $('weightUnit').value)) { $('weightInput').value = ''; toast('Weigh-in saved'); } else toast('Enter a valid weight'); };
+// Weigh-ins: free-text parsing (decimal comma, st+lb, lb) with inline errors. See weight.js.
+function saveWeightKg(kg) { const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg }); store.set('weights', w); renderProgress(); }
+function saveWeight(text, unit = settings.weightUnit || 'kg') { const r = parseWeightText(text, unit); if (r.kg) saveWeightKg(r.kg); return r; }
+function bindWeightForm(form, { onSaved } = {}) {
+  const input = form.querySelector('input'), err = form.querySelector('.error'), segs = form.querySelectorAll('.seg button');
+  const setUnit = u => { settings.weightUnit = u; store.set('settings', settings); segs.forEach(b => b.classList.toggle('on', b.dataset.unit === u)); input.placeholder = u === 'st' ? 'e.g. 13st 4lb' : u === 'lb' ? 'e.g. 190' : 'e.g. 85.5'; };
+  segs.forEach(b => b.onclick = () => { setUnit(b.dataset.unit); input.focus(); });
+  setUnit(settings.weightUnit || 'kg');
+  input.addEventListener('focus', () => setTimeout(() => form.scrollIntoView({ block: 'center', behavior: 'smooth' }), 300)); // keep Save above the iOS keyboard
+  input.addEventListener('input', () => { err.hidden = true; });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const r = saveWeight(input.value, settings.weightUnit || 'kg');
+    if (r.error) { err.textContent = r.error; err.hidden = false; input.focus(); return; }
+    err.hidden = true; input.value = ''; input.blur();
+    toast(`✅ Weigh-in saved: ${fmtWeight(r.kg, settings.weightUnit)}`); onSaved?.(r.kg);
+  });
+}
+bindWeightForm($('weightForm'));
 function renderProgress() {
   const d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const s = store.get('sessions', []);
@@ -376,7 +393,7 @@ function renderProgress() {
   const f = foodHist();
   $('foodList').innerHTML = Object.keys(f).length ? Object.keys(f).sort().reverse().map(k => `<li><span>${d(k + 'T12:00')}</span><span>${f[k].score}/10</span></li>`).join('') : '<li class="muted">No check-ins yet.</li>';
   const w = store.get('weights', []);
-  $('weightList').innerHTML = w.length ? w.slice().reverse().map((x, i, a) => { const p = a[i + 1]; const dd = p ? (x.kg - p.kg).toFixed(1) : null; return `<li><span>${d(x.date)}</span><span>${x.kg} kg${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd})</small>` : ''}</span></li>`; }).join('') : '<li class="muted">No weigh-ins yet (optional).</li>';
+  $('weightList').innerHTML = w.length ? w.slice().reverse().map((x, i, a) => { const p = a[i + 1]; const dd = p ? (x.kg - p.kg).toFixed(1) : null; return `<li><span>${d(x.date)}</span><span>${fmtWeight(x.kg, settings.weightUnit || 'kg')}${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd} kg)</small>` : ''}</span></li>`; }).join('') : '<li class="muted">No weigh-ins yet (optional).</li>';
 }
 renderProgress();
 
@@ -475,12 +492,10 @@ document.querySelectorAll('.dict').forEach(b => b.onclick = () => {
   voiceState.dictate = raw => { const el = $('f-' + id); el.value = (el.value ? el.value + ', ' : '') + raw; b.classList.remove('rec'); };
   if (!voiceState.on) { const r = makeRec(false); r.addEventListener('end', () => b.classList.remove('rec')); try { r.start(); } catch {} }
 });
-function parseWeight(t) {
-  const st = t.match(/(\d+)\s*(?:stone|st)\s*(?:and\s*)?(\d+)?\s*(?:pounds|lbs?)?/);
-  if (st) return saveWeight(+st[1] * 6.35 + (+st[2] || 0) * 0.4536, 'kg');
-  const n = t.match(/(\d+(?:\.\d+)?)\s*(kg|kilos?|kilograms?|pounds|lbs?)?/);
-  if (!n) return false;
-  return saveWeight(+n[1], /pound|lb/.test(n[2] || '') ? 'lb' : 'kg');
+function parseWeight(t) { // voice: "82.5 kilos", "13 stone 4", "190 pounds"
+  const m = t.match(/\d[\d.,]*\s*(?:st(?:one)?s?\s*(?:and\s*)?(?:\d+\s*(?:lbs?|pounds?)?)?|kg|kgs|kilos?|kilograms?|lbs?|pounds?)?/);
+  if (!m) return false; const r = saveWeight(m[0].replace(/\bkilos?\b|kilograms?/, 'kg').trim());
+  return !!r.kg;
 }
 function stepName(s) { return !s ? 'nothing, we\'re done' : s.kind === 'rest' ? 'a short rest' : s.kind === 'cool' ? s.name : MOVES[s.move].name; }
 function runCommand(raw) {

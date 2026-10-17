@@ -83,3 +83,10 @@ input[type=text],input[type=url],input[type=password],input[type=number],select{
 .chips{display:flex;flex-wrap:wrap;gap:6px}.chip{padding:6px 10px;border-radius:999px;font-size:.85rem}.chip.like{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal)}.chip.no{background:rgba(255,107,107,.15);border-color:var(--bad);color:#ffb0b0;text-decoration:line-through}
 details summary{cursor:pointer}
 #tab-settings .chips button{width:auto;margin-top:0}
+
+/* weigh-in */
+.weightform{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;margin:8px 0;scroll-margin-bottom:120px}
+.weightform input{font-size:1.4rem;padding:14px;margin:0}
+.seg{display:flex;gap:6px}.seg button{flex:1;padding:10px}.seg button.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal);font-weight:700}
+.error{color:#ff8a8a;margin:0;font-weight:600}
+.toast{bottom:auto;top:calc(70px + env(safe-area-inset-top))}
