@@ -15,6 +15,7 @@
   <div class="brand"><img src="avatar.jpg" alt=""><span>Kova <b>Coach</b></span></div>
   <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Kova"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
+<div id="heardChip" class="heard" hidden></div>
 
 <main>
 <!-- WORKOUT TAB -->
@@ -36,7 +37,7 @@
       <div class="demo" id="demoTile"><video id="demoVid" muted playsinline loop autoplay preload="auto"></video><span class="who">Kova</span><div class="fixlabel" id="fixLabel" hidden></div></div>
       <span class="who you" id="youTag" hidden>You</span>
       <div class="hud-top"><span class="tag" id="roundTag">Warm-up</span><span class="tag ghost" id="stepTag"></span>
-        <button class="iconbtn" id="flipBtn" title="Switch camera">⟲ Cam</button></div>
+        <button class="iconbtn mic off" id="sessMic" title="Voice: Hey Kova"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲ Cam</button></div>
       <div class="hud-center" id="restPanel" hidden>
         <div class="nextup">Next up</div><div class="nextname" id="nextName"></div><p class="nexthow" id="nextHow"></p>
         <div class="demo inline" id="nextTile"><video id="nextClip" muted playsinline loop autoplay preload="auto"></video></div>

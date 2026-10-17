@@ -1,4 +1,5 @@
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
+import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS } from './food.js';
 
@@ -113,6 +114,7 @@ function say(text, { kind = 'coach' } = {}) {
   else if (speechSynthesis.pending) return; // don't pile up
   const u = new SpeechSynthesisUtterance(text);
   if (voice) u.voice = voice; u.lang = voice?.lang || 'en-GB'; u.rate = kind === 'count' ? 1.15 : 1.0;
+  u.onstart = () => ttsStart(kind, text); u.onend = u.onerror = () => setTimeout(ttsEnd, 50);
   speechSynthesis.speak(u);
 }
 function unlockAudio() {
@@ -408,70 +410,100 @@ greetText();
 /* ---------- voice: "Hey Kova" wake word + commands + dictation ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-const WAKE = /\b(?:hey|hi|ok|okay|a|hay)[\s,]+(kova|cova|cover|nova|coba|koba|kofa|kover|cobra)\b/i;
-const voiceState = { on: false, mode: 'idle', armedUntil: 0, dictate: null, rec: null };
+const REC_LANG = /^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB';
+const voiceState = { on: false, mode: 'idle', armedUntil: 0, armedIdx: -1, dictate: null, rec: null, failures: 0, ttsBusy: false, wakeIdx: new Set(), restarts: 0 };
 window.__kova = { voiceState, PLAN };
 $('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Kova".';
 function micUI() {
   const b = $('micBtn'); b.classList.toggle('on', voiceState.on); b.classList.toggle('off', !voiceState.on); b.classList.toggle('armed', voiceState.mode !== 'idle');
-  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : 'Listening for "Hey Kova"';
+  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : voiceState.ttsBusy ? 'Kova speaking…' : 'Listening for "Hey Kova"';
   $('listenBadge').hidden = voiceState.mode === 'idle'; $('listenBadge').textContent = voiceState.mode === 'dictate' ? '🎙️ Dictating…' : '🎙️ Listening…';
   b.setAttribute('aria-pressed', voiceState.on);
+  const sm = $('sessMic'); sm.className = b.className.replace('mic', 'iconbtn mic'); $('sessMicLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode !== 'idle' ? 'Listening…' : 'Hey Kova';
 }
-function makeRec(continuous) {
-  const r = new SR(); r.lang = 'en-GB'; r.continuous = continuous; r.interimResults = false; r.maxAlternatives = 3;
+let chipT;
+function heardChip(text, final) { // live transcript so you can see what the phone hears
+  const c = $('heardChip'); if (!text) return;
+  c.textContent = `🎙️ “${text.trim()}”`; c.classList.toggle('interim', !final); c.hidden = false;
+  clearTimeout(chipT); chipT = setTimeout(() => c.hidden = true, final ? 3500 : 6000);
+}
+function arm(idx) {
+  chime(); voiceState.mode = 'armed'; voiceState.armedIdx = idx; voiceState.armedUntil = Date.now() + 8000; micUI();
+  clearTimeout(arm.t); arm.t = setTimeout(() => { if (voiceState.mode === 'armed') { voiceState.mode = 'idle'; micUI(); } }, 8000);
+}
+// One result (interim or final) from the recogniser. idx = result index within the current session.
+function onTranscript(text, final, idx) {
+  heardChip(text, final);
+  if (voiceState.mode === 'dictate') {
+    if (!final) return;
+    const d = voiceState.dictate; voiceState.mode = 'idle'; voiceState.dictate = null; micUI(); return d?.(text.trim());
+  }
+  // Kova's own short rep counts may leak into the mic: only a wake phrase gets through while speaking.
+  const w = findWake(text);
+  if (voiceState.mode === 'idle') {
+    if (!w) return;
+    if (!voiceState.wakeIdx.has(idx)) { voiceState.wakeIdx.add(idx); arm(idx); }
+    if (final && w.rest) { voiceState.mode = 'idle'; micUI(); runCommand(w.rest); }
+    return;
+  }
+  if (voiceState.mode === 'armed' && final && Date.now() < voiceState.armedUntil) {
+    const cmd = idx === voiceState.armedIdx ? (w ? w.rest : '') : (w ? w.rest : text);
+    if (!cmd.trim()) return; // just "hey kova" so far; wait for the command
+    voiceState.mode = 'idle'; micUI(); runCommand(cmd);
+  }
+}
+function handleHeard(alts) { onTranscript(alts[0], true, `t${Date.now()}${Math.random()}`); } // test hook: treat as one final result
+function startRec() {
+  if (!SR || !voiceState.on || voiceState.ttsBusy || document.hidden || voiceState.rec) return;
+  const r = new SR(); r.lang = REC_LANG; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+  const session = ++voiceState.restarts; voiceState.wakeIdx = new Set();
   r.onresult = e => {
-    for (let i = e.resultIndex; i < e.results.length; i++) {
-      if (!e.results[i].isFinal) continue;
-      const alts = [...e.results[i]].map(a => a.transcript.trim());
-      handleHeard(alts);
-    }
+    voiceState.failures = 0;
+    for (let i = e.resultIndex; i < e.results.length; i++) onTranscript(e.results[i][0].transcript, e.results[i].isFinal, `${session}:${i}`);
   };
-  r.onerror = e => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { voiceState.on = false; micUI(); toast('Microphone permission was blocked'); } };
-  r.onend = () => { if (voiceState.on && continuous && voiceState.rec === r) setTimeout(() => { try { r.start(); } catch {} }, 250); else if (!continuous) { voiceState.mode = voiceState.mode === 'dictate' ? 'dictate' : 'idle'; micUI(); } };
-  return r;
+  r.onerror = e => {
+    window.__kova.lastRecError = e.error;
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { voiceState.on = false; micUI(); toast('Microphone permission is blocked. Allow it in Chrome\'s site settings.', 4000); return; }
+    if (e.error === 'network') { voiceState.failures++; heardChip('Voice needs an internet connection in Chrome', true); }
+    else if (e.error === 'audio-capture') { voiceState.failures++; heardChip('Mic is busy or unavailable', true); }
+    else if (e.error !== 'no-speech' && e.error !== 'aborted') voiceState.failures++;
+  };
+  r.onend = () => { // Chrome Android ends sessions every few seconds / after each phrase: restart
+    if (voiceState.rec === r) voiceState.rec = null;
+    if (voiceState.on && !voiceState.ttsBusy) setTimeout(startRec, voiceState.failures ? nextDelay(voiceState.failures) : 150);
+  };
+  voiceState.rec = r;
+  try { r.start(); } catch (err) { voiceState.rec = null; voiceState.failures++; setTimeout(startRec, nextDelay(voiceState.failures)); }
 }
+function stopRec(abort = true) { const r = voiceState.rec; voiceState.rec = null; try { abort ? r?.abort() : r?.stop(); } catch {} }
+// Pause listening while Kova talks (longer lines) so the phone doesn't hear itself; resume right after.
+function ttsStart(kind, text = '') { if (!voiceState.on || kind === 'count') return; voiceState.ttsBusy = true; stopRec(); micUI();
+  clearTimeout(ttsStart.t); ttsStart.t = setTimeout(() => { if (voiceState.ttsBusy) { voiceState.ttsBusy = false; micUI(); startRec(); } }, 2500 + text.length * 90); } // safety: Chrome Android sometimes never fires onend
+function ttsEnd() { if (!voiceState.ttsBusy) return; if (speechSynthesis.speaking || speechSynthesis.pending) return; voiceState.ttsBusy = false; micUI(); setTimeout(startRec, 250); }
+document.addEventListener('visibilitychange', () => { if (document.hidden) stopRec(); else setTimeout(startRec, 300); });
+function oneShot() { const r = new SR(); r.lang = REC_LANG; r.continuous = false; r.interimResults = true;
+  let n = 0; r.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) onTranscript(e.results[i][0].transcript, e.results[i].isFinal, `os${n}:${i}`); };
+  r.onend = () => { n++; if (voiceState.mode === 'armed') { voiceState.mode = 'idle'; micUI(); } }; try { r.start(); } catch {} return r; }
 function setMic(on) {
   if (!SR) return toast('Voice isn\'t supported in this browser');
   if (isIOS) return toast('On iPhone, use the Tap to talk button');
-  unlockAudio(); voiceState.on = on;
-  if (on) { voiceState.rec = makeRec(true); try { voiceState.rec.start(); } catch {} toast('Listening for "Hey Kova"'); }
-  else { const r = voiceState.rec; voiceState.rec = null; try { r?.stop(); } catch {} voiceState.mode = 'idle'; }
+  unlockAudio(); voiceState.on = on; voiceState.failures = 0;
+  if (on) { startRec(); toast('Listening for "Hey Kova"'); } else { stopRec(); voiceState.mode = 'idle'; voiceState.ttsBusy = false; }
   micUI();
 }
 $('micBtn').onclick = () => setMic(!voiceState.on);
-// Tap-to-talk: iOS (partial SR support) gets a one-shot recogniser; browsers without SR get a command menu.
+$('sessMic').onclick = () => setMic(!voiceState.on);
+// Tap-to-talk: iOS (partial SR support) gets a one-shot recogniser; browsers without SR get a typed command box.
 if (isIOS || !SR) { $('talkBtn').hidden = false; }
 $('talkBtn').onclick = () => {
   unlockAudio();
   if (!SR) { const c = prompt('Type a command for Kova (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
-  chime(); if (voiceState.mode !== 'dictate') voiceState.mode = 'armed'; voiceState.armedUntil = Date.now() + 8000; micUI();
-  const r = makeRec(false); voiceState.oneShot = r; try { r.start(); } catch {}
+  if (voiceState.mode !== 'dictate') arm('tap'); voiceState.armedIdx = -1; oneShot();
 };
-function handleHeard(alts) {
-  if ('speechSynthesis' in window && speechSynthesis.speaking && voiceState.mode !== 'dictate') return; // ignore Kova's own voice
-  const text = alts[0].toLowerCase();
-  if (voiceState.mode === 'dictate') {
-    const raw = alts[0]; const d = voiceState.dictate; voiceState.mode = 'idle'; voiceState.dictate = null; micUI();
-    return d?.(raw);
-  }
-  const m = alts.map(a => a.toLowerCase().match(WAKE)).find(Boolean);
-  if (m) {
-    const rest = alts[0].toLowerCase().slice((m.index ?? 0) + m[0].length).replace(/^[\s,.]+/, '');
-    chime();
-    if (rest.split(/\s+/).filter(Boolean).length) { voiceState.mode = 'idle'; micUI(); return runCommand(rest); }
-    voiceState.mode = 'armed'; voiceState.armedUntil = Date.now() + 7000; micUI();
-    clearTimeout(handleHeard.t); handleHeard.t = setTimeout(() => { if (voiceState.mode === 'armed') { voiceState.mode = 'idle'; micUI(); } }, 7000);
-    return;
-  }
-  if (voiceState.mode === 'armed' && Date.now() < voiceState.armedUntil) { voiceState.mode = 'idle'; micUI(); runCommand(text); }
-}
 function dictate(prompt, cb) {
   say(prompt, { kind: 'high' }); voiceState.mode = 'dictate'; micUI();
   voiceState.dictate = cb;
-  if (isIOS && SR) { // one-shot after the prompt finishes
-    setTimeout(() => { const r = makeRec(false); try { r.start(); } catch {} }, 1800);
-  }
+  if (isIOS && SR) setTimeout(oneShot, 1800); // one-shot after the prompt finishes
   clearTimeout(dictate.t); dictate.t = setTimeout(() => { if (voiceState.mode === 'dictate') { voiceState.mode = 'idle'; voiceState.dictate = null; micUI(); } }, 20000);
 }
 function foodDictation(i = 0) {
@@ -490,7 +522,7 @@ document.querySelectorAll('.dict').forEach(b => b.onclick = () => {
   unlockAudio(); const id = b.dataset.meal; b.classList.add('rec');
   voiceState.mode = 'dictate'; micUI();
   voiceState.dictate = raw => { const el = $('f-' + id); el.value = (el.value ? el.value + ', ' : '') + raw; b.classList.remove('rec'); };
-  if (!voiceState.on) { const r = makeRec(false); r.addEventListener('end', () => b.classList.remove('rec')); try { r.start(); } catch {} }
+  if (!voiceState.on) { const r = oneShot(); r.addEventListener('end', () => b.classList.remove('rec')); }
 });
 function parseWeight(t) { // voice: "82.5 kilos", "13 stone 4", "190 pounds"
   const m = t.match(/\d[\d.,]*\s*(?:st(?:one)?s?\s*(?:and\s*)?(?:\d+\s*(?:lbs?|pounds?)?)?|kg|kgs|kilos?|kilograms?|lbs?|pounds?)?/);
@@ -519,6 +551,6 @@ function runCommand(raw) {
   if (/what'?s next|what is next|what's coming|what next/.test(t)) { if (!sess) return say('Next is your Week 1 workout. Say "start workout" when you\'re ready.', { kind: 'high' }); const s = cur(); const n = s.kind === 'rest' ? PLAN[sess.i + 1] : PLAN[sess.i + 1]?.kind === 'rest' ? PLAN[sess.i + 2] : PLAN[sess.i + 1]; return say(`Up next: ${stepName(n)}.`, { kind: 'high' }); }
   say('Sorry, I didn\'t catch that. Try pause, next, resume, or what\'s next.', { kind: 'high' });
 }
-window.__kova.runCommand = runCommand; window.__kova.showMe = showMe; window.__kova.trackForm = trackForm; window.__kova.handleHeard = handleHeard;
+window.__kova.runCommand = runCommand; window.__kova.ttsStart = ttsStart; window.__kova.ttsEnd = ttsEnd; window.__kova.showMe = showMe; window.__kova.trackForm = trackForm; window.__kova.handleHeard = handleHeard;
 micUI();
 if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});

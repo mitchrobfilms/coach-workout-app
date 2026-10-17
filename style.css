@@ -90,3 +90,5 @@ details summary{cursor:pointer}
 .seg{display:flex;gap:6px}.seg button{flex:1;padding:10px}.seg button.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal);font-weight:700}
 .error{color:#ff8a8a;margin:0;font-weight:600}
 .toast{bottom:auto;top:calc(70px + env(safe-area-inset-top))}
+.heard{position:fixed;right:12px;top:calc(58px + env(safe-area-inset-top));max-width:80%;background:rgba(255,255,255,.95);color:#0b1116;border-radius:999px;padding:6px 12px;font-size:.85rem;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.4);z-index:60;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.heard.interim{opacity:.75;font-style:italic}
+#sessMic{margin-left:auto;display:flex;gap:6px;align-items:center}#sessMic+#flipBtn{margin-left:0}
