@@ -203,3 +203,16 @@ details summary{cursor:pointer}
 .qty{color:var(--txt);font-weight:700}
 #tab-shop button.small{padding:6px 10px;font-size:.8rem}
 #storePick .chip.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal)}
+
+/* meal prep */
+.tabs button span{font-size:.66rem}
+.prepsec{margin-top:18px}.prepsec>h2{margin:0 0 4px}
+.storebox{background:rgba(127,183,255,.08);border:1px solid rgba(127,183,255,.3);border-radius:12px;padding:8px 10px;margin:8px 0;font-size:.85rem}
+.storebox b{color:#9cc8ff}
+.glp1{background:rgba(22,212,192,.08);border-left:3px solid var(--teal);padding:6px 10px;border-radius:6px;font-size:.85rem;margin:6px 0}
+.weekpick{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.weekpick .t{flex:1}.weekpick small{color:var(--mut);display:block}
+.weekpick button{padding:6px 10px;font-size:.8rem}
+#prepDays button.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal);font-weight:700}
+#prepStorePick .chip.on{background:rgba(22,212,192,.18);border-color:var(--teal);color:var(--teal)}
+.recipe .tags .f{color:#ffb547}
+#prepDays button{white-space:nowrap;padding:8px 14px}

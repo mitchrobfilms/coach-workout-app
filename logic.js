@@ -183,7 +183,7 @@ export function makeAnalyser(id) {
 
 /** Rule-based coach. Turns pose/timer events into short lines, rotates phrases, throttles output. */
 export const PHRASES = {
-  greet: n => [`Hi ${n}, I'm Kova, your coach. Let's ease into week one.`, `Hey ${n}, Kova here. Great to see you, let's get moving.`, `Welcome back, ${n}. Kova here, nice and steady today.`],
+  greet: n => [`Hi ${n}, I'm Reta, your coach. Let's ease into week one.`, `Hey ${n}, Reta here. Great to see you, let's get moving.`, `Welcome back, ${n}. Reta here, nice and steady today.`],
   slow: ['Nice and slow.', 'Slow it down, control the move.', 'Easy tempo, no rush.', 'Take your time on each one.'],
   shallowSquat: ['Sit back a bit lower.', 'A bit lower if it feels OK.', 'Reach back for the chair.'],
   shallowPush: ['Bend the elbows a bit more.', 'A bit lower towards the wall.'],

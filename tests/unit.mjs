@@ -21,7 +21,7 @@ for (const [ky, s] of [[.75, 25], [.5, 25], [.75, 25], [.5, 26], [.75, 26], [.52
 assert(kl.reps === 3, `knee lifts per side (got ${kl.reps})`);
 // coach throttling and rotation
 let clock = 0; const said = []; const c = new CoachEngine({ say: x => said.push(x), now: () => clock });
-c.line('greet', { force: true }); assert(/Mitchell/.test(said[0]) && /Kova/.test(said[0]), 'greets Mitchell as Kova');
+c.line('greet', { force: true }); assert(/Mitchell/.test(said[0]) && /Reta/.test(said[0]), 'greets Mitchell as Reta');
 c.line('slow'); clock += 1000; c.line('idle'); assert(said.length === 1, 'throttle blocks within 4s');
 const s1 = c.pick('slow'), s2 = c.pick('slow'); assert(s1 !== s2, 'phrases rotate');
 clock += 5000; const r = c.onFrame({ move: 'squat', result: { ready: true, events: [{ type: 'rep', reps: 5, ms: 1500 }], flags: [] }, timeLeft: 20, counted: true }); assert(/five/i.test(r), 'milestone at 5');

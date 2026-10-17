@@ -27,18 +27,18 @@ await page.waitForTimeout(400);
 console.log('work:', await page.textContent('#moveName'), '| reps', await page.textContent('#repCount'), '| cue', await page.textContent('#cueLine'), '|', await page.textContent('#roundTag'));
 await page.screenshot({ path: '/workspace/coach-test/04-work.png' });
 // voice commands via the same handler the recogniser uses
-await page.evaluate(() => window.__kova.handleHeard(['hey cover pause']));
-console.log('paused after "hey cover pause":', await page.evaluate(() => window.__kova.sess.paused));
-await page.evaluate(() => window.__kova.handleHeard(['hey kova']));
+await page.evaluate(() => window.__kova.handleHeard(['hey rita pause']));
+console.log('paused after "hey rita pause":', await page.evaluate(() => window.__kova.sess.paused));
+await page.evaluate(() => window.__kova.handleHeard(['hey reta']));
 console.log('armed:', await page.evaluate(() => window.__kova.voiceState.mode), 'badge hidden:', await page.$eval('#listenBadge', e => e.hidden));
 await page.evaluate(() => window.__kova.handleHeard(['resume']));
 console.log('resumed:', !(await page.evaluate(() => window.__kova.sess.paused)));
 const i0 = await page.evaluate(() => window.__kova.sess.i);
-await page.evaluate(() => window.__kova.handleHeard(['hey nova next']));
+await page.evaluate(() => window.__kova.handleHeard(['hey retta next']));
 console.log('skip via voice advanced:', (await page.evaluate(() => window.__kova.sess.i)) === i0 + 1);
-await page.evaluate(() => window.__kova.handleHeard(["hey coba what's next"]));
+await page.evaluate(() => window.__kova.handleHeard(["hey greta what's next"]));
 console.log('bubble after whats next:', await page.textContent('#bubble'));
-await page.evaluate(() => { window.__kova.sess.t = 30; window.__kova.handleHeard(['hey kova how many reps']); });
+await page.evaluate(() => { window.__kova.sess.t = 30; window.__kova.handleHeard(['hey reta how many reps']); });
 console.log('bubble after reps:', await page.textContent('#bubble'));
 // simulate 2 bad (shallow) reps -> auto "show me"
 const work = await page.evaluate(() => { const k = window.__kova; while (k.PLAN[k.sess.i].kind !== 'work') document.getElementById('skipBtn').click(); k.sess.t = 30; return k.PLAN[k.sess.i].move; });

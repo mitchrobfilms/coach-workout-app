@@ -1,3 +1,4 @@
+import { PREP_RECIPES } from './prep.js';
 // Recipes with ingredient shopping lists (metric + imperial + pack hints) and store "weekly basics".
 // Generic items and store-level wording only: no product names or prices. Availability varies, so check labels.
 export const AISLES = ['Proteins', 'Carbs', 'Veg & frozen', 'Fruit', 'Dairy & eggs', 'Tins & cupboard', 'Snacks'];
@@ -70,7 +71,7 @@ export const shopKey = s => String(s).toLowerCase().replace(/\([^)]*\)/g, '').re
 /** Merge selected recipes into one list grouped by aisle. */
 export function buildList(recipeIds, extra = []) {
   const map = new Map();
-  for (const r of RECIPES.filter(r => recipeIds.includes(r.id))) for (const g of r.ing) {
+  for (const r of [...RECIPES, ...PREP_RECIPES].filter(r => recipeIds.includes(r.id))) for (const g of r.ing) {
     const k = shopKey(g.item), q = fmtQty(g.q), e = map.get(k) || { key: k, item: g.item, aisle: g.aisle, pack: g.pack, uses: [] };
     e.uses.push(`${q.metric}${q.imperial ? ` (${q.imperial})` : ''} for ${r.name}`); map.set(k, e);
   }

@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b1116">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Kova Coach</title>
+<title>Reta Coach</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="avatar.jpg">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="trainer-avatar" src="avatar.jpg" alt=""><span>Kova <b>Coach</b></span></div>
-  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Kova"><span class="dot"></span><span id="micLabel">Mic off</span></button>
+  <div class="brand"><img class="trainer-avatar" src="avatar.jpg" alt=""><span>Reta <b>Coach</b></span></div>
+  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Reta"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
 <div id="heardChip" class="heard" hidden></div>
 
 <div class="overlay" id="authScreen" hidden>
   <div class="authbox">
     <img src="avatar.jpg" class="trainer-avatar big" alt="">
-    <h1>Kova <b>Coach</b></h1>
+    <h1>Reta <b>Coach</b></h1>
     <div id="authAccounts"></div>
     <form id="loginForm" hidden novalidate><h2>Log in</h2>
       <label>Email <input id="loginEmail" type="email" autocomplete="username" inputmode="email"></label>
@@ -60,9 +60,9 @@
 <!-- WORKOUT TAB -->
 <section id="tab-workout" class="tab active">
   <div id="screen-start" class="screen active">
-    <div class="hero"><img src="hero.jpg" alt="Kova demonstrating a wall push-up"><div class="hero-fade"></div>
+    <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
-    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Kova. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
+    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
     <div class="card note"><b>Set-up:</b> Prop your phone about 2m / 6ft away so your whole body is in view. You'll use a wall, a sturdy chair and a towel or carpet. That's it.</div>
@@ -76,7 +76,7 @@
       <div class="view trainer big" id="trainerView">
         <video id="trainerVid" muted playsinline loop autoplay preload="auto"></video>
         <div class="fixlabel" id="fixLabel" hidden></div>
-        <span class="who">Kova</span>
+        <span class="who">Reta</span>
       </div>
       <!-- You (live camera + skeleton) -->
       <div class="view you pip" id="youView">
@@ -86,8 +86,8 @@
       </div>
 
       <div class="classbar">
-        <div class="instructor"><img class="trainer-avatar" src="avatar.jpg" alt=""><div><div class="iname" id="trainerName">Kova</div><span class="livebadge"><span class="pulse"></span>Live coaching</span></div></div>
-        <div class="topbtns"><button class="iconbtn mic off" id="sessMic" title="Voice: Hey Kova"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲</button><button class="iconbtn" id="swapBtn" title="Swap views">⇄</button></div>
+        <div class="instructor"><img class="trainer-avatar" src="avatar.jpg" alt=""><div><div class="iname" id="trainerName">Reta</div><span class="livebadge"><span class="pulse"></span>Live coaching</span></div></div>
+        <div class="topbtns"><button class="iconbtn mic off" id="sessMic" title="Voice: Hey Reta"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲</button><button class="iconbtn" id="swapBtn" title="Swap views">⇄</button></div>
       </div>
       <div class="timeline" id="timeline"></div>
 
@@ -122,7 +122,7 @@
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
   <button class="primary big shopcta" data-goshop>🛒 What to buy this week: recipes and shopping lists</button>
-  <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Kova, log food" to dictate.</p></div>
+  <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Reta, log food" to dictate.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
   <label class="check"><input type="checkbox" id="glp1"> I take a GLP-1-type medication (e.g. semaglutide, tirzepatide, retatrutide)</label>
   <form id="foodForm"></form>
@@ -131,6 +131,17 @@
   <details class="card" id="fussyCard" hidden><summary><b>🍗 Simple meals you might like</b></summary><ul class="small" id="fussyList"></ul></details>
   <div id="foodResult"></div>
   <p class="small muted">General healthy-eating tips, not medical advice. Aim for a gentle calorie deficit; never crash or very-low-calorie diets. Speak to your GP or a dietitian for personal advice.</p>
+</section>
+
+<!-- MEAL PREP TAB -->
+<section id="tab-prep" class="tab">
+  <div class="shophead"><h2>🍱 Meal prep</h2><p class="small muted">Batch-cook once, eat well for 3–4 days. Pick a store, then tap Build my week and your shopping list fills itself.</p></div>
+  <div class="card"><div class="row between"><b>Store</b><div class="chips" id="prepStorePick"></div></div><ul class="small" id="prepStoreNotes"></ul>
+    <div class="row between"><b>Prep for</b><div class="seg" id="prepDays"><button type="button" data-days="3">3 days</button><button type="button" data-days="4">4 days</button></div></div>
+    <button class="primary big" id="buildWeekBtn">✨ Build my week</button>
+    <div id="prepWeek"></div></div>
+  <details class="card"><summary><b>🧊 Storage and food safety</b></summary><ul class="small" id="prepSafety"></ul></details>
+  <div id="prepSections"></div>
 </section>
 
 <!-- SHOP TAB -->
@@ -165,18 +176,18 @@
   <div class="card"><b>Account</b><p class="small" id="acctInfo"></p><div class="row"><button id="switchAcct">Switch account</button><button id="logoutBtn">Log out</button></div><p class="small muted">Accounts are stored on this phone only.</p></div>
   <h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div>
   <label>Your name <input id="setName" type="text"></label>
-  <label class="check"><input type="checkbox" id="setSpeech" checked> Kova speaks out loud</label>
+  <label class="check"><input type="checkbox" id="setSpeech" checked> Reta speaks out loud</label>
   <label class="check"><input type="checkbox" id="setBeeps" checked> Beeps</label>
   <h3>Food profile</h3>
   <label>Country for ready-meal ideas <select id="setCountry"><option value="auto">Auto-detect</option><option value="UK">United Kingdom</option><option value="IE">Ireland</option><option value="US">United States</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="OTHER">Other / not listed</option></select></label>
   <label class="check"><input type="checkbox" id="setFussy"> Fussy eater mode (simple, familiar meals)</label>
   <p class="small muted">Tap a food once for 👍 like, twice for 🚫 won't eat, three times to clear. Every suggestion skips foods you won't eat.</p>
   <div class="chips" id="foodPicker"></div>
-  <h3>Voice ("Hey Kova")</h3>
+  <h3>Voice ("Hey Reta")</h3>
   <p class="small muted" id="voiceSupport"></p>
-  <p class="small muted">Say "Hey Kova" then: start workout, pause, resume, next, end, log food, how many reps, weigh-in, or what's next. Only works while the app is open on screen. In Chrome, speech recognition may be processed by the browser's online speech service (audio only, never video). Turn the mic off any time.</p>
+  <p class="small muted">Say "Hey Reta" then: start workout, pause, resume, next, end, log food, how many reps, weigh-in, shopping list, what should I prep, or what's next. Only works while the app is open on screen. In Chrome, speech recognition may be processed by the browser's online speech service (audio only, never video). Turn the mic off any time.</p>
   <h3>Optional AI chat coach (off by default)</h3>
-  <p class="small muted">If you add your own API key, Kova sends short <b>text-only</b> summaries (rep counts, food notes) to an OpenAI-compatible endpoint for chattier feedback. Never video or audio. The key is stored only on this phone.</p>
+  <p class="small muted">If you add your own API key, Reta sends short <b>text-only</b> summaries (rep counts, food notes) to an OpenAI-compatible endpoint for chattier feedback. Never video or audio. The key is stored only on this phone.</p>
   <label class="check"><input type="checkbox" id="setLlm"> Use AI chat coach</label>
   <label>Endpoint <input id="setLlmUrl" type="url" placeholder="https://api.openai.com/v1/chat/completions"></label>
   <label>Model <input id="setLlmModel" type="text" placeholder="gpt-4o-mini"></label>
@@ -189,6 +200,7 @@
 <nav class="tabs">
   <button data-tab="workout" class="active">🏋️<span>Workout</span></button>
   <button data-tab="food">🍽️<span>Food</span></button>
+  <button data-tab="prep">🍱<span>Prep</span></button>
   <button data-tab="shop">🛒<span>Shop</span></button>
   <button data-tab="progress">📈<span>Progress</span></button>
   <button data-tab="settings">⚙️<span>Settings</span></button>

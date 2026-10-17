@@ -2,6 +2,7 @@ import { getAuth } from './auth.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
+import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
 
@@ -53,7 +54,7 @@ async function exists(u) { // HEAD probe, cached 60s, so clips dropped into medi
   let ok = false; try { ok = (await fetch(u, { method: 'HEAD', cache: 'no-store' })).ok; } catch {}
   probeCache[u] = { ok, t: Date.now() }; return ok;
 }
-const TRAINERS = { m: { label: 'Kova (male)', voice: /\b(male|daniel|ryan|george|arthur|oliver|thomas|james|alfie)\b/i }, f: { label: 'Kova (female)', voice: /\b(female|woman|serena|kate|libby|sonia|hazel|susan|fiona|martha|amy|emma|maisie)\b/i } };
+const TRAINERS = { m: { label: 'Reta (male)', voice: /\b(male|daniel|ryan|george|arthur|oliver|thomas|james|alfie)\b/i }, f: { label: 'Reta (female)', voice: /\b(female|woman|serena|kate|libby|sonia|hazel|susan|fiona|martha|amy|emma|maisie)\b/i } };
 async function firstExisting(list) { for (const u of list) if (await exists(u)) return u; return null; }
 // Candidates: trainer folder (hd first for the big view), then shared media/, then bundled clips/.
 function demoCandidates(key, hd) {
@@ -221,7 +222,7 @@ async function llm(prompt) {
     const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
     const r = await fetch(settings.llmUrl, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${settings.llmKey}` },
       body: JSON.stringify({ model: settings.llmModel || 'gpt-4o-mini', max_tokens: 180, messages: [
-        { role: 'system', content: `You are Kova, a warm, upbeat British home-fitness coach for ${settings.name}, a total beginner using bodyweight only (no equipment to buy). Be brief, kind, specific and non-judgemental. Never suggest extreme or very-low-calorie diets. Not medical advice.` },
+        { role: 'system', content: `You are Reta, a warm, upbeat British home-fitness coach for ${settings.name}, a total beginner using bodyweight only (no equipment to buy). Be brief, kind, specific and non-judgemental. Never suggest extreme or very-low-calorie diets. Not medical advice.` },
         { role: 'user', content: prompt }] }) });
     clearTimeout(to); if (!r.ok) return null;
     const j = await r.json(); return j.choices?.[0]?.message?.content?.trim() || null;
@@ -255,7 +256,7 @@ function draw(res) {
   const lm = res?.landmarks?.[0]; if (!lm) return;
   const W = canvas.width, H = canvas.height;
   ctx.lineWidth = Math.max(3, W / 200);
-  const bad = sess && sess.badJoints && performance.now() < (sess.badUntil || 0) ? sess.badJoints : null; // "You vs Kova": red = fix this, green = good
+  const bad = sess && sess.badJoints && performance.now() < (sess.badUntil || 0) ? sess.badJoints : null; // "You vs Reta": red = fix this, green = good
   const RED = '#ff4d4d', GOOD = bad ? '#3ddc84' : 'rgba(22,212,192,.9)';
   for (const { start, end } of landmarker.CONN) { const a = lm[start], b = lm[end]; if ((a.visibility ?? 1) < .5 || (b.visibility ?? 1) < .5) continue; ctx.strokeStyle = bad && (bad.has(start) || bad.has(end)) ? RED : GOOD; ctx.beginPath(); ctx.moveTo(a.x * W, a.y * H); ctx.lineTo(b.x * W, b.y * H); ctx.stroke(); }
   for (let i = 11; i < 33; i++) { const p = lm[i]; if ((p.visibility ?? 1) < .5) continue; const r = bad?.has(i); ctx.fillStyle = r ? RED : '#fff'; ctx.beginPath(); ctx.arc(p.x * W, p.y * H, ctx.lineWidth * (r ? 2.2 : 1.3), 0, 7); ctx.fill(); }
@@ -401,7 +402,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
 
@@ -430,7 +431,7 @@ async function analyseFood({ speak = true } = {}) {
   $('foodResult').querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => openRecipe(b.dataset.recipe));
   if (speak) say(`Thanks ${settings.name}. Today's food score is ${r.score} out of 10. ${r.headline}`, { kind: 'high' });
   const extra = await llm(`Food check-in for today (free text): ${JSON.stringify(entries)}. Rule-based flags: ${JSON.stringify(Object.fromEntries(MEALS.map(m => [m.id, r.meals[m.id].flags.map(f => f.k)])))}. ${settings.glp1 ? 'User takes a GLP-1-type medication; emphasise protein at small meals.' : ''} Give 3 short, kind, specific swap ideas for a moderate calorie deficit.`);
-  if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Kova's extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
+  if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Reta's extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
   return r;
 }
 $('analyseBtn').onclick = () => { unlockAudio(); analyseFood(); };
@@ -492,22 +493,22 @@ const S = { setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech
 for (const [id, k] of Object.entries(S)) { const el = $(id); if (el.type === 'checkbox') el.checked = !!settings[k]; else el.value = settings[k] || (k === 'country' ? 'auto' : ''); }
 $('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.name ||= 'Mitchell'; settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
 $('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); location.reload(); } };
-function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}! I'm Kova. I'll watch your form through the camera, count your reps and cheer you on.`; }
+function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.`; }
 greetText();
 
-/* ---------- voice: "Hey Kova" wake word + commands + dictation ---------- */
+/* ---------- voice: "Hey Reta" wake word + commands + dictation ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const REC_LANG = /^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB';
 const voiceState = { on: false, mode: 'idle', armedUntil: 0, armedIdx: -1, dictate: null, rec: null, failures: 0, ttsBusy: false, wakeIdx: new Set(), restarts: 0 };
 window.__kova = { voiceState, PLAN };
-$('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Kova".';
+$('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Reta".';
 function micUI() {
   const b = $('micBtn'); b.classList.toggle('on', voiceState.on); b.classList.toggle('off', !voiceState.on); b.classList.toggle('armed', voiceState.mode !== 'idle');
-  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : voiceState.ttsBusy ? 'Kova speaking…' : 'Listening for "Hey Kova"';
+  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : voiceState.ttsBusy ? 'Reta speaking…' : 'Listening for "Hey Reta"';
   $('listenBadge').hidden = voiceState.mode === 'idle'; $('listenBadge').textContent = voiceState.mode === 'dictate' ? '🎙️ Dictating…' : '🎙️ Listening…';
   b.setAttribute('aria-pressed', voiceState.on);
-  const sm = $('sessMic'); sm.className = b.className.replace('mic', 'iconbtn mic'); $('sessMicLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode !== 'idle' ? 'Listening…' : 'Hey Kova';
+  const sm = $('sessMic'); sm.className = b.className.replace('mic', 'iconbtn mic'); $('sessMicLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode !== 'idle' ? 'Listening…' : 'Hey Reta';
 }
 let chipT;
 function heardChip(text, final) { // live transcript so you can see what the phone hears
@@ -526,7 +527,7 @@ function onTranscript(text, final, idx) {
     if (!final) return;
     const d = voiceState.dictate; voiceState.mode = 'idle'; voiceState.dictate = null; micUI(); return d?.(text.trim());
   }
-  // Kova's own short rep counts may leak into the mic: only a wake phrase gets through while speaking.
+  // Reta's own short rep counts may leak into the mic: only a wake phrase gets through while speaking.
   const w = findWake(text);
   if (voiceState.mode === 'idle') {
     if (!w) return;
@@ -536,7 +537,7 @@ function onTranscript(text, final, idx) {
   }
   if (voiceState.mode === 'armed' && final && Date.now() < voiceState.armedUntil) {
     const cmd = idx === voiceState.armedIdx ? (w ? w.rest : '') : (w ? w.rest : text);
-    if (!cmd.trim()) return; // just "hey kova" so far; wait for the command
+    if (!cmd.trim()) return; // just "hey reta" so far; wait for the command
     voiceState.mode = 'idle'; micUI(); runCommand(cmd);
   }
 }
@@ -564,7 +565,7 @@ function startRec() {
   try { r.start(); } catch (err) { voiceState.rec = null; voiceState.failures++; setTimeout(startRec, nextDelay(voiceState.failures)); }
 }
 function stopRec(abort = true) { const r = voiceState.rec; voiceState.rec = null; try { abort ? r?.abort() : r?.stop(); } catch {} }
-// Pause listening while Kova talks (longer lines) so the phone doesn't hear itself; resume right after.
+// Pause listening while Reta talks (longer lines) so the phone doesn't hear itself; resume right after.
 function ttsStart(kind, text = '') { if (!voiceState.on || kind === 'count') return; voiceState.ttsBusy = true; stopRec(); micUI();
   clearTimeout(ttsStart.t); ttsStart.t = setTimeout(() => { if (voiceState.ttsBusy) { voiceState.ttsBusy = false; micUI(); startRec(); } }, 2500 + text.length * 90); } // safety: Chrome Android sometimes never fires onend
 function ttsEnd() { if (!voiceState.ttsBusy) return; if (speechSynthesis.speaking || speechSynthesis.pending) return; voiceState.ttsBusy = false; micUI(); setTimeout(startRec, 250); }
@@ -576,7 +577,7 @@ function setMic(on) {
   if (!SR) return toast('Voice isn\'t supported in this browser');
   if (isIOS) return toast('On iPhone, use the Tap to talk button');
   unlockAudio(); voiceState.on = on; voiceState.failures = 0;
-  if (on) { startRec(); toast('Listening for "Hey Kova"'); } else { stopRec(); voiceState.mode = 'idle'; voiceState.ttsBusy = false; }
+  if (on) { startRec(); toast('Listening for "Hey Reta"'); } else { stopRec(); voiceState.mode = 'idle'; voiceState.ttsBusy = false; }
   micUI();
 }
 $('micBtn').onclick = () => setMic(!voiceState.on);
@@ -585,7 +586,7 @@ $('sessMic').onclick = () => setMic(!voiceState.on);
 if (isIOS || !SR) { $('talkBtn').hidden = false; }
 $('talkBtn').onclick = () => {
   unlockAudio();
-  if (!SR) { const c = prompt('Type a command for Kova (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
+  if (!SR) { const c = prompt('Type a command for Reta (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
   if (voiceState.mode !== 'dictate') arm('tap'); voiceState.armedIdx = -1; oneShot();
 };
 function dictate(prompt, cb) {
@@ -635,6 +636,7 @@ function runCommand(raw) {
   }
   if (/weigh|weight/.test(t)) { const inline = t.match(/\d/); if (inline && parseWeight(t)) return say('Weigh-in saved. Remember, it\'s the trend over weeks that matters.', { kind: 'high' }); return dictate('Sure. What do you weigh today? You can say kilos, pounds, or stone.', r => say(parseWeight(r.toLowerCase()) ? 'Got it, weigh-in saved.' : 'Sorry, I didn\'t catch a number. You can type it on the Progress tab.', { kind: 'high' })); }
   if (/show me|how do i|demo|show how/.test(t)) { if (!sess) return say('Start a workout and I\'ll show you each move.', { kind: 'high' }); const s = cur(); const mv = s.kind === 'rest' ? (s.next === 'cool' ? null : s.next) : s.kind === 'warm' ? 'march' : s.move; if (!mv) return say('Just gentle stretches now. Follow the timer.', { kind: 'high' }); return showMe(mv, sess.lastIssue || 'any', { manual: true }); }
+  if (/\bprep\b|meal prep|batch cook/.test(t)) { if (sess) return say('Let\'s plan your prep after the workout.', { kind: 'high' }); switchTab('prep'); if (!Object.values(shop.prep.week || {}).some(Boolean)) buildMyWeek({ silent: true }); return say(prepSummary(), { kind: 'high' }); }
   if (/shopping|what (do|should) i buy|what to buy|grocer/.test(t)) { if (sess) return say('Let\'s look at the shopping list after the workout.', { kind: 'high' }); switchTab('shop'); const n = Object.values(buildList(shop.recipes, shop.extra)).flat().filter(e => !shop.ticks[e.key]).length; return say(n ? `You've got ${n} things left to buy on this week's list.` : 'Your list is empty. Add a recipe or some weekly basics.', { kind: 'high' }); }
   if (/what (should|can) i (eat|have)|meal idea|hungry|dinner idea|lunch idea|ready meal/.test(t)) return say(mealSuggestion(), { kind: 'high' });
   if (/what'?s next|what is next|what's coming|what next/.test(t)) { if (!sess) return say('Next is your Week 1 workout. Say "start workout" when you\'re ready.', { kind: 'high' }); const s = cur(); const n = s.kind === 'rest' ? PLAN[sess.i + 1] : PLAN[sess.i + 1]?.kind === 'rest' ? PLAN[sess.i + 2] : PLAN[sess.i + 1]; return say(`Up next: ${stepName(n)}.`, { kind: 'high' }); }
@@ -731,14 +733,75 @@ function renderShop() {
 }
 $('shopClearTicked').onclick = () => {
   const ticked = new Set(Object.keys(shop.ticks)); shop.extra = shop.extra.filter(x => !ticked.has(shopKey(x.item)));
-  shop.recipes = shop.recipes.filter(id => !RECIPES.find(r => r.id === id).ing.every(g => ticked.has(shopKey(g.item))));
+  shop.recipes = shop.recipes.filter(id => { const r = [...RECIPES, ...PREP_RECIPES].find(x => x.id === id); return r && !r.ing.every(g => ticked.has(shopKey(g.item))); });
   shop.ticks = {}; saveShop(); renderShop(); toast('Ticked items cleared');
 };
 $('shopShare').onclick = async () => {
   const list = buildList(shop.recipes, shop.extra);
-  const text = 'Kova shopping list\n' + AISLES.filter(a => list[a]?.length).map(a => `\n${a}\n` + list[a].map(e => `${shop.ticks[e.key] ? '[x]' : '[ ]'} ${e.item}${e.pack ? ` (${e.pack})` : ''}`).join('\n')).join('\n');
+  const text = 'Reta shopping list\n' + AISLES.filter(a => list[a]?.length).map(a => `\n${a}\n` + list[a].map(e => `${shop.ticks[e.key] ? '[x]' : '[ ]'} ${e.item}${e.pack ? ` (${e.pack})` : ''}`).join('\n')).join('\n');
   try { if (navigator.share) await navigator.share({ title: 'Shopping list', text }); else { await navigator.clipboard.writeText(text); toast('List copied'); } } catch {}
 };
 function openRecipe(id) { switchTab('shop'); setTimeout(() => $('recipe-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }
 document.querySelectorAll('[data-goshop]').forEach(b => b.onclick = () => { if (!sess) { switchTab('shop'); scrollTo(0, 0); } });
 window.__kova.shop = shop;
+
+
+/* ---------- meal prep (per account) ---------- */
+shop.prep = Object.assign({ days: 4, week: {} }, shop.prep || {});
+const prepById = id => PREP_RECIPES.find(r => r.id === id);
+function prepCard(r) {
+  const on = shop.recipes.includes(r.id), days = shop.prep.days;
+  const portions = r.meal === 'snack' ? `Makes ${r.makes}` : r.makes > days ? `Makes ${r.makes}: ${days} days + ${r.makes - days} to freeze or share` : `Makes ${r.makes} portions (${days} days)`;
+  return `<div class="recipe" id="recipe-${r.id}"><h4>${esc(r.name)}</h4>
+    <div class="tags">${r.veg ? '<span class="v">Vegetarian</span>' : ''}${r.fussy ? '<span class="f">Fussy-friendly</span>' : ''}<span>${portions}</span><span>≈${r.kcal} kcal</span><span>≈${r.protein}g protein</span><span>per portion</span><span>${r.mins} min</span></div>
+    <button type="button" class="addweek ${on ? 'on' : ''}" data-week="${r.id}">${on ? '✓ On shopping list (tap to remove)' : '＋ Add to shopping list'}</button>
+    <b class="small">Shopping list (whole batch)</b>${r.ing.map(g => { const q = fmtQty(g.q); return tickRow(shopKey(g.item), g.item, `<span class="qty">${esc(q.metric)}${q.imperial ? ` / ${esc(q.imperial)}` : ''}</span>${g.pack ? ` · Pack: ${esc(g.pack)}` : ''}`); }).join('')}
+    <div class="storebox">🧊 <b>Fridge:</b> ${esc(r.store.fridge)} · <b>Freezer:</b> ${esc(r.store.freezer)}<br>🔥 <b>Reheat:</b> ${esc(r.store.reheat)}</div>
+    <div class="glp1">💊 <b>GLP-1 / retatrutide-friendly:</b> ${esc(r.glp1)}</div>
+    <details><summary class="small">Method</summary><ol>${r.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details></div>`;
+}
+function prepSummary() {
+  const w = shop.prep.week, names = ['breakfast', 'lunch', 'dinner'].map(m => w[m] && prepById(w[m])).filter(Boolean);
+  if (!names.length) return 'Tap Build my week and I\'ll pick a breakfast, lunch and dinner to prep.';
+  return `For your ${shop.prep.days}-day prep: ${names.map((r, k) => `${['breakfast', 'lunch', 'dinner'][k]}, ${r.name}`).join('; ')}. The ingredients are on your shopping list.`;
+}
+function buildMyWeek({ silent = false } = {}) {
+  const w = buildWeek({ dislikes: settings.dislikes || [], fussy: settings.fussy, seed: Date.now(), mentionsDisliked });
+  shop.recipes = shop.recipes.filter(id => !id.startsWith('p-') || !['breakfast', 'lunch', 'dinner'].includes(prepById(id)?.meal));
+  shop.prep.week = {};
+  for (const m of ['breakfast', 'lunch', 'dinner']) if (w[m]) { shop.prep.week[m] = w[m].id; shop.recipes.push(w[m].id); }
+  saveShop(); renderPrep();
+  const n = Object.values(buildList(shop.recipes, shop.extra)).flat().length;
+  if (!silent) toast(`✨ Week built. Shopping list now has ${n} items`, 3500);
+  return w;
+}
+function renderPrep() {
+  shop.prep.days ||= 4;
+  $('prepStorePick').innerHTML = Object.entries(STORES).map(([k, v]) => `<button type="button" class="chip ${shop.store === k ? 'on' : ''}" data-pstore="${k}">${v.name}</button>`).join('');
+  $('prepStoreNotes').innerHTML = (PREP_STORE_NOTES[shop.store] || PREP_STORE_NOTES.any).map(x => `<li>${esc(x)}</li>`).join('') + '<li class="muted">No prices or product names. Availability varies, so check labels.</li>';
+  document.querySelectorAll('#prepDays button').forEach(b => b.classList.toggle('on', +b.dataset.days === shop.prep.days));
+  $('prepSafety').innerHTML = SAFETY.map(x => `<li>${esc(x)}</li>`).join('');
+  const w = shop.prep.week;
+  $('prepWeek').innerHTML = ['breakfast', 'lunch', 'dinner'].some(m => w[m]) ? `<h3>Your ${shop.prep.days}-day prep</h3>` + ['breakfast', 'lunch', 'dinner'].map(m => { const r = prepById(w[m]); return r ? `<div class="weekpick"><span class="t"><b>${m[0].toUpperCase() + m.slice(1)}:</b> ${esc(r.name)}<small>≈${r.kcal} kcal · ≈${r.protein}g protein · fridge ${esc(r.store.fridge.toLowerCase())}</small></span><button type="button" data-goto="${r.id}">View</button><button type="button" data-swap="${m}">🔄 Swap</button></div>` : ''; }).join('') + '<button type="button" data-goshop2>🛒 Open shopping list</button>' : '';
+  const dis = settings.dislikes || [];
+  $('prepSections').innerHTML = MEAL_SECTIONS.map(([m, title]) => {
+    const list = PREP_RECIPES.filter(r => r.meal === m && !mentionsDisliked(r.name + ' ' + r.ing.map(g => g.item).join(' '), dis)).sort((a, b) => settings.fussy ? (b.fussy ? 1 : 0) - (a.fussy ? 1 : 0) : 0);
+    return `<section class="prepsec" id="prep-${m}"><h2>${title}</h2>${list.map(prepCard).join('') || '<p class="small muted">Nothing here without foods you won\'t eat. Edit your food profile in Settings.</p>'}</section>`;
+  }).join('');
+  const root = $('tab-prep');
+  root.querySelectorAll('[data-pstore]').forEach(b => b.onclick = () => { shop.store = b.dataset.pstore; saveShop(); renderPrep(); });
+  root.querySelectorAll('#prepDays button').forEach(b => b.onclick = () => { shop.prep.days = +b.dataset.days; saveShop(); renderPrep(); });
+  root.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { if (c.checked) shop.ticks[c.dataset.tick] = true; else delete shop.ticks[c.dataset.tick]; saveShop(); renderPrep(); });
+  root.querySelectorAll('[data-week]').forEach(b => b.onclick = () => { const id = b.dataset.week; shop.recipes = shop.recipes.includes(id) ? shop.recipes.filter(x => x !== id) : [...shop.recipes, id]; saveShop(); renderPrep(); toast(shop.recipes.includes(id) ? '🛒 Added to your shopping list' : 'Removed from the list'); });
+  root.querySelectorAll('[data-goto]').forEach(b => b.onclick = () => $('recipe-' + b.dataset.goto)?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+  root.querySelectorAll('[data-swap]').forEach(b => b.onclick = () => {
+    const m = b.dataset.swap, curId = shop.prep.week[m];
+    const pool = PREP_RECIPES.filter(r => r.meal === m && r.id !== curId && !mentionsDisliked(r.name + ' ' + r.ing.map(g => g.item).join(' '), dis) && (!settings.fussy || r.fussy || !PREP_RECIPES.some(x => x.meal === m && x.fussy && x.id !== curId)));
+    if (!pool.length) return toast('No other option without your dislikes');
+    const r = pool[Math.floor(Math.random() * pool.length)];
+    shop.recipes = shop.recipes.filter(x => x !== curId); shop.recipes.push(r.id); shop.prep.week[m] = r.id; saveShop(); renderPrep(); toast(`🔄 ${m}: ${r.name}`);
+  });
+  root.querySelectorAll('[data-goshop2]').forEach(b => b.onclick = () => { switchTab('shop'); scrollTo(0, 0); });
+}
+$('buildWeekBtn').onclick = () => buildMyWeek();
+window.__kova.buildMyWeek = buildMyWeek;
