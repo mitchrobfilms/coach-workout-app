@@ -1,5 +1,5 @@
 {
- "version": 2,
+ "version": 3,
  "updated": "2026-10-18",
  "classes": [
   {
@@ -27,7 +27,7 @@
     "boxing",
     "box"
    ],
-   "drive_file_id": "1qnHdxDPOW5NDFhMw42CISlsWGQRuQt6s",
+   "drive_file_id": "1nTye764CnTjx9VfrtMn_cBX_eo35bvX7",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
@@ -345,7 +345,7 @@
     "dance",
     "dancing"
    ],
-   "drive_file_id": "1nkYJEr8yX6omMcxKE0L0mmYp7QxmssO7",
+   "drive_file_id": "1UoIuDdrdvcHy_DNLoDpUiiZyUarZ-gXZ",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
@@ -649,7 +649,7 @@
     "zumba",
     "salsa"
    ],
-   "drive_file_id": "1E78_LIUkJ6DKlSChW7a_0COixE04BGzD",
+   "drive_file_id": "1Zh41kNsA7rqkIjpHlnscpZ03fBfsZ95Y",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
@@ -975,7 +975,7 @@
    "voice": [
     "yoga"
    ],
-   "drive_file_id": "1wbLHOOd18heWR0KJbnz08R15Tqt-szJx",
+   "drive_file_id": "1i9a7j5HJoJ2Mmm9sKosfwoCqcTKnT-3m",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
@@ -1267,7 +1267,7 @@
    "voice": [
     "pilates"
    ],
-   "drive_file_id": "1HiYYgdIfujqs_GNVQSLFVkHuMpdKtaUK",
+   "drive_file_id": "1sT-gQY6nWAMfebw07nI0VPWU-D2XigM2",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
