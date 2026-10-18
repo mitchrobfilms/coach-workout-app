@@ -143,6 +143,7 @@
 <section id="tab-classes" class="tab">
   <div class="shophead"><h2>🎬 Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Reta coaches you live through the camera.</p></div>
   <div class="card rec" id="recCard"></div>
+  <input type="search" id="classSearch" placeholder="🔎 Search classes, moves or trainers" aria-label="Search classes">
   <div class="row between"><div class="chips" id="classFilters"></div></div>
   <label class="small trainersel">Trainer <select id="classTrainer"><option value="lead">Class lead (default)</option><option value="m">Reta (male)</option><option value="f">Reta (female)</option></select></label>
   <div id="classList"></div>
@@ -195,6 +196,7 @@
   <h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div>
   <label>Your name <input id="setName" type="text"></label>
   <label class="check"><input type="checkbox" id="setSpeech" checked> Reta speaks out loud</label>
+  <label class="small">Instructor voice <select id="setVoiceMode"><option value="recorded">Recorded (realistic)</option><option value="phone">Phone voice</option></select></label>
   <label class="check"><input type="checkbox" id="setBeeps" checked> Beeps</label>
   <h3>Food profile</h3>
   <label>Country for ready-meal ideas <select id="setCountry"><option value="auto">Auto-detect</option><option value="UK">United Kingdom</option><option value="IE">Ireland</option><option value="US">United States</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="OTHER">Other / not listed</option></select></label>
@@ -225,6 +227,7 @@
   <button data-tab="settings">⚙️<span>Settings</span></button>
 </nav>
 <button id="talkBtn" class="talk" hidden>🎙️ Tap to talk</button>
+<button type="button" class="updatetoast" id="updateToast" hidden>🔄 Update available, tap to refresh</button>
 <div id="toast" class="toast" hidden></div>
 <script type="module" src="app.js"></script>
 </body>

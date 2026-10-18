@@ -1,7 +1,7 @@
 // Renders a full 30:00 class to MP4: trainer clips sequenced by the class script, on-screen move names, timers,
 // 8-count for dance classes, and the same generated music the app plays (offline-synthesised), mixed in.
 // Usage: node tools/render-class.mjs <classId|all> [outDir]
-import { CLASSES, classById } from '../classes.js';
+import { buildLibrary } from '../classes.js';
 import { patternEvents, styleFor } from '../music.js';
 import fs from 'node:fs'; import path from 'node:path'; import { execFileSync } from 'node:child_process';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
@@ -9,6 +9,7 @@ const OUT = path.resolve(process.argv[3] || '/workspace/class-renders');
 const FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', FONT2 = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 const FPS = 30, W = 1280, H = 720, SR = 32000;
 const MEDIA = { march: 'warmup', pushup: 'wall-pushups', squat: 'squats', knees: 'knee-lifts', bridge: 'glute-bridges', lunge: 'lunges', deadbug: 'dead-bug', cool: 'cooldown' };
+const CLASSES = buildLibrary(JSON.parse(fs.readFileSync(path.join(ROOT, 'library.json'), 'utf8'))), classById = id => CLASSES.find(c => c.id === id);
 const has = p => fs.existsSync(path.join(ROOT, p));
 const manifest = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'media/classes/manifest.json'), 'utf8')); } catch { return null; } })();
 
@@ -81,7 +82,7 @@ function segment(cls, s, i, moves, tmp) {
   const src = sourceFor(cls, rest && nxt ? nxt : s, moves);
   const tf = (name, text) => { const p = path.join(tmp, `${i}-${name}.txt`); fs.writeFileSync(p, q(text)); return p.replace(/:/g, '\\:'); };
   const D = s.dur, REM = cls.total - s.at, frames = D * FPS;
-  const dance = (cls.id === 'dance' || cls.id === 'latin') && !rest && s.kind !== 'cool';
+  const dance = cls.eightCount && !rest && s.kind !== 'cool';
   const f = [];
   f.push(`[0:v]fps=${FPS},scale=${W}:${H}:force_original_aspect_ratio=increase,crop=${W}:${H},setsar=1${rest ? ',eq=brightness=-0.18:saturation=0.55' : ''}[b0]`);
   const dt = [];
@@ -104,6 +105,7 @@ function segment(cls, s, i, moves, tmp) {
     const cues = s.counts?.length ? s.counts.map((c, k) => [k * 16, k === s.counts.length - 1 ? D : (k + 1) * 16, k ? `Layer it up: ${c}` : c]) : [[0, D, s.combo ? `Combo: ${s.combo}  ·  ${s.how.split('. ').slice(-1)[0]}` : s.how]];
     cues.forEach(([a, b, c], k) => { if (a < D) dt.push(`drawtext=fontfile=${FONT2}:textfile='${tf('cue' + k, c.length > 78 ? c.slice(0, 76) + '…' : c)}':fontsize=25:fontcolor=white@0.92:x=36:y=h-58:enable='between(t,${a},${Math.min(b, D)})'`); });
     dt.push(`drawtext=fontfile=${FONT}:text='%{eif\\:floor(ceil(${D}-t)/60)\\:d}\\:%{eif\\:mod(ceil(${D}-t),60)\\:d\\:2}':fontsize=74:fontcolor=white:x=w-tw-36:y=h-140`);
+    if (s.fix) dt.push(`drawtext=fontfile=${FONT}:textfile='${tf('fix', '⚠ ' + s.fix)}':fontsize=28:fontcolor=0x2a1a00:box=1:boxcolor=0xffb547@0.95:boxborderw=14:x=(w-tw)/2:y=110`);
     if (s.kind === 'main' && D >= 10) dt.push(`drawtext=fontfile=${FONT}:text='10 SECONDS!':fontsize=34:fontcolor=0xffb547:x=w-tw-36:y=h-196:enable='gte(t,${D - 10})'`);
     if (dance) {
       dt.push(`drawbox=x=iw-190:y=96:w=164:h=170:color=black@0.5:t=fill`);

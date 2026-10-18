@@ -1,0 +1,5018 @@
+{
+ "note": "Record each line for both trainers as media/voice/<m|f>/<id>.mp3 and list it in media/voice/voice-manifest.json. IDs are stable.",
+ "count": 579,
+ "lines": [
+  {
+   "id": "common.pause",
+   "text": "Paused. Say resume when you're ready.",
+   "tags": [
+    "common"
+   ]
+  },
+  {
+   "id": "common.resume",
+   "text": "And we're back.",
+   "tags": [
+    "common"
+   ]
+  },
+  {
+   "id": "common.skip",
+   "text": "Skipping ahead.",
+   "tags": [
+    "common"
+   ]
+  },
+  {
+   "id": "common.step_back",
+   "text": "Step back so I can see your whole body",
+   "tags": [
+    "common"
+   ]
+  },
+  {
+   "id": "class.halfway",
+   "text": "Halfway there!",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.halfway_hold",
+   "text": "Halfway. Keep breathing.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.ten_seconds",
+   "text": "10 seconds left!",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.ten_seconds_punch",
+   "text": "10 seconds, empty the tank!",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.ten_seconds_hold",
+   "text": "10 more seconds, breathe.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.count_in_dance",
+   "text": "Five, six, seven, eight!",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.count_in",
+   "text": "In 3, 2, 1…",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.finish_first",
+   "text": "Let's finish this one first.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "cue.guard_up",
+   "text": "Guard up! Hands back to your cheeks.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.great_rhythm",
+   "text": "Great rhythm! You're right on the beat.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.keep_moving",
+   "text": "Keep moving. Small steps are perfect.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.kick_drum",
+   "text": "Listen for the kick drum and step with it.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.still_point",
+   "text": "Find a still point to look at. Breathe.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.slower",
+   "text": "Slower and more controlled.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.bridge_higher",
+   "text": "Lift a little higher, squeeze your glutes.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.bigger_range",
+   "text": "A little bigger range, still slow.",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "cue.strong_work",
+   "text": "Strong work!",
+   "tags": [
+    "cue"
+   ]
+  },
+  {
+   "id": "pose.chair_lower",
+   "text": "Sink a bit lower into the chair pose",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.chair_higher",
+   "text": "Come up a little, knees no lower than the chair",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.chair_good",
+   "text": "Lovely chair pose. Breathe",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.warrior_wider",
+   "text": "Step your feet wider apart",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.warrior_bend",
+   "text": "Bend your front knee over your ankle",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.warrior_straighten",
+   "text": "Straighten your back leg",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.warrior_arms",
+   "text": "Arms out at shoulder height",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.warrior_good",
+   "text": "Strong warrior. Breathe",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.tree_lift",
+   "text": "Lift one foot onto your ankle or calf, hold the chair if you need",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.tree_tall",
+   "text": "Stand tall on the supporting leg",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "pose.tree_good",
+   "text": "Beautiful tree. Steady breath",
+   "tags": [
+    "pose"
+   ]
+  },
+  {
+   "id": "plank.good",
+   "text": "Solid plank. Breathe",
+   "tags": [
+    "plank"
+   ]
+  },
+  {
+   "id": "plank.line",
+   "text": "Make a straight line from head to knees",
+   "tags": [
+    "plank"
+   ]
+  },
+  {
+   "id": "plank.setup",
+   "text": "Forearms and knees down, body long",
+   "tags": [
+    "plank"
+   ]
+  },
+  {
+   "id": "count.1",
+   "text": "1",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.2",
+   "text": "2",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.3",
+   "text": "3",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.4",
+   "text": "4",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.5",
+   "text": "5",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.6",
+   "text": "6",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.7",
+   "text": "7",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.8",
+   "text": "8",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.9",
+   "text": "9",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.10",
+   "text": "10",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.11",
+   "text": "11",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.12",
+   "text": "12",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.13",
+   "text": "13",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.14",
+   "text": "14",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.15",
+   "text": "15",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.16",
+   "text": "16",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.17",
+   "text": "17",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.18",
+   "text": "18",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.19",
+   "text": "19",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.20",
+   "text": "20",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "class.boxing.welcome",
+   "text": "Welcome to Boxing! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.",
+   "tags": [
+    "class",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.march-and-arm-circles.intro",
+   "text": "March and arm circles. March on the spot and circle your arms forwards, then backwards.",
+   "tags": [
+    "class",
+    "boxing",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.boxing.march-and-arm-circles.next",
+   "text": "Nice work. Next up: March and arm circles.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.march-and-arm-circles.water_next",
+   "text": "Water break. Grab a sip. Next up: March and arm circles.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.big-arm-circles",
+   "text": "Big arm circles",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.swap-direction",
+   "text": "Swap direction",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.nice-and-loose",
+   "text": "Nice and loose",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.step-touch-and-shoulder-rolls.intro",
+   "text": "Step-touch and shoulder rolls. Step side to side and roll your shoulders back.",
+   "tags": [
+    "class",
+    "boxing",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.boxing.step-touch-and-shoulder-rolls.next",
+   "text": "Nice work. Next up: Step-touch and shoulder rolls.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.step-touch-and-shoulder-rolls.water_next",
+   "text": "Water break. Grab a sip. Next up: Step-touch and shoulder rolls.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.roll-them-back",
+   "text": "Roll them back",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.breathe-out-as-you-step",
+   "text": "Breathe out as you step",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-bob-and-weave.intro",
+   "text": "Slow bob and weave. Small squat as you dip your head side to side under an imaginary rope.",
+   "tags": [
+    "class",
+    "boxing",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-bob-and-weave.next",
+   "text": "Nice work. Next up: Slow bob and weave.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-bob-and-weave.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow bob and weave.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.bend-the-knees-not-the-back",
+   "text": "Bend the knees, not the back",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.eyes-forward",
+   "text": "Eyes forward",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.easy-jabs.intro",
+   "text": "Easy jabs. Guard up: fists by your cheeks, elbows in, soft knees, one foot slightly forward. Gentle jabs with the lead hand.",
+   "tags": [
+    "class",
+    "boxing",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.boxing.easy-jabs.next",
+   "text": "Nice work. Next up: Easy jabs.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.easy-jabs.water_next",
+   "text": "Water break. Grab a sip. Next up: Easy jabs.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.snap-it-out-snap-it-back",
+   "text": "Snap it out, snap it back",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.hands-back-to-your-cheeks",
+   "text": "Hands back to your cheeks",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.torso-twists-in-guard.intro",
+   "text": "Torso twists in guard. Hold your guard and rotate gently from the waist.",
+   "tags": [
+    "class",
+    "boxing",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.boxing.torso-twists-in-guard.next",
+   "text": "Nice work. Next up: Torso twists in guard.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.torso-twists-in-guard.water_next",
+   "text": "Water break. Grab a sip. Next up: Torso twists in guard.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.pivot-the-back-foot",
+   "text": "Pivot the back foot",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.guard-stays-up",
+   "text": "Guard stays up",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8.intro",
+   "text": "Jab-cross ×8. Guard up: fists by your cheeks, elbows in, soft knees, one foot slightly forward. Jab (front hand), cross (back hand). 8 then reset.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8.next",
+   "text": "Nice work. Next up: Jab-cross ×8.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8.water_next",
+   "text": "Water break. Grab a sip. Next up: Jab-cross ×8.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.jab-cross",
+   "text": "Jab, cross!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.rotate-the-back-hip-on-the-cross",
+   "text": "Rotate the back hip on the cross",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.exhale-on-every-punch",
+   "text": "Exhale on every punch",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8-then-hooks.intro",
+   "text": "Jab-cross ×8, then hooks. Eight jab-crosses, then hooks: elbow up at shoulder height, swing round, pivot.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8-then-hooks.next",
+   "text": "Nice work. Next up: Jab-cross ×8, then hooks.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-8-then-hooks.water_next",
+   "text": "Water break. Grab a sip. Next up: Jab-cross ×8, then hooks.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.8-jab-crosses",
+   "text": "8 jab-crosses…",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.now-hooks",
+   "text": "Now hooks!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.elbow-up-like-a-hook",
+   "text": "Elbow up like a hook",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-jabs-low-impact.intro",
+   "text": "Speed jabs (low impact). Quick light jabs, small bounce or just soft knees.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-jabs-low-impact.next",
+   "text": "Nice work. Next up: Speed jabs (low impact).",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-jabs-low-impact.water_next",
+   "text": "Water break. Grab a sip. Next up: Speed jabs (low impact).",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.fast-hands",
+   "text": "Fast hands!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.breathe",
+   "text": "Breathe!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.keep-it-light",
+   "text": "Keep it light",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.hooks-left-and-right.intro",
+   "text": "Hooks left and right. Left hook, right hook. Elbows up, pivot the feet.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.hooks-left-and-right.next",
+   "text": "Nice work. Next up: Hooks left and right.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.hooks-left-and-right.water_next",
+   "text": "Water break. Grab a sip. Next up: Hooks left and right.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.pivot-the-foot",
+   "text": "Pivot the foot",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.turn-the-hip",
+   "text": "Turn the hip",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.guard-back-after-each-one",
+   "text": "Guard back after each one",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook.intro",
+   "text": "Jab-cross-hook. Jab, cross, lead hook. Reset to guard.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook.next",
+   "text": "Nice work. Next up: Jab-cross-hook.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook.water_next",
+   "text": "Water break. Grab a sip. Next up: Jab-cross-hook.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.one-two-three",
+   "text": "One, two, three!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.guard-up-between-combos",
+   "text": "Guard up between combos",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercuts.intro",
+   "text": "Uppercuts. Dip slightly, drive up from the legs, palm facing you. Drive up from your hips, fist rising to chin height.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercuts.next",
+   "text": "Nice work. Next up: Uppercuts.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercuts.water_next",
+   "text": "Water break. Grab a sip. Next up: Uppercuts.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.drive-from-the-legs",
+   "text": "Drive from the legs",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.short-punches-under-the-chin",
+   "text": "Short punches, under the chin",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-slip.intro",
+   "text": "Jab-cross-slip. Jab, cross, then slip: small dip of the head to one side.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-slip.next",
+   "text": "Nice work. Next up: Jab-cross-slip.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-slip.water_next",
+   "text": "Water break. Grab a sip. Next up: Jab-cross-slip.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.slip-to-the-side",
+   "text": "Slip to the side",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.bend-the-knees",
+   "text": "Bend the knees",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.body-jabs-with-a-squat.intro",
+   "text": "Body jabs with a squat. Bend the knees and jab to body height, stand back up.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.body-jabs-with-a-squat.next",
+   "text": "Nice work. Next up: Body jabs with a squat.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.body-jabs-with-a-squat.water_next",
+   "text": "Water break. Grab a sip. Next up: Body jabs with a squat.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.sit-back-like-the-chair-is-there",
+   "text": "Sit back like the chair is there",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.chest-up",
+   "text": "Chest up",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercut-hook-combo.intro",
+   "text": "Uppercut-hook combo. Rear uppercut, lead hook, repeat. Drive up from your hips, fist rising to chin height.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercut-hook-combo.next",
+   "text": "Nice work. Next up: Uppercut-hook combo.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.uppercut-hook-combo.water_next",
+   "text": "Water break. Grab a sip. Next up: Uppercut-hook combo.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.up-and-round",
+   "text": "Up and round!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.smooth-not-rushed",
+   "text": "Smooth, not rushed",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-punches.intro",
+   "text": "Speed punches. Fast straight punches, light hands, soft knees.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-punches.next",
+   "text": "Nice work. Next up: Speed punches.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.speed-punches.water_next",
+   "text": "Water break. Grab a sip. Next up: Speed punches.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.go-go-go",
+   "text": "Go go go!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.last-few-seconds",
+   "text": "Last few seconds!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook-cross.intro",
+   "text": "Jab-cross-hook-cross. The classic four-punch combo: 1-2-3-2.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook-cross.next",
+   "text": "Nice work. Next up: Jab-cross-hook-cross.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.jab-cross-hook-cross.water_next",
+   "text": "Water break. Grab a sip. Next up: Jab-cross-hook-cross.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.one-two-three-two",
+   "text": "One, two, three, two!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.reset-your-guard",
+   "text": "Reset your guard",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.bob-and-weave-cross.intro",
+   "text": "Bob and weave + cross. Weave under the rope, come up with a cross.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.bob-and-weave-cross.next",
+   "text": "Nice work. Next up: Bob and weave + cross.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.bob-and-weave-cross.water_next",
+   "text": "Water break. Grab a sip. Next up: Bob and weave + cross.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.under-and-cross",
+   "text": "Under… and cross!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.knees-soft",
+   "text": "Knees soft",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.combo-ladder.intro",
+   "text": "Combo ladder. Build it up: 1-2, then 1-2-3, then 1-2-3-2.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.combo-ladder.next",
+   "text": "Nice work. Next up: Combo ladder.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.combo-ladder.water_next",
+   "text": "Water break. Grab a sip. Next up: Combo ladder.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.add-one-more-punch",
+   "text": "Add one more punch",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.stay-sharp",
+   "text": "Stay sharp",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.power-round-jab-cross-8-then-hooks.intro",
+   "text": "Power round: jab-cross ×8 then hooks. Eight strong jab-crosses, then hooks until the bell.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.power-round-jab-cross-8-then-hooks.next",
+   "text": "Nice work. Next up: Power round: jab-cross ×8 then hooks.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.power-round-jab-cross-8-then-hooks.water_next",
+   "text": "Water break. Grab a sip. Next up: Power round: jab-cross ×8 then hooks.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.strong-and-controlled",
+   "text": "Strong and controlled",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.hooks-now",
+   "text": "Hooks now!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.finisher-speed-punches.intro",
+   "text": "Finisher: speed punches. Everything you have left, fast light punches.",
+   "tags": [
+    "class",
+    "boxing",
+    "main"
+   ]
+  },
+  {
+   "id": "class.boxing.finisher-speed-punches.next",
+   "text": "Nice work. Next up: Finisher: speed punches.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.finisher-speed-punches.water_next",
+   "text": "Water break. Grab a sip. Next up: Finisher: speed punches.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.empty-the-tank",
+   "text": "Empty the tank!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "cue.10-seconds",
+   "text": "10 seconds!",
+   "tags": [
+    "cue",
+    "boxing"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-march-and-breathe.intro",
+   "text": "Slow march and breathe. Slow march, big breath in, long breath out.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-march-and-breathe.cool_intro",
+   "text": "Cool-down time. Slow march and breathe. Slow march, big breath in, long breath out.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-march-and-breathe.next",
+   "text": "Nice work. Next up: Slow march and breathe.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.slow-march-and-breathe.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow march and breathe.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "class.boxing.chest-and-shoulder-stretch.intro",
+   "text": "Chest and shoulder stretch. Hands behind you, gently open the chest.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.chest-and-shoulder-stretch.cool_intro",
+   "text": "Cool-down time. Chest and shoulder stretch. Hands behind you, gently open the chest.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.chest-and-shoulder-stretch.next",
+   "text": "Nice work. Next up: Chest and shoulder stretch.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.chest-and-shoulder-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Chest and shoulder stretch.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "class.boxing.triceps-stretch.intro",
+   "text": "Triceps stretch. One hand down your back, gently press the elbow. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.triceps-stretch.cool_intro",
+   "text": "Cool-down time. Triceps stretch. One hand down your back, gently press the elbow. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.triceps-stretch.next",
+   "text": "Nice work. Next up: Triceps stretch.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.triceps-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Triceps stretch.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "class.boxing.thigh-stretch-hold-the-chair.intro",
+   "text": "Thigh stretch (hold the chair). Hold a chair, bring one heel to your bum. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.thigh-stretch-hold-the-chair.cool_intro",
+   "text": "Cool-down time. Thigh stretch (hold the chair). Hold a chair, bring one heel to your bum. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.thigh-stretch-hold-the-chair.next",
+   "text": "Nice work. Next up: Thigh stretch (hold the chair).",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.thigh-stretch-hold-the-chair.water_next",
+   "text": "Water break. Grab a sip. Next up: Thigh stretch (hold the chair).",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "class.boxing.calf-stretch-and-breathe.intro",
+   "text": "Calf stretch and breathe. Hands on the wall, one leg back, heel down. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.calf-stretch-and-breathe.cool_intro",
+   "text": "Cool-down time. Calf stretch and breathe. Hands on the wall, one leg back, heel down. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "boxing",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.boxing.calf-stretch-and-breathe.next",
+   "text": "Nice work. Next up: Calf stretch and breathe.",
+   "tags": [
+    "class",
+    "boxing",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.boxing.calf-stretch-and-breathe.water_next",
+   "text": "Water break. Grab a sip. Next up: Calf stretch and breathe.",
+   "tags": [
+    "class",
+    "boxing",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.welcome",
+   "text": "Welcome to Dance! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.",
+   "tags": [
+    "class",
+    "dance"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch.intro",
+   "text": "Step-touch. Step right, tap left; step left, tap right.",
+   "tags": [
+    "class",
+    "dance",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch.next",
+   "text": "Nice work. Next up: Step-touch.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch.water_next",
+   "text": "Water break. Grab a sip. Next up: Step-touch.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch-with-arm-swings.intro",
+   "text": "Step-touch with arm swings. Add a gentle arm swing across the body.",
+   "tags": [
+    "class",
+    "dance",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch-with-arm-swings.next",
+   "text": "Nice work. Next up: Step-touch with arm swings.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.step-touch-with-arm-swings.water_next",
+   "text": "Water break. Grab a sip. Next up: Step-touch with arm swings.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-arms-swing-on-every-step",
+   "text": "Layer it up: Add arms: swing on every step",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.slow-grapevine.intro",
+   "text": "Slow grapevine. Step side, cross behind, step side, tap. Then back.",
+   "tags": [
+    "class",
+    "dance",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.dance.slow-grapevine.next",
+   "text": "Nice work. Next up: Slow grapevine.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.slow-grapevine.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow grapevine.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-8-grapevine-left",
+   "text": "Layer it up: 5-8 grapevine left",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.hip-rolls-and-shoulder-pops.intro",
+   "text": "Hip rolls and shoulder pops. Feet wide, roll the hips, pop the shoulders on the beat.",
+   "tags": [
+    "class",
+    "dance",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.dance.hip-rolls-and-shoulder-pops.next",
+   "text": "Nice work. Next up: Hip rolls and shoulder pops.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.hip-rolls-and-shoulder-pops.water_next",
+   "text": "Water break. Grab a sip. Next up: Hip rolls and shoulder pops.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-8-shoulder-pops",
+   "text": "Layer it up: 5-8 shoulder pops",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.knee-lift-and-clap.intro",
+   "text": "Knee lift and clap. Lift a knee and clap under it, alternate.",
+   "tags": [
+    "class",
+    "dance",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.dance.knee-lift-and-clap.next",
+   "text": "Nice work. Next up: Knee lift and clap.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.knee-lift-and-clap.water_next",
+   "text": "Water break. Grab a sip. Next up: Knee lift and clap.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.box-step.intro",
+   "text": "Box step. Right foot forward, left forward, right back, left back.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.box-step.next",
+   "text": "Nice work. Next up: Box step.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.box-step.water_next",
+   "text": "Water break. Grab a sip. Next up: Box step.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.box-step-arms.intro",
+   "text": "Box step + arms. Layer the arms: reach up on 1-2, down on 3-4.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.box-step-arms.next",
+   "text": "Nice work. Next up: Box step + arms.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.box-step-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Box step + arms.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-arms-up-on-1-2-down-on-3-4",
+   "text": "Layer it up: Add arms: up on 1-2, down on 3-4",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.grapevine-clap.intro",
+   "text": "Grapevine + clap. Grapevine right with a clap on 4, left with a clap on 8.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.grapevine-clap.next",
+   "text": "Nice work. Next up: Grapevine + clap.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.grapevine-clap.water_next",
+   "text": "Water break. Grab a sip. Next up: Grapevine + clap.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-7-grapevine-left-clap-on-8",
+   "text": "Layer it up: 5-7 grapevine left, clap on 8",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-box-step-grapevine.intro",
+   "text": "Routine A: box step + grapevine. Put them together: one 8 of box steps, one 8 of grapevines.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-box-step-grapevine.next",
+   "text": "Nice work. Next up: Routine A: box step + grapevine.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-box-step-grapevine.water_next",
+   "text": "Water break. Grab a sip. Next up: Routine A: box step + grapevine.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.8-grapevine-right-and-left",
+   "text": "Layer it up: 8 grapevine right and left",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "layer.repeat-smile",
+   "text": "Layer it up: Repeat, smile!",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-curls-arms.intro",
+   "text": "Hamstring curls + arms. Step out and curl the heel behind, pull the arms in.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-curls-arms.next",
+   "text": "Nice work. Next up: Hamstring curls + arms.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-curls-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Hamstring curls + arms.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-a-row-with-the-arms",
+   "text": "Layer it up: Add a row with the arms",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.double-step-touch.intro",
+   "text": "Double step-touch. Two step-touches right, two left.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.double-step-touch.next",
+   "text": "Nice work. Next up: Double step-touch.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.double-step-touch.water_next",
+   "text": "Water break. Grab a sip. Next up: Double step-touch.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-8-double-left",
+   "text": "Layer it up: 5-8 double left",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-with-arms.intro",
+   "text": "Routine A with arms. Routine A with all the arm layers.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-with-arms.next",
+   "text": "Nice work. Next up: Routine A with arms.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.routine-a-with-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Routine A with arms.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.grapevine-clap-on-4-and-8",
+   "text": "Layer it up: Grapevine, clap on 4 and 8",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.side-step-body-roll.intro",
+   "text": "Side step + body roll. Step out wide and roll through the body (small is fine).",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.side-step-body-roll.next",
+   "text": "Nice work. Next up: Side step + body roll.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.side-step-body-roll.water_next",
+   "text": "Water break. Grab a sip. Next up: Side step + body roll.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-6-step-left-7-8-roll",
+   "text": "Layer it up: 5-6 step left, 7-8 roll",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.kick-ball-change-low.intro",
+   "text": "Kick-ball-change (low). Small kick forward, step back on the ball of the foot, change. No jumping.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.kick-ball-change-low.next",
+   "text": "Nice work. Next up: Kick-ball-change (low).",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.kick-ball-change-low.water_next",
+   "text": "Water break. Grab a sip. Next up: Kick-ball-change (low).",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.other-side-on-3-4",
+   "text": "Layer it up: Other side on 3-4",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-layered.intro",
+   "text": "Routine B layered. Side step + body roll, then kick-ball-change.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-layered.next",
+   "text": "Nice work. Next up: Routine B layered.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-layered.water_next",
+   "text": "Water break. Grab a sip. Next up: Routine B layered.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.8-kick-ball-change",
+   "text": "Layer it up: 8 kick-ball-change",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.low-impact-pony-step.intro",
+   "text": "Low-impact pony step. Small side-to-side shuffle, no jumping.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.low-impact-pony-step.next",
+   "text": "Nice work. Next up: Low-impact pony step.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.low-impact-pony-step.water_next",
+   "text": "Water break. Grab a sip. Next up: Low-impact pony step.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.shuffle-left-3-4",
+   "text": "Layer it up: Shuffle left 3&4",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.mambo-step.intro",
+   "text": "Mambo step. Step forward, rock back, step together.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.mambo-step.next",
+   "text": "Nice work. Next up: Mambo step.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.mambo-step.water_next",
+   "text": "Water break. Grab a sip. Next up: Mambo step.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-with-arms.intro",
+   "text": "Routine B with arms. Routine B with arms reaching on every step.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-with-arms.next",
+   "text": "Nice work. Next up: Routine B with arms.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.routine-b-with-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Routine B with arms.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.kick-ball-change-arms-punch-down",
+   "text": "Layer it up: Kick-ball-change, arms punch down",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.freestyle-groove.intro",
+   "text": "Freestyle groove. Your move! Any step from today, stay on the beat.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.freestyle-groove.next",
+   "text": "Nice work. Next up: Freestyle groove.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.freestyle-groove.water_next",
+   "text": "Water break. Grab a sip. Next up: Freestyle groove.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.stay-on-the-beat",
+   "text": "Layer it up: Stay on the beat",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.full-routine-a-b.intro",
+   "text": "Full routine A + B. Everything: routine A, then routine B, on repeat.",
+   "tags": [
+    "class",
+    "dance",
+    "main"
+   ]
+  },
+  {
+   "id": "class.dance.full-routine-a-b.next",
+   "text": "Nice work. Next up: Full routine A + B.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.full-routine-a-b.water_next",
+   "text": "Water break. Grab a sip. Next up: Full routine A + B.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.routine-b-roll-kick-ball-change",
+   "text": "Layer it up: Routine B: roll + kick-ball-change",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.dance.slow-sway.intro",
+   "text": "Slow sway. Slow side-to-side sway, let the arms float.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.slow-sway.cool_intro",
+   "text": "Cool-down time. Slow sway. Slow side-to-side sway, let the arms float.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.slow-sway.next",
+   "text": "Nice work. Next up: Slow sway.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.slow-sway.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow sway.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.side-stretch.intro",
+   "text": "Side stretch. One arm up and over. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.side-stretch.cool_intro",
+   "text": "Cool-down time. Side stretch. One arm up and over. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.side-stretch.next",
+   "text": "Nice work. Next up: Side stretch.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.side-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Side stretch.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-stretch.intro",
+   "text": "Hamstring stretch. One heel forward, toes up, hinge from the hips.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-stretch.cool_intro",
+   "text": "Cool-down time. Hamstring stretch. One heel forward, toes up, hinge from the hips.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-stretch.next",
+   "text": "Nice work. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.hamstring-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.thigh-stretch-hold-the-chair.intro",
+   "text": "Thigh stretch (hold the chair). Heel to bum, holding a chair. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.thigh-stretch-hold-the-chair.cool_intro",
+   "text": "Cool-down time. Thigh stretch (hold the chair). Heel to bum, holding a chair. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.thigh-stretch-hold-the-chair.next",
+   "text": "Nice work. Next up: Thigh stretch (hold the chair).",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.thigh-stretch-hold-the-chair.water_next",
+   "text": "Water break. Grab a sip. Next up: Thigh stretch (hold the chair).",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.dance.breathe-and-shake-out.intro",
+   "text": "Breathe and shake out. Big breaths, shake out the hands and legs.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.breathe-and-shake-out.cool_intro",
+   "text": "Cool-down time. Breathe and shake out. Big breaths, shake out the hands and legs.",
+   "tags": [
+    "class",
+    "dance",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.dance.breathe-and-shake-out.next",
+   "text": "Nice work. Next up: Breathe and shake out.",
+   "tags": [
+    "class",
+    "dance",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.dance.breathe-and-shake-out.water_next",
+   "text": "Water break. Grab a sip. Next up: Breathe and shake out.",
+   "tags": [
+    "class",
+    "dance",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.welcome",
+   "text": "Welcome to Latin Dance Cardio! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.",
+   "tags": [
+    "class",
+    "latin"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-march.intro",
+   "text": "Merengue march. March on the spot, let the hips move naturally.",
+   "tags": [
+    "class",
+    "latin",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-march.next",
+   "text": "Nice work. Next up: Merengue march.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-march.water_next",
+   "text": "Water break. Grab a sip. Next up: Merengue march.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-arms.intro",
+   "text": "Merengue + arms. Add arm rolls and elbow pumps.",
+   "tags": [
+    "class",
+    "latin",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-arms.next",
+   "text": "Nice work. Next up: Merengue + arms.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Merengue + arms.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-arm-rolls-on-5-8",
+   "text": "Layer it up: Add arm rolls on 5-8",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-basic.intro",
+   "text": "Slow salsa basic. Forward on 1, back to centre on 2-3; back on 5, centre on 6-7.",
+   "tags": [
+    "class",
+    "latin",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-basic.next",
+   "text": "Nice work. Next up: Slow salsa basic.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-basic.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow salsa basic.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-back-6-7-centre",
+   "text": "Layer it up: 5 back, 6-7 centre",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.hip-sways.intro",
+   "text": "Hip sways. Feet wide, sway the hips side to side.",
+   "tags": [
+    "class",
+    "latin",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.latin.hip-sways.next",
+   "text": "Nice work. Next up: Hip sways.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.hip-sways.water_next",
+   "text": "Water break. Grab a sip. Next up: Hip sways.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.slow-cumbia-step.intro",
+   "text": "Slow cumbia step. Step back on a diagonal, return; other side.",
+   "tags": [
+    "class",
+    "latin",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.latin.slow-cumbia-step.next",
+   "text": "Nice work. Next up: Slow cumbia step.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.slow-cumbia-step.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow cumbia step.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.merengue.intro",
+   "text": "Merengue. Marching merengue, add side steps.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.merengue.next",
+   "text": "Nice work. Next up: Merengue.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.merengue.water_next",
+   "text": "Water break. Grab a sip. Next up: Merengue.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.side-steps-right-5-8",
+   "text": "Layer it up: Side steps right 5-8",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-basic.intro",
+   "text": "Salsa basic. Forward-back salsa basic, add shoulders.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-basic.next",
+   "text": "Nice work. Next up: Salsa basic.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-basic.water_next",
+   "text": "Water break. Grab a sip. Next up: Salsa basic.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-shoulders",
+   "text": "Layer it up: Add shoulders",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-side-arms.intro",
+   "text": "Salsa side + arms. Side salsa: right on 1, left on 5, arms open.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-side-arms.next",
+   "text": "Nice work. Next up: Salsa side + arms.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.salsa-side-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Salsa side + arms.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-side-left-6-7-centre",
+   "text": "Layer it up: 5 side left, 6-7 centre",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia.intro",
+   "text": "Cumbia. Cumbia step with a small turn of the shoulders.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia.next",
+   "text": "Nice work. Next up: Cumbia.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia.water_next",
+   "text": "Water break. Grab a sip. Next up: Cumbia.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-shoulder-turn",
+   "text": "Layer it up: Add shoulder turn",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-step-low-impact.intro",
+   "text": "Reggaeton step (low impact). Bounce the knees, step side, tap.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-step-low-impact.next",
+   "text": "Nice work. Next up: Reggaeton step (low impact).",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-step-low-impact.water_next",
+   "text": "Water break. Grab a sip. Next up: Reggaeton step (low impact).",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.step-left-tap",
+   "text": "Layer it up: Step left, tap",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "layer.add-arm-pumps",
+   "text": "Layer it up: Add arm pumps",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.cha-cha-side.intro",
+   "text": "Cha-cha side. Rock step, then cha-cha-cha to the side.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.cha-cha-side.next",
+   "text": "Nice work. Next up: Cha-cha side.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.cha-cha-side.water_next",
+   "text": "Water break. Grab a sip. Next up: Cha-cha side.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.6-7-rock-8-1-cha-cha-cha-left",
+   "text": "Layer it up: 6-7 rock, 8&1 cha-cha-cha left",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.combo-merengue-salsa.intro",
+   "text": "Combo: merengue + salsa. One 8 merengue, one 8 salsa basic.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.combo-merengue-salsa.next",
+   "text": "Nice work. Next up: Combo: merengue + salsa.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.combo-merengue-salsa.water_next",
+   "text": "Water break. Grab a sip. Next up: Combo: merengue + salsa.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.8-salsa-basic",
+   "text": "Layer it up: 8 salsa basic",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "layer.repeat-and-smile",
+   "text": "Layer it up: Repeat and smile",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.mambo.intro",
+   "text": "Mambo. Mambo forward and back.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.mambo.next",
+   "text": "Nice work. Next up: Mambo.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.mambo.water_next",
+   "text": "Water break. Grab a sip. Next up: Mambo.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.5-back-6-rock-7-together",
+   "text": "Layer it up: 5 back, 6 rock, 7 together",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.samba-style-bounce-low.intro",
+   "text": "Samba-style bounce (low). Small bounce through the knees, step-ball-change. No jumping.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.samba-style-bounce-low.next",
+   "text": "Nice work. Next up: Samba-style bounce (low).",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.samba-style-bounce-low.water_next",
+   "text": "Water break. Grab a sip. Next up: Samba-style bounce (low).",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.other-side-3-a-4",
+   "text": "Layer it up: Other side 3-a-4",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia-combo.intro",
+   "text": "Cumbia combo. Cumbia + side steps with arms.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia-combo.next",
+   "text": "Nice work. Next up: Cumbia combo.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.cumbia-combo.water_next",
+   "text": "Water break. Grab a sip. Next up: Cumbia combo.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.8-side-steps-arms-open",
+   "text": "Layer it up: 8 side steps, arms open",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-turn.intro",
+   "text": "Slow salsa turn. Easy walk-around turn in 4 steps, or just sway.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-turn.next",
+   "text": "Nice work. Next up: Slow salsa turn.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.slow-salsa-turn.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow salsa turn.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.turn-left-5-8",
+   "text": "Layer it up: Turn left 5-8",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-party.intro",
+   "text": "Merengue party. Merengue with big arms and hip sways.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-party.next",
+   "text": "Nice work. Next up: Merengue party.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.merengue-party.water_next",
+   "text": "Water break. Grab a sip. Next up: Merengue party.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.add-arm-rolls",
+   "text": "Layer it up: Add arm rolls",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "layer.add-hip-sways",
+   "text": "Layer it up: Add hip sways",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-combo.intro",
+   "text": "Reggaeton combo. Step-taps with shoulder pops.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-combo.next",
+   "text": "Nice work. Next up: Reggaeton combo.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.reggaeton-combo.water_next",
+   "text": "Water break. Grab a sip. Next up: Reggaeton combo.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.step-tap-left-pop",
+   "text": "Layer it up: Step-tap left, pop",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.freestyle-fiesta.intro",
+   "text": "Freestyle fiesta. Any Latin step you like, stay with the beat.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.freestyle-fiesta.next",
+   "text": "Nice work. Next up: Freestyle fiesta.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.freestyle-fiesta.water_next",
+   "text": "Water break. Grab a sip. Next up: Freestyle fiesta.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.full-combo.intro",
+   "text": "Full combo. Merengue, salsa, cumbia: one 8 each.",
+   "tags": [
+    "class",
+    "latin",
+    "main"
+   ]
+  },
+  {
+   "id": "class.latin.full-combo.next",
+   "text": "Nice work. Next up: Full combo.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.full-combo.water_next",
+   "text": "Water break. Grab a sip. Next up: Full combo.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "layer.8-salsa",
+   "text": "Layer it up: 8 salsa",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "layer.8-cumbia",
+   "text": "Layer it up: 8 cumbia",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ]
+  },
+  {
+   "id": "class.latin.slow-sway.intro",
+   "text": "Slow sway. Slow hip sway, long breaths.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.slow-sway.cool_intro",
+   "text": "Cool-down time. Slow sway. Slow hip sway, long breaths.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.slow-sway.next",
+   "text": "Nice work. Next up: Slow sway.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.slow-sway.water_next",
+   "text": "Water break. Grab a sip. Next up: Slow sway.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.arm-and-shoulder-stretch.intro",
+   "text": "Arm and shoulder stretch. Arm across the chest, then swap.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.arm-and-shoulder-stretch.cool_intro",
+   "text": "Cool-down time. Arm and shoulder stretch. Arm across the chest, then swap.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.arm-and-shoulder-stretch.next",
+   "text": "Nice work. Next up: Arm and shoulder stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.arm-and-shoulder-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Arm and shoulder stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.side-stretch.intro",
+   "text": "Side stretch. Reach up and over, swap at 30 seconds.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.side-stretch.cool_intro",
+   "text": "Cool-down time. Side stretch. Reach up and over, swap at 30 seconds.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.side-stretch.next",
+   "text": "Nice work. Next up: Side stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.side-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Side stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.hamstring-stretch.intro",
+   "text": "Hamstring stretch. Heel forward, hinge from the hips.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.hamstring-stretch.cool_intro",
+   "text": "Cool-down time. Hamstring stretch. Heel forward, hinge from the hips.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.hamstring-stretch.next",
+   "text": "Nice work. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.hamstring-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.latin.breathe.intro",
+   "text": "Breathe. Hands on your heart, slow breaths.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.breathe.cool_intro",
+   "text": "Cool-down time. Breathe. Hands on your heart, slow breaths.",
+   "tags": [
+    "class",
+    "latin",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.latin.breathe.next",
+   "text": "Nice work. Next up: Breathe.",
+   "tags": [
+    "class",
+    "latin",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.latin.breathe.water_next",
+   "text": "Water break. Grab a sip. Next up: Breathe.",
+   "tags": [
+    "class",
+    "latin",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.welcome",
+   "text": "Welcome to Yoga! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.",
+   "tags": [
+    "class",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.breathing-with-arms.intro",
+   "text": "Breathing with arms. Stand tall. Breathe in for 4 as the arms rise, out for 6 as they lower.",
+   "tags": [
+    "class",
+    "yoga",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.yoga.breathing-with-arms.next",
+   "text": "Nice work. Next up: Breathing with arms.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.breathing-with-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Breathing with arms.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.breathe-in-2-3-4",
+   "text": "Breathe in… 2… 3… 4",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.and-out-slowly",
+   "text": "And out… slowly",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.neck-and-shoulder-rolls.intro",
+   "text": "Neck and shoulder rolls. Gentle half-circles with the head, then roll the shoulders.",
+   "tags": [
+    "class",
+    "yoga",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.yoga.neck-and-shoulder-rolls.next",
+   "text": "Nice work. Next up: Neck and shoulder rolls.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.neck-and-shoulder-rolls.water_next",
+   "text": "Water break. Grab a sip. Next up: Neck and shoulder rolls.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-seated-or-all-fours.intro",
+   "text": "Cat-cow (seated or all fours). Breathe in, lift the chest; breathe out, round the back.",
+   "tags": [
+    "class",
+    "yoga",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-seated-or-all-fours.next",
+   "text": "Nice work. Next up: Cat-cow (seated or all fours).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-seated-or-all-fours.water_next",
+   "text": "Water break. Grab a sip. Next up: Cat-cow (seated or all fours).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.inhale-open",
+   "text": "Inhale, open",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.exhale-round",
+   "text": "Exhale, round",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.standing-side-bend.intro",
+   "text": "Standing side bend. Arms up, lean gently to one side, then the other.",
+   "tags": [
+    "class",
+    "yoga",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.yoga.standing-side-bend.next",
+   "text": "Nice work. Next up: Standing side bend.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.standing-side-bend.water_next",
+   "text": "Water break. Grab a sip. Next up: Standing side bend.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-pose.intro",
+   "text": "Mountain pose. Stand tall, feet hip-width, arms by your sides. Breathe.",
+   "tags": [
+    "class",
+    "yoga",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-pose.next",
+   "text": "Nice work. Next up: Mountain pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-pose.water_next",
+   "text": "Water break. Grab a sip. Next up: Mountain pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.crown-of-the-head-lifts",
+   "text": "Crown of the head lifts",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.soft-shoulders",
+   "text": "Soft shoulders",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose.intro",
+   "text": "Chair pose. Feet together or hip-width, sit back as if into a chair, arms up.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose.next",
+   "text": "Nice work. Next up: Chair pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose.water_next",
+   "text": "Water break. Grab a sip. Next up: Chair pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.breathe-in-reach-up",
+   "text": "Breathe in, reach up",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.breathe-out-sit-a-little-lower",
+   "text": "Breathe out, sit a little lower",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-right.intro",
+   "text": "Warrior II (right). Feet wide, right toes out, bend the right knee over the ankle, arms out at shoulder height.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-right.next",
+   "text": "Nice work. Next up: Warrior II (right).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-right.water_next",
+   "text": "Water break. Grab a sip. Next up: Warrior II (right).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.gaze-over-the-front-hand",
+   "text": "Gaze over the front hand",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.breathe-2",
+   "text": "Breathe",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-left.intro",
+   "text": "Warrior II (left). Same on the left side.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-left.next",
+   "text": "Nice work. Next up: Warrior II (left).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-left.water_next",
+   "text": "Water break. Grab a sip. Next up: Warrior II (left).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.long-through-both-arms",
+   "text": "Long through both arms",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.soft-breath",
+   "text": "Soft breath",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-hold-the-chair.intro",
+   "text": "Tree pose (right, hold the chair). Stand on the left leg, right foot on your ankle or calf (never the knee). Hold a chair if you like.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-hold-the-chair.next",
+   "text": "Nice work. Next up: Tree pose (right, hold the chair).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-hold-the-chair.water_next",
+   "text": "Water break. Grab a sip. Next up: Tree pose (right, hold the chair).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.steady-gaze",
+   "text": "Steady gaze",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left.intro",
+   "text": "Tree pose (left). Stand on the right leg, left foot on the ankle or calf.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left.next",
+   "text": "Nice work. Next up: Tree pose (left).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left.water_next",
+   "text": "Water break. Grab a sip. Next up: Tree pose (left).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.find-a-spot-to-focus-on",
+   "text": "Find a spot to focus on",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-flow.intro",
+   "text": "Chair pose flow. Inhale stand, exhale sit into chair pose. Hold the last one.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-flow.next",
+   "text": "Nice work. Next up: Chair pose flow.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-flow.water_next",
+   "text": "Water break. Grab a sip. Next up: Chair pose flow.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.inhale-up",
+   "text": "Inhale up",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.exhale-sit-back",
+   "text": "Exhale, sit back",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.downward-dog-knees-bent.intro",
+   "text": "Downward dog (knees bent). From all fours, tuck the toes and lift the hips. Keep the knees bent and heels up.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.downward-dog-knees-bent.next",
+   "text": "Nice work. Next up: Downward dog (knees bent).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.downward-dog-knees-bent.water_next",
+   "text": "Water break. Grab a sip. Next up: Downward dog (knees bent).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.long-spine",
+   "text": "Long spine",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-flow.intro",
+   "text": "Cat-cow flow. On all fours: inhale, lift the chest; exhale, round the back.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-flow.next",
+   "text": "Nice work. Next up: Cat-cow flow.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.cat-cow-flow.water_next",
+   "text": "Water break. Grab a sip. Next up: Cat-cow flow.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-right-short.intro",
+   "text": "Triangle (right, short). Legs wide, reach forward over the right leg, hand to the shin or a chair, other arm up.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-right-short.next",
+   "text": "Nice work. Next up: Triangle (right, short).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-right-short.water_next",
+   "text": "Water break. Grab a sip. Next up: Triangle (right, short).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.long-side-body",
+   "text": "Long side body",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-left-short.intro",
+   "text": "Triangle (left, short). Other side.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-left-short.next",
+   "text": "Nice work. Next up: Triangle (left, short).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.triangle-left-short.water_next",
+   "text": "Water break. Grab a sip. Next up: Triangle (left, short).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.breathe-into-the-side",
+   "text": "Breathe into the side",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-flow-with-arms.intro",
+   "text": "Mountain flow with arms. Stand tall. Inhale, arms overhead; exhale, hands to heart.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-flow-with-arms.next",
+   "text": "Nice work. Next up: Mountain flow with arms.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.mountain-flow-with-arms.water_next",
+   "text": "Water break. Grab a sip. Next up: Mountain flow with arms.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.inhale-reach",
+   "text": "Inhale, reach",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.exhale-soften",
+   "text": "Exhale, soften",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-hold.intro",
+   "text": "Chair pose hold. One more chair pose. Hold and breathe.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-hold.next",
+   "text": "Nice work. Next up: Chair pose hold.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.chair-pose-hold.water_next",
+   "text": "Water break. Grab a sip. Next up: Chair pose hold.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.stay-with-the-breath",
+   "text": "Stay with the breath",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.sink-a-little-lower-if-you-can",
+   "text": "Sink a little lower if you can",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-flow-both-sides.intro",
+   "text": "Warrior II flow (both sides). Warrior II right, straighten, warrior II left, with the breath.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-flow-both-sides.next",
+   "text": "Nice work. Next up: Warrior II flow (both sides).",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.warrior-ii-flow-both-sides.water_next",
+   "text": "Water break. Grab a sip. Next up: Warrior II flow (both sides).",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.inhale-straighten",
+   "text": "Inhale straighten",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "cue.exhale-bend",
+   "text": "Exhale bend",
+   "tags": [
+    "cue",
+    "yoga"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-again.intro",
+   "text": "Tree pose (right) again. Try lifting the arms if you feel steady.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-again.next",
+   "text": "Nice work. Next up: Tree pose (right) again.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-right-again.water_next",
+   "text": "Water break. Grab a sip. Next up: Tree pose (right) again.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left-again.intro",
+   "text": "Tree pose (left) again. Other side.",
+   "tags": [
+    "class",
+    "yoga",
+    "main"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left-again.next",
+   "text": "Nice work. Next up: Tree pose (left) again.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.tree-pose-left-again.water_next",
+   "text": "Water break. Grab a sip. Next up: Tree pose (left) again.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.seated-forward-fold.intro",
+   "text": "Seated forward fold. Sit, legs forward, hinge gently towards your toes.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.seated-forward-fold.cool_intro",
+   "text": "Cool-down time. Seated forward fold. Sit, legs forward, hinge gently towards your toes.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.seated-forward-fold.next",
+   "text": "Nice work. Next up: Seated forward fold.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.seated-forward-fold.water_next",
+   "text": "Water break. Grab a sip. Next up: Seated forward fold.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.gentle-cat-cow.intro",
+   "text": "Gentle cat-cow. On all fours, slow cat-cow with long breaths.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.gentle-cat-cow.cool_intro",
+   "text": "Cool-down time. Gentle cat-cow. On all fours, slow cat-cow with long breaths.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.gentle-cat-cow.next",
+   "text": "Nice work. Next up: Gentle cat-cow.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.gentle-cat-cow.water_next",
+   "text": "Water break. Grab a sip. Next up: Gentle cat-cow.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.supine-twist.intro",
+   "text": "Supine twist. On your back, knees bent, let them drop to one side, then the other. Keep knees bent together and let them drop slowly side to side.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.supine-twist.cool_intro",
+   "text": "Cool-down time. Supine twist. On your back, knees bent, let them drop to one side, then the other.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.supine-twist.next",
+   "text": "Nice work. Next up: Supine twist.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.supine-twist.water_next",
+   "text": "Water break. Grab a sip. Next up: Supine twist.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.child-s-pose.intro",
+   "text": "Child's pose. Knees wide, sit back to your heels, arms forward.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.child-s-pose.cool_intro",
+   "text": "Cool-down time. Child's pose. Knees wide, sit back to your heels, arms forward.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.child-s-pose.next",
+   "text": "Nice work. Next up: Child's pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.child-s-pose.water_next",
+   "text": "Water break. Grab a sip. Next up: Child's pose.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.yoga.relaxation.intro",
+   "text": "Relaxation. Lie or sit comfortably. Close your eyes. Breathe.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.relaxation.cool_intro",
+   "text": "Cool-down time. Relaxation. Lie or sit comfortably. Close your eyes. Breathe.",
+   "tags": [
+    "class",
+    "yoga",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.yoga.relaxation.next",
+   "text": "Nice work. Next up: Relaxation.",
+   "tags": [
+    "class",
+    "yoga",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.yoga.relaxation.water_next",
+   "text": "Water break. Grab a sip. Next up: Relaxation.",
+   "tags": [
+    "class",
+    "yoga",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.welcome",
+   "text": "Welcome to Pilates! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.",
+   "tags": [
+    "class",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.breathing-and-pelvic-tilts.intro",
+   "text": "Breathing and pelvic tilts. Lie on your back, knees bent. Gently tilt the pelvis with the breath. Keep your hips on the floor. Hips stay on the floor, just flatten and arch your lower back.",
+   "tags": [
+    "class",
+    "pilates",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.pilates.breathing-and-pelvic-tilts.next",
+   "text": "Nice work. Next up: Breathing and pelvic tilts.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.breathing-and-pelvic-tilts.water_next",
+   "text": "Water break. Grab a sip. Next up: Breathing and pelvic tilts.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.small-bridges.intro",
+   "text": "Small bridges. Peel the hips up a little, then down. Slow.",
+   "tags": [
+    "class",
+    "pilates",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.pilates.small-bridges.next",
+   "text": "Nice work. Next up: Small bridges.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.small-bridges.water_next",
+   "text": "Water break. Grab a sip. Next up: Small bridges.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.the-hundred-knees-bent-gentle.intro",
+   "text": "The hundred (knees bent, gentle). On your back, feet on the floor, pump the arms low. Breathe in for 5 pumps, out for 5. Head down is fine.",
+   "tags": [
+    "class",
+    "pilates",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.pilates.the-hundred-knees-bent-gentle.next",
+   "text": "Nice work. Next up: The hundred (knees bent, gentle).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.the-hundred-knees-bent-gentle.water_next",
+   "text": "Water break. Grab a sip. Next up: The hundred (knees bent, gentle).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.spine-stretch-forward.intro",
+   "text": "Spine stretch forward. Sit tall, legs apart, reach forward as you breathe out, roll up as you breathe in.",
+   "tags": [
+    "class",
+    "pilates",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.pilates.spine-stretch-forward.next",
+   "text": "Nice work. Next up: Spine stretch forward.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.spine-stretch-forward.water_next",
+   "text": "Water break. Grab a sip. Next up: Spine stretch forward.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.single-leg-stretch-beginner.intro",
+   "text": "Single leg stretch (beginner). On your back, hug one knee in while the other leg reaches long. Swap slowly. Head down is fine.",
+   "tags": [
+    "class",
+    "pilates",
+    "warm"
+   ]
+  },
+  {
+   "id": "class.pilates.single-leg-stretch-beginner.next",
+   "text": "Nice work. Next up: Single leg stretch (beginner).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.single-leg-stretch-beginner.water_next",
+   "text": "Water break. Grab a sip. Next up: Single leg stretch (beginner).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.glute-bridge.intro",
+   "text": "Glute bridge. Feet flat, squeeze and lift the hips, lower slowly.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.glute-bridge.next",
+   "text": "Nice work. Next up: Glute bridge.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.glute-bridge.water_next",
+   "text": "Water break. Grab a sip. Next up: Glute bridge.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.squeeze-at-the-top",
+   "text": "Squeeze at the top",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "cue.lower-one-bone-at-a-time",
+   "text": "Lower one bone at a time",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-right.intro",
+   "text": "Side-lying leg lift (right). Lie on your left side, lift the top leg slowly, lower with control.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-right.next",
+   "text": "Nice work. Next up: Side-lying leg lift (right).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-right.water_next",
+   "text": "Water break. Grab a sip. Next up: Side-lying leg lift (right).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.lift-for-2-lower-for-2",
+   "text": "Lift for 2, lower for 2",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "cue.hips-stacked",
+   "text": "Hips stacked",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-left.intro",
+   "text": "Side-lying leg lift (left). Other side.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-left.next",
+   "text": "Nice work. Next up: Side-lying leg lift (left).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.side-lying-leg-lift-left.water_next",
+   "text": "Water break. Grab a sip. Next up: Side-lying leg lift (left).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.long-leg-slow",
+   "text": "Long leg, slow",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right.intro",
+   "text": "Clams (right). Lie on your side, knees bent, feet together, open the top knee. Keep your feet together, just open the top knee.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right.next",
+   "text": "Nice work. Next up: Clams (right).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right.water_next",
+   "text": "Water break. Grab a sip. Next up: Clams (right).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.feet-stay-together",
+   "text": "Feet stay together",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "cue.slow-and-controlled",
+   "text": "Slow and controlled",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left.intro",
+   "text": "Clams (left). Other side. Keep your feet together, just open the top knee.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left.next",
+   "text": "Nice work. Next up: Clams (left).",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left.water_next",
+   "text": "Water break. Grab a sip. Next up: Clams (left).",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.hips-stay-still",
+   "text": "Hips stay still",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog.intro",
+   "text": "Bird dog. On all fours, reach one arm forward and the opposite leg back, return, swap.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog.next",
+   "text": "Nice work. Next up: Bird dog.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog.water_next",
+   "text": "Water break. Grab a sip. Next up: Bird dog.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.reach-long",
+   "text": "Reach long",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "cue.back-flat-like-a-table",
+   "text": "Back flat like a table",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank.intro",
+   "text": "Knee plank. Forearms down, knees down, straight line from head to knees.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank.next",
+   "text": "Nice work. Next up: Knee plank.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank.water_next",
+   "text": "Water break. Grab a sip. Next up: Knee plank.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.belly-in",
+   "text": "Belly in",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-with-a-hold.intro",
+   "text": "Bridge with a hold. Lift, hold for 2, lower slowly.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-with-a-hold.next",
+   "text": "Nice work. Next up: Bridge with a hold.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-with-a-hold.water_next",
+   "text": "Water break. Grab a sip. Next up: Bridge with a hold.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.hold-and-lower",
+   "text": "Hold… and lower",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-right-round-2.intro",
+   "text": "Leg lift (right) round 2. Smaller and slower than before.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-right-round-2.next",
+   "text": "Nice work. Next up: Leg lift (right) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-right-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Leg lift (right) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-left-round-2.intro",
+   "text": "Leg lift (left) round 2. Other side.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-left-round-2.next",
+   "text": "Nice work. Next up: Leg lift (left) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.leg-lift-left-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Leg lift (left) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog-round-2.intro",
+   "text": "Bird dog round 2. Pause for a breath at full reach.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog-round-2.next",
+   "text": "Nice work. Next up: Bird dog round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.bird-dog-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Bird dog round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank-round-2.intro",
+   "text": "Knee plank round 2. Head to knees in one line.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank-round-2.next",
+   "text": "Nice work. Next up: Knee plank round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.knee-plank-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Knee plank round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right-round-2.intro",
+   "text": "Clams (right) round 2. Pause at the top. Keep your feet together, just open the top knee.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right-round-2.next",
+   "text": "Nice work. Next up: Clams (right) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-right-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Clams (right) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left-round-2.intro",
+   "text": "Clams (left) round 2. Other side. Keep your feet together, just open the top knee.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left-round-2.next",
+   "text": "Nice work. Next up: Clams (left) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.clams-left-round-2.water_next",
+   "text": "Water break. Grab a sip. Next up: Clams (left) round 2.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-pulses.intro",
+   "text": "Bridge pulses. Lift, then small pulses at the top, lower slowly.",
+   "tags": [
+    "class",
+    "pilates",
+    "main"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-pulses.next",
+   "text": "Nice work. Next up: Bridge pulses.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.bridge-pulses.water_next",
+   "text": "Water break. Grab a sip. Next up: Bridge pulses.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "cue.tiny-pulses",
+   "text": "Tiny pulses",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "cue.keep-breathing",
+   "text": "Keep breathing",
+   "tags": [
+    "cue",
+    "pilates"
+   ]
+  },
+  {
+   "id": "class.pilates.spine-stretch-forward.intro-2",
+   "text": "Spine stretch forward. Sit tall, legs apart, reach forward slowly and breathe.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.spine-stretch-forward.cool_intro",
+   "text": "Cool-down time. Spine stretch forward. Sit tall, legs apart, reach forward slowly and breathe.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.lying-spine-twist.intro",
+   "text": "Lying spine twist. On your back, knees to one side, then the other.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.lying-spine-twist.cool_intro",
+   "text": "Cool-down time. Lying spine twist. On your back, knees to one side, then the other.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.lying-spine-twist.next",
+   "text": "Nice work. Next up: Lying spine twist.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.lying-spine-twist.water_next",
+   "text": "Water break. Grab a sip. Next up: Lying spine twist.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.hamstring-stretch.intro",
+   "text": "Hamstring stretch. On your back, one leg up, hold behind the thigh.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.hamstring-stretch.cool_intro",
+   "text": "Cool-down time. Hamstring stretch. On your back, one leg up, hold behind the thigh.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.hamstring-stretch.next",
+   "text": "Nice work. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.hamstring-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Hamstring stretch.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.figure-4-stretch.intro",
+   "text": "Figure-4 stretch. Ankle on the opposite knee, gently draw in. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.figure-4-stretch.cool_intro",
+   "text": "Cool-down time. Figure-4 stretch. Ankle on the opposite knee, gently draw in. Swap at 30 seconds.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.figure-4-stretch.next",
+   "text": "Nice work. Next up: Figure-4 stretch.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.figure-4-stretch.water_next",
+   "text": "Water break. Grab a sip. Next up: Figure-4 stretch.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  },
+  {
+   "id": "class.pilates.breathe.intro",
+   "text": "Breathe. Long slow breaths. Well done.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.breathe.cool_intro",
+   "text": "Cool-down time. Breathe. Long slow breaths. Well done.",
+   "tags": [
+    "class",
+    "pilates",
+    "cool"
+   ]
+  },
+  {
+   "id": "class.pilates.breathe.next",
+   "text": "Nice work. Next up: Breathe.",
+   "tags": [
+    "class",
+    "pilates",
+    "transition"
+   ]
+  },
+  {
+   "id": "class.pilates.breathe.water_next",
+   "text": "Water break. Grab a sip. Next up: Breathe.",
+   "tags": [
+    "class",
+    "pilates",
+    "water"
+   ]
+  }
+ ]
+}

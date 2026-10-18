@@ -1,4 +1,7 @@
-import { CLASSES, TOTAL, kcal, classKcal, recommend, PunchCounter, RhythmMeter, matchPose, HoldTracker, makePilates } from '../classes.js';
+import { buildLibrary, buildClass, isNewClass, TOTAL, kcal, classKcal, recommend, PunchCounter, RhythmMeter, matchPose, HoldTracker, makePilates } from '../classes.js';
+import fs from 'node:fs';
+const LIB = JSON.parse(fs.readFileSync(new URL('../library.json', import.meta.url), 'utf8'));
+const CLASSES = buildLibrary(LIB);
 import { patternEvents } from '../music.js';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 const sum = a => a.reduce((t, s) => t + s.dur, 0);
@@ -17,6 +20,12 @@ for (const c of CLASSES) {
 const lead = Object.fromEntries(CLASSES.map(c => [c.id, c.lead]));
 ok(lead.boxing === 'm' && lead.pilates === 'm' && lead.dance === 'f' && lead.yoga === 'f' && lead.latin === 'f', 'lead trainers: m boxing/pilates, f dance/yoga/latin');
 ok(CLASSES.find(c => c.id === 'latin').name === 'Latin Dance Cardio (Zumba-style)', 'Latin label');
+ok(CLASSES.every(c => !c.problems.length), 'library entries have no problems: ' + CLASSES.flatMap(c => c.problems).join('; '));
+ok(LIB.classes.every(e => e.id && e.title && e.category && e.trainer && e.duration === 1800 && e.intensity && e.poster && 'drive_file_id' in e && e.added && e.script), 'library.json entries have id/title/category/trainer/duration/intensity/poster/drive_file_id/added/script');
+const extra = buildClass({ id: 'test', title: 'Test', trainer: 'f', music: { style: 'dance', bpm: 120 }, track: 'rhythm', script: { warm: [{ name: 'A', dur: 60 }], main: [{ name: 'B', dur: 60 }], cool: [{ name: 'C', dur: 60 }] } });
+ok(extra.total === 195 && extra.steps.length === 4 && extra.eightCount && extra.primary === 'rhythm', 'a new class builds from data alone (no code change)');
+ok(buildClass({ id: 'bad', script: { main: [{ name: 'x' }] } }).problems.length > 0, 'bad entries report problems instead of throwing');
+ok(isNewClass({ id: 'a', added: new Date().toISOString() }, ['a']) && isNewClass({ id: 'b', added: '2020-01-01' }, []) && !isNewClass({ id: 'c', added: '2020-01-01' }, ['c']), 'New badge: added within 14 days or not yet seen');
 ok(CLASSES.find(c => c.id === 'dance').steps.filter(s => s.kind === 'main').every(s => s.counts?.length), 'dance blocks have 8-count layers');
 ok(new Set(CLASSES.find(c => c.id === 'latin').steps.filter(s => s.kind === 'main').map(s => s.bpm)).size >= 4 && CLASSES.find(c => c.id === 'latin').steps.every(s => s.bpm >= 96 && s.bpm <= 130), 'Latin bpm varies by section, 100–130');
 ok(CLASSES.find(c => c.id === 'boxing').bpm === 120 && CLASSES.find(c => c.id === 'dance').bpm === 124, 'boxing 120, dance 124 bpm');
@@ -27,9 +36,9 @@ ok(!JSON.stringify(CLASSES).match(/dumbbell|kettlebell|resistance band|jump(ing)
 // ---- calories / recommend / music ----
 ok(Math.abs(kcal(5.5, 80, 60) - 7.7) < 0.01, 'kcal = MET × 3.5 × kg / 200 per minute');
 ok(classKcal(CLASSES[0], 90) > classKcal(CLASSES[3], 90), 'boxing burns more than yoga (approx.)');
-const r1 = recommend({ lowEnergy: true, glp1: true, history: [{ cls: 'yoga', date: new Date().toISOString() }] });
+const r1 = recommend(CLASSES, { lowEnergy: true, glp1: true, history: [{ cls: 'yoga', date: new Date().toISOString() }] });
 ok(r1.cls.id === 'pilates' && /GLP-1/.test(r1.why), 'low energy + GLP-1 -> gentle class not done recently: ' + r1.cls.id);
-ok(recommend({ history: [] }).cls, 'recommend works with no history');
+ok(recommend(CLASSES, { history: [] }).cls, 'recommend works with no history');
 ok(patternEvents('boxing', 0, 4).filter(e => e.type === 'kick').length === 4 && patternEvents('ambient', 0, 8).some(e => e.type === 'pad') && patternEvents('latin', 0, 8).some(e => e.type === 'clave'), 'music patterns: kick 4/4, pads, clave');
 
 // ---- synthetic poses ----

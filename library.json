@@ -1,0 +1,1514 @@
+{
+ "version": 1,
+ "updated": "2026-10-18",
+ "classes": [
+  {
+   "id": "boxing",
+   "title": "Boxing",
+   "category": "Cardio",
+   "tags": [
+    "cardio"
+   ],
+   "trainer": "m",
+   "duration": 1800,
+   "intensity": "Moderate",
+   "level": "Beginner",
+   "impact": "Low",
+   "equipment": "None",
+   "poster": "media/classes/boxing/jab-cross.jpg",
+   "blurb": "Shadow boxing combos to a 120 bpm beat. Punches are counted, and Reta checks your guard.",
+   "music": {
+    "style": "boxing",
+    "bpm": 120
+   },
+   "met": 5.5,
+   "track": "punch",
+   "voice": [
+    "boxing",
+    "box"
+   ],
+   "drive_file_id": "",
+   "added": "2026-10-18",
+   "script": {
+    "transition": 15,
+    "waterEvery": 4,
+    "warm": [
+     {
+      "name": "March and arm circles",
+      "dur": 60,
+      "slug": "stance-bounce",
+      "fb": "march",
+      "how": "March on the spot and circle your arms forwards, then backwards.",
+      "cues": [
+       "Big arm circles",
+       "Swap direction",
+       "Nice and loose"
+      ]
+     },
+     {
+      "name": "Step-touch and shoulder rolls",
+      "dur": 60,
+      "slug": "guard-shuffle",
+      "fb": "march",
+      "how": "Step side to side and roll your shoulders back.",
+      "cues": [
+       "Roll them back",
+       "Breathe out as you step"
+      ]
+     },
+     {
+      "name": "Slow bob and weave",
+      "dur": 60,
+      "slug": "slip-duck",
+      "fb": "squat",
+      "how": "Small squat as you dip your head side to side under an imaginary rope.",
+      "cues": [
+       "Bend the knees, not the back",
+       "Eyes forward"
+      ]
+     },
+     {
+      "name": "Easy jabs",
+      "dur": 60,
+      "slug": "jab",
+      "fb": "march",
+      "how": "Guard up: fists by your cheeks, elbows in, soft knees, one foot slightly forward. Gentle jabs with the lead hand.",
+      "cues": [
+       "Snap it out, snap it back",
+       "Hands back to your cheeks"
+      ],
+      "track": "punch"
+     },
+     {
+      "name": "Torso twists in guard",
+      "dur": 60,
+      "slug": "guard-shuffle",
+      "fb": "march",
+      "how": "Hold your guard and rotate gently from the waist.",
+      "cues": [
+       "Pivot the back foot",
+       "Guard stays up"
+      ]
+     }
+    ],
+    "main": [
+     {
+      "name": "Jab-cross ×8",
+      "dur": 60,
+      "slug": "jab-cross",
+      "fb": "march",
+      "how": "Guard up: fists by your cheeks, elbows in, soft knees, one foot slightly forward. Jab (front hand), cross (back hand). 8 then reset.",
+      "cues": [
+       "Jab, cross!",
+       "Rotate the back hip on the cross",
+       "Exhale on every punch"
+      ],
+      "combo": "1-2 ×8"
+     },
+     {
+      "name": "Jab-cross ×8, then hooks",
+      "dur": 75,
+      "slug": "hooks",
+      "fb": "march",
+      "how": "Eight jab-crosses, then hooks: elbow up at shoulder height, swing round, pivot.",
+      "cues": [
+       "8 jab-crosses…",
+       "Now hooks!",
+       "Elbow up like a hook"
+      ],
+      "combo": "1-2 ×8 → 3-4"
+     },
+     {
+      "name": "Speed jabs (low impact)",
+      "dur": 45,
+      "slug": "jab",
+      "fb": "march",
+      "how": "Quick light jabs, small bounce or just soft knees.",
+      "cues": [
+       "Fast hands!",
+       "Breathe!",
+       "Keep it light"
+      ],
+      "combo": "fast 1s"
+     },
+     {
+      "name": "Hooks left and right",
+      "dur": 60,
+      "slug": "hooks",
+      "fb": "march",
+      "how": "Left hook, right hook. Elbows up, pivot the feet.",
+      "cues": [
+       "Pivot the foot",
+       "Turn the hip",
+       "Guard back after each one"
+      ],
+      "combo": "3-4"
+     },
+     {
+      "name": "Jab-cross-hook",
+      "dur": 75,
+      "slug": "hooks",
+      "fb": "march",
+      "how": "Jab, cross, lead hook. Reset to guard.",
+      "cues": [
+       "One, two, three!",
+       "Guard up between combos"
+      ],
+      "combo": "1-2-3"
+     },
+     {
+      "name": "Uppercuts",
+      "dur": 60,
+      "slug": "uppercuts",
+      "fb": "squat",
+      "how": "Dip slightly, drive up from the legs, palm facing you.",
+      "cues": [
+       "Drive from the legs",
+       "Short punches, under the chin"
+      ],
+      "combo": "5-6",
+      "fix": "Drive up from your hips, fist rising to chin height"
+     },
+     {
+      "name": "Jab-cross-slip",
+      "dur": 75,
+      "slug": "slip-duck",
+      "fb": "squat",
+      "how": "Jab, cross, then slip: small dip of the head to one side.",
+      "cues": [
+       "Slip to the side",
+       "Bend the knees"
+      ],
+      "combo": "1-2-slip"
+     },
+     {
+      "name": "Body jabs with a squat",
+      "dur": 60,
+      "slug": "body-punches",
+      "fb": "squat",
+      "how": "Bend the knees and jab to body height, stand back up.",
+      "cues": [
+       "Sit back like the chair is there",
+       "Chest up"
+      ],
+      "combo": "low 1-2"
+     },
+     {
+      "name": "Uppercut-hook combo",
+      "dur": 75,
+      "slug": "uppercuts",
+      "fb": "march",
+      "how": "Rear uppercut, lead hook, repeat.",
+      "cues": [
+       "Up and round!",
+       "Smooth, not rushed"
+      ],
+      "combo": "6-3",
+      "fix": "Drive up from your hips, fist rising to chin height"
+     },
+     {
+      "name": "Speed punches",
+      "dur": 45,
+      "slug": "jab-cross",
+      "fb": "march",
+      "how": "Fast straight punches, light hands, soft knees.",
+      "cues": [
+       "Go go go!",
+       "Last few seconds!"
+      ],
+      "combo": "fast 1-2"
+     },
+     {
+      "name": "Jab-cross-hook-cross",
+      "dur": 90,
+      "slug": "cross",
+      "fb": "march",
+      "how": "The classic four-punch combo: 1-2-3-2.",
+      "cues": [
+       "One, two, three, two!",
+       "Reset your guard"
+      ],
+      "combo": "1-2-3-2"
+     },
+     {
+      "name": "Bob and weave + cross",
+      "dur": 60,
+      "slug": "slip-duck",
+      "fb": "squat",
+      "how": "Weave under the rope, come up with a cross.",
+      "cues": [
+       "Under… and cross!",
+       "Knees soft"
+      ],
+      "combo": "weave-2"
+     },
+     {
+      "name": "Combo ladder",
+      "dur": 75,
+      "slug": "step-back-jab",
+      "fb": "march",
+      "how": "Build it up: 1-2, then 1-2-3, then 1-2-3-2.",
+      "cues": [
+       "Add one more punch",
+       "Stay sharp"
+      ],
+      "combo": "1-2 / 1-2-3 / 1-2-3-2"
+     },
+     {
+      "name": "Power round: jab-cross ×8 then hooks",
+      "dur": 75,
+      "slug": "hooks",
+      "fb": "march",
+      "how": "Eight strong jab-crosses, then hooks until the bell.",
+      "cues": [
+       "Strong and controlled",
+       "Hooks now!"
+      ],
+      "combo": "1-2 ×8 → 3-4"
+     },
+     {
+      "name": "Finisher: speed punches",
+      "dur": 45,
+      "slug": "jab-cross",
+      "fb": "march",
+      "how": "Everything you have left, fast light punches.",
+      "cues": [
+       "Empty the tank!",
+       "10 seconds!"
+      ],
+      "combo": "fast 1-2"
+     }
+    ],
+    "cool": [
+     {
+      "name": "Slow march and breathe",
+      "dur": 60,
+      "slug": "stance-bounce-slow",
+      "fb": "march",
+      "how": "Slow march, big breath in, long breath out."
+     },
+     {
+      "name": "Chest and shoulder stretch",
+      "dur": 60,
+      "slug": "stretch-chest",
+      "fb": "cool",
+      "how": "Hands behind you, gently open the chest."
+     },
+     {
+      "name": "Triceps stretch",
+      "dur": 60,
+      "slug": "stretch-triceps",
+      "fb": "cool",
+      "how": "One hand down your back, gently press the elbow. Swap at 30 seconds."
+     },
+     {
+      "name": "Thigh stretch (hold the chair)",
+      "dur": 60,
+      "slug": "stretch-quad",
+      "fb": "cool",
+      "how": "Hold a chair, bring one heel to your bum. Swap at 30 seconds."
+     },
+     {
+      "name": "Calf stretch and breathe",
+      "dur": 60,
+      "slug": "stretch-calf",
+      "fb": "cool",
+      "how": "Hands on the wall, one leg back, heel down. Swap at 30 seconds."
+     }
+    ]
+   }
+  },
+  {
+   "id": "dance",
+   "title": "Dance",
+   "category": "Dance",
+   "tags": [
+    "cardio",
+    "dance"
+   ],
+   "trainer": "f",
+   "duration": 1800,
+   "intensity": "Moderate",
+   "level": "Beginner",
+   "impact": "Low",
+   "equipment": "None",
+   "poster": "media/classes/dance/box-step.jpg",
+   "blurb": "Low-impact dance cardio in 8-count blocks that build into two routines.",
+   "music": {
+    "style": "dance",
+    "bpm": 124
+   },
+   "met": 5,
+   "track": "rhythm",
+   "warmTrack": "rhythm",
+   "voice": [
+    "dance",
+    "dancing"
+   ],
+   "drive_file_id": "",
+   "added": "2026-10-18",
+   "script": {
+    "transition": 15,
+    "waterEvery": 4,
+    "warm": [
+     {
+      "name": "Step-touch",
+      "dur": 60,
+      "slug": "step-touch-clap",
+      "fb": "march",
+      "how": "Step right, tap left; step left, tap right.",
+      "counts": [
+       "1-2 step-touch right, 3-4 left, repeat"
+      ],
+      "dir": "RRLLRRLL"
+     },
+     {
+      "name": "Step-touch with arm swings",
+      "dur": 60,
+      "slug": "arm-waves",
+      "fb": "march",
+      "how": "Add a gentle arm swing across the body.",
+      "counts": [
+       "Step-touch",
+       "Add arms: swing on every step"
+      ],
+      "dir": "RRLLRRLL"
+     },
+     {
+      "name": "Slow grapevine",
+      "dur": 60,
+      "slug": "grapevine",
+      "fb": "march",
+      "how": "Step side, cross behind, step side, tap. Then back.",
+      "counts": [
+       "1-4 grapevine right",
+       "5-8 grapevine left"
+      ],
+      "dir": "RRRRLLLL"
+     },
+     {
+      "name": "Hip rolls and shoulder pops",
+      "dur": 60,
+      "slug": "hip-rolls",
+      "fb": "march",
+      "how": "Feet wide, roll the hips, pop the shoulders on the beat.",
+      "counts": [
+       "1-4 hip roll",
+       "5-8 shoulder pops"
+      ]
+     },
+     {
+      "name": "Knee lift and clap",
+      "dur": 60,
+      "slug": "knee-up-clap",
+      "fb": "knees",
+      "how": "Lift a knee and clap under it, alternate.",
+      "counts": [
+       "Knee on 1, clap; knee on 3, clap"
+      ],
+      "dir": "RRLLRRLL"
+     }
+    ],
+    "main": [
+     {
+      "name": "Box step",
+      "dur": 60,
+      "slug": "box-step",
+      "fb": "march",
+      "how": "Right foot forward, left forward, right back, left back.",
+      "counts": [
+       "1 forward R, 2 forward L, 3 back R, 4 back L"
+      ]
+     },
+     {
+      "name": "Box step + arms",
+      "dur": 75,
+      "slug": "box-step",
+      "fb": "march",
+      "how": "Layer the arms: reach up on 1-2, down on 3-4.",
+      "counts": [
+       "Box step",
+       "Add arms: up on 1-2, down on 3-4"
+      ]
+     },
+     {
+      "name": "Grapevine + clap",
+      "dur": 60,
+      "slug": "grapevine",
+      "fb": "march",
+      "how": "Grapevine right with a clap on 4, left with a clap on 8.",
+      "counts": [
+       "1-3 grapevine right, clap on 4",
+       "5-7 grapevine left, clap on 8"
+      ],
+      "dir": "RRRRLLLL"
+     },
+     {
+      "name": "Routine A: box step + grapevine",
+      "dur": 90,
+      "slug": "grapevine",
+      "fb": "march",
+      "how": "Put them together: one 8 of box steps, one 8 of grapevines.",
+      "counts": [
+       "8 box step",
+       "8 grapevine right and left",
+       "Repeat, smile!"
+      ],
+      "dir": ""
+     },
+     {
+      "name": "Hamstring curls + arms",
+      "dur": 60,
+      "slug": "side-groove",
+      "fb": "knees",
+      "how": "Step out and curl the heel behind, pull the arms in.",
+      "counts": [
+       "Curl right on 1-2, left on 3-4",
+       "Add a row with the arms"
+      ],
+      "dir": "RRLLRRLL"
+     },
+     {
+      "name": "Double step-touch",
+      "dur": 45,
+      "slug": "step-touch-clap",
+      "fb": "march",
+      "how": "Two step-touches right, two left.",
+      "counts": [
+       "1-4 double right",
+       "5-8 double left"
+      ],
+      "dir": "RRRRLLLL"
+     },
+     {
+      "name": "Routine A with arms",
+      "dur": 75,
+      "slug": "arm-waves",
+      "fb": "march",
+      "how": "Routine A with all the arm layers.",
+      "counts": [
+       "Box step, arms up",
+       "Grapevine, clap on 4 and 8"
+      ]
+     },
+     {
+      "name": "Side step + body roll",
+      "dur": 60,
+      "slug": "side-groove",
+      "fb": "march",
+      "how": "Step out wide and roll through the body (small is fine).",
+      "counts": [
+       "1-2 step right, 3-4 roll",
+       "5-6 step left, 7-8 roll"
+      ],
+      "dir": "RRRRLLLL"
+     },
+     {
+      "name": "Kick-ball-change (low)",
+      "dur": 60,
+      "slug": "cha-cha-step",
+      "fb": "march",
+      "how": "Small kick forward, step back on the ball of the foot, change. No jumping.",
+      "counts": [
+       "Kick, ball, change on 1-2",
+       "Other side on 3-4"
+      ]
+     },
+     {
+      "name": "Routine B layered",
+      "dur": 75,
+      "slug": "shoulder-shimmies",
+      "fb": "march",
+      "how": "Side step + body roll, then kick-ball-change.",
+      "counts": [
+       "8 side step + roll",
+       "8 kick-ball-change"
+      ]
+     },
+     {
+      "name": "Low-impact pony step",
+      "dur": 45,
+      "slug": "side-groove",
+      "fb": "march",
+      "how": "Small side-to-side shuffle, no jumping.",
+      "counts": [
+       "Shuffle right 1&2",
+       "Shuffle left 3&4"
+      ],
+      "dir": "RRLLRRLL"
+     },
+     {
+      "name": "Mambo step",
+      "dur": 60,
+      "slug": "cha-cha-step",
+      "fb": "march",
+      "how": "Step forward, rock back, step together.",
+      "counts": [
+       "1 forward, 2 rock, 3 together, hold 4"
+      ]
+     },
+     {
+      "name": "Routine B with arms",
+      "dur": 75,
+      "slug": "shoulder-shimmies",
+      "fb": "march",
+      "how": "Routine B with arms reaching on every step.",
+      "counts": [
+       "Side step, roll, arms wide",
+       "Kick-ball-change, arms punch down"
+      ]
+     },
+     {
+      "name": "Freestyle groove",
+      "dur": 45,
+      "slug": "freestyle-groove",
+      "fb": "march",
+      "how": "Your move! Any step from today, stay on the beat.",
+      "counts": [
+       "Pick any move",
+       "Stay on the beat"
+      ]
+     },
+     {
+      "name": "Full routine A + B",
+      "dur": 90,
+      "slug": "box-step",
+      "fb": "march",
+      "how": "Everything: routine A, then routine B, on repeat.",
+      "counts": [
+       "Routine A: box + grapevine",
+       "Routine B: roll + kick-ball-change"
+      ]
+     }
+    ],
+    "cool": [
+     {
+      "name": "Slow sway",
+      "dur": 60,
+      "slug": "side-groove",
+      "fb": "march",
+      "how": "Slow side-to-side sway, let the arms float."
+     },
+     {
+      "name": "Side stretch",
+      "dur": 60,
+      "slug": "stretch-side",
+      "fb": "cool",
+      "how": "One arm up and over. Swap at 30 seconds."
+     },
+     {
+      "name": "Hamstring stretch",
+      "dur": 60,
+      "slug": "stretch-hamstring",
+      "fb": "cool",
+      "how": "One heel forward, toes up, hinge from the hips."
+     },
+     {
+      "name": "Thigh stretch (hold the chair)",
+      "dur": 60,
+      "slug": "stretch-quad",
+      "fb": "cool",
+      "how": "Heel to bum, holding a chair. Swap at 30 seconds."
+     },
+     {
+      "name": "Breathe and shake out",
+      "dur": 60,
+      "slug": "breathe",
+      "fb": "cool",
+      "how": "Big breaths, shake out the hands and legs."
+     }
+    ]
+   }
+  },
+  {
+   "id": "latin",
+   "title": "Latin Dance Cardio (Zumba-style)",
+   "category": "Dance",
+   "tags": [
+    "cardio",
+    "dance"
+   ],
+   "trainer": "f",
+   "duration": 1800,
+   "intensity": "Moderate",
+   "level": "Beginner",
+   "impact": "Low",
+   "equipment": "None",
+   "poster": "media/classes/latin/salsa-basic.jpg",
+   "blurb": "Merengue, salsa, cumbia and reggaeton-style steps. Low impact, 100–130 bpm. Not affiliated with Zumba®.",
+   "music": {
+    "style": "latin",
+    "bpm": 110,
+    "coolBpm": 96
+   },
+   "met": 5.5,
+   "track": "rhythm",
+   "warmTrack": "rhythm",
+   "voice": [
+    "latin",
+    "zumba",
+    "salsa"
+   ],
+   "drive_file_id": "",
+   "added": "2026-10-18",
+   "script": {
+    "transition": 15,
+    "waterEvery": 4,
+    "warm": [
+     {
+      "name": "Merengue march",
+      "dur": 60,
+      "slug": "merengue-march",
+      "fb": "march",
+      "how": "March on the spot, let the hips move naturally.",
+      "counts": [
+       "March 1-8, hips loose"
+      ],
+      "bpm": 100
+     },
+     {
+      "name": "Merengue + arms",
+      "dur": 60,
+      "slug": "hip-sway-arms",
+      "fb": "march",
+      "how": "Add arm rolls and elbow pumps.",
+      "counts": [
+       "March",
+       "Add arm rolls on 5-8"
+      ],
+      "bpm": 104
+     },
+     {
+      "name": "Slow salsa basic",
+      "dur": 60,
+      "slug": "salsa-basic",
+      "fb": "march",
+      "how": "Forward on 1, back to centre on 2-3; back on 5, centre on 6-7.",
+      "counts": [
+       "1 forward, 2-3 back to centre",
+       "5 back, 6-7 centre"
+      ],
+      "bpm": 100
+     },
+     {
+      "name": "Hip sways",
+      "dur": 60,
+      "slug": "hip-sway-arms",
+      "fb": "march",
+      "how": "Feet wide, sway the hips side to side.",
+      "counts": [
+       "Sway right 1-2, left 3-4"
+      ],
+      "dir": "RRLLRRLL",
+      "bpm": 104
+     },
+     {
+      "name": "Slow cumbia step",
+      "dur": 60,
+      "slug": "cumbia-step",
+      "fb": "march",
+      "how": "Step back on a diagonal, return; other side.",
+      "counts": [
+       "1-2 back right, 3-4 back left"
+      ],
+      "dir": "RRLLRRLL",
+      "bpm": 100
+     }
+    ],
+    "main": [
+     {
+      "name": "Merengue",
+      "dur": 60,
+      "slug": "merengue-march",
+      "fb": "march",
+      "how": "Marching merengue, add side steps.",
+      "counts": [
+       "March 1-4",
+       "Side steps right 5-8"
+      ],
+      "dir": "NNNNRRRR",
+      "bpm": 128
+     },
+     {
+      "name": "Salsa basic",
+      "dur": 75,
+      "slug": "salsa-basic",
+      "fb": "march",
+      "how": "Forward-back salsa basic, add shoulders.",
+      "counts": [
+       "1 forward, 2-3 centre",
+       "5 back, 6-7 centre",
+       "Add shoulders"
+      ],
+      "bpm": 110
+     },
+     {
+      "name": "Salsa side + arms",
+      "dur": 60,
+      "slug": "side-step-punch",
+      "fb": "march",
+      "how": "Side salsa: right on 1, left on 5, arms open.",
+      "counts": [
+       "1 side right, 2-3 centre",
+       "5 side left, 6-7 centre"
+      ],
+      "dir": "RRRRLLLL",
+      "bpm": 110
+     },
+     {
+      "name": "Cumbia",
+      "dur": 75,
+      "slug": "cumbia-step",
+      "fb": "march",
+      "how": "Cumbia step with a small turn of the shoulders.",
+      "counts": [
+       "Back right 1-2, back left 3-4",
+       "Add shoulder turn"
+      ],
+      "dir": "RRLLRRLL",
+      "bpm": 105
+     },
+     {
+      "name": "Reggaeton step (low impact)",
+      "dur": 60,
+      "slug": "reggaeton-step",
+      "fb": "march",
+      "how": "Bounce the knees, step side, tap.",
+      "counts": [
+       "Step right, tap",
+       "Step left, tap",
+       "Add arm pumps"
+      ],
+      "dir": "RRLLRRLL",
+      "bpm": 100
+     },
+     {
+      "name": "Cha-cha side",
+      "dur": 45,
+      "slug": "cha-cha-cross",
+      "fb": "march",
+      "how": "Rock step, then cha-cha-cha to the side.",
+      "counts": [
+       "2-3 rock step, 4&5 cha-cha-cha right",
+       "6-7 rock, 8&1 cha-cha-cha left"
+      ],
+      "dir": "RRRRLLLL",
+      "bpm": 115
+     },
+     {
+      "name": "Combo: merengue + salsa",
+      "dur": 90,
+      "slug": "salsa-basic",
+      "fb": "march",
+      "how": "One 8 merengue, one 8 salsa basic.",
+      "counts": [
+       "8 merengue",
+       "8 salsa basic",
+       "Repeat and smile"
+      ],
+      "bpm": 120
+     },
+     {
+      "name": "Mambo",
+      "dur": 60,
+      "slug": "mambo",
+      "fb": "march",
+      "how": "Mambo forward and back.",
+      "counts": [
+       "1 forward, 2 rock, 3 together",
+       "5 back, 6 rock, 7 together"
+      ],
+      "bpm": 120
+     },
+     {
+      "name": "Samba-style bounce (low)",
+      "dur": 60,
+      "slug": "samba-bounce",
+      "fb": "march",
+      "how": "Small bounce through the knees, step-ball-change. No jumping.",
+      "counts": [
+       "Bounce 1-a-2",
+       "Other side 3-a-4"
+      ],
+      "bpm": 126
+     },
+     {
+      "name": "Cumbia combo",
+      "dur": 75,
+      "slug": "cumbia-step",
+      "fb": "march",
+      "how": "Cumbia + side steps with arms.",
+      "counts": [
+       "8 cumbia",
+       "8 side steps, arms open"
+      ],
+      "dir": "",
+      "bpm": 110
+     },
+     {
+      "name": "Slow salsa turn",
+      "dur": 45,
+      "slug": "hip-sway-arms",
+      "fb": "march",
+      "how": "Easy walk-around turn in 4 steps, or just sway.",
+      "counts": [
+       "Turn right 1-4",
+       "Turn left 5-8"
+      ],
+      "dir": "RRRRLLLL",
+      "bpm": 110
+     },
+     {
+      "name": "Merengue party",
+      "dur": 75,
+      "slug": "merengue-march",
+      "fb": "march",
+      "how": "Merengue with big arms and hip sways.",
+      "counts": [
+       "March",
+       "Add arm rolls",
+       "Add hip sways"
+      ],
+      "bpm": 130
+     },
+     {
+      "name": "Reggaeton combo",
+      "dur": 60,
+      "slug": "reggaeton-step",
+      "fb": "march",
+      "how": "Step-taps with shoulder pops.",
+      "counts": [
+       "Step-tap right, pop",
+       "Step-tap left, pop"
+      ],
+      "dir": "RRLLRRLL",
+      "bpm": 100
+     },
+     {
+      "name": "Freestyle fiesta",
+      "dur": 45,
+      "slug": "side-step-punch",
+      "fb": "march",
+      "how": "Any Latin step you like, stay with the beat.",
+      "counts": [
+       "Your move!",
+       "Stay on the beat"
+      ],
+      "bpm": 124
+     },
+     {
+      "name": "Full combo",
+      "dur": 90,
+      "slug": "samba-bounce",
+      "fb": "march",
+      "how": "Merengue, salsa, cumbia: one 8 each.",
+      "counts": [
+       "8 merengue",
+       "8 salsa",
+       "8 cumbia"
+      ],
+      "bpm": 124
+     }
+    ],
+    "cool": [
+     {
+      "name": "Slow sway",
+      "dur": 60,
+      "slug": "cooldown-sway",
+      "fb": "march",
+      "how": "Slow hip sway, long breaths."
+     },
+     {
+      "name": "Arm and shoulder stretch",
+      "dur": 60,
+      "slug": "stretch-chest",
+      "fb": "cool",
+      "how": "Arm across the chest, then swap."
+     },
+     {
+      "name": "Side stretch",
+      "dur": 60,
+      "slug": "stretch-side",
+      "fb": "cool",
+      "how": "Reach up and over, swap at 30 seconds."
+     },
+     {
+      "name": "Hamstring stretch",
+      "dur": 60,
+      "slug": "stretch-hamstring",
+      "fb": "cool",
+      "how": "Heel forward, hinge from the hips."
+     },
+     {
+      "name": "Breathe",
+      "dur": 60,
+      "slug": "breathe",
+      "fb": "cool",
+      "how": "Hands on your heart, slow breaths."
+     }
+    ]
+   }
+  },
+  {
+   "id": "yoga",
+   "title": "Yoga",
+   "category": "Mind & body",
+   "tags": [
+    "mind-body",
+    "gentle"
+   ],
+   "trainer": "f",
+   "duration": 1800,
+   "intensity": "Gentle",
+   "level": "Beginner",
+   "impact": "Low",
+   "equipment": "None",
+   "poster": "media/classes/yoga/warrior-2.jpg",
+   "blurb": "Slow, beginner yoga with breath cues. Reta times your holds, and the timer only counts while you're in the pose.",
+   "music": {
+    "style": "ambient",
+    "bpm": 60
+   },
+   "met": 2.5,
+   "track": "hold",
+   "warmTrack": "still",
+   "voice": [
+    "yoga"
+   ],
+   "drive_file_id": "",
+   "added": "2026-10-18",
+   "script": {
+    "transition": 15,
+    "waterEvery": 4,
+    "warm": [
+     {
+      "name": "Breathing with arms",
+      "dur": 60,
+      "slug": "mountain-arms",
+      "fb": "cool",
+      "how": "Stand tall. Breathe in for 4 as the arms rise, out for 6 as they lower.",
+      "cues": [
+       "Breathe in… 2… 3… 4",
+       "And out… slowly"
+      ]
+     },
+     {
+      "name": "Neck and shoulder rolls",
+      "dur": 60,
+      "slug": "mountain-arms",
+      "fb": "cool",
+      "how": "Gentle half-circles with the head, then roll the shoulders."
+     },
+     {
+      "name": "Cat-cow (seated or all fours)",
+      "dur": 60,
+      "slug": "cat-cow",
+      "fb": "cool",
+      "how": "Breathe in, lift the chest; breathe out, round the back.",
+      "cues": [
+       "Inhale, open",
+       "Exhale, round"
+      ]
+     },
+     {
+      "name": "Standing side bend",
+      "dur": 60,
+      "slug": "mountain-arms",
+      "fb": "cool",
+      "how": "Arms up, lean gently to one side, then the other."
+     },
+     {
+      "name": "Mountain pose",
+      "dur": 60,
+      "slug": "mountain-arms",
+      "fb": "cool",
+      "how": "Stand tall, feet hip-width, arms by your sides. Breathe.",
+      "cues": [
+       "Crown of the head lifts",
+       "Soft shoulders"
+      ]
+     }
+    ],
+    "main": [
+     {
+      "name": "Chair pose",
+      "dur": 60,
+      "slug": "chair-pose",
+      "fb": "squat",
+      "how": "Feet together or hip-width, sit back as if into a chair, arms up.",
+      "cues": [
+       "Breathe in, reach up",
+       "Breathe out, sit a little lower"
+      ],
+      "pose": "chair"
+     },
+     {
+      "name": "Warrior II (right)",
+      "dur": 60,
+      "slug": "warrior-2",
+      "fb": "lunge",
+      "how": "Feet wide, right toes out, bend the right knee over the ankle, arms out at shoulder height.",
+      "cues": [
+       "Gaze over the front hand",
+       "Breathe"
+      ],
+      "pose": "warrior2"
+     },
+     {
+      "name": "Warrior II (left)",
+      "dur": 60,
+      "slug": "warrior-2",
+      "fb": "lunge",
+      "how": "Same on the left side.",
+      "cues": [
+       "Long through both arms",
+       "Soft breath"
+      ],
+      "pose": "warrior2"
+     },
+     {
+      "name": "Tree pose (right, hold the chair)",
+      "dur": 60,
+      "slug": "tree-chair",
+      "fb": "cool",
+      "how": "Stand on the left leg, right foot on your ankle or calf (never the knee). Hold a chair if you like.",
+      "cues": [
+       "Steady gaze",
+       "Breathe"
+      ],
+      "pose": "tree"
+     },
+     {
+      "name": "Tree pose (left)",
+      "dur": 60,
+      "slug": "tree-chair",
+      "fb": "cool",
+      "how": "Stand on the right leg, left foot on the ankle or calf.",
+      "cues": [
+       "Find a spot to focus on"
+      ],
+      "pose": "tree"
+     },
+     {
+      "name": "Chair pose flow",
+      "dur": 90,
+      "slug": "chair-pose",
+      "fb": "squat",
+      "how": "Inhale stand, exhale sit into chair pose. Hold the last one.",
+      "cues": [
+       "Inhale up",
+       "Exhale, sit back"
+      ],
+      "pose": "chair"
+     },
+     {
+      "name": "Downward dog (knees bent)",
+      "dur": 60,
+      "slug": "down-dog-bent",
+      "fb": "cool",
+      "how": "From all fours, tuck the toes and lift the hips. Keep the knees bent and heels up.",
+      "cues": [
+       "Long spine",
+       "Breathe"
+      ],
+      "track": "still"
+     },
+     {
+      "name": "Cat-cow flow",
+      "dur": 60,
+      "slug": "cat-cow",
+      "fb": "cool",
+      "how": "On all fours: inhale, lift the chest; exhale, round the back.",
+      "cues": [
+       "Inhale, open",
+       "Exhale, round"
+      ],
+      "track": "still"
+     },
+     {
+      "name": "Triangle (right, short)",
+      "dur": 60,
+      "slug": "triangle",
+      "fb": "lunge",
+      "how": "Legs wide, reach forward over the right leg, hand to the shin or a chair, other arm up.",
+      "cues": [
+       "Long side body"
+      ],
+      "track": "still"
+     },
+     {
+      "name": "Triangle (left, short)",
+      "dur": 60,
+      "slug": "triangle",
+      "fb": "lunge",
+      "how": "Other side.",
+      "cues": [
+       "Breathe into the side"
+      ],
+      "track": "still"
+     },
+     {
+      "name": "Mountain flow with arms",
+      "dur": 90,
+      "slug": "mountain-arms",
+      "fb": "cool",
+      "how": "Stand tall. Inhale, arms overhead; exhale, hands to heart.",
+      "cues": [
+       "Inhale, reach",
+       "Exhale, soften"
+      ],
+      "track": "still"
+     },
+     {
+      "name": "Chair pose hold",
+      "dur": 75,
+      "slug": "chair-pose",
+      "fb": "squat",
+      "how": "One more chair pose. Hold and breathe.",
+      "cues": [
+       "Stay with the breath",
+       "Sink a little lower if you can"
+      ],
+      "pose": "chair"
+     },
+     {
+      "name": "Warrior II flow (both sides)",
+      "dur": 90,
+      "slug": "warrior-2",
+      "fb": "lunge",
+      "how": "Warrior II right, straighten, warrior II left, with the breath.",
+      "cues": [
+       "Inhale straighten",
+       "Exhale bend"
+      ],
+      "pose": "warrior2"
+     },
+     {
+      "name": "Tree pose (right) again",
+      "dur": 45,
+      "slug": "tree-chair",
+      "fb": "cool",
+      "how": "Try lifting the arms if you feel steady.",
+      "pose": "tree"
+     },
+     {
+      "name": "Tree pose (left) again",
+      "dur": 45,
+      "slug": "tree-chair",
+      "fb": "cool",
+      "how": "Other side.",
+      "pose": "tree"
+     }
+    ],
+    "cool": [
+     {
+      "name": "Seated forward fold",
+      "dur": 60,
+      "slug": "seated-fold",
+      "fb": "cool",
+      "how": "Sit, legs forward, hinge gently towards your toes."
+     },
+     {
+      "name": "Gentle cat-cow",
+      "dur": 60,
+      "slug": "cat-cow",
+      "fb": "cool",
+      "how": "On all fours, slow cat-cow with long breaths."
+     },
+     {
+      "name": "Supine twist",
+      "dur": 60,
+      "slug": "supine-twist",
+      "fb": "cool",
+      "how": "On your back, knees bent, let them drop to one side, then the other.",
+      "fix": "Keep knees bent together and let them drop slowly side to side"
+     },
+     {
+      "name": "Child's pose",
+      "dur": 60,
+      "slug": "childs-pose",
+      "fb": "cool",
+      "how": "Knees wide, sit back to your heels, arms forward."
+     },
+     {
+      "name": "Relaxation",
+      "dur": 60,
+      "slug": "childs-pose",
+      "fb": "cool",
+      "how": "Lie or sit comfortably. Close your eyes. Breathe."
+     }
+    ]
+   }
+  },
+  {
+   "id": "pilates",
+   "title": "Pilates",
+   "category": "Mind & body",
+   "tags": [
+    "mind-body",
+    "gentle",
+    "strength"
+   ],
+   "trainer": "m",
+   "duration": 1800,
+   "intensity": "Gentle",
+   "level": "Beginner",
+   "impact": "Low",
+   "equipment": "None",
+   "poster": "media/classes/pilates/glute-bridge.jpg",
+   "blurb": "Controlled mat Pilates on a towel or carpet: bridges, leg lifts, clams, bird dog and knee planks. Reps are counted.",
+   "music": {
+    "style": "ambient",
+    "bpm": 70
+   },
+   "met": 3,
+   "track": "reps",
+   "warmTrack": "still",
+   "voice": [
+    "pilates"
+   ],
+   "drive_file_id": "",
+   "added": "2026-10-18",
+   "script": {
+    "transition": 15,
+    "waterEvery": 4,
+    "warm": [
+     {
+      "name": "Breathing and pelvic tilts",
+      "dur": 60,
+      "slug": "pelvic-tilts",
+      "fb": "bridge",
+      "how": "Lie on your back, knees bent. Gently tilt the pelvis with the breath. Keep your hips on the floor.",
+      "fix": "Hips stay on the floor, just flatten and arch your lower back"
+     },
+     {
+      "name": "Small bridges",
+      "dur": 60,
+      "slug": "glute-bridge",
+      "fb": "bridge",
+      "how": "Peel the hips up a little, then down. Slow.",
+      "rep": "bridge",
+      "track": "reps"
+     },
+     {
+      "name": "The hundred (knees bent, gentle)",
+      "dur": 60,
+      "slug": "hundred",
+      "fb": "deadbug",
+      "how": "On your back, feet on the floor, pump the arms low. Breathe in for 5 pumps, out for 5. Head down is fine."
+     },
+     {
+      "name": "Spine stretch forward",
+      "dur": 60,
+      "slug": "spine-stretch",
+      "fb": "cool",
+      "how": "Sit tall, legs apart, reach forward as you breathe out, roll up as you breathe in."
+     },
+     {
+      "name": "Single leg stretch (beginner)",
+      "dur": 60,
+      "slug": "single-leg-stretch",
+      "fb": "deadbug",
+      "how": "On your back, hug one knee in while the other leg reaches long. Swap slowly. Head down is fine."
+     }
+    ],
+    "main": [
+     {
+      "name": "Glute bridge",
+      "dur": 60,
+      "slug": "glute-bridge",
+      "fb": "bridge",
+      "how": "Feet flat, squeeze and lift the hips, lower slowly.",
+      "cues": [
+       "Squeeze at the top",
+       "Lower one bone at a time"
+      ],
+      "rep": "bridge"
+     },
+     {
+      "name": "Side-lying leg lift (right)",
+      "dur": 75,
+      "slug": "side-leg-lifts",
+      "fb": "bridge",
+      "how": "Lie on your left side, lift the top leg slowly, lower with control.",
+      "cues": [
+       "Lift for 2, lower for 2",
+       "Hips stacked"
+      ],
+      "rep": "legLift"
+     },
+     {
+      "name": "Side-lying leg lift (left)",
+      "dur": 75,
+      "slug": "side-leg-lifts",
+      "fb": "bridge",
+      "how": "Other side.",
+      "cues": [
+       "Long leg, slow"
+      ],
+      "rep": "legLift"
+     },
+     {
+      "name": "Clams (right)",
+      "dur": 75,
+      "slug": "clam-shells",
+      "fb": "bridge",
+      "how": "Lie on your side, knees bent, feet together, open the top knee.",
+      "cues": [
+       "Feet stay together",
+       "Slow and controlled"
+      ],
+      "rep": "clam",
+      "fix": "Keep your feet together, just open the top knee"
+     },
+     {
+      "name": "Clams (left)",
+      "dur": 75,
+      "slug": "clam-shells",
+      "fb": "bridge",
+      "how": "Other side.",
+      "cues": [
+       "Hips stay still"
+      ],
+      "rep": "clam",
+      "fix": "Keep your feet together, just open the top knee"
+     },
+     {
+      "name": "Bird dog",
+      "dur": 75,
+      "slug": "bird-dog",
+      "fb": "deadbug",
+      "how": "On all fours, reach one arm forward and the opposite leg back, return, swap.",
+      "cues": [
+       "Reach long",
+       "Back flat like a table"
+      ],
+      "rep": "birddog"
+     },
+     {
+      "name": "Knee plank",
+      "dur": 45,
+      "slug": "knee-plank",
+      "fb": "pushup",
+      "how": "Forearms down, knees down, straight line from head to knees.",
+      "cues": [
+       "Belly in",
+       "Breathe"
+      ],
+      "track": "plank"
+     },
+     {
+      "name": "Bridge with a hold",
+      "dur": 60,
+      "slug": "glute-bridge",
+      "fb": "bridge",
+      "how": "Lift, hold for 2, lower slowly.",
+      "cues": [
+       "Hold… and lower"
+      ],
+      "rep": "bridge"
+     },
+     {
+      "name": "Leg lift (right) round 2",
+      "dur": 60,
+      "slug": "side-leg-lifts",
+      "fb": "bridge",
+      "how": "Smaller and slower than before.",
+      "rep": "legLift"
+     },
+     {
+      "name": "Leg lift (left) round 2",
+      "dur": 60,
+      "slug": "side-leg-lifts",
+      "fb": "bridge",
+      "how": "Other side.",
+      "rep": "legLift"
+     },
+     {
+      "name": "Bird dog round 2",
+      "dur": 75,
+      "slug": "bird-dog",
+      "fb": "deadbug",
+      "how": "Pause for a breath at full reach.",
+      "rep": "birddog"
+     },
+     {
+      "name": "Knee plank round 2",
+      "dur": 45,
+      "slug": "knee-plank",
+      "fb": "pushup",
+      "how": "Head to knees in one line.",
+      "track": "plank"
+     },
+     {
+      "name": "Clams (right) round 2",
+      "dur": 60,
+      "slug": "clam-shells",
+      "fb": "bridge",
+      "how": "Pause at the top.",
+      "rep": "clam",
+      "fix": "Keep your feet together, just open the top knee"
+     },
+     {
+      "name": "Clams (left) round 2",
+      "dur": 60,
+      "slug": "clam-shells",
+      "fb": "bridge",
+      "how": "Other side.",
+      "rep": "clam",
+      "fix": "Keep your feet together, just open the top knee"
+     },
+     {
+      "name": "Bridge pulses",
+      "dur": 75,
+      "slug": "glute-bridge",
+      "fb": "bridge",
+      "how": "Lift, then small pulses at the top, lower slowly.",
+      "cues": [
+       "Tiny pulses",
+       "Keep breathing"
+      ],
+      "rep": "bridge"
+     }
+    ],
+    "cool": [
+     {
+      "name": "Spine stretch forward",
+      "dur": 60,
+      "slug": "spine-stretch",
+      "fb": "cool",
+      "how": "Sit tall, legs apart, reach forward slowly and breathe."
+     },
+     {
+      "name": "Lying spine twist",
+      "dur": 60,
+      "slug": "lying-twist",
+      "fb": "cool",
+      "how": "On your back, knees to one side, then the other."
+     },
+     {
+      "name": "Hamstring stretch",
+      "dur": 60,
+      "slug": "stretch-hamstring",
+      "fb": "cool",
+      "how": "On your back, one leg up, hold behind the thigh."
+     },
+     {
+      "name": "Figure-4 stretch",
+      "dur": 60,
+      "slug": "figure-4",
+      "fb": "cool",
+      "how": "Ankle on the opposite knee, gently draw in. Swap at 30 seconds."
+     },
+     {
+      "name": "Breathe",
+      "dur": 60,
+      "slug": "breathe",
+      "fb": "cool",
+      "how": "Long slow breaths. Well done."
+     }
+    ]
+   }
+  }
+ ]
+}

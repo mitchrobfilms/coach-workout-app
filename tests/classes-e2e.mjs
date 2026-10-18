@@ -1,6 +1,8 @@
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = (process.argv[2] || 'http://localhost:8765/') + '?speed=90';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
+import fs from 'node:fs';
+const BEEP = fs.readFileSync('beep.mp3');
 const PB = `const P = o => { const a = Array.from({ length: 33 }, () => ({ x: .5, y: .5, z: 0, visibility: 1 })); for (const [k, v] of Object.entries(o)) a[k] = { z: 0, visibility: 1, ...v }; return a; };
  const base = { 11: { x: .58, y: .3 }, 12: { x: .42, y: .3 }, 23: { x: .55, y: .55 }, 24: { x: .45, y: .55 }, 25: { x: .55, y: .72 }, 26: { x: .45, y: .72 }, 27: { x: .55, y: .9 }, 28: { x: .45, y: .9 } };`;
 for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixel 5'], 'boxing'], ['webkit-iphone', webkit, devices['iPhone 13'], 'dance']]) {
@@ -18,20 +20,46 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   ok(!(await p.$('[data-watch]')), 'Watch full class hidden while Drive IDs are empty');
   ok(/Recommended/.test(await p.textContent('#recCard')), 'Recommended for you card');
   await p.check('#lowEnergy'); await p.waitForTimeout(300); ok(/Yoga|Pilates/.test(await p.textContent('#recCard h3')), 'low energy -> gentle pick: ' + await p.textContent('#recCard h3'));
-  await p.click('[data-cfilter=gentle]'); await p.waitForTimeout(300); ok(await p.$$eval('#classList .ccard', c => c.length) === 2, 'Gentle filter -> 2 classes'); await p.click('[data-cfilter=all]'); await p.waitForTimeout(300);
-  // Drive embed when an ID is configured
-  await p.route('**/classes-drive.json', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ boxing: '1AbCdEfGhIjKlMnOp_test', dance: '' }) }));
-  await p.evaluate(() => window.__kova.renderClasses()); await p.waitForSelector('[data-watch=boxing]');
-  ok(!(await p.$('[data-watch=dance]')), 'only classes with an ID get the button');
+  ok(await p.$$eval('#classList .newbadge', n => n.length) === 5, 'fresh account: all classes show a New badge');
+  await p.click('[data-cfilter="Mind & body"]'); await p.waitForTimeout(300); ok(await p.$$eval('#classList .ccard', c => c.length) === 2, 'category filter (Mind & body) -> 2 classes'); await p.click('[data-cfilter=all]'); await p.waitForTimeout(300);
+  await p.fill('#classSearch', 'warrior'); await p.waitForTimeout(300); ok((await p.$$eval('#classList .ccard', c => c.map(x => x.id))).join() === 'class-yoga', 'search by move name ("warrior") -> Yoga');
+  await p.fill('#classSearch', 'zumba'); await p.waitForTimeout(300); ok((await p.$$eval('#classList .ccard', c => c.map(x => x.id))).join() === 'class-latin', 'search "zumba" -> Latin');
+  await p.fill('#classSearch', ''); await p.waitForTimeout(300);
+  // online library: a new entry + a Drive id arrive via library.json only (no code change)
+  const lib = JSON.parse(await (await fetch(URL.replace(/\?.*/, '') + 'library.json')).text());
+  lib.classes[0].drive_file_id = '1AbCdEfGhIjKlMnOp_test';
+  lib.classes.push({ id: 'stretch-test', title: 'Gentle Stretch', category: 'Recovery', tags: ['gentle'], trainer: 'f', duration: 195, intensity: 'Gentle', poster: 'media/classes/yoga/seated-fold.jpg', blurb: 'Test class from library.json only.', music: { style: 'ambient', bpm: 60 }, met: 2, track: 'hold', voice: ['stretch'], drive_file_id: '', added: new Date().toISOString().slice(0, 10), script: { warm: [{ name: 'Breathe', dur: 60, slug: 'mountain-arms' }], main: [{ name: 'Seated forward fold', dur: 60, slug: 'seated-fold' }], cool: [{ name: 'Child\'s pose', dur: 60, slug: 'childs-pose' }] } });
+  await p.route('**/library.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(lib) }));
+  await p.click('.tabs button[data-tab=progress]'); await p.click('.tabs button[data-tab=classes]'); await p.waitForSelector('#class-stretch-test');
+  ok(await p.isVisible('#class-stretch-test .newbadge') && await p.isVisible('[data-cfilter=Recovery]') && /3:15/.test(await p.textContent('#class-stretch-test .dur')), 'new library entry appears on returning to the tab, with New badge + its own category');
+  await p.click('[data-cfilter=new]'); await p.waitForTimeout(300); ok(await p.$$eval('#classList .ccard', c => c.length) >= 1, 'New filter');
+  await p.click('[data-cfilter=all]'); await p.waitForTimeout(300);
+  ok(!(await p.$('[data-watch=dance]')) && !!(await p.$('[data-watch=boxing]')), 'Watch full class only where drive_file_id is set');
   await p.click('[data-watch=boxing]'); ok(await p.isVisible('#driveModal') && (await p.getAttribute('#driveFrame', 'src')) === 'https://drive.google.com/file/d/1AbCdEfGhIjKlMnOp_test/preview' && (await p.getAttribute('#driveFrame', 'allowfullscreen')) !== null, 'Watch full class opens Drive /preview iframe (fullscreen allowed)');
-  await p.click('#driveClose'); ok(!(await p.isVisible('#driveModal')), 'modal closes'); await p.unroute('**/classes-drive.json');
+  await p.click('#driveClose'); ok(!(await p.isVisible('#driveModal')), 'modal closes');
+  await p.unroute('**/library.json*');
+  // offline: library falls back to the last good copy
+  await p.route('**/library.json*', r => r.abort());
+  await p.evaluate(() => window.__kova.renderClasses()); await p.waitForTimeout(400);
+  ok(await p.evaluate(() => window.__kova.libraryOffline) && await p.$$eval('#classList .ccard', c => c.length) === 6, 'offline: library served from the cached copy');
+  await p.unroute('**/library.json*'); await p.evaluate(() => window.__kova.renderClasses()); await p.waitForTimeout(400);
+  ok(await p.$$eval('#classList .ccard', c => c.length) === 5, 'back online: live library.json (5 classes)');
+  await p.evaluate(() => window.__kova.showUpdateToast({ postMessage() {} })); ok(await p.isVisible('#updateToast') && /Update available, tap to refresh/.test(await p.textContent('#updateToast')), 'update toast'); await p.evaluate(() => { document.getElementById('updateToast').hidden = true; window.__kova.updateReady = false; });
   await p.screenshot({ path: `classes-${name}.png` });
+  // recorded instructor voice (fake manifest + clip routed in)
+  await p.route('**/media/voice/voice-manifest.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ lines: [
+    { id: 'class.boxing.welcome', trainer: 'm', file: 'm/class.boxing.welcome.mp3', text: "Welcome to Boxing! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.", tags: ['class'] },
+    { id: 'class.dance.welcome', trainer: 'f', file: 'f/class.dance.welcome.mp3', text: "Welcome to Dance! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.", tags: ['class'] },
+    { id: 'common.pause', trainer: 'm', file: 'm/common.pause.mp3', text: "Paused. Say resume when you're ready." }, { id: 'common.pause', trainer: 'f', file: 'f/common.pause.mp3', text: "Paused. Say resume when you're ready." } ] }) }));
+  await p.route('**/media/voice/*/*.mp3', r => r.fulfill({ contentType: 'audio/mpeg', body: BEEP }));
   // start the class
   if (cls === 'boxing') await p.evaluate(() => window.__kova.handleHeard(['hey reta start boxing'])); else await p.click(`[data-startclass=${cls}]`);
   await p.waitForFunction(() => window.__kova.sess?.cls && window.__kova.sess.i >= 0, null, { timeout: 10000 });
   const info = await p.evaluate(() => ({ id: window.__kova.sess.cls.id, tr: window.__kova.sess.trainer, n: document.querySelectorAll('#timeline .seg').length, hud: !document.getElementById('classHud').hidden }));
   ok(info.id === cls && info.tr === (cls === 'boxing' ? 'm' : 'f') && info.n === 40 && info.hud, `${cls} started (${cls === 'boxing' ? 'voice' : 'tap'}), lead trainer ${info.tr}, 40-step timeline, class HUD`);
   await p.waitForTimeout(1500);
+  const lv = await p.evaluate(() => window.__kova.lastVoice);
+  ok(lv && lv.id === `class.${cls}.welcome` && lv.src.includes(`/${cls === 'boxing' ? 'm' : 'f'}/`), 'recorded welcome line played in the lead trainer\'s voice: ' + JSON.stringify(lv));
   ok(await p.evaluate(() => (window.__kova.cls.music?.scheduled || 0) > 4), 'generated music is playing (events scheduled: ' + await p.evaluate(() => window.__kova.cls.music?.scheduled) + ')');
   ok(await p.evaluate(() => !!window.__kova.classMedia?.src), 'trainer media (class clip or fallback): ' + JSON.stringify(await p.evaluate(() => window.__kova.classMedia)));
   if (cls === 'dance') {
@@ -44,7 +72,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   await p.evaluate(() => window.__kova.handleHeard(['hey reta louder'])); const v1 = await p.evaluate(() => window.__kova.cls.music.vol);
   await p.evaluate(() => window.__kova.handleHeard(['hey reta quieter music'])); await p.evaluate(() => window.__kova.handleHeard(['hey reta quieter'])); const v2 = await p.evaluate(() => window.__kova.cls.music.vol);
   ok(v1 > v0 && v2 < v1 && +(await p.inputValue('#musicVol')) === Math.round(v2 * 100), `louder/quieter + slider (${v0} -> ${v1} -> ${v2})`);
-  await p.evaluate(() => window.__kova.handleHeard(['hey reta pause'])); ok(await p.evaluate(() => window.__kova.sess.paused && window.__kova.cls.music.paused), 'pause pauses class + music');
+  await p.evaluate(() => window.__kova.handleHeard(['hey reta pause'])); ok(await p.evaluate(() => window.__kova.sess.paused && window.__kova.cls.music.paused), 'pause pauses class + music'); ok(await p.evaluate(() => window.__kova.lastVoice?.id === 'common.pause'), 'pause line matched by text to its recording');
   await p.evaluate(() => window.__kova.handleHeard(['hey reta resume'])); ok(await p.evaluate(() => !window.__kova.sess.paused), 'resume');
   const i0 = await p.evaluate(() => window.__kova.sess.i); await p.evaluate(() => window.__kova.handleHeard(['hey reta skip'])); ok(await p.evaluate(() => window.__kova.sess.i) >= i0 + 1, 'skip moves to the next step');
   // interactive tracking with synthetic poses
@@ -60,6 +88,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
     ok(sc[0] > 0 && /Move score/.test(sc[1]), 'dance move score + rhythm meter update: ' + sc.join(' | '));
   }
   await p.screenshot({ path: `class-${cls}-${name}.png` });
+  if (cls === 'boxing') { await p.evaluate(() => { while (!window.__kova.sess.cls.steps[window.__kova.sess.i].fix) window.__kova.classNext(); window.__kova.sess.t = 1e6; }); ok(await p.isVisible('#fixLabel.corrective') && /Drive up from your hips/.test(await p.textContent('#fixLabel')), 'corrective cue chip on the uppercut clip'); await p.screenshot({ path: `class-fixchip-${name}.png` }); await p.evaluate(() => { window.__kova.sess.t = 1; }); }
   // run to the end (speed=90 -> ~20s)
   await p.waitForSelector('#screen-end.active', { timeout: 60000 });
   const end = await p.evaluate(() => ({ s: document.getElementById('summaryText').textContent, rows: document.getElementById('totalsTable').textContent, h: JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k => k.endsWith('.classes')))) }));

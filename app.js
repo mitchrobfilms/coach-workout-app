@@ -2,8 +2,9 @@ import { getAuth } from './auth.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
-import { CLASSES, classById, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
+import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
+import { LINES, introText, slug as lineSlug } from './voicelines.js';
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
@@ -193,14 +194,63 @@ function updateEnergy() {
 let actx = null, voice = null, voiceTrainer = null; // voiceTrainer: class lead overrides the voice during a class
 function pickVoice() { if (!('speechSynthesis' in window)) return; const v = speechSynthesis.getVoices(), gb = v.filter(x => /en[-_]GB/i.test(x.lang)), re = TRAINERS[voiceTrainer || settings.trainer]?.voice; voice = (re && gb.find(x => re.test(x.name))) || gb[0] || (re && v.find(x => /^en/i.test(x.lang) && re.test(x.name))) || v.find(x => /^en/i.test(x.lang)) || null; }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-function say(text, { kind = 'coach' } = {}) {
+/* ---------- instructor voice: pre-recorded lines (media/voice/<m|f>/<id>.mp3) with phone-voice fallback ---------- */
+const VOICE = { byId: new Map(), byText: new Map(), queue: [], cur: null, cache: new Map(), loaded: false };
+const vnorm = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+async function loadVoiceManifest() {
+  try {
+    const r = await fetch(`media/voice/voice-manifest.json?v=${Date.now()}`, { cache: 'no-store' }); if (!r.ok) return;
+    const doc = await r.json(); VOICE.byId.clear(); VOICE.byText.clear();
+    const list = Array.isArray(doc) ? doc : Array.isArray(doc.lines) ? doc.lines : Object.entries(doc.lines || doc).filter(([, v]) => v && typeof v === 'object').map(([id, v]) => ({ id, ...v }));
+    for (const e of list) {
+      if (!e || !e.id) continue;
+      const ts = e.trainer ? [e.trainer] : String(e.file || '').match(/(^|\/)(m|f)\//) ? [String(e.file).match(/(^|\/)(m|f)\//)[2]] : ['m', 'f'];
+      for (const t of ts) { VOICE.byId.set(`${t}|${e.id}`, e); if (e.text) VOICE.byText.set(`${t}|${vnorm(e.text)}`, e); }
+    }
+    VOICE.loaded = true; window.__kova.voiceLines = VOICE.byId.size;
+  } catch {}
+}
+loadVoiceManifest();
+function voiceSrc(e, t) { const f = String(e.file || `${t}/${e.id}.mp3`).replace(/^\.?\//, ''); return /^media\//.test(f) ? f : `media/voice/${f}`; }
+function findLine(id, text, t) {
+  const byId = id && VOICE.byId.get(`${t}|${id}`);
+  if (byId && (!byId.text || !text || vnorm(byId.text) === vnorm(text))) return byId; // id must still say the same thing
+  return VOICE.byText.get(`${t}|${vnorm(text)}`) || null;
+}
+const voiceTrainerNow = () => voiceTrainer || settings.trainer || 'm';
+function preloadLines(items) { // items: [{id, text}] -> warm the browser cache for the next move's lines
+  if (settings.voiceMode === 'phone') return;
+  for (const { id, text } of items) { const e = findLine(id, text, voiceTrainerNow()); if (!e) continue; const src = voiceSrc(e, voiceTrainerNow()); if (VOICE.cache.has(src)) continue; const a = new Audio(); a.preload = 'auto'; a.src = src; VOICE.cache.set(src, a); if (VOICE.cache.size > 40) VOICE.cache.delete(VOICE.cache.keys().next().value); }
+}
+const voiceBusy = () => !!VOICE.cur || !!window.speechSynthesis?.speaking;
+function duck(on) { try { music?.duck?.(on); } catch {} }
+function playRecorded(e, t, kind, text) {
+  const src = voiceSrc(e, t);
+  if (kind === 'high') { VOICE.queue.length = 0; if (VOICE.cur) { VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; } window.speechSynthesis?.cancel(); }
+  else if (VOICE.cur) { if (VOICE.queue.length) return; VOICE.queue.push([e, t, kind, text]); return; } // don't pile up
+  const a = VOICE.cache.get(src) || new Audio(src); VOICE.cache.delete(src);
+  VOICE.cur = a; window.__kova.lastVoice = { id: e.id, src, text }; duck(true); ttsStart(kind, text);
+  const done = fallback => { if (VOICE.cur !== a) return; VOICE.cur = null; if (fallback) return speakTTS(text, kind); const n = VOICE.queue.shift(); if (n) return playRecorded(...n); duck(false); setTimeout(ttsEnd, 50); };
+  a.onended = () => done(false); a.onerror = () => done(true);
+  try { a.currentTime = 0; } catch {}
+  a.play().catch(() => done(true));
+}
+function say(text, { kind = 'coach', id = null } = {}) {
   bubble(text);
-  if (!settings.speech || !('speechSynthesis' in window)) return;
+  if (!settings.speech) return;
+  if (!id && kind === 'count' && /^\d+$/.test(text) && +text <= 20) id = `count.${text}`;
+  const t = voiceTrainerNow(), rec = settings.voiceMode !== 'phone' && findLine(id, text, t);
+  if (rec) return playRecorded(rec, t, kind, text);
+  speakTTS(text, kind);
+}
+function speakTTS(text, kind = 'coach') {
+  if (!('speechSynthesis' in window)) return;
+  if (kind === 'high' && VOICE.cur) { VOICE.queue.length = 0; VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; }
   if (kind === 'high') speechSynthesis.cancel();
   else if (speechSynthesis.pending) return; // don't pile up
   const u = new SpeechSynthesisUtterance(text);
   if (voice) u.voice = voice; u.lang = voice?.lang || 'en-GB'; u.rate = kind === 'count' ? 1.15 : 1.0;
-  u.onstart = () => ttsStart(kind, text); u.onend = u.onerror = () => setTimeout(ttsEnd, 50);
+  u.onstart = () => { duck(true); ttsStart(kind, text); }; u.onend = u.onerror = () => { if (!VOICE.cur) duck(false); setTimeout(ttsEnd, 50); };
   speechSynthesis.speak(u);
 }
 function unlockAudio() {
@@ -491,7 +541,8 @@ function renderProgress() {
 renderProgress();
 
 /* ---------- settings ---------- */
-const S = { setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech: 'speech', setBeeps: 'beeps', setLlm: 'llm', setLlmUrl: 'llmUrl', setLlmModel: 'llmModel', setLlmKey: 'llmKey' };
+settings.voiceMode ||= 'recorded';
+const S = { setVoiceMode: 'voiceMode', setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech: 'speech', setBeeps: 'beeps', setLlm: 'llm', setLlmUrl: 'llmUrl', setLlmModel: 'llmModel', setLlmKey: 'llmKey' };
 for (const [id, k] of Object.entries(S)) { const el = $(id); if (el.type === 'checkbox') el.checked = !!settings[k]; else el.value = settings[k] || (k === 'country' ? 'auto' : ''); }
 $('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.name ||= 'Mitchell'; settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
 $('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); location.reload(); } };
@@ -570,7 +621,7 @@ function stopRec(abort = true) { const r = voiceState.rec; voiceState.rec = null
 // Pause listening while Reta talks (longer lines) so the phone doesn't hear itself; resume right after.
 function ttsStart(kind, text = '') { if (!voiceState.on || kind === 'count') return; voiceState.ttsBusy = true; stopRec(); micUI();
   clearTimeout(ttsStart.t); ttsStart.t = setTimeout(() => { if (voiceState.ttsBusy) { voiceState.ttsBusy = false; micUI(); startRec(); } }, 2500 + text.length * 90); } // safety: Chrome Android sometimes never fires onend
-function ttsEnd() { if (!voiceState.ttsBusy) return; if (speechSynthesis.speaking || speechSynthesis.pending) return; voiceState.ttsBusy = false; micUI(); setTimeout(startRec, 250); }
+function ttsEnd() { if (!voiceState.ttsBusy) return; if (VOICE.cur || window.speechSynthesis?.speaking || window.speechSynthesis?.pending) return; voiceState.ttsBusy = false; micUI(); setTimeout(startRec, 250); }
 document.addEventListener('visibilitychange', () => { if (document.hidden) stopRec(); else setTimeout(startRec, 300); });
 function oneShot() { const r = new SR(); r.lang = REC_LANG; r.continuous = false; r.interimResults = true;
   let n = 0; r.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) onTranscript(e.results[i][0].transcript, e.results[i].isFinal, `os${n}:${i}`); };
@@ -647,7 +698,23 @@ function runCommand(raw) {
 }
 window.__kova.runCommand = runCommand; window.__kova.ttsStart = ttsStart; window.__kova.ttsEnd = ttsEnd; window.__kova.showMe = showMe; window.__kova.trackForm = trackForm; window.__kova.handleHeard = handleHeard;
 micUI();
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+// App updates: when a new service worker is waiting, offer "Update available, tap to refresh"; tapping activates it and reloads.
+function showUpdateToast(worker) {
+  const el = $('updateToast'); if (!el || !worker) return;
+  el.hidden = false; window.__kova.updateReady = true;
+  el.onclick = () => { el.textContent = 'Updating…'; worker.postMessage({ type: 'SKIP_WAITING' }); setTimeout(() => location.reload(), 1500); };
+}
+window.__kova.showUpdateToast = showUpdateToast;
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloading && window.__kova.updateReady) { reloading = true; location.reload(); } });
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdateToast(reg.waiting);
+    reg.addEventListener('updatefound', () => { const w = reg.installing; w?.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdateToast(w); }); });
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); });
+    setInterval(() => reg.update().catch(() => {}), 30 * 60000);
+  }).catch(() => {});
+}
 
 /* ---------- accounts (phone-only, see auth.js) + onboarding + trainer picker ---------- */
 function showErr(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
@@ -810,15 +877,27 @@ $('buildWeekBtn').onclick = () => buildMyWeek();
 window.__kova.buildMyWeek = buildMyWeek;
 
 /* ================= CLASSES: full 30-minute follow-along classes ================= */
-let music = null, classManifest = null, driveIds = {};
+let music = null, classManifest = null, CLASSES = [];
+const classById = id => CLASSES.find(c => c.id === id);
+/* Online library: library.json is fetched network-first (cache-busted) on every launch and whenever the Classes tab is shown;
+   the last good copy is kept in localStorage for offline use. Adding a class = edit library.json + add media/classes/<id>/. */
+const LIB_KEY = 'reta.library';
+async function loadLibrary() {
+  let doc = null;
+  try { const r = await fetch(`library.json?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { doc = await r.json(); localStorage.setItem(LIB_KEY, JSON.stringify(doc)); } } catch {}
+  if (!doc) { try { doc = JSON.parse(localStorage.getItem(LIB_KEY) || 'null'); window.__kova.libraryOffline = !!doc; } catch {} } else window.__kova.libraryOffline = false;
+  if (doc) { CLASSES = buildLibrary(doc); window.__kova.CLASSES = CLASSES; CLASSES.filter(c => c.problems.length).forEach(c => console.warn('library.json:', c.id, c.problems)); }
+  return CLASSES;
+}
+loadLibrary();
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !sess && $('tab-classes').classList.contains('active')) renderClasses(); });
 const CLS_TRAINER_NAME = { m: 'Reta (male)', f: 'Reta (female)' };
 const latestKg = () => { const w = store.get('weights', []); return w.length ? w[w.length - 1].kg : null; };
 async function loadClassManifest() { // media/classes/manifest.json is written by the clip generator as each class finishes
   try { const r = await fetch('media/classes/manifest.json', { cache: 'no-store' }); classManifest = r.ok ? await r.json() : null; } catch { classManifest = null; }
   return classManifest;
 }
-async function loadDriveIds() { try { const r = await fetch('classes-drive.json', { cache: 'no-store' }); driveIds = r.ok ? await r.json() : {}; } catch { driveIds = {}; } return driveIds; }
-const driveId = id => { const v = String(driveIds?.[id] || '').trim(); return /^[\w-]{10,}$/.test(v) ? v : ''; };
+const driveId = id => { const v = String(classById(id)?.drive || '').trim(); return /^[\w-]{10,}$/.test(v) ? v : ''; };
 // Clips the manifest lists for a class. Expected shape: { classes: { boxing: { moves: [{ slug, name, video, video_hd, poster }] } } };
 // also tolerates plain arrays of slugs/paths. Paths are relative to media/classes/.
 function manifestMoves(clsId) {
@@ -882,8 +961,8 @@ function classTimeline() {
 }
 function classUpdateTimeline() { sess.cls.steps.forEach((s, i) => { const el = $('tl' + i); if (!el) return; el.style.width = i < sess.i ? '100%' : i > sess.i ? '0%' : `${100 * (1 - Math.max(0, sess.t) / s.dur)}%`; el.parentElement.classList.toggle('now', i === sess.i); }); }
 function setForm(v) { if (v == null) return; v = Math.max(0, Math.min(100, Math.round(v))); sess.form = v; $('formScore').textContent = v; const b = $('formBar'); b.style.width = v + '%'; b.style.background = v >= 75 ? '#3ddc84' : v >= 50 ? '#ffb547' : '#ff4d4d'; }
-const metricName = c => ({ boxing: 'punches', dance: 'on-beat moves', latin: 'on-beat moves', yoga: 'seconds held', pilates: 'reps' }[c.id]);
-function classMetric() { const st = sess.stats; return sess.cls.id === 'boxing' ? st.L + st.R : sess.cls.id === 'yoga' ? Math.round(st.held) : sess.cls.id === 'pilates' ? st.reps + Math.round(st.plank / 5) : st.onbeat; }
+const metricName = c => METRIC[c.primary] || 'moves';
+function classMetric() { const st = sess.stats, p = sess.cls.primary; return p === 'punch' ? st.L + st.R : p === 'hold' ? Math.round(st.held) : p === 'reps' ? st.reps + Math.round(st.plank / 5) : st.onbeat; }
 function classEnergy() {
   const now = classMetric(), last = sess.lastMetric, max = Math.max(now, last || 0, 1);
   $('eNowN').textContent = now; $('eNow').style.width = `${100 * now / max}%`;
@@ -905,14 +984,15 @@ async function startClass(id) {
   sess.form = null; $('formScore').textContent = '–'; $('formBar').style.width = '0%';
   $('stage').classList.add('classmode'); $('classHud').hidden = false; $('stepTag').hidden = true;
   $('repLabel').textContent = metricName(cls); $('repCount').textContent = '0';
-  $('chEight').hidden = !(cls.id === 'dance' || cls.id === 'latin');
+  $('chEight').hidden = !cls.eightCount;
   $('chEight').innerHTML = Array.from({ length: 8 }, (_, k) => `<i>${k + 1}</i>`).join('');
-  $('chMeterLabel').textContent = { boxing: 'Guard', dance: 'Rhythm', latin: 'Rhythm', yoga: 'In pose', pilates: 'Control' }[cls.id];
+  $('chMeterLabel').textContent = { punch: 'Guard', rhythm: 'Rhythm', hold: 'In pose', reps: 'Control' }[cls.primary] || 'Effort';
   $('musicVol').value = Math.round((settings.musicVol ?? 0.5) * 100);
   try { if (actx) { music = new MusicPlayer(actx); music.setVolume(settings.musicVol ?? 0.5); } } catch (e) { console.warn('music', e); }
   show('screen-session'); keepAwake(); orient(); setSwapped(false); classTimeline(); classEnergy();
   $('moveName').textContent = cls.name; setCue('Starting camera…');
-  say(`Welcome to ${cls.name.replace('(Zumba-style)', '')}! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.`, { kind: 'high' });
+  await Promise.race([loadVoiceManifest(), new Promise(r => setTimeout(r, 1200))]); // never block the class on voice files
+  say(`Welcome to ${cls.name.replace(' (Zumba-style)', '').replace('(Zumba-style)', '')}! I'm Reta. ${Math.round(cls.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(cls.sections.warm / 60)} minute warm-up.`, { kind: 'high', id: `class.${cls.id}.welcome` });
   try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); }
   initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
   requestAnimationFrame(poseLoop);
@@ -942,18 +1022,21 @@ function classNext() {
   const nxt = cls.steps[sess.i + 1];
   if (rest) { $('nextName').textContent = nxt?.name || 'Finish'; $('nextHow').textContent = nxt?.how || ''; if (nxt) setClassDemo(cls, nxt); }
   else setClassDemo(cls, s);
+  const fx = rest ? null : s.fix; // corrective cue for clips whose form isn't perfect (from library.json)
+  $('fixLabel').hidden = !fx; $('fixLabel').textContent = fx ? `⚠️ ${fx}` : ''; $('fixLabel').classList.toggle('corrective', !!fx);
   music?.start(styleFor(cls, s), s.bpm);
   setCue(s.combo ? `Combo: ${s.combo}` : s.counts ? s.counts[0] : s.how.split('.')[0]);
   if (s.kind === 'warm' && sess.i === 0) {} // welcome line already said
-  else if (rest) say(s.kind === 'water' ? `Water break. Grab a sip. Next up: ${nxt?.name}.` : `Nice work. Next up: ${nxt?.name}.`, { kind: 'high' });
-  else if (s.kind === 'cool' && prev?.kind !== 'cool') say(`Cool-down time. ${s.name}. ${s.how}`, { kind: 'high' });
-  else say(`${s.name}. ${s.how}`, { kind: 'high' });
+  else if (rest) say(s.kind === 'water' ? `Water break. Grab a sip. Next up: ${nxt?.name}.` : `Nice work. Next up: ${nxt?.name}.`, { kind: 'high', id: `class.${cls.id}.${lineSlug(nxt?.name || '')}.${s.kind === 'water' ? 'water_next' : 'next'}` });
+  else if (s.kind === 'cool' && prev?.kind !== 'cool') say(`Cool-down time. ${s.name}. ${s.how}`, { kind: 'high', id: `class.${cls.id}.${lineSlug(s.name)}.cool_intro` });
+  else say(introText(s), { kind: 'high', id: `class.${cls.id}.${lineSlug(s.name)}.intro` });
+  { const n = cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); if (n) preloadLines([{ id: `class.${cls.id}.${lineSlug(n.name)}.intro`, text: introText(n) }, { id: `class.${cls.id}.${lineSlug(n.name)}.next`, text: `Nice work. Next up: ${n.name}.` }, ...(n.cues || []).map(t => ({ id: `cue.${lineSlug(t)}`, text: t }))]); }
   if (!rest) beep(1200, 200);
   $('repCount').textContent = s.rep ? '0' : classMetric();
   classUpdateTimeline(); ring2(); classEnergy();
 }
 function ring2() { const s = csCur(); if (!s) return; $('ringProg').style.strokeDashoffset = 326.7 * (1 - Math.max(0, sess.t) / s.dur); $('timeLeft').textContent = fmtT(sess.t); }
-function coachSay(text, gap = 6000, kind = 'coach') { const n = performance.now(); if (n - sess.lastSay < gap / SPEED) return false; sess.lastSay = n; setCue(text); if (window.speechSynthesis?.speaking && kind !== 'high') { bubble(text); return true; } say(text, { kind }); return true; }
+function coachSay(text, gap = 6000, kind = 'coach', id = null) { const n = performance.now(); if (n - sess.lastSay < gap / SPEED) return false; sess.lastSay = n; setCue(text); if (voiceBusy() && kind !== 'high') { bubble(text); return true; } say(text, { kind, id }); return true; }
 function classTick() {
   if (!sess?.cls) return;
   const now = performance.now(), dt = (now - sess.lastTick) / 1000 * SPEED; sess.lastTick = now;
@@ -966,7 +1049,7 @@ function classTick() {
   const el = s.dur - sess.t;
   if (s.kind === 'main' && s.dur >= 60 && el >= s.dur / 2 && !sess.said.half) { sess.said.half = 1; coachSay(s.track === 'hold' ? 'Halfway. Keep breathing.' : 'Halfway there!', 0); }
   if (s.kind === 'main' && sess.t <= 10 && !sess.said.t10) { sess.said.t10 = 1; say(s.track === 'punch' ? '10 seconds, empty the tank!' : s.track === 'hold' ? '10 more seconds, breathe.' : '10 seconds left!', { kind: 'high' }); }
-  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && (sess.cls.id === 'dance' || sess.cls.id === 'latin')) say('Five, six, seven, eight!', { kind: 'high' }); else say('In 3, 2, 1…', { kind: 'high' }); }
+  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && sess.cls.eightCount) say('Five, six, seven, eight!', { kind: 'high' }); else say('In 3, 2, 1…', { kind: 'high' }); }
   for (const k of [3, 2, 1]) if (sess.t <= k && !sess.said['b' + k]) { sess.said['b' + k] = 1; beep(660, 110); }
   if (s.cues?.length && (now - sess.lastCueAt) * SPEED > 14000) { sess.lastCueAt = now; coachSay(s.cues[sess.cueI++ % s.cues.length], 4000); }
   if (s.counts?.length > 1 && (now - sess.stepStart) * SPEED > 16000 * (sess.said.layer || 1) && (sess.said.layer || 1) < s.counts.length) { const L = sess.said.layer || 1; sess.said.layer = L + 1; coachSay(`Layer it up: ${s.counts[L]}`, 0, 'high'); }
@@ -1032,21 +1115,25 @@ async function classFinish(completed) {
     stats: { punches: st.L + st.R, left: st.L, right: st.R, hooks: st.hooks, guardPct: st.guard.length ? Math.round(100 * st.guard.reduce((a, b) => a + b, 0) / st.guard.length) : null, moveScore: st.scoreN ? Math.round(st.scoreSum / st.scoreN) : null, rhythmPct: st.scoreN ? Math.round(100 * st.rhythmSum / st.scoreN) : null, onbeat: st.onbeat, heldSec: Math.round(st.held), inPosePct: st.poseTime ? Math.round(100 * st.poseOk / st.poseTime) : null, reps: st.reps, plankSec: Math.round(st.plank), perStep: st.perStep } };
   const hist = store.get('classes', []); const prev = hist.filter(x => x.cls === c.id).slice(-1)[0]; hist.push(rec); store.set('classes', hist);
   const rows = [['Time', fmtT(elapsed)], ['Calories (approx.)', `≈${kc} kcal${sess.kgKnown ? '' : ' (add a weigh-in for a better estimate)'}`]];
-  if (c.id === 'boxing') rows.push(['Punches', `${st.L + st.R} (L ${st.L} · R ${st.R})`], ['Hooks', st.hooks], ['Guard up', rec.stats.guardPct == null ? '–' : rec.stats.guardPct + '%']);
-  if (c.id === 'dance' || c.id === 'latin') rows.push(['Move score', rec.stats.moveScore ?? '–'], ['Stayed in rhythm', rec.stats.rhythmPct == null ? '–' : rec.stats.rhythmPct + '%'], ['On-beat moves', st.onbeat]);
-  if (c.id === 'yoga') rows.push(['Time held in poses', `${Math.round(st.held)}s`], ['In the pose', rec.stats.inPosePct == null ? '–' : rec.stats.inPosePct + '%']);
-  if (c.id === 'pilates') rows.push(['Controlled reps', st.reps], ['Plank hold', `${Math.round(st.plank)}s`], ...Object.entries(st.perStep).map(([k, v]) => [k, `${v} reps`]));
+  const used = new Set(c.steps.map(x => x.track));
+  if (used.has('punch')) rows.push(['Punches', `${st.L + st.R} (L ${st.L} · R ${st.R})`], ['Hooks', st.hooks], ['Guard up', rec.stats.guardPct == null ? '–' : rec.stats.guardPct + '%']);
+  if (used.has('rhythm')) rows.push(['Move score', rec.stats.moveScore ?? '–'], ['Stayed in rhythm', rec.stats.rhythmPct == null ? '–' : rec.stats.rhythmPct + '%'], ['On-beat moves', st.onbeat]);
+  if (used.has('hold')) rows.push(['Time held in poses', `${Math.round(st.held)}s`], ['In the pose', rec.stats.inPosePct == null ? '–' : rec.stats.inPosePct + '%']);
+  if (used.has('reps') || used.has('plank')) rows.push(['Controlled reps', st.reps], ...(used.has('plank') ? [['Plank hold', `${Math.round(st.plank)}s`]] : []), ...Object.entries(st.perStep).map(([k, v]) => [k, `${v} reps`]));
   const vs = prev ? (metric > prev.metric ? ` That's more ${metricName(c)} than last time (${prev.metric}).` : ` Last time: ${prev.metric} ${metricName(c)}.`) : '';
   const summary = `${completed ? 'Class complete!' : 'Nice effort!'} ${c.name.replace(' (Zumba-style)', '')}: ${fmtT(elapsed)} and about ${kc} calories.${vs} Remember to drink some water.`;
   $('summaryText').textContent = summary;
   $('totalsTable').innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('');
-  $('stage').classList.remove('classmode'); $('classHud').hidden = true; $('repLabel').textContent = 'reps';
+  $('stage').classList.remove('classmode'); $('classHud').hidden = true; $('fixLabel').hidden = true; $('fixLabel').classList.remove('corrective'); $('repLabel').textContent = 'reps';
   sess = null; window.__kova.sess = null; voiceTrainer = null; pickVoice(); applyTrainerAvatar(); buildTimeline();
   show('screen-end'); say(summary, { kind: 'high' }); renderClassHist();
 }
 function classCommand(t) { // returns undefined when not a class command
-  const m = t.match(/\b(start|begin|play|do)\b.*\b(boxing|box|dance|dancing|latin|zumba|salsa|yoga|pilates)\b/);
-  if (m) { const id = { box: 'boxing', boxing: 'boxing', dance: 'dance', dancing: 'dance', latin: 'latin', zumba: 'latin', salsa: 'latin', yoga: 'yoga', pilates: 'pilates' }[m[2]]; if (sess) return say('Let\'s finish this one first.', { kind: 'high' }); startClass(id); return true; }
+  if (/\b(start|begin|play|do)\b/.test(t)) { // match any class in the library by id, title words or its "voice" aliases
+    const words = c => [c.id, ...c.voice, ...c.title.toLowerCase().split(/[^a-z]+/).filter(w => w.length > 3 && !['class', 'cardio', 'style'].includes(w))];
+    const hit = CLASSES.find(c => words(c).some(w => new RegExp(`\\b${w.toLowerCase()}\\b`).test(t)));
+    if (hit) { if (sess) return say('Let\'s finish this one first.', { kind: 'high' }); startClass(hit.id); return true; }
+  }
   if (/\b(louder|turn (it|the music) up|music up|volume up|more music)\b/.test(t)) { const v = changeVolume(0.15); return say(`Music up, ${Math.round(v * 100)} percent.`, { kind: 'high' }); }
   if (/\b(quieter|softer|turn (it|the music) down|music down|volume down|less music)\b/.test(t)) { const v = changeVolume(-0.15); return say(v ? `Music down, ${Math.round(v * 100)} percent.` : 'Music off.', { kind: 'high' }); }
   if (/\b(mute|stop) (the )?music\b/.test(t)) { changeVolume(-1); return say('Music off.', { kind: 'high' }); }
@@ -1057,37 +1144,51 @@ function classCommand(t) { // returns undefined when not a class command
 }
 
 /* ---------- class library ---------- */
-const classUI = { filter: 'all' };
-const FILTERS = [['all', 'All'], ['cardio', 'Cardio'], ['dance', 'Dance'], ['mind-body', 'Mind-body'], ['gentle', 'Gentle']];
+const classUI = { filter: 'all', q: '' };
+
 const lowEnergyToday = () => settings.lowEnergyDay === dayKey();
 async function classPoster(c) {
-  const first = c.steps.find(s => s.kind === 'main');
-  return (await firstExisting([...posterFor(c, first, c.lead), `media/classes/${c.id}/poster.jpg`])) || (await firstExisting([`media/${c.lead}/${MEDIA[first.fb] || 'warmup'}.jpg`, `media/${MEDIA[first.fb] || 'warmup'}.jpg`])) || 'hero.jpg';
+  const first = c.steps.find(s => s.kind === 'main') || c.steps[0];
+  return (await firstExisting([...(c.poster ? [c.poster] : []), ...(first ? posterFor(c, first, c.lead) : []), `media/classes/${c.id}/poster.jpg`])) || (await firstExisting([`media/${c.lead}/${MEDIA[first.fb] || 'warmup'}.jpg`, `media/${MEDIA[first.fb] || 'warmup'}.jpg`])) || 'hero.jpg';
 }
+const mm = sec => `${Math.round(sec / 60)} min`;
 async function renderClasses() {
-  await Promise.all([loadClassManifest(), loadDriveIds()]);
+  await Promise.all([loadClassManifest(), loadLibrary()]);
+  if (!CLASSES.length) { $('classList').innerHTML = '<p class="muted">The class library couldn\'t load. Check your connection and try again.</p>'; $('recCard').innerHTML = ''; return; }
+  classUI.seen = store.get('classSeen', []); // snapshot for this visit; anything not in it gets a "New" badge
   const kg = latestKg();
-  const rec = recommend({ history: store.get('classes', []), lowEnergy: lowEnergyToday(), glp1: settings.glp1 });
-  $('recCard').innerHTML = `<div class="small muted">⭐ Recommended for you</div><h3>${esc(rec.cls.name)}</h3><div class="why">${esc(rec.why)} 30 min · ${rec.cls.intensity} · ≈${classKcal(rec.cls, kg)} kcal</div>
-    <div class="btns row" style="gap:8px;margin-top:8px"><button class="primary" data-startclass="${rec.cls.id}">▶ Start ${esc(rec.cls.name.replace(' (Zumba-style)', ''))}</button></div>
-    <label class="toggle"><input type="checkbox" id="lowEnergy" ${lowEnergyToday() ? 'checked' : ''}> Low energy today${settings.glp1 ? ' (GLP-1 friendly gentle options)' : ''}</label>`;
-  $('classFilters').innerHTML = FILTERS.map(([k, v]) => `<button type="button" class="chip ${classUI.filter === k ? 'on' : ''}" data-cfilter="${k}">${v}</button>`).join('');
+  const rec = recommend(CLASSES, { history: store.get('classes', []), lowEnergy: lowEnergyToday(), glp1: settings.glp1 });
+  $('recCard').innerHTML = rec ? `<div class="small muted">⭐ Recommended for you</div><h3>${esc(rec.cls.name)}</h3><div class="why">${esc(rec.why)} ${mm(rec.cls.total)} · ${esc(rec.cls.intensity)} · ≈${classKcal(rec.cls, kg)} kcal</div>
+    <div class="btns row" style="gap:8px;margin-top:8px"><button class="primary" data-startclass="${esc(rec.cls.id)}">▶ Start ${esc(rec.cls.name.replace(' (Zumba-style)', ''))}</button></div>
+    <label class="toggle"><input type="checkbox" id="lowEnergy" ${lowEnergyToday() ? 'checked' : ''}> Low energy today${settings.glp1 ? ' (GLP-1 friendly gentle options)' : ''}</label>` : '';
+  const cats = [...new Set(CLASSES.map(c => c.category))];
+  if (classUI.filter !== 'all' && classUI.filter !== 'new' && !cats.includes(classUI.filter)) classUI.filter = 'all';
+  $('classFilters').innerHTML = [['all', 'All'], ['new', 'New'], ...cats.map(c => [c, c])].map(([k, v]) => `<button type="button" class="chip ${classUI.filter === k ? 'on' : ''}" data-cfilter="${esc(k)}">${esc(v)}</button>`).join('');
   $('classTrainer').value = settings.classTrainer || 'lead';
-  const list = CLASSES.filter(c => classUI.filter === 'all' || c.tags.includes(classUI.filter));
-  const posters = await Promise.all(list.map(classPoster));
-  const avatars = await Promise.all(list.map(c => firstExisting([`media/${c.lead}/avatar.jpg`])));
-  $('classList').innerHTML = list.map((c, k) => `<div class="ccard" id="class-${c.id}">
-    <div class="poster" style="background-image:url('${posters[k]}')"><span class="lead"><img src="${avatars[k] || (c.lead === 'f' ? 'avatar-f.svg' : 'avatar.jpg')}" alt="">${CLS_TRAINER_NAME[c.lead]} leads</span><span class="dur">30:00</span></div>
-    <div class="body"><h3>${esc(c.name)}</h3><div class="tags"><span class="int">${c.intensity}</span><span>Beginner</span><span>Low impact</span><span>No equipment</span><span>≈${classKcal(c, kg)} kcal</span>${c.music !== 'ambient' ? `<span>${c.id === 'latin' ? '100–130' : c.bpm} bpm</span>` : '<span>Ambient music</span>'}</div>
-      <p>${esc(c.blurb)}</p><p class="small">5 min warm-up · 20 min main · 5 min cool-down</p>
-      <div class="btns"><button class="primary" data-startclass="${c.id}">▶ Start class</button>${driveId(c.id) ? `<button type="button" data-watch="${c.id}">📺 Watch full class</button>` : ''}</div></div></div>`).join('');
-  const root = $('tab-classes');
-  root.querySelectorAll('[data-startclass]').forEach(b => b.onclick = () => startClass(b.dataset.startclass));
-  root.querySelectorAll('[data-cfilter]').forEach(b => b.onclick = () => { classUI.filter = b.dataset.cfilter; renderClasses(); });
-  root.querySelectorAll('[data-watch]').forEach(b => b.onclick = () => openDrive(b.dataset.watch));
-  $('lowEnergy').onchange = e => { settings.lowEnergyDay = e.target.checked ? dayKey() : null; store.set('settings', settings); renderClasses(); };
+  $('classSearch').value = classUI.q;
+  await renderClassList();
+  if ($('lowEnergy')) $('lowEnergy').onchange = e => { settings.lowEnergyDay = e.target.checked ? dayKey() : null; store.set('settings', settings); renderClasses(); };
+  $('tab-classes').querySelectorAll('#recCard [data-startclass]').forEach(b => b.onclick = () => startClass(b.dataset.startclass));
+  $('tab-classes').querySelectorAll('[data-cfilter]').forEach(b => b.onclick = () => { classUI.filter = b.dataset.cfilter; $('classFilters').querySelectorAll('.chip').forEach(x => x.classList.toggle('on', x === b)); renderClassList(); });
+  store.set('classSeen', [...new Set([...classUI.seen, ...CLASSES.map(c => c.id)])]);
   renderClassHist();
 }
+async function renderClassList() {
+  const kg = latestKg(), q = classUI.q.trim().toLowerCase(), seen = classUI.seen || [];
+  const hay = c => [c.title, c.category, c.blurb, c.intensity, CLS_TRAINER_NAME[c.lead], ...c.tags, ...c.voice, ...c.steps.map(x => x.name)].join(' ').toLowerCase();
+  const list = CLASSES.filter(c => (classUI.filter === 'all' || (classUI.filter === 'new' ? isNewClass(c, seen) : c.category === classUI.filter)) && (!q || q.split(/\s+/).every(w => hay(c).includes(w))));
+  const posters = await Promise.all(list.map(classPoster));
+  const avatars = await Promise.all(list.map(c => firstExisting([`media/${c.lead}/avatar.jpg`])));
+  $('classList').innerHTML = list.length ? list.map((c, k) => `<div class="ccard" id="class-${esc(c.id)}">
+    <div class="poster" style="background-image:url('${esc(posters[k])}')">${isNewClass(c, seen) ? '<span class="newbadge">New</span>' : ''}<span class="lead"><img src="${avatars[k] || (c.lead === 'f' ? 'avatar-f.svg' : 'avatar.jpg')}" alt="">${CLS_TRAINER_NAME[c.lead]} leads</span><span class="dur">${fmtT(c.total)}</span></div>
+    <div class="body"><h3>${esc(c.name)}</h3><div class="tags"><span class="int">${esc(c.intensity)}</span><span>${esc(c.category)}</span><span>Beginner</span><span>Low impact</span><span>No equipment</span><span>≈${classKcal(c, kg)} kcal</span>${c.music !== 'ambient' ? `<span>${c.steps.some(x => x.bpm !== c.bpm && x.kind === 'main') ? `${Math.min(...c.steps.filter(x => x.kind === 'main').map(x => x.bpm))}–${Math.max(...c.steps.filter(x => x.kind === 'main').map(x => x.bpm))}` : c.bpm} bpm</span>` : '<span>Ambient music</span>'}</div>
+      <p>${esc(c.blurb)}</p><p class="small">${mm(c.sections.warm)} warm-up · ${mm(c.sections.main)} main · ${mm(c.sections.cool)} cool-down</p>
+      <div class="btns"><button class="primary" data-startclass="${esc(c.id)}">▶ Start class</button>${driveId(c.id) ? `<button type="button" data-watch="${esc(c.id)}">📺 Watch full class</button>` : ''}</div></div></div>`).join('') : '<p class="muted">No classes match. Try another search or filter.</p>';
+  const root = $('classList');
+  root.querySelectorAll('[data-startclass]').forEach(b => b.onclick = () => startClass(b.dataset.startclass));
+  root.querySelectorAll('[data-watch]').forEach(b => b.onclick = () => openDrive(b.dataset.watch));
+}
+$('classSearch').oninput = e => { classUI.q = e.target.value; renderClassList(); };
 $('classTrainer').onchange = e => { settings.classTrainer = e.target.value; store.set('settings', settings); };
 function renderClassHist() {
   const h = store.get('classes', []), d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -1099,4 +1200,4 @@ function openDrive(id) {
   $('driveFrame').src = `https://drive.google.com/file/d/${encodeURIComponent(fid)}/preview`; $('driveModal').hidden = false;
 }
 $('driveClose').onclick = () => { $('driveModal').hidden = true; $('driveFrame').src = 'about:blank'; };
-window.__kova.startClass = startClass; window.__kova.classFeed = (lm, w, t) => classFeed(lm, w, t ?? performance.now()); window.__kova.classNext = () => classNext(); window.__kova.CLASSES = CLASSES; window.__kova.renderClasses = renderClasses;
+window.__kova.startClass = startClass; window.__kova.classFeed = (lm, w, t) => classFeed(lm, w, t ?? performance.now()); window.__kova.classNext = () => classNext(); window.__kova.renderClasses = renderClasses; window.__kova.loadLibrary = loadLibrary;

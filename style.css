@@ -240,3 +240,8 @@ details summary{cursor:pointer}
 .drivemodal{background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center}
 .drivebox{width:min(960px,100%)}.drivewrap{position:relative;aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;margin:8px 0}.drivewrap iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 .stage.classmode .timeline .seg.work i{background:var(--teal)}
+#classSearch{width:100%;margin:6px 0 10px}
+.newbadge{position:absolute;left:8px;top:8px;background:#ffb547;color:#2a1a00;font-weight:900;border-radius:999px;padding:3px 10px;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase}
+.fixlabel.corrective{background:#ffb547;color:#2a1a00;white-space:normal;max-width:92%;text-align:center;bottom:auto;top:calc(150px + env(safe-area-inset-top));box-shadow:0 0 0 4px rgba(255,181,71,.35);font-size:.95rem;z-index:6}
+.stage.landscape .fixlabel.corrective{top:auto;bottom:16px}
+.updatetoast{position:fixed;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top));z-index:200;background:var(--teal);color:#032623;font-weight:800;border:0;border-radius:999px;padding:10px 18px;box-shadow:0 6px 20px rgba(0,0,0,.5)}

@@ -285,10 +285,204 @@
           "slug": "supine-twist",
           "name": "Supine twist",
           "form_ok": false,
-          "note": "Knees do drop to the side, but between sides the legs straighten up vertically instead of staying bent; filmed from the feet end, not side-on.",
+          "note": "Knees do drop to the side, but between sides the legs straighten up vertically instead of staying bent; filmed from the feet end, not side-on. A side-on retry kept the knees bent but the sideways drop wasn't visible, so this take stays.",
           "video": "yoga/supine-twist.mp4",
           "video_hd": "yoga/supine-twist-hd.mp4",
           "poster": "yoga/supine-twist.jpg"
+        }
+      ]
+    },
+    "pilates": {
+      "label": "Pilates",
+      "trainer": "m",
+      "trainer_avatar": "../m/avatar.jpg",
+      "moves": [
+        {
+          "slug": "pelvic-tilts",
+          "name": "Pelvic tilts",
+          "form_ok": false,
+          "note": "Hips lift off the towel into a small bridge; a true pelvic tilt keeps the hips down. Cue: 'keep your hips on the floor'. A retry still lifted the hips into a bridge, so this take stays.",
+          "video": "pilates/pelvic-tilts.mp4",
+          "video_hd": "pilates/pelvic-tilts-hd.mp4",
+          "poster": "pilates/pelvic-tilts.jpg"
+        },
+        {
+          "slug": "hundred",
+          "name": "The hundred (knees bent)",
+          "form_ok": true,
+          "note": "Beginner version, feet on the floor, arms pumping low.",
+          "video": "pilates/hundred.mp4",
+          "video_hd": "pilates/hundred-hd.mp4",
+          "poster": "pilates/hundred.jpg"
+        },
+        {
+          "slug": "single-leg-stretch",
+          "name": "Single leg stretch (beginner)",
+          "form_ok": true,
+          "note": "Head down on the towel (beginner option).",
+          "video": "pilates/single-leg-stretch.mp4",
+          "video_hd": "pilates/single-leg-stretch-hd.mp4",
+          "poster": "pilates/single-leg-stretch.jpg"
+        },
+        {
+          "slug": "glute-bridge",
+          "name": "Glute bridge",
+          "form_ok": true,
+          "note": "",
+          "video": "pilates/glute-bridge.mp4",
+          "video_hd": "pilates/glute-bridge-hd.mp4",
+          "poster": "pilates/glute-bridge.jpg"
+        },
+        {
+          "slug": "side-leg-lifts",
+          "name": "Side-lying leg lifts",
+          "form_ok": true,
+          "note": "Top leg lifts above hip height at times.",
+          "video": "pilates/side-leg-lifts.mp4",
+          "video_hd": "pilates/side-leg-lifts-hd.mp4",
+          "poster": "pilates/side-leg-lifts.jpg"
+        },
+        {
+          "slug": "clam-shells",
+          "name": "Clam shells",
+          "form_ok": false,
+          "note": "Now lying on his side, propped on his elbow with his head on his hand, and the top knee opens. But the top foot lifts away from the bottom foot as well, so it's closer to a bent-knee side leg lift than a true clam.",
+          "video": "pilates/clam-shells.mp4",
+          "video_hd": "pilates/clam-shells-hd.mp4",
+          "poster": "pilates/clam-shells.jpg"
+        },
+        {
+          "slug": "bird-dog",
+          "name": "Bird dog",
+          "form_ok": true,
+          "note": "",
+          "video": "pilates/bird-dog.mp4",
+          "video_hd": "pilates/bird-dog-hd.mp4",
+          "poster": "pilates/bird-dog.jpg"
+        },
+        {
+          "slug": "knee-plank",
+          "name": "Plank on knees",
+          "form_ok": true,
+          "note": "",
+          "video": "pilates/knee-plank.mp4",
+          "video_hd": "pilates/knee-plank-hd.mp4",
+          "poster": "pilates/knee-plank.jpg"
+        },
+        {
+          "slug": "swimming",
+          "name": "Swimming (prone)",
+          "form_ok": true,
+          "note": "Arm/leg lifts are larger than a beginner flutter at times.",
+          "video": "pilates/swimming.mp4",
+          "video_hd": "pilates/swimming-hd.mp4",
+          "poster": "pilates/swimming.jpg"
+        },
+        {
+          "slug": "spine-stretch",
+          "name": "Spine stretch forward",
+          "form_ok": true,
+          "note": "",
+          "video": "pilates/spine-stretch.mp4",
+          "video_hd": "pilates/spine-stretch-hd.mp4",
+          "poster": "pilates/spine-stretch.jpg"
+        }
+      ]
+    },
+    "latin": {
+      "label": "Latin Dance Cardio",
+      "trainer": "f",
+      "trainer_avatar": "../f/avatar.jpg",
+      "moves": [
+        {
+          "slug": "salsa-basic",
+          "name": "Salsa basic",
+          "form_ok": true,
+          "note": "Forward/back rock pattern is approximate.",
+          "video": "latin/salsa-basic.mp4",
+          "video_hd": "latin/salsa-basic-hd.mp4",
+          "poster": "latin/salsa-basic.jpg"
+        },
+        {
+          "slug": "merengue-march",
+          "name": "Merengue march",
+          "form_ok": true,
+          "note": "",
+          "video": "latin/merengue-march.mp4",
+          "video_hd": "latin/merengue-march-hd.mp4",
+          "poster": "latin/merengue-march.jpg"
+        },
+        {
+          "slug": "cumbia-step",
+          "name": "Cumbia step",
+          "form_ok": true,
+          "note": "Back-step tap is subtle; reads mostly as a side groove.",
+          "video": "latin/cumbia-step.mp4",
+          "video_hd": "latin/cumbia-step-hd.mp4",
+          "poster": "latin/cumbia-step.jpg"
+        },
+        {
+          "slug": "cha-cha-cross",
+          "name": "Cha-cha cross",
+          "form_ok": true,
+          "note": "The cross-over is small; triple step approximate.",
+          "video": "latin/cha-cha-cross.mp4",
+          "video_hd": "latin/cha-cha-cross-hd.mp4",
+          "poster": "latin/cha-cha-cross.jpg"
+        },
+        {
+          "slug": "samba-bounce",
+          "name": "Samba bounce (low impact)",
+          "form_ok": true,
+          "note": "",
+          "video": "latin/samba-bounce.mp4",
+          "video_hd": "latin/samba-bounce-hd.mp4",
+          "poster": "latin/samba-bounce.jpg"
+        },
+        {
+          "slug": "reggaeton-step",
+          "name": "Reggaeton step",
+          "form_ok": true,
+          "note": "",
+          "video": "latin/reggaeton-step.mp4",
+          "video_hd": "latin/reggaeton-step-hd.mp4",
+          "poster": "latin/reggaeton-step.jpg"
+        },
+        {
+          "slug": "mambo",
+          "name": "Mambo",
+          "form_ok": true,
+          "note": "Forward/back rock pattern is approximate.",
+          "video": "latin/mambo.mp4",
+          "video_hd": "latin/mambo-hd.mp4",
+          "poster": "latin/mambo.jpg"
+        },
+        {
+          "slug": "hip-sway-arms",
+          "name": "Hip sway with arms",
+          "form_ok": true,
+          "note": "",
+          "video": "latin/hip-sway-arms.mp4",
+          "video_hd": "latin/hip-sway-arms-hd.mp4",
+          "poster": "latin/hip-sway-arms.jpg"
+        },
+        {
+          "slug": "side-step-punch",
+          "name": "Side step + punch",
+          "form_ok": true,
+          "note": "Punches are at chest/shoulder height and a bit small.",
+          "video": "latin/side-step-punch.mp4",
+          "video_hd": "latin/side-step-punch-hd.mp4",
+          "poster": "latin/side-step-punch.jpg"
+        },
+        {
+          "slug": "cooldown-sway",
+          "name": "Cool-down sway",
+          "form_ok": true,
+          "note": "",
+          "video": "latin/cooldown-sway.mp4",
+          "video_hd": "latin/cooldown-sway-hd.mp4",
+          "poster": "latin/cooldown-sway.jpg"
         }
       ]
     }

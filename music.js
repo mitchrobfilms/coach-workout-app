@@ -39,13 +39,15 @@ export function styleFor(cls, step) { return step?.music || (step?.kind === 'coo
 /** Browser player: schedules patternEvents a little ahead of time; exposes the beat clock for the 8-count and rhythm meter. */
 export class MusicPlayer {
   constructor(actx) { this.actx = actx; this.master = actx.createGain(); this.master.gain.value = 0.5; this.master.connect(actx.destination); this.vol = 0.5; this.on = false; this.scheduled = 0; this.noise = null; }
-  setVolume(v) { this.vol = Math.max(0, Math.min(1, v)); this.master.gain.setTargetAtTime(this.paused ? 0 : this.vol, this.actx.currentTime, 0.05); }
+  _level() { return this.paused ? 0 : this.vol * (this.ducked ? 0.3 : 1); }
+  setVolume(v) { this.vol = Math.max(0, Math.min(1, v)); this.master.gain.setTargetAtTime(this._level(), this.actx.currentTime, 0.05); }
+  duck(on) { this.ducked = !!on; this.master.gain.setTargetAtTime(this._level(), this.actx.currentTime, on ? 0.05 : 0.3); } // lower the music while the instructor speaks
   start(style, bpm) { // re-anchor at "now" so the count starts at 1 on each new section
     this.style = style; this.bpm = bpm; this.t0 = this.actx.currentTime + 0.06; this.p0 = performance.now() + 60; this.nextBeat = 0; this.on = true;
     if (!this.timer) this.timer = setInterval(() => this._pump(), 50);
     this._pump();
   }
-  setPaused(p) { this.paused = p; this.master.gain.setTargetAtTime(p ? 0 : this.vol, this.actx.currentTime, 0.05); if (!p && this.on) this.start(this.style, this.bpm); }
+  setPaused(p) { this.paused = p; this.master.gain.setTargetAtTime(this._level(), this.actx.currentTime, 0.05); if (!p && this.on) this.start(this.style, this.bpm); }
   stop() { this.on = false; clearInterval(this.timer); this.timer = null; this.master.gain.setTargetAtTime(0, this.actx.currentTime, 0.1); setTimeout(() => { try { this.master.disconnect(); } catch {} }, 400); }
   get period() { return 60000 / this.bpm; }
   beatFloat(now = this.actx.currentTime) { return (now - this.t0) * this.bpm / 60; }
