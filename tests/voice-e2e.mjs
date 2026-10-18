@@ -40,6 +40,7 @@ ok(await p.evaluate(() => !!window.__kova.sess), 'final "hey rita start workout"
 // TTS pausing: speech synthesis in headless may be silent; simulate by calling hooks
 await p.waitForTimeout(2600);
 await p.evaluate(() => { window.__sr.active || null; });
+await p.waitForFunction(() => !window.__kova.voiceBusy?.() && !window.__kova.voiceState?.ttsBusy, null, { timeout: 40000 }).catch(() => {}); await p.waitForTimeout(400);
 await p.evaluate(() => window.__say('reta pause', true)); await p.waitForTimeout(400);
 ok(await p.evaluate(() => window.__kova.sess?.paused === true), '"reta pause" paused (no "hey")');
 await p.waitForFunction(() => !window.__kova.voiceState.ttsBusy && window.__sr.active, null, { timeout: 8000 }).catch(() => {}); await p.waitForTimeout(200);
@@ -48,8 +49,10 @@ await p.evaluate(() => window.__say('resume', true)); await p.waitForTimeout(300
 ok(await p.evaluate(() => window.__kova.sess?.paused === false), 'wake then separate command "resume" works');
 await p.waitForTimeout(400);
 const i0 = await p.evaluate(() => window.__kova.sess.i);
+await p.waitForFunction(() => !window.__kova.voiceBusy?.() && !window.__kova.voiceState?.ttsBusy, null, { timeout: 40000 }).catch(() => {}); await p.waitForTimeout(400);
 await p.evaluate(() => window.__say("okay reta next", true)); await p.waitForTimeout(300);
 ok(await p.evaluate(i => window.__kova.sess.i === i + 1, i0), '"okay reta next" skipped');
+await p.waitForFunction(() => !window.__kova.voiceBusy?.() && !window.__kova.voiceState?.ttsBusy, null, { timeout: 40000 }).catch(() => {}); await p.waitForTimeout(400);
 await p.evaluate(() => window.__say('next up wall push-ups', true)); await p.waitForTimeout(300);
 ok(await p.evaluate(i => window.__kova.sess.i === i + 1, i0), 'Reta saying "next up" does NOT trigger skip');
 ok(await p.evaluate(() => window.__kova.voiceState.on && window.__sr.starts > 3), 'still listening after commands (starts=' + await p.evaluate(() => window.__sr.starts) + ')');

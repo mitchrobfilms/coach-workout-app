@@ -1,3 +1,4 @@
+// Recordings may use their own IDs too: the app also matches by exact text, and by per-class alternates (<class>.intro, <class>.water, <class>.cool).
 // Stable phrase IDs for pre-recorded instructor lines (media/voice/<m|f>/<id>.mp3). Never rename an ID: the voice job maps
 // recordings to these. Lines are matched by ID first, then by exact text; anything else (names, numbers > 20) uses the phone voice.
 export const LINES = {
@@ -11,7 +12,11 @@ export const LINES = {
   'class.ten_seconds_punch': '10 seconds, empty the tank!',
   'class.ten_seconds_hold': '10 more seconds, breathe.',
   'class.count_in_dance': 'Five, six, seven, eight!',
-  'class.count_in': 'In 3, 2, 1…',
+  'class.count_in': 'In three, two, one…',
+  'class.nice_work': 'Nice work.',
+  'class.water': 'Water break. Grab a sip.',
+  'class.cooldown': 'Cool-down time.',
+  'class.next_cool': 'Next up: the cool-down.',
   'class.finish_first': 'Let\'s finish this one first.',
   'cue.guard_up': 'Guard up! Hands back to your cheeks.',
   'cue.great_rhythm': 'Great rhythm! You\'re right on the beat.',
@@ -48,9 +53,7 @@ export function classLines(c) {
     const k = `class.${c.id}.${slug(s.name)}`;
     if (s.kind === 'trans' || s.kind === 'water') continue;
     add(`${k}.intro`, introText(s), ['class', c.id, s.kind]);
-    if (s.kind === 'cool') add(`${k}.cool_intro`, `Cool-down time. ${s.name}. ${s.how}`, ['class', c.id, 'cool']);
-    add(`${k}.next`, `Nice work. Next up: ${s.name}.`, ['class', c.id, 'transition']);
-    add(`${k}.water_next`, `Water break. Grab a sip. Next up: ${s.name}.`, ['class', c.id, 'water']);
+    add(`${k}.next_short`, `Next up: ${s.name}.`, ['class', c.id, 'transition']);
     (s.cues || []).forEach(t => add(`cue.${slug(t)}`, t, ['cue', c.id]));
     (s.counts || []).slice(1).forEach(t => add(`layer.${slug(t)}`, `Layer it up: ${t}`, ['cue', c.id, 'layer']));
   }

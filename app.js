@@ -223,35 +223,42 @@ function preloadLines(items) { // items: [{id, text}] -> warm the browser cache 
   for (const { id, text } of items) { const e = findLine(id, text, voiceTrainerNow()); if (!e) continue; const src = voiceSrc(e, voiceTrainerNow()); if (VOICE.cache.has(src)) continue; const a = new Audio(); a.preload = 'auto'; a.src = src; VOICE.cache.set(src, a); if (VOICE.cache.size > 40) VOICE.cache.delete(VOICE.cache.keys().next().value); }
 }
 const voiceBusy = () => !!VOICE.cur || !!window.speechSynthesis?.speaking;
-function duck(on) { try { music?.duck?.(on); } catch {} }
-function playRecorded(e, t, kind, text) {
-  const src = voiceSrc(e, t);
-  if (kind === 'high') { VOICE.queue.length = 0; if (VOICE.cur) { VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; } window.speechSynthesis?.cancel(); }
-  else if (VOICE.cur) { if (VOICE.queue.length) return; VOICE.queue.push([e, t, kind, text]); return; } // don't pile up
-  const a = VOICE.cache.get(src) || new Audio(src); VOICE.cache.delete(src);
-  VOICE.cur = a; window.__kova.lastVoice = { id: e.id, src, text }; duck(true); ttsStart(kind, text);
-  const done = fallback => { if (VOICE.cur !== a) return; VOICE.cur = null; if (fallback) return speakTTS(text, kind); const n = VOICE.queue.shift(); if (n) return playRecorded(...n); duck(false); setTimeout(ttsEnd, 50); };
+function duck(on) { if (on && window.__kova) window.__kova.ducks = (window.__kova.ducks || 0) + 1; try { music?.duck?.(on); } catch {} }
+function stopVoice() { VOICE.queue.length = 0; if (VOICE.cur) { VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; } window.speechSynthesis?.cancel(); }
+// One queue for recorded and phone-voice lines: 'high' interrupts, anything else waits its turn (at most one waiting).
+function enqueueVoice(item) {
+  if (item.kind === 'high') stopVoice();
+  else if (voiceBusy()) { if (!VOICE.queue.length) VOICE.queue.push(item); return; }
+  runVoice(item);
+}
+function voiceDone() { const n = VOICE.queue.shift(); if (n) return runVoice(n); duck(false); setTimeout(ttsEnd, 50); }
+function runVoice(item) { if (item.rec) playRecorded(item); else speakTTS(item.text, item.kind); }
+function playRecorded({ rec: e, t, kind, text }) {
+  const src = voiceSrc(e, t), a = VOICE.cache.get(src) || new Audio(src); VOICE.cache.delete(src);
+  VOICE.cur = a; window.__kova.lastVoice = { id: e.id, src, text }; (window.__kova.voiceLog ||= []).push(e.id); duck(true); ttsStart(kind, text);
+  const done = fallback => { if (VOICE.cur !== a) return; VOICE.cur = null; if (fallback) return speakTTS(text, kind); voiceDone(); };
   a.onended = () => done(false); a.onerror = () => done(true);
   try { a.currentTime = 0; } catch {}
   a.play().catch(() => done(true));
 }
-function say(text, { kind = 'coach', id = null } = {}) {
+/** say(text, {kind, id, alts}): id = stable phrase id; alts = other ids/texts whose recording may be played instead (caption follows the recording). */
+function say(text, { kind = 'coach', id = null, alts = [] } = {}) {
+  if (!id && kind === 'count' && /^\d+$/.test(text) && +text <= 20) id = `count.${text}`;
+  const t = voiceTrainerNow();
+  let rec = settings.voiceMode !== 'phone' && findLine(id, text, t);
+  if (!rec && settings.voiceMode !== 'phone') for (const x of alts) { rec = VOICE.byId.get(`${t}|${x}`) || VOICE.byText.get(`${t}|${vnorm(x)}`); if (rec) { text = rec.text || text; break; } }
   bubble(text);
   if (!settings.speech) return;
-  if (!id && kind === 'count' && /^\d+$/.test(text) && +text <= 20) id = `count.${text}`;
-  const t = voiceTrainerNow(), rec = settings.voiceMode !== 'phone' && findLine(id, text, t);
-  if (rec) return playRecorded(rec, t, kind, text);
-  speakTTS(text, kind);
+  enqueueVoice({ rec: rec || null, t, kind, text });
 }
 function speakTTS(text, kind = 'coach') {
-  if (!('speechSynthesis' in window)) return;
-  if (kind === 'high' && VOICE.cur) { VOICE.queue.length = 0; VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; }
-  if (kind === 'high') speechSynthesis.cancel();
-  else if (speechSynthesis.pending) return; // don't pile up
+  if (!('speechSynthesis' in window)) return voiceDone();
   const u = new SpeechSynthesisUtterance(text);
   if (voice) u.voice = voice; u.lang = voice?.lang || 'en-GB'; u.rate = kind === 'count' ? 1.15 : 1.0;
-  u.onstart = () => { duck(true); ttsStart(kind, text); }; u.onend = u.onerror = () => { if (!VOICE.cur) duck(false); setTimeout(ttsEnd, 50); };
+  let fin = false; const end = () => { if (fin) return; fin = true; voiceDone(); };
+  u.onstart = () => { duck(true); ttsStart(kind, text); }; u.onend = u.onerror = end;
   speechSynthesis.speak(u);
+  setTimeout(() => { if (!speechSynthesis.speaking && !speechSynthesis.pending) end(); }, 400 + text.length * 120); // engines that never fire onend
 }
 function unlockAudio() {
   try { actx ||= new (window.AudioContext || window.webkitAudioContext)(); actx.resume(); } catch {}
@@ -554,7 +561,7 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const REC_LANG = /^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB';
 const voiceState = { on: false, mode: 'idle', armedUntil: 0, armedIdx: -1, dictate: null, rec: null, failures: 0, ttsBusy: false, wakeIdx: new Set(), restarts: 0 };
-window.__kova = { voiceState, PLAN };
+window.__kova = { voiceState, PLAN, voiceBusy };
 $('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Reta".';
 function micUI() {
   const b = $('micBtn'); b.classList.toggle('on', voiceState.on); b.classList.toggle('off', !voiceState.on); b.classList.toggle('armed', voiceState.mode !== 'idle');
@@ -992,7 +999,7 @@ async function startClass(id) {
   show('screen-session'); keepAwake(); orient(); setSwapped(false); classTimeline(); classEnergy();
   $('moveName').textContent = cls.name; setCue('Starting camera…');
   await Promise.race([loadVoiceManifest(), new Promise(r => setTimeout(r, 1200))]); // never block the class on voice files
-  say(`Welcome to ${cls.name.replace(' (Zumba-style)', '').replace('(Zumba-style)', '')}! I'm Reta. ${Math.round(cls.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(cls.sections.warm / 60)} minute warm-up.`, { kind: 'high', id: `class.${cls.id}.welcome` });
+  say(`Welcome to ${cls.name.replace(' (Zumba-style)', '').replace('(Zumba-style)', '')}! I'm Reta. ${Math.round(cls.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(cls.sections.warm / 60)} minute warm-up.`, { kind: 'high', id: `class.${cls.id}.welcome`, alts: [`${cls.id}.intro`] });
   try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); }
   initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
   requestAnimationFrame(poseLoop);
@@ -1027,8 +1034,8 @@ function classNext() {
   music?.start(styleFor(cls, s), s.bpm);
   setCue(s.combo ? `Combo: ${s.combo}` : s.counts ? s.counts[0] : s.how.split('.')[0]);
   if (s.kind === 'warm' && sess.i === 0) {} // welcome line already said
-  else if (rest) say(s.kind === 'water' ? `Water break. Grab a sip. Next up: ${nxt?.name}.` : `Nice work. Next up: ${nxt?.name}.`, { kind: 'high', id: `class.${cls.id}.${lineSlug(nxt?.name || '')}.${s.kind === 'water' ? 'water_next' : 'next'}` });
-  else if (s.kind === 'cool' && prev?.kind !== 'cool') say(`Cool-down time. ${s.name}. ${s.how}`, { kind: 'high', id: `class.${cls.id}.${lineSlug(s.name)}.cool_intro` });
+  else if (rest) { if (s.kind === 'water') say('Water break. Grab a sip.', { kind: 'high', alts: [`${cls.id}.water`, 'water.1'] }); else say('Nice work.', { kind: 'high', alts: ['transition.2', 'rest.2'] }); if (nxt) say(nxt.kind === 'cool' && s.kind !== 'cool' ? 'Next up: the cool-down.' : `Next up: ${nxt.name}.`, { id: `class.${cls.id}.${lineSlug(nxt.name)}.next_short` }); }
+  else if (s.kind === 'cool' && prev?.kind !== 'cool') { say('Cool-down time.', { kind: 'high', alts: [`${cls.id}.cool`, 'cooldown.start'] }); say(introText(s), { id: `class.${cls.id}.${lineSlug(s.name)}.intro` }); }
   else say(introText(s), { kind: 'high', id: `class.${cls.id}.${lineSlug(s.name)}.intro` });
   { const n = cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); if (n) preloadLines([{ id: `class.${cls.id}.${lineSlug(n.name)}.intro`, text: introText(n) }, { id: `class.${cls.id}.${lineSlug(n.name)}.next`, text: `Nice work. Next up: ${n.name}.` }, ...(n.cues || []).map(t => ({ id: `cue.${lineSlug(t)}`, text: t }))]); }
   if (!rest) beep(1200, 200);
@@ -1049,7 +1056,7 @@ function classTick() {
   const el = s.dur - sess.t;
   if (s.kind === 'main' && s.dur >= 60 && el >= s.dur / 2 && !sess.said.half) { sess.said.half = 1; coachSay(s.track === 'hold' ? 'Halfway. Keep breathing.' : 'Halfway there!', 0); }
   if (s.kind === 'main' && sess.t <= 10 && !sess.said.t10) { sess.said.t10 = 1; say(s.track === 'punch' ? '10 seconds, empty the tank!' : s.track === 'hold' ? '10 more seconds, breathe.' : '10 seconds left!', { kind: 'high' }); }
-  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && sess.cls.eightCount) say('Five, six, seven, eight!', { kind: 'high' }); else say('In 3, 2, 1…', { kind: 'high' }); }
+  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && sess.cls.eightCount) say('Five, six, seven, eight!', { kind: 'high' }); else say('In three, two, one…', { kind: 'high' }); }
   for (const k of [3, 2, 1]) if (sess.t <= k && !sess.said['b' + k]) { sess.said['b' + k] = 1; beep(660, 110); }
   if (s.cues?.length && (now - sess.lastCueAt) * SPEED > 14000) { sess.lastCueAt = now; coachSay(s.cues[sess.cueI++ % s.cues.length], 4000); }
   if (s.counts?.length > 1 && (now - sess.stepStart) * SPEED > 16000 * (sess.said.layer || 1) && (sess.said.layer || 1) < s.counts.length) { const L = sess.said.layer || 1; sess.said.layer = L + 1; coachSay(`Layer it up: ${s.counts[L]}`, 0, 'high'); }

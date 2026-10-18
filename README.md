@@ -61,4 +61,4 @@ Settings → *Instructor voice*: **Recorded (realistic)**, the default, or **Pho
 - `pose.*`, `plank.*`, `common.*`
 - `count.1`–`count.20`
 
-Manifest entries are `{id, text, file, trainer, tags}`, given as an array, as `{lines: [...]}`, or as an id-keyed object.
+Manifest entries are `{id, text, file, trainer, tags}`, given as an array, as `{lines: [...]}`, or as an id-keyed object. The voice pack shipped with the app (Kokoro TTS, Apache-2.0) uses its own IDs, such as `boxing.intro` and `boxing.warm01.intro`. These are matched by exact text, plus per-class alternates (`<class>.intro`, `<class>.water`, `<class>.cool`). Dance and Latin "Layer it up" lines aren't recorded yet, so they use the phone voice.

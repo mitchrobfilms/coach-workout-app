@@ -2,7 +2,6 @@ import { chromium, webkit, devices } from 'playwright-core';
 const URL = (process.argv[2] || 'http://localhost:8765/') + '?speed=90';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 import fs from 'node:fs';
-const BEEP = fs.readFileSync('beep.mp3');
 const PB = `const P = o => { const a = Array.from({ length: 33 }, () => ({ x: .5, y: .5, z: 0, visibility: 1 })); for (const [k, v] of Object.entries(o)) a[k] = { z: 0, visibility: 1, ...v }; return a; };
  const base = { 11: { x: .58, y: .3 }, 12: { x: .42, y: .3 }, 23: { x: .55, y: .55 }, 24: { x: .45, y: .55 }, 25: { x: .55, y: .72 }, 26: { x: .45, y: .72 }, 27: { x: .55, y: .9 }, 28: { x: .45, y: .9 } };`;
 for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixel 5'], 'boxing'], ['webkit-iphone', webkit, devices['iPhone 13'], 'dance']]) {
@@ -46,12 +45,8 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   ok(await p.$$eval('#classList .ccard', c => c.length) === 5, 'back online: live library.json (5 classes)');
   await p.evaluate(() => window.__kova.showUpdateToast({ postMessage() {} })); ok(await p.isVisible('#updateToast') && /Update available, tap to refresh/.test(await p.textContent('#updateToast')), 'update toast'); await p.evaluate(() => { document.getElementById('updateToast').hidden = true; window.__kova.updateReady = false; });
   await p.screenshot({ path: `classes-${name}.png` });
-  // recorded instructor voice (fake manifest + clip routed in)
-  await p.route('**/media/voice/voice-manifest.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify({ lines: [
-    { id: 'class.boxing.welcome', trainer: 'm', file: 'm/class.boxing.welcome.mp3', text: "Welcome to Boxing! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.", tags: ['class'] },
-    { id: 'class.dance.welcome', trainer: 'f', file: 'f/class.dance.welcome.mp3', text: "Welcome to Dance! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.", tags: ['class'] },
-    { id: 'common.pause', trainer: 'm', file: 'm/common.pause.mp3', text: "Paused. Say resume when you're ready." }, { id: 'common.pause', trainer: 'f', file: 'f/common.pause.mp3', text: "Paused. Say resume when you're ready." } ] }) }));
-  await p.route('**/media/voice/*/*.mp3', r => r.fulfill({ contentType: 'audio/mpeg', body: BEEP }));
+  // recorded instructor voice: real media/voice files
+  const voiceReqs = []; p.on('request', r => { if (r.url().includes('/media/voice/')) voiceReqs.push(r.url()); });
   // start the class
   if (cls === 'boxing') await p.evaluate(() => window.__kova.handleHeard(['hey reta start boxing'])); else await p.click(`[data-startclass=${cls}]`);
   await p.waitForFunction(() => window.__kova.sess?.cls && window.__kova.sess.i >= 0, null, { timeout: 10000 });
@@ -59,7 +54,10 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   ok(info.id === cls && info.tr === (cls === 'boxing' ? 'm' : 'f') && info.n === 40 && info.hud, `${cls} started (${cls === 'boxing' ? 'voice' : 'tap'}), lead trainer ${info.tr}, 40-step timeline, class HUD`);
   await p.waitForTimeout(1500);
   const lv = await p.evaluate(() => window.__kova.lastVoice);
-  ok(lv && lv.id === `class.${cls}.welcome` && lv.src.includes(`/${cls === 'boxing' ? 'm' : 'f'}/`), 'recorded welcome line played in the lead trainer\'s voice: ' + JSON.stringify(lv));
+  const vlog = await p.evaluate(() => window.__kova.voiceLog || []);
+  ok(vlog[0] === `${cls}.intro` && lv && lv.src.includes(`media/voice/${cls === 'boxing' ? 'm' : 'f'}/`), 'recorded welcome + move lines in the lead trainer\'s voice: ' + vlog.slice(0, 4).join(', ') + ' | ' + lv?.src);
+  ok(voiceReqs.some(u => /voice-manifest\.json\?v=/.test(u)) && voiceReqs.some(u => /\.mp3/.test(u)), 'voice manifest fetched live + next move lines preloaded/played (' + voiceReqs.length + ' requests)');
+  ok(await p.evaluate(() => window.__kova.ducks > 0), 'music ducks while the instructor speaks');
   ok(await p.evaluate(() => (window.__kova.cls.music?.scheduled || 0) > 4), 'generated music is playing (events scheduled: ' + await p.evaluate(() => window.__kova.cls.music?.scheduled) + ')');
   ok(await p.evaluate(() => !!window.__kova.classMedia?.src), 'trainer media (class clip or fallback): ' + JSON.stringify(await p.evaluate(() => window.__kova.classMedia)));
   if (cls === 'dance') {
@@ -72,7 +70,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   await p.evaluate(() => window.__kova.handleHeard(['hey reta louder'])); const v1 = await p.evaluate(() => window.__kova.cls.music.vol);
   await p.evaluate(() => window.__kova.handleHeard(['hey reta quieter music'])); await p.evaluate(() => window.__kova.handleHeard(['hey reta quieter'])); const v2 = await p.evaluate(() => window.__kova.cls.music.vol);
   ok(v1 > v0 && v2 < v1 && +(await p.inputValue('#musicVol')) === Math.round(v2 * 100), `louder/quieter + slider (${v0} -> ${v1} -> ${v2})`);
-  await p.evaluate(() => window.__kova.handleHeard(['hey reta pause'])); ok(await p.evaluate(() => window.__kova.sess.paused && window.__kova.cls.music.paused), 'pause pauses class + music'); ok(await p.evaluate(() => window.__kova.lastVoice?.id === 'common.pause'), 'pause line matched by text to its recording');
+  await p.evaluate(() => window.__kova.handleHeard(['hey reta pause'])); ok(await p.evaluate(() => window.__kova.sess.paused && window.__kova.cls.music.paused), 'pause pauses class + music'); ok(await p.evaluate(() => window.__kova.lastVoice?.id === 'pause'), 'pause line matched by text to its recording');
   await p.evaluate(() => window.__kova.handleHeard(['hey reta resume'])); ok(await p.evaluate(() => !window.__kova.sess.paused), 'resume');
   const i0 = await p.evaluate(() => window.__kova.sess.i); await p.evaluate(() => window.__kova.handleHeard(['hey reta skip'])); ok(await p.evaluate(() => window.__kova.sess.i) >= i0 + 1, 'skip moves to the next step');
   // interactive tracking with synthetic poses
