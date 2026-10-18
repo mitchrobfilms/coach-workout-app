@@ -5,6 +5,7 @@ import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
 import { LINES, introText, slug as lineSlug } from './voicelines.js';
+import { welcomeLine, stepStartLines, halfwayLine, tenLine, countInLine, layerLine, cueLine, countLine, punchesLine, heldLine, soFarLine, summaryLines, nextLine, CUE_EVERY, LAYER_EVERY, COUNT_IN_AT } from './classvoice.js';
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
@@ -224,33 +225,49 @@ function preloadLines(items) { // items: [{id, text}] -> warm the browser cache 
 }
 const voiceBusy = () => !!VOICE.cur || !!window.speechSynthesis?.speaking;
 function duck(on) { if (on && window.__kova) window.__kova.ducks = (window.__kova.ducks || 0) + 1; try { music?.duck?.(on); } catch {} }
-function stopVoice() { VOICE.queue.length = 0; if (VOICE.cur) { VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; } window.speechSynthesis?.cancel(); }
+function stopVoice() { VOICE.queue.length = 0; if (VOICE.cur) { VOICE.cur.onended = VOICE.cur.onerror = null; VOICE.cur.pause(); VOICE.cur = null; } window.speechSynthesis?.cancel(); talkLook(false); }
 // One queue for recorded and phone-voice lines: 'high' interrupts, anything else waits its turn (at most one waiting).
 function enqueueVoice(item) {
   if (item.kind === 'high') stopVoice();
   else if (voiceBusy()) { if (!VOICE.queue.length) VOICE.queue.push(item); return; }
   runVoice(item);
 }
-function voiceDone() { const n = VOICE.queue.shift(); if (n) return runVoice(n); duck(false); setTimeout(ttsEnd, 50); }
-function runVoice(item) { if (item.rec) playRecorded(item); else speakTTS(item.text, item.kind); }
-function playRecorded({ rec: e, t, kind, text }) {
+function voiceDone() { const n = VOICE.queue.shift(); if (n) return runVoice(n); talkLook(false); duck(false); setTimeout(ttsEnd, 50); }
+function runVoice(item) { talkLook(!!(item.talk && item.rec)); if (item.rec) playRecorded(item); else speakTTS(item.text, item.kind); }
+function playRecorded({ rec, t, kind, text }, k = 0) { // rec: one manifest entry, or several chained in order (number + phrase)
+  const list = Array.isArray(rec) ? rec : [rec], e = list[k];
   const src = voiceSrc(e, t), a = VOICE.cache.get(src) || new Audio(src); VOICE.cache.delete(src);
-  VOICE.cur = a; window.__kova.lastVoice = { id: e.id, src, text }; (window.__kova.voiceLog ||= []).push(e.id); duck(true); ttsStart(kind, text);
-  const done = fallback => { if (VOICE.cur !== a) return; VOICE.cur = null; if (fallback) return speakTTS(text, kind); voiceDone(); };
+  VOICE.cur = a; window.__kova.lastVoice = { id: list.map(x => x.id).join('+'), src, text }; (window.__kova.voiceLog ||= []).push(e.id); if (!k) { duck(true); ttsStart(kind, text); }
+  const done = fallback => { if (VOICE.cur !== a) return; VOICE.cur = null; if (fallback) return speakTTS(text, kind); if (k + 1 < list.length) return playRecorded({ rec, t, kind, text }, k + 1); voiceDone(); };
   a.onended = () => done(false); a.onerror = () => done(true);
   try { a.currentTime = 0; } catch {}
   a.play().catch(() => done(true));
+  if (k + 1 < list.length) { const n = voiceSrc(list[k + 1], t); if (!VOICE.cache.has(n)) { const b = new Audio(); b.preload = 'auto'; b.src = n; VOICE.cache.set(n, b); } }
+}
+/* "Talking" look: while a long recorded speech plays (class welcome, cool-down intro), a talking-to-camera clip of the
+   class trainer fades in over the move demo. Muted, and lips aren't synced, so it's only used for those speeches. */
+// Swap point for lip-synced clips later: change TALK_CLIP (or set TALK_LOOK = false to turn the look off).
+const TALK_LOOK = true, TALK_CLIP = (t, hd) => `media/${t}/talk${hd ? '-hd' : ''}.mp4`;
+function talkLook(on) {
+  const v = $('talkVid'); if (!v) return;
+  if (on && TALK_LOOK && sess?.cls && settings.talkLook !== false) {
+    const t = sess.trainer || 'm', src = TALK_CLIP(t, !$('stage').classList.contains('swapped'));
+    if (v.getAttribute('src') !== src) v.src = src;
+    v.hidden = false; v.play().catch(() => {}); requestAnimationFrame(() => v.classList.add('on')); window.__kova.talking = (window.__kova.talking || 0) + 1; window.__kova.talkOn = true;
+  } else if (!v.hidden) { v.classList.remove('on'); window.__kova.talkOn = false; clearTimeout(talkLook.t); talkLook.t = setTimeout(() => { if (!v.classList.contains('on')) { v.pause(); v.hidden = true; } }, 350); }
 }
 /** say(text, {kind, id, alts}): id = stable phrase id; alts = other ids/texts whose recording may be played instead (caption follows the recording). */
-function say(text, { kind = 'coach', id = null, alts = [] } = {}) {
-  if (!id && kind === 'count' && /^\d+$/.test(text) && +text <= 20) id = `count.${text}`;
-  const t = voiceTrainerNow();
-  let rec = settings.voiceMode !== 'phone' && findLine(id, text, t);
-  if (!rec && settings.voiceMode !== 'phone') for (const x of alts) { rec = VOICE.byId.get(`${t}|${x}`) || VOICE.byText.get(`${t}|${vnorm(x)}`); if (rec) { text = rec.text || text; break; } }
+function say(text, { kind = 'coach', id = null, alts = [], parts = null, preferAlts = false, talk = false } = {}) {
+  if (!id && !parts && kind === 'count' && /^\d+$/.test(text)) ({ id = null, parts = null } = countLine(+text));
+  const t = voiceTrainerNow(), on = settings.voiceMode !== 'phone';
+  const alt = () => { for (const x of alts) { const r = VOICE.byId.get(`${t}|${x}`) || VOICE.byText.get(`${t}|${vnorm(x)}`); if (r) { text = r.text || text; return r; } } return null; };
+  let rec = on && ((preferAlts && alt()) || findLine(id, text, t) || (!preferAlts && alt()));
+  if (!rec && on && parts?.length) { const r = parts.map(p => VOICE.byId.get(`${t}|${p}`)); if (r.every(Boolean)) rec = r; } // chained number + phrase clips
   bubble(text);
   if (!settings.speech) return;
-  enqueueVoice({ rec: rec || null, t, kind, text });
+  enqueueVoice({ rec: rec || null, t, kind, text, talk });
 }
+const sayLine = l => l && say(l.text, l);
 function speakTTS(text, kind = 'coach') {
   if (!('speechSynthesis' in window)) return voiceDone();
   const u = new SpeechSynthesisUtterance(text);
@@ -999,7 +1016,7 @@ async function startClass(id) {
   show('screen-session'); keepAwake(); orient(); setSwapped(false); classTimeline(); classEnergy();
   $('moveName').textContent = cls.name; setCue('Starting camera…');
   await Promise.race([loadVoiceManifest(), new Promise(r => setTimeout(r, 1200))]); // never block the class on voice files
-  say(`Welcome to ${cls.name.replace(' (Zumba-style)', '').replace('(Zumba-style)', '')}! I'm Reta. ${Math.round(cls.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(cls.sections.warm / 60)} minute warm-up.`, { kind: 'high', id: `class.${cls.id}.welcome`, alts: [`${cls.id}.intro`] });
+  sayLine(welcomeLine(cls));
   try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); }
   initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
   requestAnimationFrame(poseLoop);
@@ -1033,17 +1050,14 @@ function classNext() {
   $('fixLabel').hidden = !fx; $('fixLabel').textContent = fx ? `⚠️ ${fx}` : ''; $('fixLabel').classList.toggle('corrective', !!fx);
   music?.start(styleFor(cls, s), s.bpm);
   setCue(s.combo ? `Combo: ${s.combo}` : s.counts ? s.counts[0] : s.how.split('.')[0]);
-  if (s.kind === 'warm' && sess.i === 0) {} // welcome line already said
-  else if (rest) { if (s.kind === 'water') say('Water break. Grab a sip.', { kind: 'high', alts: [`${cls.id}.water`, 'water.1'] }); else say('Nice work.', { kind: 'high', alts: ['transition.2', 'rest.2'] }); if (nxt) say(nxt.kind === 'cool' && s.kind !== 'cool' ? 'Next up: the cool-down.' : `Next up: ${nxt.name}.`, { id: `class.${cls.id}.${lineSlug(nxt.name)}.next_short` }); }
-  else if (s.kind === 'cool' && prev?.kind !== 'cool') { say('Cool-down time.', { kind: 'high', alts: [`${cls.id}.cool`, 'cooldown.start'] }); say(introText(s), { id: `class.${cls.id}.${lineSlug(s.name)}.intro` }); }
-  else say(introText(s), { kind: 'high', id: `class.${cls.id}.${lineSlug(s.name)}.intro` });
-  { const n = cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); if (n) preloadLines([{ id: `class.${cls.id}.${lineSlug(n.name)}.intro`, text: introText(n) }, { id: `class.${cls.id}.${lineSlug(n.name)}.next`, text: `Nice work. Next up: ${n.name}.` }, ...(n.cues || []).map(t => ({ id: `cue.${lineSlug(t)}`, text: t }))]); }
+  for (const l of stepStartLines(cls, sess.i)) sayLine(l); // same lines (and order) as the full-length videos
+  { const n = cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); if (n) preloadLines([{ id: `class.${cls.id}.${lineSlug(n.name)}.intro`, text: introText(n) }, nextLine(cls, n), ...(n.cues || []).map(t => ({ id: `cue.${lineSlug(t)}`, text: t }))]); }
   if (!rest) beep(1200, 200);
   $('repCount').textContent = s.rep ? '0' : classMetric();
   classUpdateTimeline(); ring2(); classEnergy();
 }
 function ring2() { const s = csCur(); if (!s) return; $('ringProg').style.strokeDashoffset = 326.7 * (1 - Math.max(0, sess.t) / s.dur); $('timeLeft').textContent = fmtT(sess.t); }
-function coachSay(text, gap = 6000, kind = 'coach', id = null) { const n = performance.now(); if (n - sess.lastSay < gap / SPEED) return false; sess.lastSay = n; setCue(text); if (voiceBusy() && kind !== 'high') { bubble(text); return true; } say(text, { kind, id }); return true; }
+function coachSay(text, gap = 6000, kind = 'coach', id = null, extra = {}) { if (typeof text === 'object') { extra = text; text = extra.text; id = extra.id ?? id; } const n = performance.now(); if (n - sess.lastSay < gap / SPEED) return false; sess.lastSay = n; setCue(text); if (voiceBusy() && kind !== 'high') { bubble(text); return true; } say(text, { ...extra, kind, id }); return true; }
 function classTick() {
   if (!sess?.cls) return;
   const now = performance.now(), dt = (now - sess.lastTick) / 1000 * SPEED; sess.lastTick = now;
@@ -1054,12 +1068,12 @@ function classTick() {
   if (music && !$('chEight').hidden) { const c = music.count(); if (c !== sess.lastCount) { sess.lastCount = c; $('chEight').querySelectorAll('i').forEach((el, k) => { el.classList.toggle('on', k < c); el.classList.toggle('one', k === 0 && c === 1); }); window.__kova.eightCount = c; } }
   // countdowns + timed coaching
   const el = s.dur - sess.t;
-  if (s.kind === 'main' && s.dur >= 60 && el >= s.dur / 2 && !sess.said.half) { sess.said.half = 1; coachSay(s.track === 'hold' ? 'Halfway. Keep breathing.' : 'Halfway there!', 0); }
-  if (s.kind === 'main' && sess.t <= 10 && !sess.said.t10) { sess.said.t10 = 1; say(s.track === 'punch' ? '10 seconds, empty the tank!' : s.track === 'hold' ? '10 more seconds, breathe.' : '10 seconds left!', { kind: 'high' }); }
-  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && sess.cls.eightCount) say('Five, six, seven, eight!', { kind: 'high' }); else say('In three, two, one…', { kind: 'high' }); }
+  if (s.kind === 'main' && s.dur >= 60 && el >= s.dur / 2 && !sess.said.half) { sess.said.half = 1; coachSay(halfwayLine(s), 0); }
+  if (s.kind === 'main' && sess.t <= 10 && !sess.said.t10) { sess.said.t10 = 1; sayLine(tenLine(s)); }
+  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= COUNT_IN_AT && !sess.said.c8) { sess.said.c8 = 1; if (sess.cls.steps[sess.i + 1]) sayLine(countInLine(sess.cls)); }
   for (const k of [3, 2, 1]) if (sess.t <= k && !sess.said['b' + k]) { sess.said['b' + k] = 1; beep(660, 110); }
-  if (s.cues?.length && (now - sess.lastCueAt) * SPEED > 14000) { sess.lastCueAt = now; coachSay(s.cues[sess.cueI++ % s.cues.length], 4000); }
-  if (s.counts?.length > 1 && (now - sess.stepStart) * SPEED > 16000 * (sess.said.layer || 1) && (sess.said.layer || 1) < s.counts.length) { const L = sess.said.layer || 1; sess.said.layer = L + 1; coachSay(`Layer it up: ${s.counts[L]}`, 0, 'high'); }
+  if (s.cues?.length && (now - sess.lastCueAt) * SPEED > CUE_EVERY * 1000) { sess.lastCueAt = now; coachSay(cueLine(s.cues[sess.cueI++ % s.cues.length]), 4000); }
+  if (s.counts?.length > 1 && (now - sess.stepStart) * SPEED > LAYER_EVERY * 1000 * (sess.said.layer || 1) && (sess.said.layer || 1) < s.counts.length) { const L = sess.said.layer || 1; sess.said.layer = L + 1; coachSay(layerLine(s, L), 0, 'high'); }
   if (sess.t <= 0) { beep(440, 300); classNext(); return; }
   ring2(); classUpdateTimeline();
 }
@@ -1083,7 +1097,7 @@ function classFeed(lm, w, t) {
     if (r.events.length) { $('repCount').textContent = st.L + st.R; classEnergy(); }
     $('chStat').textContent = `🥊 L ${st.L} · R ${st.R}`; setMeter(an.guardOk * 100); setForm(an.guardOk * 100); st.guard.push(an.guardOk);
     if (r.flags.includes('guard')) coachSay('Guard up! Hands back to your cheeks.', 5000);
-    else if (r.events.length && (st.L + st.R) % 25 === 0) coachSay(`${st.L + st.R} punches! Strong work.`, 3000);
+    else if (r.events.length && (st.L + st.R) % 25 === 0) coachSay(punchesLine(st.L + st.R), 3000);
   } else if (an instanceof RhythmMeter) {
     st.onbeat = st.onbeat + r.events.length; st.scoreSum += r.score; st.scoreN++; st.rhythmSum += r.rhythm;
     $('chStat').textContent = `💃 Move score ${r.score}`; setMeter(r.rhythm * 100); setForm(r.score); $('repCount').textContent = st.onbeat; if (r.events.length) classEnergy();
@@ -1098,12 +1112,12 @@ function classFeed(lm, w, t) {
     setMeter(100 * st.poseOk / Math.max(1, st.poseTime)); setForm(100 * st.poseOk / Math.max(1, st.poseTime));
     if (s.pose && r.ok === false && r.tip) coachSay(r.tip, 7000);
     else if (r.flags.includes('wobble')) coachSay('Find a still point to look at. Breathe.', 12000);
-    else if (Math.floor(an.held) > 0 && Math.floor(an.held) % 20 === 0 && Math.floor(an.held) !== sess.said.heldMark) { sess.said.heldMark = Math.floor(an.held); coachSay(`${Math.floor(an.held)} seconds held. Lovely.`, 0); }
+    else if (Math.floor(an.held) > 0 && Math.floor(an.held) % 20 === 0 && Math.floor(an.held) !== sess.said.heldMark) { sess.said.heldMark = Math.floor(an.held); coachSay(heldLine(Math.floor(an.held)), 0); }
     void prevHeld;
   } else { // pilates reps / plank
     if (r.held != null) { st.plank = (st.plankBase || 0) + r.held; $('repCount').textContent = Math.floor(r.held); $('chStat').textContent = `⏱ Plank ${Math.floor(r.held)}s ${r.ok ? '✓' : ''}`; setMeter(r.ok ? 100 : 30); setForm(r.ok ? 100 : 55); if (!r.ok) coachSay(r.tip, 7000); }
     for (const e of r.events || []) {
-      if (e.type === 'rep') { st.reps++; $('repCount').textContent = an.rc.reps; $('chStat').textContent = `✓ ${an.rc.reps} reps`; const fast = e.ms < 1200; setForm(fast ? 65 : 100); setMeter(fast ? 60 : 100); say(String(an.rc.reps), { kind: 'count' }); if (fast) coachSay('Slower and more controlled.', 8000); classEnergy(); }
+      if (e.type === 'rep') { st.reps++; $('repCount').textContent = an.rc.reps; $('chStat').textContent = `✓ ${an.rc.reps} reps`; const fast = e.ms < 1200; setForm(fast ? 65 : 100); setMeter(fast ? 60 : 100); sayLine(countLine(an.rc.reps)); if (fast) coachSay('Slower and more controlled.', 8000); classEnergy(); }
       if (e.type === 'shallow') { setForm(50); coachSay(s.rep === 'bridge' ? 'Lift a little higher, squeeze your glutes.' : 'A little bigger range, still slow.', 7000); }
     }
   }
@@ -1133,7 +1147,7 @@ async function classFinish(completed) {
   $('totalsTable').innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('');
   $('stage').classList.remove('classmode'); $('classHud').hidden = true; $('fixLabel').hidden = true; $('fixLabel').classList.remove('corrective'); $('repLabel').textContent = 'reps';
   sess = null; window.__kova.sess = null; voiceTrainer = null; pickVoice(); applyTrainerAvatar(); buildTimeline();
-  show('screen-end'); say(summary, { kind: 'high' }); renderClassHist();
+  show('screen-end'); for (const l of summaryLines(c, completed, !!(prev && metric > prev.metric))) sayLine(l); renderClassHist(); // spoken: recorded outro; the numbers stay on screen
 }
 function classCommand(t) { // returns undefined when not a class command
   if (/\b(start|begin|play|do)\b/.test(t)) { // match any class in the library by id, title words or its "voice" aliases
@@ -1144,8 +1158,8 @@ function classCommand(t) { // returns undefined when not a class command
   if (/\b(louder|turn (it|the music) up|music up|volume up|more music)\b/.test(t)) { const v = changeVolume(0.15); return say(`Music up, ${Math.round(v * 100)} percent.`, { kind: 'high' }); }
   if (/\b(quieter|softer|turn (it|the music) down|music down|volume down|less music)\b/.test(t)) { const v = changeVolume(-0.15); return say(v ? `Music down, ${Math.round(v * 100)} percent.` : 'Music off.', { kind: 'high' }); }
   if (/\b(mute|stop) (the )?music\b/.test(t)) { changeVolume(-1); return say('Music off.', { kind: 'high' }); }
-  if (sess?.cls && /what'?s next|what is next|what next/.test(t)) { const n = sess.cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); return say(n ? `Up next: ${n.name}.` : 'That\'s the end of the class.', { kind: 'high' }); }
-  if (sess?.cls && /how many|how am i doing|rep count|calories/.test(t)) return say(`${classMetric()} ${metricName(sess.cls)} so far, about ${Math.round(sess.kcal)} calories.`, { kind: 'high' });
+  if (sess?.cls && /what'?s next|what is next|what next/.test(t)) { const n = sess.cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); return n ? sayLine({ ...nextLine(sess.cls, n), kind: 'high' }) : say('That\'s the end of the class.', { kind: 'high' }); }
+  if (sess?.cls && /how many|how am i doing|rep count|calories/.test(t)) return sayLine(soFarLine(classMetric(), metricName(sess.cls), Math.round(sess.kcal)));
   if (/\b(classes|class library)\b/.test(t) && !sess) { switchTab('classes'); return say('Here are your classes. Say "start boxing", or pick one.', { kind: 'high' }); }
   return undefined;
 }

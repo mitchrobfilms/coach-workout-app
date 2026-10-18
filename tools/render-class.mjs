@@ -1,11 +1,17 @@
 // Renders a full 30:00 class to MP4: trainer clips sequenced by the class script, on-screen move names, timers,
 // 8-count for dance classes, and the same generated music the app plays (offline-synthesised), mixed in.
-// Usage: node tools/render-class.mjs <classId|all> [outDir]
+// The recorded instructor voice (media/voice) is mixed in with the same lines and timing as the in-app class (classvoice.js),
+// music ducked to 30% under speech. Usage: node tools/render-class.mjs <classId|all> [outDir]
+//   --remux <dir>   reuse the video of <dir>/<id>.mp4 and only rebuild the audio (music + voice)
+//   --abr <kbps>    AAC bitrate (default 128)
 import { buildLibrary } from '../classes.js';
 import { patternEvents, styleFor } from '../music.js';
+import { classTimeline, voiceIndex, resolveLine } from '../classvoice.js';
 import fs from 'node:fs'; import path from 'node:path'; import { execFileSync } from 'node:child_process';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
-const OUT = path.resolve(process.argv[3] || '/workspace/class-renders');
+const ARGS = process.argv.slice(2), opt = k => { const i = ARGS.indexOf(k); return i >= 0 ? ARGS.splice(i, 2)[1] : null; };
+const REMUX = opt('--remux'), ABR = opt('--abr') || '128';
+const OUT = path.resolve(ARGS[1] || '/workspace/class-renders');
 const FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf', FONT2 = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf';
 const FPS = 30, W = 1280, H = 720, SR = 32000;
 const MEDIA = { march: 'warmup', pushup: 'wall-pushups', squat: 'squats', knees: 'knee-lifts', bridge: 'glute-bridges', lunge: 'lunges', deadbug: 'dead-bug', cool: 'cooldown' };
@@ -67,11 +73,50 @@ function synth(cls) {
     for (const k of [3, 2, 1]) add(s.at + s.dur - k, 0.12, t => 0.25 * Math.sin(2 * Math.PI * 660 * t) * Math.exp(-t / 0.05)); // countdown beeps
   }
   let peak = 0; for (let i = 0; i < N; i++) { buf[i] = Math.tanh(buf[i] * 0.9); peak = Math.max(peak, Math.abs(buf[i])); }
-  const g = 0.85 / (peak || 1), wav = Buffer.alloc(44 + N * 2);
+  const g = 0.85 / (peak || 1); for (let i = 0; i < N; i++) buf[i] *= g;
+  return buf;
+}
+// --- instructor voice: simulate the app's voice queue ('high' interrupts; coach cues are skipped while Reta is talking;
+// other lines wait, at most one) over the class timeline, then place the recorded clips and duck the music under them ---
+const VOICE_MAN = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, 'media/voice/voice-manifest.json'), 'utf8')); } catch { return null; } })();
+const MUSIC_GAIN = 0.6, DUCK = 0.3, ATTACK = 0.05, RELEASE = 0.3; // music.js: vol × 0.3 while speaking, setTargetAtTime 0.05 / 0.3
+export function voicePlan(cls) {
+  const ix = voiceIndex(VOICE_MAN || {}), t = cls.lead, tl = classTimeline(cls), plan = [], missing = [];
+  const dur = clips => clips.reduce((a, e) => a + (e.duration || 1), 0);
+  // the spoken outro plays on the app's end screen; in the video it finishes right on 30:00
+  const end = tl.find(l => l.src === 'end'); if (end) { const r = resolveLine(ix, end, t); end.at = Math.max(cls.total - 12, cls.total - (r ? dur(r) : 6) - 0.4); end.kind = 'high'; }
+  let cur = null, queued = null; // cur: { start, end, idx }
+  const start = (l, at) => { const clips = resolveLine(ix, l, t); if (!clips) { missing.push(l.text); return; } const p = { at, clips, text: l.text, end: at + dur(clips) + 0.05 * (clips.length - 1) }; plan.push(p); cur = p; };
+  const advance = at => { while (cur && cur.end <= at) { const q = queued; queued = null; const e = cur.end; cur = null; if (q) start(q, e); } };
+  for (const l of tl.sort((a, b) => a.at - b.at)) {
+    advance(l.at);
+    if (l.kind === 'high') { if (cur) cur.end = cur.cut = l.at; cur = null; queued = null; start(l, l.at); }
+    else if (cur) { if (l.src !== 'coach' && !queued) queued = l; }
+    else start(l, l.at);
+  }
+  advance(1e9);
+  return { plan: plan.filter(p => p.at < cls.total), missing, lines: tl.length };
+}
+function decode(file) { const b = execFileSync('ffmpeg', ['-v', 'error', '-i', path.join(ROOT, file), '-f', 'f32le', '-ac', '1', '-ar', String(SR), '-'], { maxBuffer: 1 << 28 }); return new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.length)); }
+function mixVoice(cls, music) {
+  const N = music.length, voice = new Float32Array(N), active = new Uint8Array(N), { plan, missing, lines } = voicePlan(cls), cache = new Map();
+  for (const p of plan) {
+    let s0 = Math.round(p.at * SR); const e0 = Math.min(N, Math.round(p.end * SR));
+    for (const e of p.clips) { const pcm = cache.get(e.file) || decode(e.file); cache.set(e.file, pcm); for (let i = 0; i < pcm.length && s0 + i < e0; i++) { voice[s0 + i] += pcm[i]; active[s0 + i] = 1; } s0 += pcm.length + Math.round(0.05 * SR); }
+    if (p.cut) { const f = Math.round(0.03 * SR); for (let i = 0; i < f; i++) { const k = e0 - f + i; if (k >= 0 && k < N) voice[k] *= 1 - i / f; } } // short fade on interrupted lines
+  }
+  let g = 1; const out = new Float32Array(N), ka = 1 - Math.exp(-1 / (ATTACK * SR)), kr = 1 - Math.exp(-1 / (RELEASE * SR));
+  let ducked = 0;
+  for (let i = 0; i < N; i++) { const tgt = active[i] ? DUCK : 1; g += (tgt - g) * (tgt < g ? ka : kr); if (active[i]) ducked++; const x = music[i] * MUSIC_GAIN * g + voice[i] * 0.95; out[i] = Math.abs(x) > 0.95 ? Math.sign(x) * (0.95 + 0.05 * Math.tanh((Math.abs(x) - 0.95) / 0.05)) : x; }
+  return { out, stats: { spoken: plan.length, of: lines, missing, speechSec: Math.round(ducked / SR) } };
+}
+function wavOf(buf) {
+  const N = buf.length, g = 1, wav = Buffer.alloc(44 + N * 2);
   wav.write('RIFF', 0); wav.writeUInt32LE(36 + N * 2, 4); wav.write('WAVEfmt ', 8); wav.writeUInt32LE(16, 16); wav.writeUInt16LE(1, 20); wav.writeUInt16LE(1, 22); wav.writeUInt32LE(SR, 24); wav.writeUInt32LE(SR * 2, 28); wav.writeUInt16LE(2, 32); wav.writeUInt16LE(16, 34); wav.write('data', 36); wav.writeUInt32LE(N * 2, 40);
   for (let i = 0; i < N; i++) wav.writeInt16LE(Math.round(Math.max(-1, Math.min(1, buf[i] * g)) * 32767), 44 + i * 2);
   return wav;
 }
+function audioFor(cls, tmp) { const { out, stats } = mixVoice(cls, synth(cls)); fs.writeFileSync(path.join(tmp, 'music.wav'), wavOf(out)); return stats; }
 
 // --- video ---
 const SECTION = { warm: 'WARM-UP', main: 'MAIN SET', trans: 'TRANSITION', water: 'WATER BREAK', cool: 'COOL-DOWN' };
@@ -125,15 +170,24 @@ async function render(id) {
   const cls = classById(id); if (!cls) throw new Error('unknown class ' + id);
   const tmp = path.join(OUT, `.tmp-${id}`); fs.rmSync(tmp, { recursive: true, force: true }); fs.mkdirSync(tmp, { recursive: true });
   const moves = movesOnDisk(id), t0 = Date.now(), used = [];
-  fs.writeFileSync(path.join(tmp, 'music.wav'), synth(cls));
+  const vstats = audioFor(cls, tmp);
+  const out = path.join(OUT, `${id}.mp4`);
+  if (REMUX) { // keep the existing video stream, replace the audio
+    execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', path.join(path.resolve(REMUX), `${id}.mp4`), '-i', path.join(tmp, 'music.wav'), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', ABR + 'k', '-ac', '2', '-t', String(cls.total), '-movflags', '+faststart', out], { stdio: 'inherit' });
+    fs.rmSync(tmp, { recursive: true, force: true });
+    const dur = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).toString().trim();
+    console.log(`${id}: ${out} ${(fs.statSync(out).size / 1e6).toFixed(2)} MB, ${dur}s; voice lines ${vstats.spoken} played of ${vstats.of} scripted, ${vstats.speechSec}s of speech, phone-voice/missing: ${vstats.missing.length}${vstats.missing.length ? ' ' + JSON.stringify(vstats.missing.slice(0, 5)) : ''}`);
+    return;
+  }
   const list = cls.steps.map((s, i) => { const r = segment(cls, s, i, moves, tmp); used.push(`${s.name} -> ${r.src.kind}:${r.src.slug}`); return `file '${r.out}'`; });
   fs.writeFileSync(path.join(tmp, 'list.txt'), list.join('\n'));
-  const out = path.join(OUT, `${id}.mp4`);
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt'), '-i', path.join(tmp, 'music.wav'), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', '128k', '-ac', '2', '-t', String(cls.total), '-movflags', '+faststart', out], { stdio: 'inherit' });
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'list.txt'), '-i', path.join(tmp, 'music.wav'), '-map', '0:v', '-map', '1:a', '-c:v', 'copy', '-c:a', 'aac', '-b:a', ABR + 'k', '-ac', '2', '-t', String(cls.total), '-movflags', '+faststart', out], { stdio: 'inherit' });
   fs.writeFileSync(path.join(OUT, `${id}.sources.txt`), used.join('\n') + '\n');
   fs.rmSync(tmp, { recursive: true, force: true });
   const dur = execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', out]).toString().trim();
   console.log(`${id}: ${out} ${(fs.statSync(out).size / 1e6).toFixed(1)} MB, ${dur}s, ${((Date.now() - t0) / 60000).toFixed(1)} min; class clips: ${used.filter(u => u.includes('class-clip')).length}/${used.length}`);
 }
-const ids = process.argv[2] === 'all' ? CLASSES.map(c => c.id) : [process.argv[2] || 'boxing'];
-for (const id of ids) await render(id);
+if (import.meta.url === `file://${process.argv[1]}`) {
+  const ids = ARGS[0] === 'all' ? CLASSES.map(c => c.id) : [ARGS[0] || 'boxing'];
+  for (const id of ids) await render(id);
+}

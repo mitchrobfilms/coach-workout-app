@@ -5,8 +5,9 @@ const cat = JSON.parse(fs.readFileSync(new URL('../voice-catalogue.json', import
 const ids = cat.lines.map(l => l.id);
 assert.equal(new Set(ids).size, ids.length, 'catalogue ids unique');
 for (const [id, t] of Object.entries(LINES)) assert.ok(cat.lines.find(l => l.id === id && l.text === t), 'common line in catalogue ' + id);
-for (let n = 1; n <= 20; n++) assert.equal(LINES[`count.${n}`], String(n));
-assert.equal(LINES['count.21'], undefined, 'numbers above 20 use the phone voice');
+for (let n = 1; n <= 60; n++) assert.equal(LINES[`count.${n}`], String(n));
+assert.equal(LINES['count.61'], undefined, 'counts above 60 chain plain number clips (num.*)');
+for (let n = 0; n <= 100; n++) assert.equal(LINES[`num.${n}`], String(n));
 for (const c of lib) {
   assert.ok(ids.includes(`class.${c.id}.welcome`));
   for (const s of c.steps.filter(s => s.kind !== 'trans' && s.kind !== 'water')) {

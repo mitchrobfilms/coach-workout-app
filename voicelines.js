@@ -1,6 +1,7 @@
 // Recordings may use their own IDs too: the app also matches by exact text, and by per-class alternates (<class>.intro, <class>.water, <class>.cool).
 // Stable phrase IDs for pre-recorded instructor lines (media/voice/<m|f>/<id>.mp3). Never rename an ID: the voice job maps
-// recordings to these. Lines are matched by ID first, then by exact text; anything else (names, numbers > 20) uses the phone voice.
+// recordings to these. Lines are matched by ID first, then by exact text, then as chained phrase clips (number + phrase); only lines with
+// the user's name (food check-in, outside classes) use the phone voice.
 export const LINES = {
   'common.pause': 'Paused. Say resume when you\'re ready.',
   'common.resume': 'And we\'re back.',
@@ -42,7 +43,32 @@ export const LINES = {
   'plank.line': 'Make a straight line from head to knees',
   'plank.setup': 'Forearms and knees down, body long',
 };
-for (let n = 1; n <= 20; n++) LINES[`count.${n}`] = String(n);
+Object.assign(LINES, {
+  'class.complete': 'Class complete! Brilliant work. Your stats are on the screen. Remember to drink some water.',
+  'class.effort': 'Nice effort today. Your stats are on the screen. Remember to drink some water.',
+  'class.more_than_last': 'And that\'s more than last time. Brilliant!',
+  'class.end': 'That\'s the end of the class.',
+  'cmd.sorry': 'Sorry, I didn\'t catch that. Try pause, next, resume, or what\'s next.',
+  'cmd.already': 'We\'re already going!',
+  'cmd.food_later': 'Let\'s log food after the workout.',
+  'cmd.prep_later': 'Let\'s plan your prep after the workout.',
+  'cmd.shop_later': 'Let\'s look at the shopping list after the workout.',
+  'cmd.weigh_saved': 'Weigh-in saved. Remember, it\'s the trend over weeks that matters.',
+  'cmd.weigh_ask': 'Sure. What do you weigh today? You can say kilos, pounds, or stone.',
+  'cmd.weigh_got': 'Got it, weigh-in saved.',
+  'cmd.weigh_nonum': 'Sorry, I didn\'t catch a number. You can type it on the Progress tab.',
+  'music.off': 'Music off.',
+  // phrase clips that follow a number clip (see numberParts in classvoice.js)
+  'sfx.punches_strong': 'punches! Strong work.', 'sfx.held_lovely': 'seconds held. Lovely.',
+  'sfx.sofar.punches': 'punches so far.', 'sfx.sofar.onbeat': 'on-beat moves so far.', 'sfx.sofar.held': 'seconds held so far.', 'sfx.sofar.reps': 'reps so far.',
+  'sfx.about': 'That\'s about', 'sfx.calories': 'calories.',
+});
+for (let v = 10; v <= 100; v += 10) { LINES[`music.up.${v}`] = `Music up, ${v} percent.`; LINES[`music.down.${v}`] = `Music down, ${v} percent.`; }
+for (let n = 1; n <= 60; n++) LINES[`count.${n}`] = String(n); // energetic rep counts
+for (let n = 0; n <= 100; n++) LINES[`num.${n}`] = String(n); // plain numbers for chaining
+for (let h = 1; h <= 9; h++) { LINES[`num.h${h}`] = `${h} hundred`; LINES[`num.ha${h}`] = `${h} hundred and`; LINES[`num.k${h}`] = `${h} thousand`; }
+for (let n = 25; n <= 500; n += 25) LINES[`punches.${n}`] = `${n} punches! Strong work.`;
+for (let n = 20; n <= 180; n += 20) LINES[`hold.${n}`] = `${n} seconds held. Lovely.`;
 export const slug = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48);
 const plain = c => c.name.replace(' (Zumba-style)', '').replace('(Zumba-style)', '');
 /** Line ids/texts used by a class (same strings the class engine speaks). */

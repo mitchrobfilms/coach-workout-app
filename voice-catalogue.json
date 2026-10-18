@@ -1,6 +1,6 @@
 {
  "note": "Record each line for both trainers as media/voice/<m|f>/<id>.mp3 and list it in media/voice/voice-manifest.json. IDs are stable.",
- "count": 434,
+ "count": 673,
  "lines": [
   {
    "id": "common.pause",
@@ -276,6 +276,300 @@
    ]
   },
   {
+   "id": "class.complete",
+   "text": "Class complete! Brilliant work. Your stats are on the screen. Remember to drink some water.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.effort",
+   "text": "Nice effort today. Your stats are on the screen. Remember to drink some water.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.more_than_last",
+   "text": "And that's more than last time. Brilliant!",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "class.end",
+   "text": "That's the end of the class.",
+   "tags": [
+    "class"
+   ]
+  },
+  {
+   "id": "cmd.sorry",
+   "text": "Sorry, I didn't catch that. Try pause, next, resume, or what's next.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.already",
+   "text": "We're already going!",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.food_later",
+   "text": "Let's log food after the workout.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.prep_later",
+   "text": "Let's plan your prep after the workout.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.shop_later",
+   "text": "Let's look at the shopping list after the workout.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.weigh_saved",
+   "text": "Weigh-in saved. Remember, it's the trend over weeks that matters.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.weigh_ask",
+   "text": "Sure. What do you weigh today? You can say kilos, pounds, or stone.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.weigh_got",
+   "text": "Got it, weigh-in saved.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "cmd.weigh_nonum",
+   "text": "Sorry, I didn't catch a number. You can type it on the Progress tab.",
+   "tags": [
+    "cmd"
+   ]
+  },
+  {
+   "id": "music.off",
+   "text": "Music off.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "sfx.punches_strong",
+   "text": "punches! Strong work.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.held_lovely",
+   "text": "seconds held. Lovely.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.sofar.punches",
+   "text": "punches so far.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.sofar.onbeat",
+   "text": "on-beat moves so far.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.sofar.held",
+   "text": "seconds held so far.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.sofar.reps",
+   "text": "reps so far.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.about",
+   "text": "That's about",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "sfx.calories",
+   "text": "calories.",
+   "tags": [
+    "sfx"
+   ]
+  },
+  {
+   "id": "music.up.10",
+   "text": "Music up, 10 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.10",
+   "text": "Music down, 10 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.20",
+   "text": "Music up, 20 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.20",
+   "text": "Music down, 20 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.30",
+   "text": "Music up, 30 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.30",
+   "text": "Music down, 30 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.40",
+   "text": "Music up, 40 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.40",
+   "text": "Music down, 40 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.50",
+   "text": "Music up, 50 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.50",
+   "text": "Music down, 50 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.60",
+   "text": "Music up, 60 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.60",
+   "text": "Music down, 60 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.70",
+   "text": "Music up, 70 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.70",
+   "text": "Music down, 70 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.80",
+   "text": "Music up, 80 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.80",
+   "text": "Music down, 80 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.90",
+   "text": "Music up, 90 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.90",
+   "text": "Music down, 90 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.up.100",
+   "text": "Music up, 100 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
+   "id": "music.down.100",
+   "text": "Music down, 100 percent.",
+   "tags": [
+    "music"
+   ]
+  },
+  {
    "id": "count.1",
    "text": "1",
    "tags": [
@@ -413,6 +707,1385 @@
    "text": "20",
    "tags": [
     "count"
+   ]
+  },
+  {
+   "id": "count.21",
+   "text": "21",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.22",
+   "text": "22",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.23",
+   "text": "23",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.24",
+   "text": "24",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.25",
+   "text": "25",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.26",
+   "text": "26",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.27",
+   "text": "27",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.28",
+   "text": "28",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.29",
+   "text": "29",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.30",
+   "text": "30",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.31",
+   "text": "31",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.32",
+   "text": "32",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.33",
+   "text": "33",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.34",
+   "text": "34",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.35",
+   "text": "35",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.36",
+   "text": "36",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.37",
+   "text": "37",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.38",
+   "text": "38",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.39",
+   "text": "39",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.40",
+   "text": "40",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.41",
+   "text": "41",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.42",
+   "text": "42",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.43",
+   "text": "43",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.44",
+   "text": "44",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.45",
+   "text": "45",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.46",
+   "text": "46",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.47",
+   "text": "47",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.48",
+   "text": "48",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.49",
+   "text": "49",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.50",
+   "text": "50",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.51",
+   "text": "51",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.52",
+   "text": "52",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.53",
+   "text": "53",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.54",
+   "text": "54",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.55",
+   "text": "55",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.56",
+   "text": "56",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.57",
+   "text": "57",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.58",
+   "text": "58",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.59",
+   "text": "59",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "count.60",
+   "text": "60",
+   "tags": [
+    "count"
+   ]
+  },
+  {
+   "id": "num.0",
+   "text": "0",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.1",
+   "text": "1",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.2",
+   "text": "2",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.3",
+   "text": "3",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.4",
+   "text": "4",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.5",
+   "text": "5",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.6",
+   "text": "6",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.7",
+   "text": "7",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.8",
+   "text": "8",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.9",
+   "text": "9",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.10",
+   "text": "10",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.11",
+   "text": "11",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.12",
+   "text": "12",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.13",
+   "text": "13",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.14",
+   "text": "14",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.15",
+   "text": "15",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.16",
+   "text": "16",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.17",
+   "text": "17",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.18",
+   "text": "18",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.19",
+   "text": "19",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.20",
+   "text": "20",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.21",
+   "text": "21",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.22",
+   "text": "22",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.23",
+   "text": "23",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.24",
+   "text": "24",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.25",
+   "text": "25",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.26",
+   "text": "26",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.27",
+   "text": "27",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.28",
+   "text": "28",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.29",
+   "text": "29",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.30",
+   "text": "30",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.31",
+   "text": "31",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.32",
+   "text": "32",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.33",
+   "text": "33",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.34",
+   "text": "34",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.35",
+   "text": "35",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.36",
+   "text": "36",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.37",
+   "text": "37",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.38",
+   "text": "38",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.39",
+   "text": "39",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.40",
+   "text": "40",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.41",
+   "text": "41",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.42",
+   "text": "42",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.43",
+   "text": "43",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.44",
+   "text": "44",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.45",
+   "text": "45",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.46",
+   "text": "46",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.47",
+   "text": "47",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.48",
+   "text": "48",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.49",
+   "text": "49",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.50",
+   "text": "50",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.51",
+   "text": "51",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.52",
+   "text": "52",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.53",
+   "text": "53",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.54",
+   "text": "54",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.55",
+   "text": "55",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.56",
+   "text": "56",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.57",
+   "text": "57",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.58",
+   "text": "58",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.59",
+   "text": "59",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.60",
+   "text": "60",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.61",
+   "text": "61",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.62",
+   "text": "62",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.63",
+   "text": "63",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.64",
+   "text": "64",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.65",
+   "text": "65",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.66",
+   "text": "66",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.67",
+   "text": "67",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.68",
+   "text": "68",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.69",
+   "text": "69",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.70",
+   "text": "70",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.71",
+   "text": "71",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.72",
+   "text": "72",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.73",
+   "text": "73",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.74",
+   "text": "74",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.75",
+   "text": "75",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.76",
+   "text": "76",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.77",
+   "text": "77",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.78",
+   "text": "78",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.79",
+   "text": "79",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.80",
+   "text": "80",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.81",
+   "text": "81",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.82",
+   "text": "82",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.83",
+   "text": "83",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.84",
+   "text": "84",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.85",
+   "text": "85",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.86",
+   "text": "86",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.87",
+   "text": "87",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.88",
+   "text": "88",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.89",
+   "text": "89",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.90",
+   "text": "90",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.91",
+   "text": "91",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.92",
+   "text": "92",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.93",
+   "text": "93",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.94",
+   "text": "94",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.95",
+   "text": "95",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.96",
+   "text": "96",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.97",
+   "text": "97",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.98",
+   "text": "98",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.99",
+   "text": "99",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.100",
+   "text": "100",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h1",
+   "text": "1 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha1",
+   "text": "1 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k1",
+   "text": "1 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h2",
+   "text": "2 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha2",
+   "text": "2 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k2",
+   "text": "2 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h3",
+   "text": "3 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha3",
+   "text": "3 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k3",
+   "text": "3 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h4",
+   "text": "4 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha4",
+   "text": "4 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k4",
+   "text": "4 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h5",
+   "text": "5 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha5",
+   "text": "5 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k5",
+   "text": "5 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h6",
+   "text": "6 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha6",
+   "text": "6 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k6",
+   "text": "6 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h7",
+   "text": "7 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha7",
+   "text": "7 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k7",
+   "text": "7 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h8",
+   "text": "8 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha8",
+   "text": "8 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k8",
+   "text": "8 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.h9",
+   "text": "9 hundred",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.ha9",
+   "text": "9 hundred and",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "num.k9",
+   "text": "9 thousand",
+   "tags": [
+    "num"
+   ]
+  },
+  {
+   "id": "punches.25",
+   "text": "25 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.50",
+   "text": "50 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.75",
+   "text": "75 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.100",
+   "text": "100 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.125",
+   "text": "125 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.150",
+   "text": "150 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.175",
+   "text": "175 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.200",
+   "text": "200 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.225",
+   "text": "225 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.250",
+   "text": "250 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.275",
+   "text": "275 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.300",
+   "text": "300 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.325",
+   "text": "325 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.350",
+   "text": "350 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.375",
+   "text": "375 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.400",
+   "text": "400 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.425",
+   "text": "425 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.450",
+   "text": "450 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.475",
+   "text": "475 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "punches.500",
+   "text": "500 punches! Strong work.",
+   "tags": [
+    "punches"
+   ]
+  },
+  {
+   "id": "hold.20",
+   "text": "20 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.40",
+   "text": "40 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.60",
+   "text": "60 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.80",
+   "text": "80 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.100",
+   "text": "100 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.120",
+   "text": "120 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.140",
+   "text": "140 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.160",
+   "text": "160 seconds held. Lovely.",
+   "tags": [
+    "hold"
+   ]
+  },
+  {
+   "id": "hold.180",
+   "text": "180 seconds held. Lovely.",
+   "tags": [
+    "hold"
    ]
   },
   {

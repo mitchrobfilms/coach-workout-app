@@ -12,7 +12,7 @@ Mobile-first static web app: live-camera rep counting and form cues (MediaPipe P
 - Overlays: trainer name + "Live coaching" badge, move timeline, rep count, form score, captions, your reps vs last session.
 - Trainers: male/female Reta from media/m and media/f (`slug.mp4`, `slug-hd.mp4` for the big view, `slug.jpg`, `avatar.jpg`), falling back to media/ then clips/.
 - Accounts: auth.js (LocalAuth: PBKDF2-SHA256 150k + salt, per-account localStorage prefix `kova.u.<id>.`). Swap in another provider with `setAuthProvider()` implementing signUp/signIn/signOut/currentUser/listAccounts/resetAccount/dataPrefix.
-- Tests: `node tests/unit.mjs`, `node tests/{weight,voice,auth}.test.mjs`; browser: `tests/{class,voice-e2e,weight-ui,weight,e2e}.mjs` (need playwright-core).
+- Tests: `node tests/unit.mjs`, `node tests/{weight,voice,auth,voicelines,voice-coverage,classes}.test.mjs`; browser: `tests/{class,voice-e2e,weight-ui,weight,e2e}.mjs` (need playwright-core).
 
 ## Meal prep
 Batch-cook recipes for Breakfast, Lunch, Dinner and Snacks (`prep.js`) with storage/food-safety notes, store tips for Lidl/Aldi/Asda/Any, and "Build my week", which fills the shopping list. Voice: "Hey Reta, what should I prep?"
@@ -51,7 +51,7 @@ The app fetches `library.json?v=<timestamp>` (no-store) on every launch and when
 **App updates:** when a new service worker version is ready, the app shows "Update available, tap to refresh".
 
 ### Instructor voice
-Settings → *Instructor voice*: **Recorded (realistic)**, the default, or **Phone voice**. In recorded mode, each spoken line is looked up in `media/voice/voice-manifest.json`, first by phrase ID and then by exact text, in the current trainer's voice. It plays `media/voice/<m|f>/<id>.mp3`. The music ducks while the instructor speaks. Lines queue and are throttled like before, and the next move's lines are preloaded. Anything without a recording uses the phone's speech synthesis: lines with your name, numbers above 20, or everything if the voice files are missing. Class launch never waits on the voice files.
+Settings → *Instructor voice*: **Recorded (realistic)**, the default, or **Phone voice**. In recorded mode, each spoken line is looked up in `media/voice/voice-manifest.json`, first by phrase ID and then by exact text, in the current trainer's voice. It plays `media/voice/<m|f>/<id>.mp3`. The music ducks while the instructor speaks. Lines queue and are throttled like before, and the next move's lines are preloaded. Numbers are chained from recorded clips (`count.1-60` for rep counts, `num.*` plus a phrase clip such as `sfx.punches_strong`, see `numberParts` in `classvoice.js`). Only lines with your name (food check-in, outside classes), other dynamic non-class replies, or everything if the voice files are missing, use the phone's speech synthesis. Class launch never waits on the voice files.
 
 `voice-catalogue.json` lists every recordable line with a stable ID. Regenerate it with `node tools/voice-catalogue.mjs` after editing `library.json`. Example IDs:
 - `class.<id>.welcome`
@@ -61,4 +61,6 @@ Settings → *Instructor voice*: **Recorded (realistic)**, the default, or **Pho
 - `pose.*`, `plank.*`, `common.*`
 - `count.1`–`count.20`
 
-Manifest entries are `{id, text, file, trainer, tags}`, given as an array, as `{lines: [...]}`, or as an id-keyed object. The voice pack shipped with the app (Kokoro TTS, Apache-2.0) uses its own IDs, such as `boxing.intro` and `boxing.warm01.intro`. These are matched by exact text, plus per-class alternates (`<class>.intro`, `<class>.water`, `<class>.cool`). Dance and Latin "Layer it up" lines aren't recorded yet, so they use the phone voice.
+Manifest entries are `{id, text, file, trainer, tags}`, given as an array, as `{lines: [...]}`, or as an id-keyed object. The voice pack shipped with the app (Kokoro TTS, Apache-2.0) uses its own IDs, such as `boxing.intro` and `boxing.warm01.intro`. These are matched by exact text, plus per-class alternates (`<class>.intro`, `<class>.water`, `<class>.cool`). The Dance and Latin "Layer it up" lines are recorded too. `classvoice.js` holds every scripted class line and its timing. The app and `tools/render-class.mjs` both use it, so the full-length videos carry the same voice track: `node tools/render-class.mjs all <out> --remux /workspace/class-renders --abr 72` rebuilds only the audio, with the music ducked to 30% under speech. `node tests/voice-coverage.test.mjs` fails if any in-class line has no recording.
+
+**Talking look:** during the class welcome and the cool-down speech, a muted talking-to-camera clip (`media/<m|f>/talk(-hd).mp4`) fades in over the move demo. The lips aren't synced. To swap in lip-synced clips later, change `TALK_CLIP`, or set `TALK_LOOK = false` in `app.js`.

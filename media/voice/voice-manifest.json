@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "engine": "Kokoro-82M v1.0 (kokoro-onnx 0.6.1), Apache-2.0",
  "voices": {
   "m": "bm_george",
@@ -807,17 +807,6 @@
    "style": "hype",
    "duration": 1.85
   },
-  "m.hold.20": {
-   "id": "hold.20",
-   "text": "20 seconds held. Lovely.",
-   "file": "media/voice/m/hold.20.mp3",
-   "trainer": "m",
-   "tags": [
-    "hold"
-   ],
-   "style": "calm",
-   "duration": 2.83
-  },
   "f.hold.20": {
    "id": "hold.20",
    "text": "20 seconds held. Lovely.",
@@ -829,16 +818,16 @@
    "style": "calm",
    "duration": 2.33
   },
-  "m.hold.40": {
-   "id": "hold.40",
-   "text": "40 seconds held. Lovely.",
-   "file": "media/voice/m/hold.40.mp3",
+  "m.hold.20": {
+   "id": "hold.20",
+   "text": "20 seconds held. Lovely.",
+   "file": "media/voice/m/hold.20.mp3",
    "trainer": "m",
    "tags": [
     "hold"
    ],
    "style": "calm",
-   "duration": 2.78
+   "duration": 2.83
   },
   "f.hold.40": {
    "id": "hold.40",
@@ -851,16 +840,16 @@
    "style": "calm",
    "duration": 2.35
   },
-  "m.hold.60": {
-   "id": "hold.60",
-   "text": "60 seconds held. Lovely.",
-   "file": "media/voice/m/hold.60.mp3",
+  "m.hold.40": {
+   "id": "hold.40",
+   "text": "40 seconds held. Lovely.",
+   "file": "media/voice/m/hold.40.mp3",
    "trainer": "m",
    "tags": [
     "hold"
    ],
    "style": "calm",
-   "duration": 2.86
+   "duration": 2.78
   },
   "f.hold.60": {
    "id": "hold.60",
@@ -873,17 +862,16 @@
    "style": "calm",
    "duration": 2.42
   },
-  "m.punches.25": {
-   "id": "punches.25",
-   "text": "25 punches! Strong work.",
-   "file": "media/voice/m/punches.25.mp3",
+  "m.hold.60": {
+   "id": "hold.60",
+   "text": "60 seconds held. Lovely.",
+   "file": "media/voice/m/hold.60.mp3",
    "trainer": "m",
    "tags": [
-    "boxing",
-    "count"
+    "hold"
    ],
-   "style": "hype",
-   "duration": 2.64
+   "style": "calm",
+   "duration": 2.86
   },
   "f.punches.25": {
    "id": "punches.25",
@@ -895,19 +883,19 @@
     "count"
    ],
    "style": "hype",
-   "duration": 2.28
+   "duration": 2.21
   },
-  "m.punches.50": {
-   "id": "punches.50",
-   "text": "50 punches! Strong work.",
-   "file": "media/voice/m/punches.50.mp3",
+  "m.punches.25": {
+   "id": "punches.25",
+   "text": "25 punches! Strong work.",
+   "file": "media/voice/m/punches.25.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 2.38
+   "duration": 2.59
   },
   "f.punches.50": {
    "id": "punches.50",
@@ -921,17 +909,17 @@
    "style": "hype",
    "duration": 1.97
   },
-  "m.punches.75": {
-   "id": "punches.75",
-   "text": "75 punches! Strong work.",
-   "file": "media/voice/m/punches.75.mp3",
+  "m.punches.50": {
+   "id": "punches.50",
+   "text": "50 punches! Strong work.",
+   "file": "media/voice/m/punches.50.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 2.83
+   "duration": 2.38
   },
   "f.punches.75": {
    "id": "punches.75",
@@ -943,19 +931,19 @@
     "count"
    ],
    "style": "hype",
-   "duration": 2.35
+   "duration": 2.4
   },
-  "m.punches.100": {
-   "id": "punches.100",
-   "text": "100 punches! Strong work.",
-   "file": "media/voice/m/punches.100.mp3",
+  "m.punches.75": {
+   "id": "punches.75",
+   "text": "75 punches! Strong work.",
+   "file": "media/voice/m/punches.75.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 2.57
+   "duration": 2.71
   },
   "f.punches.100": {
    "id": "punches.100",
@@ -969,17 +957,17 @@
    "style": "hype",
    "duration": 2.11
   },
-  "m.punches.125": {
-   "id": "punches.125",
-   "text": "125 punches! Strong work.",
-   "file": "media/voice/m/punches.125.mp3",
+  "m.punches.100": {
+   "id": "punches.100",
+   "text": "100 punches! Strong work.",
+   "file": "media/voice/m/punches.100.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 3.36
+   "duration": 2.66
   },
   "f.punches.125": {
    "id": "punches.125",
@@ -991,19 +979,19 @@
     "count"
    ],
    "style": "hype",
-   "duration": 2.9
+   "duration": 3.07
   },
-  "m.punches.150": {
-   "id": "punches.150",
-   "text": "150 punches! Strong work.",
-   "file": "media/voice/m/punches.150.mp3",
+  "m.punches.125": {
+   "id": "punches.125",
+   "text": "125 punches! Strong work.",
+   "file": "media/voice/m/punches.125.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 3.07
+   "duration": 3.53
   },
   "f.punches.150": {
    "id": "punches.150",
@@ -1015,19 +1003,19 @@
     "count"
    ],
    "style": "hype",
-   "duration": 2.62
+   "duration": 2.78
   },
-  "m.punches.200": {
-   "id": "punches.200",
-   "text": "200 punches! Strong work.",
-   "file": "media/voice/m/punches.200.mp3",
+  "m.punches.150": {
+   "id": "punches.150",
+   "text": "150 punches! Strong work.",
+   "file": "media/voice/m/punches.150.mp3",
    "trainer": "m",
    "tags": [
     "boxing",
     "count"
    ],
    "style": "hype",
-   "duration": 2.62
+   "duration": 3.24
   },
   "f.punches.200": {
    "id": "punches.200",
@@ -1039,7 +1027,19 @@
     "count"
    ],
    "style": "hype",
-   "duration": 2.09
+   "duration": 2.14
+  },
+  "m.punches.200": {
+   "id": "punches.200",
+   "text": "200 punches! Strong work.",
+   "file": "media/voice/m/punches.200.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.64
   },
   "m.greet.1": {
    "id": "greet.1",
@@ -10486,6 +10486,5725 @@
    ],
    "style": "calm",
    "duration": 7.08
+  },
+  "m.class.halfway_hold": {
+   "id": "class.halfway_hold",
+   "text": "Halfway. Keep breathing.",
+   "file": "media/voice/m/class.halfway_hold.mp3",
+   "trainer": "m",
+   "tags": [
+    "class",
+    "timer"
+   ],
+   "style": "calm",
+   "duration": 2.11
+  },
+  "f.class.halfway_hold": {
+   "id": "class.halfway_hold",
+   "text": "Halfway. Keep breathing.",
+   "file": "media/voice/f/class.halfway_hold.mp3",
+   "trainer": "f",
+   "tags": [
+    "class",
+    "timer"
+   ],
+   "style": "calm",
+   "duration": 1.94
+  },
+  "m.class.finish_first": {
+   "id": "class.finish_first",
+   "text": "Let's finish this one first.",
+   "file": "media/voice/m/class.finish_first.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.26
+  },
+  "f.class.finish_first": {
+   "id": "class.finish_first",
+   "text": "Let's finish this one first.",
+   "file": "media/voice/f/class.finish_first.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.06
+  },
+  "m.cue.strong_work": {
+   "id": "cue.strong_work",
+   "text": "Strong work!",
+   "file": "media/voice/m/cue.strong_work.mp3",
+   "trainer": "m",
+   "tags": [
+    "encourage"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.cue.strong_work": {
+   "id": "cue.strong_work",
+   "text": "Strong work!",
+   "file": "media/voice/f/cue.strong_work.mp3",
+   "trainer": "f",
+   "tags": [
+    "encourage"
+   ],
+   "style": "hype",
+   "duration": 1.27
+  },
+  "m.class.nice_work": {
+   "id": "class.nice_work",
+   "text": "Nice work.",
+   "file": "media/voice/m/class.nice_work.mp3",
+   "trainer": "m",
+   "tags": [
+    "rest"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.class.nice_work": {
+   "id": "class.nice_work",
+   "text": "Nice work.",
+   "file": "media/voice/f/class.nice_work.mp3",
+   "trainer": "f",
+   "tags": [
+    "rest"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.class.cooldown": {
+   "id": "class.cooldown",
+   "text": "Cool-down time.",
+   "file": "media/voice/m/class.cooldown.mp3",
+   "trainer": "m",
+   "tags": [
+    "cool"
+   ],
+   "style": "calm",
+   "duration": 1.85
+  },
+  "f.class.cooldown": {
+   "id": "class.cooldown",
+   "text": "Cool-down time.",
+   "file": "media/voice/f/class.cooldown.mp3",
+   "trainer": "f",
+   "tags": [
+    "cool"
+   ],
+   "style": "calm",
+   "duration": 1.61
+  },
+  "m.class.complete": {
+   "id": "class.complete",
+   "text": "Class complete! Brilliant work. Your stats are on the screen. Remember to drink some water.",
+   "file": "media/voice/m/class.complete.mp3",
+   "trainer": "m",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "hype",
+   "duration": 5.81
+  },
+  "f.class.complete": {
+   "id": "class.complete",
+   "text": "Class complete! Brilliant work. Your stats are on the screen. Remember to drink some water.",
+   "file": "media/voice/f/class.complete.mp3",
+   "trainer": "f",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "hype",
+   "duration": 4.8
+  },
+  "m.class.effort": {
+   "id": "class.effort",
+   "text": "Nice effort today. Your stats are on the screen. Remember to drink some water.",
+   "file": "media/voice/m/class.effort.mp3",
+   "trainer": "m",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "warm",
+   "duration": 5.38
+  },
+  "f.class.effort": {
+   "id": "class.effort",
+   "text": "Nice effort today. Your stats are on the screen. Remember to drink some water.",
+   "file": "media/voice/f/class.effort.mp3",
+   "trainer": "f",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "warm",
+   "duration": 4.61
+  },
+  "m.class.more_than_last": {
+   "id": "class.more_than_last",
+   "text": "And that's more than last time. Brilliant!",
+   "file": "media/voice/m/class.more_than_last.mp3",
+   "trainer": "m",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "hype",
+   "duration": 2.66
+  },
+  "f.class.more_than_last": {
+   "id": "class.more_than_last",
+   "text": "And that's more than last time. Brilliant!",
+   "file": "media/voice/f/class.more_than_last.mp3",
+   "trainer": "f",
+   "tags": [
+    "class",
+    "outro"
+   ],
+   "style": "hype",
+   "duration": 2.4
+  },
+  "m.class.end": {
+   "id": "class.end",
+   "text": "That's the end of the class.",
+   "file": "media/voice/m/class.end.mp3",
+   "trainer": "m",
+   "tags": [
+    "class",
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.09
+  },
+  "f.class.end": {
+   "id": "class.end",
+   "text": "That's the end of the class.",
+   "file": "media/voice/f/class.end.mp3",
+   "trainer": "f",
+   "tags": [
+    "class",
+    "control"
+   ],
+   "style": "warm",
+   "duration": 1.73
+  },
+  "m.cmd.sorry": {
+   "id": "cmd.sorry",
+   "text": "Sorry, I didn't catch that. Try pause, next, resume, or what's next.",
+   "file": "media/voice/m/cmd.sorry.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 4.75
+  },
+  "f.cmd.sorry": {
+   "id": "cmd.sorry",
+   "text": "Sorry, I didn't catch that. Try pause, next, resume, or what's next.",
+   "file": "media/voice/f/cmd.sorry.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 4.2
+  },
+  "m.cmd.already": {
+   "id": "cmd.already",
+   "text": "We're already going!",
+   "file": "media/voice/m/cmd.already.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "hype",
+   "duration": 1.61
+  },
+  "f.cmd.already": {
+   "id": "cmd.already",
+   "text": "We're already going!",
+   "file": "media/voice/f/cmd.already.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "hype",
+   "duration": 1.46
+  },
+  "m.cmd.food_later": {
+   "id": "cmd.food_later",
+   "text": "Let's log food after the workout.",
+   "file": "media/voice/m/cmd.food_later.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.86
+  },
+  "f.cmd.food_later": {
+   "id": "cmd.food_later",
+   "text": "Let's log food after the workout.",
+   "file": "media/voice/f/cmd.food_later.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.3
+  },
+  "m.cmd.prep_later": {
+   "id": "cmd.prep_later",
+   "text": "Let's plan your prep after the workout.",
+   "file": "media/voice/m/cmd.prep_later.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.88
+  },
+  "f.cmd.prep_later": {
+   "id": "cmd.prep_later",
+   "text": "Let's plan your prep after the workout.",
+   "file": "media/voice/f/cmd.prep_later.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.3
+  },
+  "m.cmd.shop_later": {
+   "id": "cmd.shop_later",
+   "text": "Let's look at the shopping list after the workout.",
+   "file": "media/voice/m/cmd.shop_later.mp3",
+   "trainer": "m",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 3.17
+  },
+  "f.cmd.shop_later": {
+   "id": "cmd.shop_later",
+   "text": "Let's look at the shopping list after the workout.",
+   "file": "media/voice/f/cmd.shop_later.mp3",
+   "trainer": "f",
+   "tags": [
+    "control"
+   ],
+   "style": "warm",
+   "duration": 2.69
+  },
+  "m.cmd.weigh_saved": {
+   "id": "cmd.weigh_saved",
+   "text": "Weigh-in saved. Remember, it's the trend over weeks that matters.",
+   "file": "media/voice/m/cmd.weigh_saved.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 4.39
+  },
+  "f.cmd.weigh_saved": {
+   "id": "cmd.weigh_saved",
+   "text": "Weigh-in saved. Remember, it's the trend over weeks that matters.",
+   "file": "media/voice/f/cmd.weigh_saved.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 3.65
+  },
+  "m.cmd.weigh_ask": {
+   "id": "cmd.weigh_ask",
+   "text": "Sure. What do you weigh today? You can say kilos, pounds, or stone.",
+   "file": "media/voice/m/cmd.weigh_ask.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 4.56
+  },
+  "f.cmd.weigh_ask": {
+   "id": "cmd.weigh_ask",
+   "text": "Sure. What do you weigh today? You can say kilos, pounds, or stone.",
+   "file": "media/voice/f/cmd.weigh_ask.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 3.96
+  },
+  "m.cmd.weigh_got": {
+   "id": "cmd.weigh_got",
+   "text": "Got it, weigh-in saved.",
+   "file": "media/voice/m/cmd.weigh_got.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 1.92
+  },
+  "f.cmd.weigh_got": {
+   "id": "cmd.weigh_got",
+   "text": "Got it, weigh-in saved.",
+   "file": "media/voice/f/cmd.weigh_got.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 1.78
+  },
+  "m.cmd.weigh_nonum": {
+   "id": "cmd.weigh_nonum",
+   "text": "Sorry, I didn't catch a number. You can type it on the Progress tab.",
+   "file": "media/voice/m/cmd.weigh_nonum.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 4.42
+  },
+  "f.cmd.weigh_nonum": {
+   "id": "cmd.weigh_nonum",
+   "text": "Sorry, I didn't catch a number. You can type it on the Progress tab.",
+   "file": "media/voice/f/cmd.weigh_nonum.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "weight"
+   ],
+   "style": "warm",
+   "duration": 3.96
+  },
+  "m.music.off": {
+   "id": "music.off",
+   "text": "Music off.",
+   "file": "media/voice/m/music.off.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.music.off": {
+   "id": "music.off",
+   "text": "Music off.",
+   "file": "media/voice/f/music.off.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.music.up.10": {
+   "id": "music.up.10",
+   "text": "Music up, 10 percent.",
+   "file": "media/voice/m/music.up.10.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.11
+  },
+  "f.music.up.10": {
+   "id": "music.up.10",
+   "text": "Music up, 10 percent.",
+   "file": "media/voice/f/music.up.10.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.92
+  },
+  "m.music.down.10": {
+   "id": "music.down.10",
+   "text": "Music down, 10 percent.",
+   "file": "media/voice/m/music.down.10.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.21
+  },
+  "f.music.down.10": {
+   "id": "music.down.10",
+   "text": "Music down, 10 percent.",
+   "file": "media/voice/f/music.down.10.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.06
+  },
+  "m.music.up.20": {
+   "id": "music.up.20",
+   "text": "Music up, 20 percent.",
+   "file": "media/voice/m/music.up.20.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.16
+  },
+  "f.music.up.20": {
+   "id": "music.up.20",
+   "text": "Music up, 20 percent.",
+   "file": "media/voice/f/music.up.20.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "m.music.down.20": {
+   "id": "music.down.20",
+   "text": "Music down, 20 percent.",
+   "file": "media/voice/m/music.down.20.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.28
+  },
+  "f.music.down.20": {
+   "id": "music.down.20",
+   "text": "Music down, 20 percent.",
+   "file": "media/voice/f/music.down.20.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.09
+  },
+  "m.music.up.30": {
+   "id": "music.up.30",
+   "text": "Music up, 30 percent.",
+   "file": "media/voice/m/music.up.30.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.21
+  },
+  "f.music.up.30": {
+   "id": "music.up.30",
+   "text": "Music up, 30 percent.",
+   "file": "media/voice/f/music.up.30.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.02
+  },
+  "m.music.down.30": {
+   "id": "music.down.30",
+   "text": "Music down, 30 percent.",
+   "file": "media/voice/m/music.down.30.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.38
+  },
+  "f.music.down.30": {
+   "id": "music.down.30",
+   "text": "Music down, 30 percent.",
+   "file": "media/voice/f/music.down.30.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.11
+  },
+  "m.music.up.40": {
+   "id": "music.up.40",
+   "text": "Music up, 40 percent.",
+   "file": "media/voice/m/music.up.40.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.23
+  },
+  "f.music.up.40": {
+   "id": "music.up.40",
+   "text": "Music up, 40 percent.",
+   "file": "media/voice/f/music.up.40.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.97
+  },
+  "m.music.down.40": {
+   "id": "music.down.40",
+   "text": "Music down, 40 percent.",
+   "file": "media/voice/m/music.down.40.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.35
+  },
+  "f.music.down.40": {
+   "id": "music.down.40",
+   "text": "Music down, 40 percent.",
+   "file": "media/voice/f/music.down.40.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.09
+  },
+  "m.music.up.50": {
+   "id": "music.up.50",
+   "text": "Music up, 50 percent.",
+   "file": "media/voice/m/music.up.50.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.26
+  },
+  "f.music.up.50": {
+   "id": "music.up.50",
+   "text": "Music up, 50 percent.",
+   "file": "media/voice/f/music.up.50.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "m.music.down.50": {
+   "id": "music.down.50",
+   "text": "Music down, 50 percent.",
+   "file": "media/voice/m/music.down.50.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.38
+  },
+  "f.music.down.50": {
+   "id": "music.down.50",
+   "text": "Music down, 50 percent.",
+   "file": "media/voice/f/music.down.50.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.09
+  },
+  "m.music.up.60": {
+   "id": "music.up.60",
+   "text": "Music up, 60 percent.",
+   "file": "media/voice/m/music.up.60.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.26
+  },
+  "f.music.up.60": {
+   "id": "music.up.60",
+   "text": "Music up, 60 percent.",
+   "file": "media/voice/f/music.up.60.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.97
+  },
+  "m.music.down.60": {
+   "id": "music.down.60",
+   "text": "Music down, 60 percent.",
+   "file": "media/voice/m/music.down.60.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.4
+  },
+  "f.music.down.60": {
+   "id": "music.down.60",
+   "text": "Music down, 60 percent.",
+   "file": "media/voice/f/music.down.60.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.16
+  },
+  "m.music.up.70": {
+   "id": "music.up.70",
+   "text": "Music up, 70 percent.",
+   "file": "media/voice/m/music.up.70.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.26
+  },
+  "f.music.up.70": {
+   "id": "music.up.70",
+   "text": "Music up, 70 percent.",
+   "file": "media/voice/f/music.up.70.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.06
+  },
+  "m.music.down.70": {
+   "id": "music.down.70",
+   "text": "Music down, 70 percent.",
+   "file": "media/voice/m/music.down.70.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.45
+  },
+  "f.music.down.70": {
+   "id": "music.down.70",
+   "text": "Music down, 70 percent.",
+   "file": "media/voice/f/music.down.70.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.14
+  },
+  "m.music.up.80": {
+   "id": "music.up.80",
+   "text": "Music up, 80 percent.",
+   "file": "media/voice/m/music.up.80.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.23
+  },
+  "f.music.up.80": {
+   "id": "music.up.80",
+   "text": "Music up, 80 percent.",
+   "file": "media/voice/f/music.up.80.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.02
+  },
+  "m.music.down.80": {
+   "id": "music.down.80",
+   "text": "Music down, 80 percent.",
+   "file": "media/voice/m/music.down.80.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.38
+  },
+  "f.music.down.80": {
+   "id": "music.down.80",
+   "text": "Music down, 80 percent.",
+   "file": "media/voice/f/music.down.80.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.14
+  },
+  "m.music.up.90": {
+   "id": "music.up.90",
+   "text": "Music up, 90 percent.",
+   "file": "media/voice/m/music.up.90.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.28
+  },
+  "f.music.up.90": {
+   "id": "music.up.90",
+   "text": "Music up, 90 percent.",
+   "file": "media/voice/f/music.up.90.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "m.music.down.90": {
+   "id": "music.down.90",
+   "text": "Music down, 90 percent.",
+   "file": "media/voice/m/music.down.90.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.45
+  },
+  "f.music.down.90": {
+   "id": "music.down.90",
+   "text": "Music down, 90 percent.",
+   "file": "media/voice/f/music.down.90.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.09
+  },
+  "m.music.up.100": {
+   "id": "music.up.100",
+   "text": "Music up, 100 percent.",
+   "file": "media/voice/m/music.up.100.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.52
+  },
+  "f.music.up.100": {
+   "id": "music.up.100",
+   "text": "Music up, 100 percent.",
+   "file": "media/voice/f/music.up.100.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.06
+  },
+  "m.music.down.100": {
+   "id": "music.down.100",
+   "text": "Music down, 100 percent.",
+   "file": "media/voice/m/music.down.100.mp3",
+   "trainer": "m",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.66
+  },
+  "f.music.down.100": {
+   "id": "music.down.100",
+   "text": "Music down, 100 percent.",
+   "file": "media/voice/f/music.down.100.mp3",
+   "trainer": "f",
+   "tags": [
+    "control",
+    "music"
+   ],
+   "style": "warm",
+   "duration": 2.23
+  },
+  "m.count.21": {
+   "id": "count.21",
+   "text": "21",
+   "file": "media/voice/m/count.21.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "f.count.21": {
+   "id": "count.21",
+   "text": "21",
+   "file": "media/voice/f/count.21.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.22": {
+   "id": "count.22",
+   "text": "22",
+   "file": "media/voice/m/count.22.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.22": {
+   "id": "count.22",
+   "text": "22",
+   "file": "media/voice/f/count.22.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.23": {
+   "id": "count.23",
+   "text": "23",
+   "file": "media/voice/m/count.23.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "f.count.23": {
+   "id": "count.23",
+   "text": "23",
+   "file": "media/voice/f/count.23.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.22
+  },
+  "m.count.24": {
+   "id": "count.24",
+   "text": "24",
+   "file": "media/voice/m/count.24.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.24": {
+   "id": "count.24",
+   "text": "24",
+   "file": "media/voice/f/count.24.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.25": {
+   "id": "count.25",
+   "text": "25",
+   "file": "media/voice/m/count.25.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "f.count.25": {
+   "id": "count.25",
+   "text": "25",
+   "file": "media/voice/f/count.25.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.26": {
+   "id": "count.26",
+   "text": "26",
+   "file": "media/voice/m/count.26.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.27
+  },
+  "f.count.26": {
+   "id": "count.26",
+   "text": "26",
+   "file": "media/voice/f/count.26.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.27": {
+   "id": "count.27",
+   "text": "27",
+   "file": "media/voice/m/count.27.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.42
+  },
+  "f.count.27": {
+   "id": "count.27",
+   "text": "27",
+   "file": "media/voice/f/count.27.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.27
+  },
+  "m.count.28": {
+   "id": "count.28",
+   "text": "28",
+   "file": "media/voice/m/count.28.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "f.count.28": {
+   "id": "count.28",
+   "text": "28",
+   "file": "media/voice/f/count.28.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.29": {
+   "id": "count.29",
+   "text": "29",
+   "file": "media/voice/m/count.29.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "f.count.29": {
+   "id": "count.29",
+   "text": "29",
+   "file": "media/voice/f/count.29.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "m.count.30": {
+   "id": "count.30",
+   "text": "30",
+   "file": "media/voice/m/count.30.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.1
+  },
+  "f.count.30": {
+   "id": "count.30",
+   "text": "30",
+   "file": "media/voice/f/count.30.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.01
+  },
+  "m.count.31": {
+   "id": "count.31",
+   "text": "31",
+   "file": "media/voice/m/count.31.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "f.count.31": {
+   "id": "count.31",
+   "text": "31",
+   "file": "media/voice/f/count.31.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.32": {
+   "id": "count.32",
+   "text": "32",
+   "file": "media/voice/m/count.32.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.32": {
+   "id": "count.32",
+   "text": "32",
+   "file": "media/voice/f/count.32.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.33": {
+   "id": "count.33",
+   "text": "33",
+   "file": "media/voice/m/count.33.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "f.count.33": {
+   "id": "count.33",
+   "text": "33",
+   "file": "media/voice/f/count.33.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.34": {
+   "id": "count.34",
+   "text": "34",
+   "file": "media/voice/m/count.34.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.34": {
+   "id": "count.34",
+   "text": "34",
+   "file": "media/voice/f/count.34.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.35": {
+   "id": "count.35",
+   "text": "35",
+   "file": "media/voice/m/count.35.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.35": {
+   "id": "count.35",
+   "text": "35",
+   "file": "media/voice/f/count.35.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.36": {
+   "id": "count.36",
+   "text": "36",
+   "file": "media/voice/m/count.36.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.36": {
+   "id": "count.36",
+   "text": "36",
+   "file": "media/voice/f/count.36.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.37": {
+   "id": "count.37",
+   "text": "37",
+   "file": "media/voice/m/count.37.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.39
+  },
+  "f.count.37": {
+   "id": "count.37",
+   "text": "37",
+   "file": "media/voice/f/count.37.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "m.count.38": {
+   "id": "count.38",
+   "text": "38",
+   "file": "media/voice/m/count.38.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.38": {
+   "id": "count.38",
+   "text": "38",
+   "file": "media/voice/f/count.38.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.39": {
+   "id": "count.39",
+   "text": "39",
+   "file": "media/voice/m/count.39.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.39": {
+   "id": "count.39",
+   "text": "39",
+   "file": "media/voice/f/count.39.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.40": {
+   "id": "count.40",
+   "text": "40",
+   "file": "media/voice/m/count.40.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.13
+  },
+  "f.count.40": {
+   "id": "count.40",
+   "text": "40",
+   "file": "media/voice/f/count.40.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.01
+  },
+  "m.count.41": {
+   "id": "count.41",
+   "text": "41",
+   "file": "media/voice/m/count.41.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.22
+  },
+  "f.count.41": {
+   "id": "count.41",
+   "text": "41",
+   "file": "media/voice/f/count.41.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.42": {
+   "id": "count.42",
+   "text": "42",
+   "file": "media/voice/m/count.42.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.42": {
+   "id": "count.42",
+   "text": "42",
+   "file": "media/voice/f/count.42.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.43": {
+   "id": "count.43",
+   "text": "43",
+   "file": "media/voice/m/count.43.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.43": {
+   "id": "count.43",
+   "text": "43",
+   "file": "media/voice/f/count.43.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.44": {
+   "id": "count.44",
+   "text": "44",
+   "file": "media/voice/m/count.44.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.44": {
+   "id": "count.44",
+   "text": "44",
+   "file": "media/voice/f/count.44.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.45": {
+   "id": "count.45",
+   "text": "45",
+   "file": "media/voice/m/count.45.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.45": {
+   "id": "count.45",
+   "text": "45",
+   "file": "media/voice/f/count.45.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.46": {
+   "id": "count.46",
+   "text": "46",
+   "file": "media/voice/m/count.46.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "f.count.46": {
+   "id": "count.46",
+   "text": "46",
+   "file": "media/voice/f/count.46.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.47": {
+   "id": "count.47",
+   "text": "47",
+   "file": "media/voice/m/count.47.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.42
+  },
+  "f.count.47": {
+   "id": "count.47",
+   "text": "47",
+   "file": "media/voice/f/count.47.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "m.count.48": {
+   "id": "count.48",
+   "text": "48",
+   "file": "media/voice/m/count.48.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "f.count.48": {
+   "id": "count.48",
+   "text": "48",
+   "file": "media/voice/f/count.48.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.49": {
+   "id": "count.49",
+   "text": "49",
+   "file": "media/voice/m/count.49.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.49": {
+   "id": "count.49",
+   "text": "49",
+   "file": "media/voice/f/count.49.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.50": {
+   "id": "count.50",
+   "text": "50",
+   "file": "media/voice/m/count.50.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.1
+  },
+  "f.count.50": {
+   "id": "count.50",
+   "text": "50",
+   "file": "media/voice/f/count.50.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 0.98
+  },
+  "m.count.51": {
+   "id": "count.51",
+   "text": "51",
+   "file": "media/voice/m/count.51.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "f.count.51": {
+   "id": "count.51",
+   "text": "51",
+   "file": "media/voice/f/count.51.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.2
+  },
+  "m.count.52": {
+   "id": "count.52",
+   "text": "52",
+   "file": "media/voice/m/count.52.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.39
+  },
+  "f.count.52": {
+   "id": "count.52",
+   "text": "52",
+   "file": "media/voice/f/count.52.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.27
+  },
+  "m.count.53": {
+   "id": "count.53",
+   "text": "53",
+   "file": "media/voice/m/count.53.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.39
+  },
+  "f.count.53": {
+   "id": "count.53",
+   "text": "53",
+   "file": "media/voice/f/count.53.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.27
+  },
+  "m.count.54": {
+   "id": "count.54",
+   "text": "54",
+   "file": "media/voice/m/count.54.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "f.count.54": {
+   "id": "count.54",
+   "text": "54",
+   "file": "media/voice/f/count.54.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.25
+  },
+  "m.count.55": {
+   "id": "count.55",
+   "text": "55",
+   "file": "media/voice/m/count.55.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.42
+  },
+  "f.count.55": {
+   "id": "count.55",
+   "text": "55",
+   "file": "media/voice/f/count.55.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "m.count.56": {
+   "id": "count.56",
+   "text": "56",
+   "file": "media/voice/m/count.56.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "f.count.56": {
+   "id": "count.56",
+   "text": "56",
+   "file": "media/voice/f/count.56.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.32
+  },
+  "m.count.57": {
+   "id": "count.57",
+   "text": "57",
+   "file": "media/voice/m/count.57.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.42
+  },
+  "f.count.57": {
+   "id": "count.57",
+   "text": "57",
+   "file": "media/voice/f/count.57.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.37
+  },
+  "m.count.58": {
+   "id": "count.58",
+   "text": "58",
+   "file": "media/voice/m/count.58.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.3
+  },
+  "f.count.58": {
+   "id": "count.58",
+   "text": "58",
+   "file": "media/voice/f/count.58.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.22
+  },
+  "m.count.59": {
+   "id": "count.59",
+   "text": "59",
+   "file": "media/voice/m/count.59.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.39
+  },
+  "f.count.59": {
+   "id": "count.59",
+   "text": "59",
+   "file": "media/voice/f/count.59.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.34
+  },
+  "m.count.60": {
+   "id": "count.60",
+   "text": "60",
+   "file": "media/voice/m/count.60.mp3",
+   "trainer": "m",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.15
+  },
+  "f.count.60": {
+   "id": "count.60",
+   "text": "60",
+   "file": "media/voice/f/count.60.mp3",
+   "trainer": "f",
+   "tags": [
+    "count"
+   ],
+   "style": "hype",
+   "duration": 1.01
+  },
+  "m.num.0": {
+   "id": "num.0",
+   "text": "0",
+   "file": "media/voice/m/num.0.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.08
+  },
+  "f.num.0": {
+   "id": "num.0",
+   "text": "0",
+   "file": "media/voice/f/num.0.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.98
+  },
+  "m.num.1": {
+   "id": "num.1",
+   "text": "1",
+   "file": "media/voice/m/num.1.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.98
+  },
+  "f.num.1": {
+   "id": "num.1",
+   "text": "1",
+   "file": "media/voice/f/num.1.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.03
+  },
+  "m.num.2": {
+   "id": "num.2",
+   "text": "2",
+   "file": "media/voice/m/num.2.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.01
+  },
+  "f.num.2": {
+   "id": "num.2",
+   "text": "2",
+   "file": "media/voice/f/num.2.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.91
+  },
+  "m.num.3": {
+   "id": "num.3",
+   "text": "3",
+   "file": "media/voice/m/num.3.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.06
+  },
+  "f.num.3": {
+   "id": "num.3",
+   "text": "3",
+   "file": "media/voice/f/num.3.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.89
+  },
+  "m.num.4": {
+   "id": "num.4",
+   "text": "4",
+   "file": "media/voice/m/num.4.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.03
+  },
+  "f.num.4": {
+   "id": "num.4",
+   "text": "4",
+   "file": "media/voice/f/num.4.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.89
+  },
+  "m.num.5": {
+   "id": "num.5",
+   "text": "5",
+   "file": "media/voice/m/num.5.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.1
+  },
+  "f.num.5": {
+   "id": "num.5",
+   "text": "5",
+   "file": "media/voice/f/num.5.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.96
+  },
+  "m.num.6": {
+   "id": "num.6",
+   "text": "6",
+   "file": "media/voice/m/num.6.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.89
+  },
+  "f.num.6": {
+   "id": "num.6",
+   "text": "6",
+   "file": "media/voice/f/num.6.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.01
+  },
+  "m.num.7": {
+   "id": "num.7",
+   "text": "7",
+   "file": "media/voice/m/num.7.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.1
+  },
+  "f.num.7": {
+   "id": "num.7",
+   "text": "7",
+   "file": "media/voice/f/num.7.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.96
+  },
+  "m.num.8": {
+   "id": "num.8",
+   "text": "8",
+   "file": "media/voice/m/num.8.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.94
+  },
+  "f.num.8": {
+   "id": "num.8",
+   "text": "8",
+   "file": "media/voice/f/num.8.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.82
+  },
+  "m.num.9": {
+   "id": "num.9",
+   "text": "9",
+   "file": "media/voice/m/num.9.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.06
+  },
+  "f.num.9": {
+   "id": "num.9",
+   "text": "9",
+   "file": "media/voice/f/num.9.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.98
+  },
+  "m.num.10": {
+   "id": "num.10",
+   "text": "10",
+   "file": "media/voice/m/num.10.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.01
+  },
+  "f.num.10": {
+   "id": "num.10",
+   "text": "10",
+   "file": "media/voice/f/num.10.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.89
+  },
+  "m.num.11": {
+   "id": "num.11",
+   "text": "11",
+   "file": "media/voice/m/num.11.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "f.num.11": {
+   "id": "num.11",
+   "text": "11",
+   "file": "media/voice/f/num.11.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.08
+  },
+  "m.num.12": {
+   "id": "num.12",
+   "text": "12",
+   "file": "media/voice/m/num.12.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.08
+  },
+  "f.num.12": {
+   "id": "num.12",
+   "text": "12",
+   "file": "media/voice/f/num.12.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.96
+  },
+  "m.num.13": {
+   "id": "num.13",
+   "text": "13",
+   "file": "media/voice/m/num.13.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "f.num.13": {
+   "id": "num.13",
+   "text": "13",
+   "file": "media/voice/f/num.13.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.18
+  },
+  "m.num.14": {
+   "id": "num.14",
+   "text": "14",
+   "file": "media/voice/m/num.14.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "f.num.14": {
+   "id": "num.14",
+   "text": "14",
+   "file": "media/voice/f/num.14.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.13
+  },
+  "m.num.15": {
+   "id": "num.15",
+   "text": "15",
+   "file": "media/voice/m/num.15.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "f.num.15": {
+   "id": "num.15",
+   "text": "15",
+   "file": "media/voice/f/num.15.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "m.num.16": {
+   "id": "num.16",
+   "text": "16",
+   "file": "media/voice/m/num.16.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "f.num.16": {
+   "id": "num.16",
+   "text": "16",
+   "file": "media/voice/f/num.16.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.18
+  },
+  "m.num.17": {
+   "id": "num.17",
+   "text": "17",
+   "file": "media/voice/m/num.17.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.17": {
+   "id": "num.17",
+   "text": "17",
+   "file": "media/voice/f/num.17.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.18": {
+   "id": "num.18",
+   "text": "18",
+   "file": "media/voice/m/num.18.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "f.num.18": {
+   "id": "num.18",
+   "text": "18",
+   "file": "media/voice/f/num.18.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.13
+  },
+  "m.num.19": {
+   "id": "num.19",
+   "text": "19",
+   "file": "media/voice/m/num.19.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "f.num.19": {
+   "id": "num.19",
+   "text": "19",
+   "file": "media/voice/f/num.19.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.2
+  },
+  "m.num.20": {
+   "id": "num.20",
+   "text": "20",
+   "file": "media/voice/m/num.20.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.13
+  },
+  "f.num.20": {
+   "id": "num.20",
+   "text": "20",
+   "file": "media/voice/f/num.20.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.01
+  },
+  "m.num.21": {
+   "id": "num.21",
+   "text": "21",
+   "file": "media/voice/m/num.21.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "f.num.21": {
+   "id": "num.21",
+   "text": "21",
+   "file": "media/voice/f/num.21.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.22": {
+   "id": "num.22",
+   "text": "22",
+   "file": "media/voice/m/num.22.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.22": {
+   "id": "num.22",
+   "text": "22",
+   "file": "media/voice/f/num.22.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.23": {
+   "id": "num.23",
+   "text": "23",
+   "file": "media/voice/m/num.23.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.23": {
+   "id": "num.23",
+   "text": "23",
+   "file": "media/voice/f/num.23.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.24": {
+   "id": "num.24",
+   "text": "24",
+   "file": "media/voice/m/num.24.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.24": {
+   "id": "num.24",
+   "text": "24",
+   "file": "media/voice/f/num.24.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.25": {
+   "id": "num.25",
+   "text": "25",
+   "file": "media/voice/m/num.25.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.25": {
+   "id": "num.25",
+   "text": "25",
+   "file": "media/voice/f/num.25.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.26": {
+   "id": "num.26",
+   "text": "26",
+   "file": "media/voice/m/num.26.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "f.num.26": {
+   "id": "num.26",
+   "text": "26",
+   "file": "media/voice/f/num.26.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.27": {
+   "id": "num.27",
+   "text": "27",
+   "file": "media/voice/m/num.27.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.27": {
+   "id": "num.27",
+   "text": "27",
+   "file": "media/voice/f/num.27.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.28": {
+   "id": "num.28",
+   "text": "28",
+   "file": "media/voice/m/num.28.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.28": {
+   "id": "num.28",
+   "text": "28",
+   "file": "media/voice/f/num.28.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.29": {
+   "id": "num.29",
+   "text": "29",
+   "file": "media/voice/m/num.29.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.29": {
+   "id": "num.29",
+   "text": "29",
+   "file": "media/voice/f/num.29.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.30": {
+   "id": "num.30",
+   "text": "30",
+   "file": "media/voice/m/num.30.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.1
+  },
+  "f.num.30": {
+   "id": "num.30",
+   "text": "30",
+   "file": "media/voice/f/num.30.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.03
+  },
+  "m.num.31": {
+   "id": "num.31",
+   "text": "31",
+   "file": "media/voice/m/num.31.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "f.num.31": {
+   "id": "num.31",
+   "text": "31",
+   "file": "media/voice/f/num.31.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.2
+  },
+  "m.num.32": {
+   "id": "num.32",
+   "text": "32",
+   "file": "media/voice/m/num.32.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.32": {
+   "id": "num.32",
+   "text": "32",
+   "file": "media/voice/f/num.32.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.33": {
+   "id": "num.33",
+   "text": "33",
+   "file": "media/voice/m/num.33.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.33": {
+   "id": "num.33",
+   "text": "33",
+   "file": "media/voice/f/num.33.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.34": {
+   "id": "num.34",
+   "text": "34",
+   "file": "media/voice/m/num.34.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.34": {
+   "id": "num.34",
+   "text": "34",
+   "file": "media/voice/f/num.34.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.35": {
+   "id": "num.35",
+   "text": "35",
+   "file": "media/voice/m/num.35.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.35": {
+   "id": "num.35",
+   "text": "35",
+   "file": "media/voice/f/num.35.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.36": {
+   "id": "num.36",
+   "text": "36",
+   "file": "media/voice/m/num.36.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.36": {
+   "id": "num.36",
+   "text": "36",
+   "file": "media/voice/f/num.36.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.37": {
+   "id": "num.37",
+   "text": "37",
+   "file": "media/voice/m/num.37.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.37": {
+   "id": "num.37",
+   "text": "37",
+   "file": "media/voice/f/num.37.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.38": {
+   "id": "num.38",
+   "text": "38",
+   "file": "media/voice/m/num.38.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.38": {
+   "id": "num.38",
+   "text": "38",
+   "file": "media/voice/f/num.38.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.39": {
+   "id": "num.39",
+   "text": "39",
+   "file": "media/voice/m/num.39.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.39": {
+   "id": "num.39",
+   "text": "39",
+   "file": "media/voice/f/num.39.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.40": {
+   "id": "num.40",
+   "text": "40",
+   "file": "media/voice/m/num.40.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.1
+  },
+  "f.num.40": {
+   "id": "num.40",
+   "text": "40",
+   "file": "media/voice/f/num.40.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.06
+  },
+  "m.num.41": {
+   "id": "num.41",
+   "text": "41",
+   "file": "media/voice/m/num.41.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "f.num.41": {
+   "id": "num.41",
+   "text": "41",
+   "file": "media/voice/f/num.41.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.2
+  },
+  "m.num.42": {
+   "id": "num.42",
+   "text": "42",
+   "file": "media/voice/m/num.42.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.42": {
+   "id": "num.42",
+   "text": "42",
+   "file": "media/voice/f/num.42.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.43": {
+   "id": "num.43",
+   "text": "43",
+   "file": "media/voice/m/num.43.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.43": {
+   "id": "num.43",
+   "text": "43",
+   "file": "media/voice/f/num.43.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.44": {
+   "id": "num.44",
+   "text": "44",
+   "file": "media/voice/m/num.44.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.44": {
+   "id": "num.44",
+   "text": "44",
+   "file": "media/voice/f/num.44.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.45": {
+   "id": "num.45",
+   "text": "45",
+   "file": "media/voice/m/num.45.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.45": {
+   "id": "num.45",
+   "text": "45",
+   "file": "media/voice/f/num.45.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.46": {
+   "id": "num.46",
+   "text": "46",
+   "file": "media/voice/m/num.46.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.46": {
+   "id": "num.46",
+   "text": "46",
+   "file": "media/voice/f/num.46.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.47": {
+   "id": "num.47",
+   "text": "47",
+   "file": "media/voice/m/num.47.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.47": {
+   "id": "num.47",
+   "text": "47",
+   "file": "media/voice/f/num.47.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "m.num.48": {
+   "id": "num.48",
+   "text": "48",
+   "file": "media/voice/m/num.48.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.48": {
+   "id": "num.48",
+   "text": "48",
+   "file": "media/voice/f/num.48.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.49": {
+   "id": "num.49",
+   "text": "49",
+   "file": "media/voice/m/num.49.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.49": {
+   "id": "num.49",
+   "text": "49",
+   "file": "media/voice/f/num.49.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.50": {
+   "id": "num.50",
+   "text": "50",
+   "file": "media/voice/m/num.50.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.13
+  },
+  "f.num.50": {
+   "id": "num.50",
+   "text": "50",
+   "file": "media/voice/f/num.50.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.01
+  },
+  "m.num.51": {
+   "id": "num.51",
+   "text": "51",
+   "file": "media/voice/m/num.51.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "f.num.51": {
+   "id": "num.51",
+   "text": "51",
+   "file": "media/voice/f/num.51.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.52": {
+   "id": "num.52",
+   "text": "52",
+   "file": "media/voice/m/num.52.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.52": {
+   "id": "num.52",
+   "text": "52",
+   "file": "media/voice/f/num.52.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.53": {
+   "id": "num.53",
+   "text": "53",
+   "file": "media/voice/m/num.53.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.53": {
+   "id": "num.53",
+   "text": "53",
+   "file": "media/voice/f/num.53.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.54": {
+   "id": "num.54",
+   "text": "54",
+   "file": "media/voice/m/num.54.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.54": {
+   "id": "num.54",
+   "text": "54",
+   "file": "media/voice/f/num.54.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.55": {
+   "id": "num.55",
+   "text": "55",
+   "file": "media/voice/m/num.55.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.55": {
+   "id": "num.55",
+   "text": "55",
+   "file": "media/voice/f/num.55.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.56": {
+   "id": "num.56",
+   "text": "56",
+   "file": "media/voice/m/num.56.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.56": {
+   "id": "num.56",
+   "text": "56",
+   "file": "media/voice/f/num.56.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.57": {
+   "id": "num.57",
+   "text": "57",
+   "file": "media/voice/m/num.57.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "f.num.57": {
+   "id": "num.57",
+   "text": "57",
+   "file": "media/voice/f/num.57.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.58": {
+   "id": "num.58",
+   "text": "58",
+   "file": "media/voice/m/num.58.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.58": {
+   "id": "num.58",
+   "text": "58",
+   "file": "media/voice/f/num.58.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.59": {
+   "id": "num.59",
+   "text": "59",
+   "file": "media/voice/m/num.59.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.59": {
+   "id": "num.59",
+   "text": "59",
+   "file": "media/voice/f/num.59.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.60": {
+   "id": "num.60",
+   "text": "60",
+   "file": "media/voice/m/num.60.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "f.num.60": {
+   "id": "num.60",
+   "text": "60",
+   "file": "media/voice/f/num.60.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.06
+  },
+  "m.num.61": {
+   "id": "num.61",
+   "text": "61",
+   "file": "media/voice/m/num.61.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.61": {
+   "id": "num.61",
+   "text": "61",
+   "file": "media/voice/f/num.61.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.62": {
+   "id": "num.62",
+   "text": "62",
+   "file": "media/voice/m/num.62.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.62": {
+   "id": "num.62",
+   "text": "62",
+   "file": "media/voice/f/num.62.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.63": {
+   "id": "num.63",
+   "text": "63",
+   "file": "media/voice/m/num.63.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.63": {
+   "id": "num.63",
+   "text": "63",
+   "file": "media/voice/f/num.63.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.64": {
+   "id": "num.64",
+   "text": "64",
+   "file": "media/voice/m/num.64.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.64": {
+   "id": "num.64",
+   "text": "64",
+   "file": "media/voice/f/num.64.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.65": {
+   "id": "num.65",
+   "text": "65",
+   "file": "media/voice/m/num.65.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.51
+  },
+  "f.num.65": {
+   "id": "num.65",
+   "text": "65",
+   "file": "media/voice/f/num.65.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.66": {
+   "id": "num.66",
+   "text": "66",
+   "file": "media/voice/m/num.66.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.66": {
+   "id": "num.66",
+   "text": "66",
+   "file": "media/voice/f/num.66.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.67": {
+   "id": "num.67",
+   "text": "67",
+   "file": "media/voice/m/num.67.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.67": {
+   "id": "num.67",
+   "text": "67",
+   "file": "media/voice/f/num.67.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.68": {
+   "id": "num.68",
+   "text": "68",
+   "file": "media/voice/m/num.68.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.68": {
+   "id": "num.68",
+   "text": "68",
+   "file": "media/voice/f/num.68.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.69": {
+   "id": "num.69",
+   "text": "69",
+   "file": "media/voice/m/num.69.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.69": {
+   "id": "num.69",
+   "text": "69",
+   "file": "media/voice/f/num.69.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.70": {
+   "id": "num.70",
+   "text": "70",
+   "file": "media/voice/m/num.70.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.2
+  },
+  "f.num.70": {
+   "id": "num.70",
+   "text": "70",
+   "file": "media/voice/f/num.70.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "m.num.71": {
+   "id": "num.71",
+   "text": "71",
+   "file": "media/voice/m/num.71.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.71": {
+   "id": "num.71",
+   "text": "71",
+   "file": "media/voice/f/num.71.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.72": {
+   "id": "num.72",
+   "text": "72",
+   "file": "media/voice/m/num.72.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.51
+  },
+  "f.num.72": {
+   "id": "num.72",
+   "text": "72",
+   "file": "media/voice/f/num.72.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "m.num.73": {
+   "id": "num.73",
+   "text": "73",
+   "file": "media/voice/m/num.73.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.73": {
+   "id": "num.73",
+   "text": "73",
+   "file": "media/voice/f/num.73.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "m.num.74": {
+   "id": "num.74",
+   "text": "74",
+   "file": "media/voice/m/num.74.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.74": {
+   "id": "num.74",
+   "text": "74",
+   "file": "media/voice/f/num.74.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "m.num.75": {
+   "id": "num.75",
+   "text": "75",
+   "file": "media/voice/m/num.75.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.56
+  },
+  "f.num.75": {
+   "id": "num.75",
+   "text": "75",
+   "file": "media/voice/f/num.75.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "m.num.76": {
+   "id": "num.76",
+   "text": "76",
+   "file": "media/voice/m/num.76.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.76": {
+   "id": "num.76",
+   "text": "76",
+   "file": "media/voice/f/num.76.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "m.num.77": {
+   "id": "num.77",
+   "text": "77",
+   "file": "media/voice/m/num.77.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.58
+  },
+  "f.num.77": {
+   "id": "num.77",
+   "text": "77",
+   "file": "media/voice/f/num.77.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "m.num.78": {
+   "id": "num.78",
+   "text": "78",
+   "file": "media/voice/m/num.78.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.78": {
+   "id": "num.78",
+   "text": "78",
+   "file": "media/voice/f/num.78.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.79": {
+   "id": "num.79",
+   "text": "79",
+   "file": "media/voice/m/num.79.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.79": {
+   "id": "num.79",
+   "text": "79",
+   "file": "media/voice/f/num.79.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "m.num.80": {
+   "id": "num.80",
+   "text": "80",
+   "file": "media/voice/m/num.80.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "f.num.80": {
+   "id": "num.80",
+   "text": "80",
+   "file": "media/voice/f/num.80.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 0.98
+  },
+  "m.num.81": {
+   "id": "num.81",
+   "text": "81",
+   "file": "media/voice/m/num.81.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "f.num.81": {
+   "id": "num.81",
+   "text": "81",
+   "file": "media/voice/f/num.81.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "m.num.82": {
+   "id": "num.82",
+   "text": "82",
+   "file": "media/voice/m/num.82.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.82": {
+   "id": "num.82",
+   "text": "82",
+   "file": "media/voice/f/num.82.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.83": {
+   "id": "num.83",
+   "text": "83",
+   "file": "media/voice/m/num.83.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.83": {
+   "id": "num.83",
+   "text": "83",
+   "file": "media/voice/f/num.83.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.84": {
+   "id": "num.84",
+   "text": "84",
+   "file": "media/voice/m/num.84.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.84": {
+   "id": "num.84",
+   "text": "84",
+   "file": "media/voice/f/num.84.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.85": {
+   "id": "num.85",
+   "text": "85",
+   "file": "media/voice/m/num.85.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.85": {
+   "id": "num.85",
+   "text": "85",
+   "file": "media/voice/f/num.85.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.86": {
+   "id": "num.86",
+   "text": "86",
+   "file": "media/voice/m/num.86.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.num.86": {
+   "id": "num.86",
+   "text": "86",
+   "file": "media/voice/f/num.86.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "m.num.87": {
+   "id": "num.87",
+   "text": "87",
+   "file": "media/voice/m/num.87.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.87": {
+   "id": "num.87",
+   "text": "87",
+   "file": "media/voice/f/num.87.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.88": {
+   "id": "num.88",
+   "text": "88",
+   "file": "media/voice/m/num.88.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.88": {
+   "id": "num.88",
+   "text": "88",
+   "file": "media/voice/f/num.88.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.25
+  },
+  "m.num.89": {
+   "id": "num.89",
+   "text": "89",
+   "file": "media/voice/m/num.89.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.89": {
+   "id": "num.89",
+   "text": "89",
+   "file": "media/voice/f/num.89.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "m.num.90": {
+   "id": "num.90",
+   "text": "90",
+   "file": "media/voice/m/num.90.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.15
+  },
+  "f.num.90": {
+   "id": "num.90",
+   "text": "90",
+   "file": "media/voice/f/num.90.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.08
+  },
+  "m.num.91": {
+   "id": "num.91",
+   "text": "91",
+   "file": "media/voice/m/num.91.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "f.num.91": {
+   "id": "num.91",
+   "text": "91",
+   "file": "media/voice/f/num.91.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "m.num.92": {
+   "id": "num.92",
+   "text": "92",
+   "file": "media/voice/m/num.92.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.92": {
+   "id": "num.92",
+   "text": "92",
+   "file": "media/voice/f/num.92.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.93": {
+   "id": "num.93",
+   "text": "93",
+   "file": "media/voice/m/num.93.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.93": {
+   "id": "num.93",
+   "text": "93",
+   "file": "media/voice/f/num.93.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.94": {
+   "id": "num.94",
+   "text": "94",
+   "file": "media/voice/m/num.94.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.94": {
+   "id": "num.94",
+   "text": "94",
+   "file": "media/voice/f/num.94.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.95": {
+   "id": "num.95",
+   "text": "95",
+   "file": "media/voice/m/num.95.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.95": {
+   "id": "num.95",
+   "text": "95",
+   "file": "media/voice/f/num.95.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.96": {
+   "id": "num.96",
+   "text": "96",
+   "file": "media/voice/m/num.96.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.96": {
+   "id": "num.96",
+   "text": "96",
+   "file": "media/voice/f/num.96.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.97": {
+   "id": "num.97",
+   "text": "97",
+   "file": "media/voice/m/num.97.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.51
+  },
+  "f.num.97": {
+   "id": "num.97",
+   "text": "97",
+   "file": "media/voice/f/num.97.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.98": {
+   "id": "num.98",
+   "text": "98",
+   "file": "media/voice/m/num.98.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.98": {
+   "id": "num.98",
+   "text": "98",
+   "file": "media/voice/f/num.98.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.99": {
+   "id": "num.99",
+   "text": "99",
+   "file": "media/voice/m/num.99.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.99": {
+   "id": "num.99",
+   "text": "99",
+   "file": "media/voice/f/num.99.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.100": {
+   "id": "num.100",
+   "text": "100",
+   "file": "media/voice/m/num.100.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.100": {
+   "id": "num.100",
+   "text": "100",
+   "file": "media/voice/f/num.100.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.h1": {
+   "id": "num.h1",
+   "text": "1 hundred",
+   "file": "media/voice/m/num.h1.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.h1": {
+   "id": "num.h1",
+   "text": "1 hundred",
+   "file": "media/voice/f/num.h1.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.ha1": {
+   "id": "num.ha1",
+   "text": "1 hundred and",
+   "file": "media/voice/m/num.ha1.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.92
+  },
+  "f.num.ha1": {
+   "id": "num.ha1",
+   "text": "1 hundred and",
+   "file": "media/voice/f/num.ha1.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "m.num.k1": {
+   "id": "num.k1",
+   "text": "1 thousand",
+   "file": "media/voice/m/num.k1.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "f.num.k1": {
+   "id": "num.k1",
+   "text": "1 thousand",
+   "file": "media/voice/f/num.k1.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "m.num.h2": {
+   "id": "num.h2",
+   "text": "2 hundred",
+   "file": "media/voice/m/num.h2.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.3
+  },
+  "f.num.h2": {
+   "id": "num.h2",
+   "text": "2 hundred",
+   "file": "media/voice/f/num.h2.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.ha2": {
+   "id": "num.ha2",
+   "text": "2 hundred and",
+   "file": "media/voice/m/num.ha2.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.78
+  },
+  "f.num.ha2": {
+   "id": "num.ha2",
+   "text": "2 hundred and",
+   "file": "media/voice/f/num.ha2.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "m.num.k2": {
+   "id": "num.k2",
+   "text": "2 thousand",
+   "file": "media/voice/m/num.k2.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.k2": {
+   "id": "num.k2",
+   "text": "2 thousand",
+   "file": "media/voice/f/num.k2.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.h3": {
+   "id": "num.h3",
+   "text": "3 hundred",
+   "file": "media/voice/m/num.h3.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.h3": {
+   "id": "num.h3",
+   "text": "3 hundred",
+   "file": "media/voice/f/num.h3.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "m.num.ha3": {
+   "id": "num.ha3",
+   "text": "3 hundred and",
+   "file": "media/voice/m/num.ha3.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.87
+  },
+  "f.num.ha3": {
+   "id": "num.ha3",
+   "text": "3 hundred and",
+   "file": "media/voice/f/num.ha3.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.56
+  },
+  "m.num.k3": {
+   "id": "num.k3",
+   "text": "3 thousand",
+   "file": "media/voice/m/num.k3.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "f.num.k3": {
+   "id": "num.k3",
+   "text": "3 thousand",
+   "file": "media/voice/f/num.k3.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "m.num.h4": {
+   "id": "num.h4",
+   "text": "4 hundred",
+   "file": "media/voice/m/num.h4.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "f.num.h4": {
+   "id": "num.h4",
+   "text": "4 hundred",
+   "file": "media/voice/f/num.h4.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.39
+  },
+  "m.num.ha4": {
+   "id": "num.ha4",
+   "text": "4 hundred and",
+   "file": "media/voice/m/num.ha4.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.87
+  },
+  "f.num.ha4": {
+   "id": "num.ha4",
+   "text": "4 hundred and",
+   "file": "media/voice/f/num.ha4.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.58
+  },
+  "m.num.k4": {
+   "id": "num.k4",
+   "text": "4 thousand",
+   "file": "media/voice/m/num.k4.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.k4": {
+   "id": "num.k4",
+   "text": "4 thousand",
+   "file": "media/voice/f/num.k4.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "m.num.h5": {
+   "id": "num.h5",
+   "text": "5 hundred",
+   "file": "media/voice/m/num.h5.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "f.num.h5": {
+   "id": "num.h5",
+   "text": "5 hundred",
+   "file": "media/voice/f/num.h5.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "m.num.ha5": {
+   "id": "num.ha5",
+   "text": "5 hundred and",
+   "file": "media/voice/m/num.ha5.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.92
+  },
+  "f.num.ha5": {
+   "id": "num.ha5",
+   "text": "5 hundred and",
+   "file": "media/voice/f/num.ha5.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.61
+  },
+  "m.num.k5": {
+   "id": "num.k5",
+   "text": "5 thousand",
+   "file": "media/voice/m/num.k5.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.k5": {
+   "id": "num.k5",
+   "text": "5 thousand",
+   "file": "media/voice/f/num.k5.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.51
+  },
+  "m.num.h6": {
+   "id": "num.h6",
+   "text": "6 hundred",
+   "file": "media/voice/m/num.h6.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "f.num.h6": {
+   "id": "num.h6",
+   "text": "6 hundred",
+   "file": "media/voice/f/num.h6.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.ha6": {
+   "id": "num.ha6",
+   "text": "6 hundred and",
+   "file": "media/voice/m/num.ha6.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.87
+  },
+  "f.num.ha6": {
+   "id": "num.ha6",
+   "text": "6 hundred and",
+   "file": "media/voice/f/num.ha6.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.61
+  },
+  "m.num.k6": {
+   "id": "num.k6",
+   "text": "6 thousand",
+   "file": "media/voice/m/num.k6.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.num.k6": {
+   "id": "num.k6",
+   "text": "6 thousand",
+   "file": "media/voice/f/num.k6.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "m.num.h7": {
+   "id": "num.h7",
+   "text": "7 hundred",
+   "file": "media/voice/m/num.h7.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "f.num.h7": {
+   "id": "num.h7",
+   "text": "7 hundred",
+   "file": "media/voice/f/num.h7.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "m.num.ha7": {
+   "id": "num.ha7",
+   "text": "7 hundred and",
+   "file": "media/voice/m/num.ha7.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "f.num.ha7": {
+   "id": "num.ha7",
+   "text": "7 hundred and",
+   "file": "media/voice/f/num.ha7.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.63
+  },
+  "m.num.k7": {
+   "id": "num.k7",
+   "text": "7 thousand",
+   "file": "media/voice/m/num.k7.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.k7": {
+   "id": "num.k7",
+   "text": "7 thousand",
+   "file": "media/voice/f/num.k7.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.51
+  },
+  "m.num.h8": {
+   "id": "num.h8",
+   "text": "8 hundred",
+   "file": "media/voice/m/num.h8.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.27
+  },
+  "f.num.h8": {
+   "id": "num.h8",
+   "text": "8 hundred",
+   "file": "media/voice/f/num.h8.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.32
+  },
+  "m.num.ha8": {
+   "id": "num.ha8",
+   "text": "8 hundred and",
+   "file": "media/voice/m/num.ha8.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.87
+  },
+  "f.num.ha8": {
+   "id": "num.ha8",
+   "text": "8 hundred and",
+   "file": "media/voice/f/num.ha8.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "m.num.k8": {
+   "id": "num.k8",
+   "text": "8 thousand",
+   "file": "media/voice/m/num.k8.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "f.num.k8": {
+   "id": "num.k8",
+   "text": "8 thousand",
+   "file": "media/voice/f/num.k8.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.42
+  },
+  "m.num.h9": {
+   "id": "num.h9",
+   "text": "9 hundred",
+   "file": "media/voice/m/num.h9.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.46
+  },
+  "f.num.h9": {
+   "id": "num.h9",
+   "text": "9 hundred",
+   "file": "media/voice/f/num.h9.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.37
+  },
+  "m.num.ha9": {
+   "id": "num.ha9",
+   "text": "9 hundred and",
+   "file": "media/voice/m/num.ha9.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "f.num.ha9": {
+   "id": "num.ha9",
+   "text": "9 hundred and",
+   "file": "media/voice/f/num.ha9.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "m.num.k9": {
+   "id": "num.k9",
+   "text": "9 thousand",
+   "file": "media/voice/m/num.k9.mp3",
+   "trainer": "m",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.54
+  },
+  "f.num.k9": {
+   "id": "num.k9",
+   "text": "9 thousand",
+   "file": "media/voice/f/num.k9.mp3",
+   "trainer": "f",
+   "tags": [
+    "num"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "m.sfx.punches_strong": {
+   "id": "sfx.punches_strong",
+   "text": "punches! Strong work.",
+   "file": "media/voice/m/sfx.punches_strong.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx",
+    "boxing"
+   ],
+   "style": "hype",
+   "duration": 1.9
+  },
+  "f.sfx.punches_strong": {
+   "id": "sfx.punches_strong",
+   "text": "punches! Strong work.",
+   "file": "media/voice/f/sfx.punches_strong.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx",
+    "boxing"
+   ],
+   "style": "hype",
+   "duration": 1.66
+  },
+  "m.sfx.held_lovely": {
+   "id": "sfx.held_lovely",
+   "text": "seconds held. Lovely.",
+   "file": "media/voice/m/sfx.held_lovely.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx",
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 2.33
+  },
+  "f.sfx.held_lovely": {
+   "id": "sfx.held_lovely",
+   "text": "seconds held. Lovely.",
+   "file": "media/voice/f/sfx.held_lovely.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx",
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 1.99
+  },
+  "m.sfx.sofar.punches": {
+   "id": "sfx.sofar.punches",
+   "text": "punches so far.",
+   "file": "media/voice/m/sfx.sofar.punches.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.66
+  },
+  "f.sfx.sofar.punches": {
+   "id": "sfx.sofar.punches",
+   "text": "punches so far.",
+   "file": "media/voice/f/sfx.sofar.punches.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.63
+  },
+  "m.sfx.sofar.onbeat": {
+   "id": "sfx.sofar.onbeat",
+   "text": "on-beat moves so far.",
+   "file": "media/voice/m/sfx.sofar.onbeat.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 2.04
+  },
+  "f.sfx.sofar.onbeat": {
+   "id": "sfx.sofar.onbeat",
+   "text": "on-beat moves so far.",
+   "file": "media/voice/f/sfx.sofar.onbeat.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.9
+  },
+  "m.sfx.sofar.held": {
+   "id": "sfx.sofar.held",
+   "text": "seconds held so far.",
+   "file": "media/voice/m/sfx.sofar.held.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.94
+  },
+  "f.sfx.sofar.held": {
+   "id": "sfx.sofar.held",
+   "text": "seconds held so far.",
+   "file": "media/voice/f/sfx.sofar.held.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.82
+  },
+  "m.sfx.sofar.reps": {
+   "id": "sfx.sofar.reps",
+   "text": "reps so far.",
+   "file": "media/voice/m/sfx.sofar.reps.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.49
+  },
+  "f.sfx.sofar.reps": {
+   "id": "sfx.sofar.reps",
+   "text": "reps so far.",
+   "file": "media/voice/f/sfx.sofar.reps.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.44
+  },
+  "m.sfx.about": {
+   "id": "sfx.about",
+   "text": "That's about",
+   "file": "media/voice/m/sfx.about.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.34
+  },
+  "f.sfx.about": {
+   "id": "sfx.about",
+   "text": "That's about",
+   "file": "media/voice/f/sfx.about.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.2
+  },
+  "m.sfx.calories": {
+   "id": "sfx.calories",
+   "text": "calories.",
+   "file": "media/voice/m/sfx.calories.mp3",
+   "trainer": "m",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.22
+  },
+  "f.sfx.calories": {
+   "id": "sfx.calories",
+   "text": "calories.",
+   "file": "media/voice/f/sfx.calories.mp3",
+   "trainer": "f",
+   "tags": [
+    "sfx"
+   ],
+   "style": "warm",
+   "duration": 1.1
+  },
+  "m.punches.175": {
+   "id": "punches.175",
+   "text": "175 punches! Strong work.",
+   "file": "media/voice/m/punches.175.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.67
+  },
+  "f.punches.175": {
+   "id": "punches.175",
+   "text": "175 punches! Strong work.",
+   "file": "media/voice/f/punches.175.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.22
+  },
+  "m.punches.225": {
+   "id": "punches.225",
+   "text": "225 punches! Strong work.",
+   "file": "media/voice/m/punches.225.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.58
+  },
+  "f.punches.225": {
+   "id": "punches.225",
+   "text": "225 punches! Strong work.",
+   "file": "media/voice/f/punches.225.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.07
+  },
+  "m.punches.250": {
+   "id": "punches.250",
+   "text": "250 punches! Strong work.",
+   "file": "media/voice/m/punches.250.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.24
+  },
+  "f.punches.250": {
+   "id": "punches.250",
+   "text": "250 punches! Strong work.",
+   "file": "media/voice/f/punches.250.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.76
+  },
+  "m.punches.275": {
+   "id": "punches.275",
+   "text": "275 punches! Strong work.",
+   "file": "media/voice/m/punches.275.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.74
+  },
+  "f.punches.275": {
+   "id": "punches.275",
+   "text": "275 punches! Strong work.",
+   "file": "media/voice/f/punches.275.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.17
+  },
+  "m.punches.300": {
+   "id": "punches.300",
+   "text": "300 punches! Strong work.",
+   "file": "media/voice/m/punches.300.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.66
+  },
+  "f.punches.300": {
+   "id": "punches.300",
+   "text": "300 punches! Strong work.",
+   "file": "media/voice/f/punches.300.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.16
+  },
+  "m.punches.325": {
+   "id": "punches.325",
+   "text": "325 punches! Strong work.",
+   "file": "media/voice/m/punches.325.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.65
+  },
+  "f.punches.325": {
+   "id": "punches.325",
+   "text": "325 punches! Strong work.",
+   "file": "media/voice/f/punches.325.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.12
+  },
+  "m.punches.350": {
+   "id": "punches.350",
+   "text": "350 punches! Strong work.",
+   "file": "media/voice/m/punches.350.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.48
+  },
+  "f.punches.350": {
+   "id": "punches.350",
+   "text": "350 punches! Strong work.",
+   "file": "media/voice/f/punches.350.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.78
+  },
+  "m.punches.375": {
+   "id": "punches.375",
+   "text": "375 punches! Strong work.",
+   "file": "media/voice/m/punches.375.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.82
+  },
+  "f.punches.375": {
+   "id": "punches.375",
+   "text": "375 punches! Strong work.",
+   "file": "media/voice/f/punches.375.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.19
+  },
+  "m.punches.400": {
+   "id": "punches.400",
+   "text": "400 punches! Strong work.",
+   "file": "media/voice/m/punches.400.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.69
+  },
+  "f.punches.400": {
+   "id": "punches.400",
+   "text": "400 punches! Strong work.",
+   "file": "media/voice/f/punches.400.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.16
+  },
+  "m.punches.425": {
+   "id": "punches.425",
+   "text": "425 punches! Strong work.",
+   "file": "media/voice/m/punches.425.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.62
+  },
+  "f.punches.425": {
+   "id": "punches.425",
+   "text": "425 punches! Strong work.",
+   "file": "media/voice/f/punches.425.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.1
+  },
+  "m.punches.450": {
+   "id": "punches.450",
+   "text": "450 punches! Strong work.",
+   "file": "media/voice/m/punches.450.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.38
+  },
+  "f.punches.450": {
+   "id": "punches.450",
+   "text": "450 punches! Strong work.",
+   "file": "media/voice/f/punches.450.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.76
+  },
+  "m.punches.475": {
+   "id": "punches.475",
+   "text": "475 punches! Strong work.",
+   "file": "media/voice/m/punches.475.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.74
+  },
+  "f.punches.475": {
+   "id": "punches.475",
+   "text": "475 punches! Strong work.",
+   "file": "media/voice/f/punches.475.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 3.22
+  },
+  "m.punches.500": {
+   "id": "punches.500",
+   "text": "500 punches! Strong work.",
+   "file": "media/voice/m/punches.500.mp3",
+   "trainer": "m",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.74
+  },
+  "f.punches.500": {
+   "id": "punches.500",
+   "text": "500 punches! Strong work.",
+   "file": "media/voice/f/punches.500.mp3",
+   "trainer": "f",
+   "tags": [
+    "boxing",
+    "count"
+   ],
+   "style": "hype",
+   "duration": 2.23
+  },
+  "m.hold.80": {
+   "id": "hold.80",
+   "text": "80 seconds held. Lovely.",
+   "file": "media/voice/m/hold.80.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 2.78
+  },
+  "f.hold.80": {
+   "id": "hold.80",
+   "text": "80 seconds held. Lovely.",
+   "file": "media/voice/f/hold.80.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 2.38
+  },
+  "m.hold.100": {
+   "id": "hold.100",
+   "text": "100 seconds held. Lovely.",
+   "file": "media/voice/m/hold.100.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.07
+  },
+  "f.hold.100": {
+   "id": "hold.100",
+   "text": "100 seconds held. Lovely.",
+   "file": "media/voice/f/hold.100.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 2.78
+  },
+  "m.hold.120": {
+   "id": "hold.120",
+   "text": "120 seconds held. Lovely.",
+   "file": "media/voice/m/hold.120.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.84
+  },
+  "f.hold.120": {
+   "id": "hold.120",
+   "text": "120 seconds held. Lovely.",
+   "file": "media/voice/f/hold.120.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.24
+  },
+  "m.hold.140": {
+   "id": "hold.140",
+   "text": "140 seconds held. Lovely.",
+   "file": "media/voice/m/hold.140.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.84
+  },
+  "f.hold.140": {
+   "id": "hold.140",
+   "text": "140 seconds held. Lovely.",
+   "file": "media/voice/f/hold.140.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.19
+  },
+  "m.hold.160": {
+   "id": "hold.160",
+   "text": "160 seconds held. Lovely.",
+   "file": "media/voice/m/hold.160.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.82
+  },
+  "f.hold.160": {
+   "id": "hold.160",
+   "text": "160 seconds held. Lovely.",
+   "file": "media/voice/f/hold.160.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.26
+  },
+  "m.hold.180": {
+   "id": "hold.180",
+   "text": "180 seconds held. Lovely.",
+   "file": "media/voice/m/hold.180.mp3",
+   "trainer": "m",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.79
+  },
+  "f.hold.180": {
+   "id": "hold.180",
+   "text": "180 seconds held. Lovely.",
+   "file": "media/voice/f/hold.180.mp3",
+   "trainer": "f",
+   "tags": [
+    "hold"
+   ],
+   "style": "calm",
+   "duration": 3.19
+  },
+  "f.layer.add-arms-swing-on-every-step": {
+   "id": "layer.add-arms-swing-on-every-step",
+   "text": "Layer it up: Add arms: swing on every step",
+   "file": "media/voice/f/layer.add-arms-swing-on-every-step.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.74
+  },
+  "f.layer.5-8-grapevine-left": {
+   "id": "layer.5-8-grapevine-left",
+   "text": "Layer it up: 5-8 grapevine left",
+   "file": "media/voice/f/layer.5-8-grapevine-left.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.59
+  },
+  "f.layer.5-8-shoulder-pops": {
+   "id": "layer.5-8-shoulder-pops",
+   "text": "Layer it up: 5-8 shoulder pops",
+   "file": "media/voice/f/layer.5-8-shoulder-pops.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.45
+  },
+  "f.layer.add-arms-up-on-1-2-down-on-3-4": {
+   "id": "layer.add-arms-up-on-1-2-down-on-3-4",
+   "text": "Layer it up: Add arms: up on 1-2, down on 3-4",
+   "file": "media/voice/f/layer.add-arms-up-on-1-2-down-on-3-4.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.31
+  },
+  "f.layer.5-7-grapevine-left-clap-on-8": {
+   "id": "layer.5-7-grapevine-left-clap-on-8",
+   "text": "Layer it up: 5-7 grapevine left, clap on 8",
+   "file": "media/voice/f/layer.5-7-grapevine-left-clap-on-8.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.38
+  },
+  "f.layer.8-grapevine-right-and-left": {
+   "id": "layer.8-grapevine-right-and-left",
+   "text": "Layer it up: 8 grapevine right and left",
+   "file": "media/voice/f/layer.8-grapevine-right-and-left.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.66
+  },
+  "f.layer.repeat-smile": {
+   "id": "layer.repeat-smile",
+   "text": "Layer it up: Repeat, smile!",
+   "file": "media/voice/f/layer.repeat-smile.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 1.92
+  },
+  "f.layer.add-a-row-with-the-arms": {
+   "id": "layer.add-a-row-with-the-arms",
+   "text": "Layer it up: Add a row with the arms",
+   "file": "media/voice/f/layer.add-a-row-with-the-arms.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.3
+  },
+  "f.layer.5-8-double-left": {
+   "id": "layer.5-8-double-left",
+   "text": "Layer it up: 5-8 double left",
+   "file": "media/voice/f/layer.5-8-double-left.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.42
+  },
+  "f.layer.grapevine-clap-on-4-and-8": {
+   "id": "layer.grapevine-clap-on-4-and-8",
+   "text": "Layer it up: Grapevine, clap on 4 and 8",
+   "file": "media/voice/f/layer.grapevine-clap-on-4-and-8.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.81
+  },
+  "f.layer.5-6-step-left-7-8-roll": {
+   "id": "layer.5-6-step-left-7-8-roll",
+   "text": "Layer it up: 5-6 step left, 7-8 roll",
+   "file": "media/voice/f/layer.5-6-step-left-7-8-roll.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.14
+  },
+  "f.layer.other-side-on-3-4": {
+   "id": "layer.other-side-on-3-4",
+   "text": "Layer it up: Other side on 3-4",
+   "file": "media/voice/f/layer.other-side-on-3-4.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.35
+  },
+  "f.layer.8-kick-ball-change": {
+   "id": "layer.8-kick-ball-change",
+   "text": "Layer it up: 8 kick-ball-change",
+   "file": "media/voice/f/layer.8-kick-ball-change.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.35
+  },
+  "f.layer.shuffle-left-3-4": {
+   "id": "layer.shuffle-left-3-4",
+   "text": "Layer it up: Shuffle left 3&4",
+   "file": "media/voice/f/layer.shuffle-left-3-4.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.33
+  },
+  "f.layer.kick-ball-change-arms-punch-down": {
+   "id": "layer.kick-ball-change-arms-punch-down",
+   "text": "Layer it up: Kick-ball-change, arms punch down",
+   "file": "media/voice/f/layer.kick-ball-change-arms-punch-down.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.88
+  },
+  "f.layer.stay-on-the-beat": {
+   "id": "layer.stay-on-the-beat",
+   "text": "Layer it up: Stay on the beat",
+   "file": "media/voice/f/layer.stay-on-the-beat.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 1.99
+  },
+  "f.layer.routine-b-roll-kick-ball-change": {
+   "id": "layer.routine-b-roll-kick-ball-change",
+   "text": "Layer it up: Routine B: roll + kick-ball-change",
+   "file": "media/voice/f/layer.routine-b-roll-kick-ball-change.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "dance",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.1
+  },
+  "f.layer.add-arm-rolls-on-5-8": {
+   "id": "layer.add-arm-rolls-on-5-8",
+   "text": "Layer it up: Add arm rolls on 5-8",
+   "file": "media/voice/f/layer.add-arm-rolls-on-5-8.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.69
+  },
+  "f.layer.5-back-6-7-centre": {
+   "id": "layer.5-back-6-7-centre",
+   "text": "Layer it up: 5 back, 6-7 centre",
+   "file": "media/voice/f/layer.5-back-6-7-centre.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.76
+  },
+  "f.layer.side-steps-right-5-8": {
+   "id": "layer.side-steps-right-5-8",
+   "text": "Layer it up: Side steps right 5-8",
+   "file": "media/voice/f/layer.side-steps-right-5-8.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.66
+  },
+  "f.layer.add-shoulders": {
+   "id": "layer.add-shoulders",
+   "text": "Layer it up: Add shoulders",
+   "file": "media/voice/f/layer.add-shoulders.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 1.9
+  },
+  "f.layer.5-side-left-6-7-centre": {
+   "id": "layer.5-side-left-6-7-centre",
+   "text": "Layer it up: 5 side left, 6-7 centre",
+   "file": "media/voice/f/layer.5-side-left-6-7-centre.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.0
+  },
+  "f.layer.add-shoulder-turn": {
+   "id": "layer.add-shoulder-turn",
+   "text": "Layer it up: Add shoulder turn",
+   "file": "media/voice/f/layer.add-shoulder-turn.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.09
+  },
+  "f.layer.step-left-tap": {
+   "id": "layer.step-left-tap",
+   "text": "Layer it up: Step left, tap",
+   "file": "media/voice/f/layer.step-left-tap.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.06
+  },
+  "f.layer.add-arm-pumps": {
+   "id": "layer.add-arm-pumps",
+   "text": "Layer it up: Add arm pumps",
+   "file": "media/voice/f/layer.add-arm-pumps.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.02
+  },
+  "f.layer.6-7-rock-8-1-cha-cha-cha-left": {
+   "id": "layer.6-7-rock-8-1-cha-cha-cha-left",
+   "text": "Layer it up: 6-7 rock, 8&1 cha-cha-cha left",
+   "file": "media/voice/f/layer.6-7-rock-8-1-cha-cha-cha-left.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.72
+  },
+  "f.layer.8-salsa-basic": {
+   "id": "layer.8-salsa-basic",
+   "text": "Layer it up: 8 salsa basic",
+   "file": "media/voice/f/layer.8-salsa-basic.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.28
+  },
+  "f.layer.repeat-and-smile": {
+   "id": "layer.repeat-and-smile",
+   "text": "Layer it up: Repeat and smile",
+   "file": "media/voice/f/layer.repeat-and-smile.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.14
+  },
+  "f.layer.5-back-6-rock-7-together": {
+   "id": "layer.5-back-6-rock-7-together",
+   "text": "Layer it up: 5 back, 6 rock, 7 together",
+   "file": "media/voice/f/layer.5-back-6-rock-7-together.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 3.0
+  },
+  "f.layer.other-side-3-a-4": {
+   "id": "layer.other-side-3-a-4",
+   "text": "Layer it up: Other side 3-a-4",
+   "file": "media/voice/f/layer.other-side-3-a-4.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.5
+  },
+  "f.layer.8-side-steps-arms-open": {
+   "id": "layer.8-side-steps-arms-open",
+   "text": "Layer it up: 8 side steps, arms open",
+   "file": "media/voice/f/layer.8-side-steps-arms-open.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.76
+  },
+  "f.layer.turn-left-5-8": {
+   "id": "layer.turn-left-5-8",
+   "text": "Layer it up: Turn left 5-8",
+   "file": "media/voice/f/layer.turn-left-5-8.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.33
+  },
+  "f.layer.add-arm-rolls": {
+   "id": "layer.add-arm-rolls",
+   "text": "Layer it up: Add arm rolls",
+   "file": "media/voice/f/layer.add-arm-rolls.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.02
+  },
+  "f.layer.add-hip-sways": {
+   "id": "layer.add-hip-sways",
+   "text": "Layer it up: Add hip sways",
+   "file": "media/voice/f/layer.add-hip-sways.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.02
+  },
+  "f.layer.step-tap-left-pop": {
+   "id": "layer.step-tap-left-pop",
+   "text": "Layer it up: Step-tap left, pop",
+   "file": "media/voice/f/layer.step-tap-left-pop.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 2.23
+  },
+  "f.layer.8-salsa": {
+   "id": "layer.8-salsa",
+   "text": "Layer it up: 8 salsa",
+   "file": "media/voice/f/layer.8-salsa.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 1.9
+  },
+  "f.layer.8-cumbia": {
+   "id": "layer.8-cumbia",
+   "text": "Layer it up: 8 cumbia",
+   "file": "media/voice/f/layer.8-cumbia.mp3",
+   "trainer": "f",
+   "tags": [
+    "cue",
+    "latin",
+    "layer"
+   ],
+   "style": "hype",
+   "duration": 1.87
   }
  }
 }
