@@ -22,6 +22,7 @@ ok(lead.boxing === 'm' && lead.pilates === 'm' && lead.dance === 'f' && lead.yog
 ok(CLASSES.find(c => c.id === 'latin').name === 'Latin Dance Cardio (Zumba-style)', 'Latin label');
 ok(CLASSES.every(c => !c.problems.length), 'library entries have no problems: ' + CLASSES.flatMap(c => c.problems).join('; '));
 ok(LIB.classes.every(e => e.id && e.title && e.category && e.trainer && e.duration === 1800 && e.intensity && e.poster && 'drive_file_id' in e && e.added && e.script), 'library.json entries have id/title/category/trainer/duration/intensity/poster/drive_file_id/added/script');
+ok(LIB.classes.every(e => /^[\w-]{25,}$/.test(e.drive_file_id)) && new Set(LIB.classes.map(e => e.drive_file_id)).size === LIB.classes.length, 'every class has its own Google Drive file id');
 const extra = buildClass({ id: 'test', title: 'Test', trainer: 'f', music: { style: 'dance', bpm: 120 }, track: 'rhythm', script: { warm: [{ name: 'A', dur: 60 }], main: [{ name: 'B', dur: 60 }], cool: [{ name: 'C', dur: 60 }] } });
 ok(extra.total === 195 && extra.steps.length === 4 && extra.eightCount && extra.primary === 'rhythm', 'a new class builds from data alone (no code change)');
 ok(buildClass({ id: 'bad', script: { main: [{ name: 'x' }] } }).problems.length > 0, 'bad entries report problems instead of throwing');

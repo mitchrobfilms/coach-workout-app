@@ -16,7 +16,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   ok((await p.textContent('#classList')).includes('Latin Dance Cardio (Zumba-style)') && /not affiliated with Zumba/.test(await p.textContent('#tab-classes')), 'Latin label + no-affiliation note');
   ok(await p.$$eval('#classList .dur', d => d.every(x => x.textContent === '30:00')), 'every card shows 30:00');
   ok(await p.$$eval('#classList .lead img', i => i.length) === 5 && (await p.textContent('#class-boxing .lead')).includes('male') && (await p.textContent('#class-yoga .lead')).includes('female'), 'trainer avatar + lead on cards');
-  ok(!(await p.$('[data-watch]')), 'Watch full class hidden while Drive IDs are empty');
+  ok(await p.$$eval('[data-watch]', b => b.length) === 5, 'Watch full class shown on all 5 classes (Drive IDs set)');
   ok(/Recommended/.test(await p.textContent('#recCard')), 'Recommended for you card');
   await p.check('#lowEnergy'); await p.waitForTimeout(300); ok(/Yoga|Pilates/.test(await p.textContent('#recCard h3')), 'low energy -> gentle pick: ' + await p.textContent('#recCard h3'));
   ok(await p.$$eval('#classList .newbadge', n => n.length) === 5, 'fresh account: all classes show a New badge');
@@ -26,7 +26,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   await p.fill('#classSearch', ''); await p.waitForTimeout(300);
   // online library: a new entry + a Drive id arrive via library.json only (no code change)
   const lib = JSON.parse(await (await fetch(URL.replace(/\?.*/, '') + 'library.json')).text());
-  lib.classes[0].drive_file_id = '1AbCdEfGhIjKlMnOp_test';
+  lib.classes[0].drive_file_id = '1AbCdEfGhIjKlMnOp_test'; lib.classes[1].drive_file_id = '';
   lib.classes.push({ id: 'stretch-test', title: 'Gentle Stretch', category: 'Recovery', tags: ['gentle'], trainer: 'f', duration: 195, intensity: 'Gentle', poster: 'media/classes/yoga/seated-fold.jpg', blurb: 'Test class from library.json only.', music: { style: 'ambient', bpm: 60 }, met: 2, track: 'hold', voice: ['stretch'], drive_file_id: '', added: new Date().toISOString().slice(0, 10), script: { warm: [{ name: 'Breathe', dur: 60, slug: 'mountain-arms' }], main: [{ name: 'Seated forward fold', dur: 60, slug: 'seated-fold' }], cool: [{ name: 'Child\'s pose', dur: 60, slug: 'childs-pose' }] } });
   await p.route('**/library.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(lib) }));
   await p.click('.tabs button[data-tab=progress]'); await p.click('.tabs button[data-tab=classes]'); await p.waitForSelector('#class-stretch-test');
