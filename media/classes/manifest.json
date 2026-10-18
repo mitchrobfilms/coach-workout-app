@@ -1,0 +1,296 @@
+{
+  "app": "Reta Coach",
+  "classes": {
+    "boxing": {
+      "label": "Boxing",
+      "trainer": "m",
+      "trainer_avatar": "../m/avatar.jpg",
+      "moves": [
+        {
+          "slug": "stance-bounce",
+          "name": "Boxing stance + bounce",
+          "form_ok": true,
+          "note": "",
+          "video": "boxing/stance-bounce.mp4",
+          "video_hd": "boxing/stance-bounce-hd.mp4",
+          "poster": "boxing/stance-bounce.jpg"
+        },
+        {
+          "slug": "jab",
+          "name": "Jab",
+          "form_ok": true,
+          "note": "Filmed at a 45-degree angle so the arm extension reads.",
+          "video": "boxing/jab.mp4",
+          "video_hd": "boxing/jab-hd.mp4",
+          "poster": "boxing/jab.jpg"
+        },
+        {
+          "slug": "cross",
+          "name": "Cross",
+          "form_ok": true,
+          "note": "Front-on; the punch is partly foreshortened towards the camera.",
+          "video": "boxing/cross.mp4",
+          "video_hd": "boxing/cross-hd.mp4",
+          "poster": "boxing/cross.jpg"
+        },
+        {
+          "slug": "jab-cross",
+          "name": "Jab-cross",
+          "form_ok": true,
+          "note": "45-degree angle.",
+          "video": "boxing/jab-cross.mp4",
+          "video_hd": "boxing/jab-cross-hd.mp4",
+          "poster": "boxing/jab-cross.jpg"
+        },
+        {
+          "slug": "hooks",
+          "name": "Hooks",
+          "form_ok": true,
+          "note": "",
+          "video": "boxing/hooks.mp4",
+          "video_hd": "boxing/hooks-hd.mp4",
+          "poster": "boxing/hooks.jpg"
+        },
+        {
+          "slug": "uppercuts",
+          "name": "Uppercuts",
+          "form_ok": false,
+          "note": "Uppercut arc is small and hard to read; looks mostly like guard with short lifts.",
+          "video": "boxing/uppercuts.mp4",
+          "video_hd": "boxing/uppercuts-hd.mp4",
+          "poster": "boxing/uppercuts.jpg"
+        },
+        {
+          "slug": "slip-duck",
+          "name": "Slip / duck",
+          "form_ok": true,
+          "note": "",
+          "video": "boxing/slip-duck.mp4",
+          "video_hd": "boxing/slip-duck-hd.mp4",
+          "poster": "boxing/slip-duck.jpg"
+        },
+        {
+          "slug": "step-back-jab",
+          "name": "Step-back jab",
+          "form_ok": true,
+          "note": "45-degree angle; step is small.",
+          "video": "boxing/step-back-jab.mp4",
+          "video_hd": "boxing/step-back-jab-hd.mp4",
+          "poster": "boxing/step-back-jab.jpg"
+        },
+        {
+          "slug": "body-punches",
+          "name": "Body punches",
+          "form_ok": true,
+          "note": "Punches land nearer chest height than stomach height.",
+          "video": "boxing/body-punches.mp4",
+          "video_hd": "boxing/body-punches-hd.mp4",
+          "poster": "boxing/body-punches.jpg"
+        },
+        {
+          "slug": "guard-shuffle",
+          "name": "Guard + shuffle",
+          "form_ok": true,
+          "note": "",
+          "video": "boxing/guard-shuffle.mp4",
+          "video_hd": "boxing/guard-shuffle-hd.mp4",
+          "poster": "boxing/guard-shuffle.jpg"
+        }
+      ]
+    },
+    "dance": {
+      "label": "Dance",
+      "trainer": "f",
+      "trainer_avatar": "../f/avatar.jpg",
+      "moves": [
+        {
+          "slug": "step-touch-clap",
+          "name": "Step touch + clap",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/step-touch-clap.mp4",
+          "video_hd": "dance/step-touch-clap-hd.mp4",
+          "poster": "dance/step-touch-clap.jpg"
+        },
+        {
+          "slug": "grapevine",
+          "name": "Grapevine",
+          "form_ok": true,
+          "note": "Side travel is small; the behind-cross is subtle.",
+          "video": "dance/grapevine.mp4",
+          "video_hd": "dance/grapevine-hd.mp4",
+          "poster": "dance/grapevine.jpg"
+        },
+        {
+          "slug": "hip-rolls",
+          "name": "Hip rolls",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/hip-rolls.mp4",
+          "video_hd": "dance/hip-rolls-hd.mp4",
+          "poster": "dance/hip-rolls.jpg"
+        },
+        {
+          "slug": "box-step",
+          "name": "Box step",
+          "form_ok": true,
+          "note": "The square pattern is approximate, more of a forward/back step-and-groove.",
+          "video": "dance/box-step.mp4",
+          "video_hd": "dance/box-step-hd.mp4",
+          "poster": "dance/box-step.jpg"
+        },
+        {
+          "slug": "shoulder-shimmies",
+          "name": "Shoulder shimmies",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/shoulder-shimmies.mp4",
+          "video_hd": "dance/shoulder-shimmies-hd.mp4",
+          "poster": "dance/shoulder-shimmies.jpg"
+        },
+        {
+          "slug": "arm-waves",
+          "name": "Arm waves",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/arm-waves.mp4",
+          "video_hd": "dance/arm-waves-hd.mp4",
+          "poster": "dance/arm-waves.jpg"
+        },
+        {
+          "slug": "side-groove",
+          "name": "Side-to-side groove",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/side-groove.mp4",
+          "video_hd": "dance/side-groove-hd.mp4",
+          "poster": "dance/side-groove.jpg"
+        },
+        {
+          "slug": "knee-up-clap",
+          "name": "Knee-up + clap",
+          "form_ok": true,
+          "note": "Knees lift a bit lower than hip height on most reps.",
+          "video": "dance/knee-up-clap.mp4",
+          "video_hd": "dance/knee-up-clap-hd.mp4",
+          "poster": "dance/knee-up-clap.jpg"
+        },
+        {
+          "slug": "cha-cha-step",
+          "name": "Cha-cha step",
+          "form_ok": true,
+          "note": "Rock step + triple step is approximate.",
+          "video": "dance/cha-cha-step.mp4",
+          "video_hd": "dance/cha-cha-step-hd.mp4",
+          "poster": "dance/cha-cha-step.jpg"
+        },
+        {
+          "slug": "freestyle-groove",
+          "name": "Freestyle groove",
+          "form_ok": true,
+          "note": "",
+          "video": "dance/freestyle-groove.mp4",
+          "video_hd": "dance/freestyle-groove-hd.mp4",
+          "poster": "dance/freestyle-groove.jpg"
+        }
+      ]
+    },
+    "yoga": {
+      "label": "Yoga",
+      "trainer": "f",
+      "trainer_avatar": "../f/avatar.jpg",
+      "moves": [
+        {
+          "slug": "mountain-arms",
+          "name": "Mountain + arms overhead",
+          "form_ok": true,
+          "note": "",
+          "video": "yoga/mountain-arms.mp4",
+          "video_hd": "yoga/mountain-arms-hd.mp4",
+          "poster": "yoga/mountain-arms.jpg"
+        },
+        {
+          "slug": "chair-pose",
+          "name": "Chair pose",
+          "form_ok": true,
+          "note": "Filmed side-on.",
+          "video": "yoga/chair-pose.mp4",
+          "video_hd": "yoga/chair-pose-hd.mp4",
+          "poster": "yoga/chair-pose.jpg"
+        },
+        {
+          "slug": "warrior-2",
+          "name": "Warrior II",
+          "form_ok": true,
+          "note": "",
+          "video": "yoga/warrior-2.mp4",
+          "video_hd": "yoga/warrior-2-hd.mp4",
+          "poster": "yoga/warrior-2.jpg"
+        },
+        {
+          "slug": "triangle",
+          "name": "Triangle (short)",
+          "form_ok": true,
+          "note": "",
+          "video": "yoga/triangle.mp4",
+          "video_hd": "yoga/triangle-hd.mp4",
+          "poster": "yoga/triangle.jpg"
+        },
+        {
+          "slug": "tree-chair",
+          "name": "Tree pose (holding the chair)",
+          "form_ok": true,
+          "note": "Hand contact with the chair is intermittent; foot rests on the calf (safe).",
+          "video": "yoga/tree-chair.mp4",
+          "video_hd": "yoga/tree-chair-hd.mp4",
+          "poster": "yoga/tree-chair.jpg"
+        },
+        {
+          "slug": "cat-cow",
+          "name": "Cat-cow",
+          "form_ok": true,
+          "note": "",
+          "video": "yoga/cat-cow.mp4",
+          "video_hd": "yoga/cat-cow-hd.mp4",
+          "poster": "yoga/cat-cow.jpg"
+        },
+        {
+          "slug": "childs-pose",
+          "name": "Child's pose",
+          "form_ok": true,
+          "note": "Clip starts kneeling upright and folds into the pose.",
+          "video": "yoga/childs-pose.mp4",
+          "video_hd": "yoga/childs-pose-hd.mp4",
+          "poster": "yoga/childs-pose.jpg"
+        },
+        {
+          "slug": "down-dog-bent",
+          "name": "Downward dog (knees bent)",
+          "form_ok": true,
+          "note": "Knees only slightly bent in parts; heels lift.",
+          "video": "yoga/down-dog-bent.mp4",
+          "video_hd": "yoga/down-dog-bent-hd.mp4",
+          "poster": "yoga/down-dog-bent.jpg"
+        },
+        {
+          "slug": "seated-fold",
+          "name": "Seated forward fold",
+          "form_ok": true,
+          "note": "",
+          "video": "yoga/seated-fold.mp4",
+          "video_hd": "yoga/seated-fold-hd.mp4",
+          "poster": "yoga/seated-fold.jpg"
+        },
+        {
+          "slug": "supine-twist",
+          "name": "Supine twist",
+          "form_ok": false,
+          "note": "Knees do drop to the side, but between sides the legs straighten up vertically instead of staying bent; filmed from the feet end, not side-on.",
+          "video": "yoga/supine-twist.mp4",
+          "video_hd": "yoga/supine-twist-hd.mp4",
+          "poster": "yoga/supine-twist.jpg"
+        }
+      ]
+    }
+  }
+}

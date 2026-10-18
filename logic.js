@@ -39,7 +39,7 @@ export class RepCounter {
     Object.assign(this, { mode, top, bottom, shallowBand, minRepMs });
     this.reset();
   }
-  reset() { this.state = 'rest'; this.reps = 0; this.extreme = null; this.started = 0; this.lastRepAt = 0; }
+  reset() { this.state = 'rest'; this.reps = 0; this.extreme = null; this.started = 0; this.lastRepAt = -Infinity; }
   // returns event or null: {type:'rep', ms} | {type:'shallow', extreme}
   update(v, t) {
     if (this.mode === 'dip') {

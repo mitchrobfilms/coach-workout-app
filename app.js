@@ -2,6 +2,8 @@ import { getAuth } from './auth.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
+import { CLASSES, classById, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
+import { MusicPlayer, styleFor } from './music.js';
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
@@ -188,8 +190,8 @@ function updateEnergy() {
 }
 
 /* ---------- audio: speech + beeps ---------- */
-let actx = null, voice = null;
-function pickVoice() { if (!('speechSynthesis' in window)) return; const v = speechSynthesis.getVoices(), gb = v.filter(x => /en[-_]GB/i.test(x.lang)), re = TRAINERS[settings.trainer]?.voice; voice = (re && gb.find(x => re.test(x.name))) || gb[0] || (re && v.find(x => /^en/i.test(x.lang) && re.test(x.name))) || v.find(x => /^en/i.test(x.lang)) || null; }
+let actx = null, voice = null, voiceTrainer = null; // voiceTrainer: class lead overrides the voice during a class
+function pickVoice() { if (!('speechSynthesis' in window)) return; const v = speechSynthesis.getVoices(), gb = v.filter(x => /en[-_]GB/i.test(x.lang)), re = TRAINERS[voiceTrainer || settings.trainer]?.voice; voice = (re && gb.find(x => re.test(x.name))) || gb[0] || (re && v.find(x => /^en/i.test(x.lang) && re.test(x.name))) || v.find(x => /^en/i.test(x.lang)) || null; }
 if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
 function say(text, { kind = 'coach' } = {}) {
   bubble(text);
@@ -265,7 +267,7 @@ function poseLoop() {
   if (!sess) return;
   if (landmarker && video.readyState >= 2 && video.currentTime !== lastVideoTime) {
     lastVideoTime = video.currentTime;
-    try { const res = landmarker.detectForVideo(video, performance.now()); lastPose = res; draw(res); onPose(res); } catch (e) { console.warn(e); }
+    try { const res = landmarker.detectForVideo(video, performance.now()); lastPose = res; draw(res); (sess.cls ? classOnPose : onPose)(res); } catch (e) { console.warn(e); }
   }
   requestAnimationFrame(poseLoop);
 }
@@ -374,10 +376,10 @@ function trackForm(move, result) {
   if (!sess.showing && sess.badStreak >= 2) showMe(move, sess.lastIssue);
 }
 
-function pause(p = !sess?.paused) { if (!sess) return; sess.paused = p; $('pauseBtn').textContent = p ? 'Resume' : 'Pause'; say(p ? 'Paused. Say resume when you\'re ready.' : 'And we\'re back.', { kind: 'high' }); }
+function pause(p = !sess?.paused) { if (!sess) return; sess.paused = p; if (sess.cls) music?.setPaused(p); $('pauseBtn').textContent = p ? 'Resume' : 'Pause'; say(p ? 'Paused. Say resume when you\'re ready.' : 'And we\'re back.', { kind: 'high' }); }
 $('pauseBtn').onclick = () => pause();
-$('skipBtn').onclick = () => sess && next();
-$('endBtn').onclick = () => sess && finish(false);
+$('skipBtn').onclick = () => sess && (sess.cls ? classNext() : next());
+$('endBtn').onclick = () => sess && (sess.cls ? classFinish(false) : finish(false));
 async function finish(completed) {
   const s = cur(); if (s?.kind === 'work' && sess.analyser && MOVES[s.move].counted) sess.totals[s.move] += sess.analyser.rc.reps;
   clearInterval(sess.timer); stream?.getTracks().forEach(t => t.stop()); stream = null; wakeLock?.release?.(); wakeLock = null;
@@ -402,7 +404,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
 
@@ -622,11 +624,12 @@ function stepName(s) { return !s ? 'nothing, we\'re done' : s.kind === 'rest' ? 
 function runCommand(raw) {
   const t = raw.toLowerCase().replace(/[,!?]|\.(?!\d)/g, '').trim();
   window.__kova.lastCommand = t;
+  const ccmd = classCommand(t); if (ccmd !== undefined) return ccmd;
   if (/\b(start|begin)\b.*\b(workout|session|training)\b|^(start|let's go|lets go)$/.test(t)) { if (sess) return say('We\'re already going!', { kind: 'high' }); switchTab('workout'); show('screen-start'); return startWorkout(); }
   if (/\b(pause|hold on|wait|stop for a sec)\b/.test(t)) return sess ? pause(true) : say('Nothing to pause right now.', { kind: 'high' });
   if (/\b(resume|continue|carry on|unpause|go again)\b/.test(t)) return sess ? pause(false) : say('Say "start workout" to begin.', { kind: 'high' });
-  if (/\b(next|skip)\b/.test(t) && !/what'?s next/.test(t)) return sess ? (say('Skipping ahead.', { kind: 'high' }), next()) : say('Nothing to skip.', { kind: 'high' });
-  if (/\b(end|finish|stop) (the )?(workout|session)\b|^(end|finish|stop)$/.test(t)) return sess ? finish(false) : say('No workout running.', { kind: 'high' });
+  if (/\b(next|skip)\b/.test(t) && !/what'?s next/.test(t)) return sess ? (say('Skipping ahead.', { kind: 'high' }), sess.cls ? classNext() : next()) : say('Nothing to skip.', { kind: 'high' });
+  if (/\b(end|finish|stop) (the )?(workout|session)\b|^(end|finish|stop)$/.test(t)) return sess ? (sess.cls ? classFinish(false) : finish(false)) : say('No workout running.', { kind: 'high' });
   if (/\b(log|track|add|record)\b.*\b(food|meal|eat|ate)\b|food check|^food$/.test(t)) { if (sess) return say('Let\'s log food after the workout.', { kind: 'high' }); switchTab('food'); return foodDictation(0); }
   if (/how many (reps|rep)|rep count|how am i doing/.test(t)) {
     if (!sess) { const h = store.get('sessions', []), l = h[h.length - 1]; return say(l ? `Last session you did ${Object.values(l.totals).reduce((a, b) => a + b, 0)} reps in total.` : 'No reps logged yet. Let\'s start a workout!', { kind: 'high' }); }
@@ -805,3 +808,295 @@ function renderPrep() {
 }
 $('buildWeekBtn').onclick = () => buildMyWeek();
 window.__kova.buildMyWeek = buildMyWeek;
+
+/* ================= CLASSES: full 30-minute follow-along classes ================= */
+let music = null, classManifest = null, driveIds = {};
+const CLS_TRAINER_NAME = { m: 'Reta (male)', f: 'Reta (female)' };
+const latestKg = () => { const w = store.get('weights', []); return w.length ? w[w.length - 1].kg : null; };
+async function loadClassManifest() { // media/classes/manifest.json is written by the clip generator as each class finishes
+  try { const r = await fetch('media/classes/manifest.json', { cache: 'no-store' }); classManifest = r.ok ? await r.json() : null; } catch { classManifest = null; }
+  return classManifest;
+}
+async function loadDriveIds() { try { const r = await fetch('classes-drive.json', { cache: 'no-store' }); driveIds = r.ok ? await r.json() : {}; } catch { driveIds = {}; } return driveIds; }
+const driveId = id => { const v = String(driveIds?.[id] || '').trim(); return /^[\w-]{10,}$/.test(v) ? v : ''; };
+// Clips the manifest lists for a class. Expected shape: { classes: { boxing: { moves: [{ slug, name, video, video_hd, poster }] } } };
+// also tolerates plain arrays of slugs/paths. Paths are relative to media/classes/.
+function manifestMoves(clsId) {
+  const m = classManifest; if (!m) return [];
+  const raw = m.classes?.[clsId]?.moves || m.classes?.[clsId]?.clips || m[clsId]?.moves || m[clsId] || [];
+  if (!Array.isArray(raw)) return [];
+  return raw.map(x => typeof x === 'string' ? { slug: x.split('/').pop().replace(/(-hd)?\.(mp4|jpg)$/i, ''), name: '' } : x).filter(x => x && x.slug);
+}
+const GENERIC = new Set(['and', 'the', 'with', 'left', 'right', 'round', 'again', 'low', 'impact', 'pose', 'slow', 'easy', 'side', 'basic', 'combo', 'full', 'arms', 'arm', 'then', 'hold', 'chair', 'small', 'big', 'speed', 'power', 'finisher', 'layered', 'routine']);
+const toks = s => new Set(String(s || '').toLowerCase().split(/[^a-z0-9]+/).map(w => w.replace(/(es|s)$/, '')).filter(w => w.length > 2 && !GENERIC.has(w)));
+/** The manifest move for a step: exact slug, then alt slugs, then best distinctive-token match; warm-up/main fall back to the class's base move. */
+function moveFor(cls, step) {
+  const moves = manifestMoves(cls.id); if (!step?.slug) return null;
+  if (!moves.length) return { slug: step.slug, guess: true };
+  for (const k of [step.slug, ...(step.alt || [])]) { const hit = moves.find(m => m.slug === k); if (hit) return hit; }
+  const want = new Set([...toks(step.slug), ...toks(step.name), ...(step.alt || []).flatMap(a => [...toks(a)])]);
+  let best = null, score = 0;
+  for (const m of moves) { const n = [...new Set([...toks(m.slug), ...toks(m.name)])].filter(w => want.has(w)).length; if (n > score) { score = n; best = m; } }
+  if (best) return best;
+  return step.kind === 'cool' ? null : moves[0];
+}
+const slugFor = (cls, step) => moveFor(cls, step)?.slug || null;
+function classClipCandidates(cls, step, t, hd = true) {
+  const base = `media/classes/${cls.id}`, mv = moveFor(cls, step); if (!mv) return [];
+  const rel = p => p ? `media/classes/${p.replace(/^\.?\//, '')}` : null;
+  const per = t !== cls.lead ? [...(hd ? [`${base}/${t}/${mv.slug}-hd.mp4`] : []), `${base}/${t}/${mv.slug}.mp4`] : [];
+  return [...new Set([...per, ...(hd ? [rel(mv.video_hd), `${base}/${mv.slug}-hd.mp4`] : []), rel(mv.video), `${base}/${mv.slug}.mp4`].filter(Boolean))];
+}
+const posterFor = (cls, step, t) => { const mv = moveFor(cls, step); const base = `media/classes/${cls.id}`; return mv ? [...(t !== cls.lead ? [`${base}/${t}/${mv.slug}.jpg`] : []), ...(mv.poster ? [`media/classes/${mv.poster}`] : []), `${base}/${mv.slug}.jpg`] : []; };
+async function setClassDemo(cls, step) {
+  const v = $('trainerVid'), tile = v.parentElement, t = sess?.trainer || cls.lead;
+  const want = v.dataset.key = `${cls.id}:${step.slug}:${t}`;
+  const fbKey = step.fb && MEDIA[step.fb] ? step.fb : 'march';
+  const [clip, poster, fbClip, fbJpg] = await Promise.all([firstExisting(classClipCandidates(cls, step, t)), firstExisting(posterFor(cls, step, t)), firstExisting([`media/${t}/${MEDIA[fbKey]}-hd.mp4`, `media/${t}/${MEDIA[fbKey]}.mp4`, `media/${MEDIA[fbKey]}.mp4`]), firstExisting([`media/${t}/${MEDIA[fbKey]}.jpg`, `media/${MEDIA[fbKey]}.jpg`])]);
+  if (v.dataset.key !== want) return;
+  // Fallback order: class clip -> class poster (still) -> another trainer clip for a similar move -> bundled clip.
+  const src = clip || (poster ? null : fbClip || `clips/${BUNDLED[fbKey]}.mp4`);
+  const still = poster || fbJpg;
+  if (still) { v.poster = still; tile.style.setProperty('--poster', `url("${still}")`); } else v.removeAttribute('poster');
+  tile.classList.toggle('floor', /bridge|deadbug|pushup/.test(step.fb || '') || /lying|clam|leg-lift|bird|plank|child|fold|twist|knee-hug|relax|figure|pelvic|knee-folds/.test(step.slug || ''));
+  window.__kova.classMedia = { step: step.name, src: src || still, kind: clip ? 'class-clip' : poster ? 'poster' : 'fallback-trainer-clip' };
+  if (!src) { v.pause(); v.removeAttribute('src'); v.load(); tile.classList.remove('missing'); return; }
+  if (v.getAttribute('src') === src) return;
+  tile.classList.remove('missing'); v.onerror = () => tile.classList.add('missing');
+  v.src = src; v.playbackRate = 1; v.play().catch(() => {});
+}
+async function classTrainerFor(cls) { // trainer picker override only when that trainer's clips exist for this class
+  const pick = settings.classTrainer || 'lead';
+  if (pick === 'lead' || pick === cls.lead) return cls.lead;
+  const firstMain = cls.steps.find(s => s.kind === 'main');
+  if (await exists(`media/classes/${cls.id}/${pick}/${slugFor(cls, firstMain)}.mp4`)) return pick;
+  toast(`No ${CLS_TRAINER_NAME[pick]} clips for ${cls.name} yet, so the class lead is teaching.`, 3500);
+  return cls.lead;
+}
+
+/* ---------- class session ---------- */
+const csCur = () => sess.cls.steps[sess.i];
+function classTimeline() {
+  const c = sess.cls;
+  $('timeline').innerHTML = c.steps.map((s, i) => `<div class="seg ${s.kind === 'main' ? 'work' : s.kind === 'trans' || s.kind === 'water' ? 'rest' : s.kind}" style="flex:${s.dur / c.total}" title="${esc(s.name)}"><i id="tl${i}"></i></div>`).join('');
+}
+function classUpdateTimeline() { sess.cls.steps.forEach((s, i) => { const el = $('tl' + i); if (!el) return; el.style.width = i < sess.i ? '100%' : i > sess.i ? '0%' : `${100 * (1 - Math.max(0, sess.t) / s.dur)}%`; el.parentElement.classList.toggle('now', i === sess.i); }); }
+function setForm(v) { if (v == null) return; v = Math.max(0, Math.min(100, Math.round(v))); sess.form = v; $('formScore').textContent = v; const b = $('formBar'); b.style.width = v + '%'; b.style.background = v >= 75 ? '#3ddc84' : v >= 50 ? '#ffb547' : '#ff4d4d'; }
+const metricName = c => ({ boxing: 'punches', dance: 'on-beat moves', latin: 'on-beat moves', yoga: 'seconds held', pilates: 'reps' }[c.id]);
+function classMetric() { const st = sess.stats; return sess.cls.id === 'boxing' ? st.L + st.R : sess.cls.id === 'yoga' ? Math.round(st.held) : sess.cls.id === 'pilates' ? st.reps + Math.round(st.plank / 5) : st.onbeat; }
+function classEnergy() {
+  const now = classMetric(), last = sess.lastMetric, max = Math.max(now, last || 0, 1);
+  $('eNowN').textContent = now; $('eNow').style.width = `${100 * now / max}%`;
+  $('eLastN').textContent = last == null ? '–' : last; $('eLast').style.width = last == null ? '0%' : `${100 * last / max}%`;
+  $('energy').classList.toggle('ahead', last != null && now > last);
+}
+async function startClass(id) {
+  const cls = classById(id); if (!cls) return;
+  if (sess) return say('Let\'s finish this one first.', { kind: 'high' });
+  unlockAudio(); await loadClassManifest();
+  switchTab('workout');
+  const trainer = await classTrainerFor(cls);
+  const hist = store.get('classes', []).filter(x => x.cls === id);
+  sess = { cls, trainer, i: -1, t: 0, paused: false, started: Date.now(), lastTick: performance.now(), inFrame: false, an: null, said: {}, kcal: 0, kg: latestKg() || 75, kgKnown: !!latestKg(),
+    stats: { L: 0, R: 0, hooks: 0, guard: [], onbeat: 0, scoreSum: 0, scoreN: 0, rhythmSum: 0, held: 0, poseTime: 0, poseOk: 0, reps: 0, plank: 0, perStep: {} }, lastMetric: hist.length ? hist[hist.length - 1].metric : null, lastSay: 0, cueI: 0 };
+  window.__kova.sess = sess; window.__kova.cls = { get sess() { return sess; }, get music() { return music; } };
+  voiceTrainer = trainer; pickVoice(); applyClassAvatar(trainer);
+  $('trainerName').textContent = `${CLS_TRAINER_NAME[trainer]} · ${cls.name.replace(' (Zumba-style)', '')}`;
+  sess.form = null; $('formScore').textContent = '–'; $('formBar').style.width = '0%';
+  $('stage').classList.add('classmode'); $('classHud').hidden = false; $('stepTag').hidden = true;
+  $('repLabel').textContent = metricName(cls); $('repCount').textContent = '0';
+  $('chEight').hidden = !(cls.id === 'dance' || cls.id === 'latin');
+  $('chEight').innerHTML = Array.from({ length: 8 }, (_, k) => `<i>${k + 1}</i>`).join('');
+  $('chMeterLabel').textContent = { boxing: 'Guard', dance: 'Rhythm', latin: 'Rhythm', yoga: 'In pose', pilates: 'Control' }[cls.id];
+  $('musicVol').value = Math.round((settings.musicVol ?? 0.5) * 100);
+  try { if (actx) { music = new MusicPlayer(actx); music.setVolume(settings.musicVol ?? 0.5); } } catch (e) { console.warn('music', e); }
+  show('screen-session'); keepAwake(); orient(); setSwapped(false); classTimeline(); classEnergy();
+  $('moveName').textContent = cls.name; setCue('Starting camera…');
+  say(`Welcome to ${cls.name.replace('(Zumba-style)', '')}! I'm Reta. 30 minutes, beginner friendly. Let's start with a 5 minute warm-up.`, { kind: 'high' });
+  try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); }
+  initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
+  requestAnimationFrame(poseLoop);
+  classNext(); sess.timer = setInterval(classTick, 100);
+}
+function applyClassAvatar(t) { firstExisting([`media/${t}/avatar.jpg`]).then(src => document.querySelectorAll('.stage .trainer-avatar').forEach(i => i.src = src || (t === 'f' ? 'avatar-f.svg' : 'avatar.jpg'))); }
+function makeTracker(cls, s) {
+  if (s.track === 'punch') return new PunchCounter();
+  if (s.track === 'rhythm') return new RhythmMeter();
+  if (s.track === 'hold' || s.track === 'still') return new HoldTracker(s.pose || null);
+  if (s.track === 'reps' && s.rep) return makePilates(s.rep);
+  if (s.track === 'plank') return makePilates('plank');
+  return null;
+}
+function classNext() {
+  if (!sess?.cls) return;
+  const prev = sess.i >= 0 ? csCur() : null;
+  if (prev?.rep && sess.an?.rc) sess.stats.perStep[prev.name] = sess.an.rc.reps;
+  sess.i++;
+  const cls = sess.cls; if (sess.i >= cls.steps.length) return classFinish(true);
+  sess.stats.heldBase = sess.stats.held; sess.stats.plankBase = sess.stats.plank;
+  const s = csCur(); sess.t = s.dur; sess.said = {}; sess.an = makeTracker(cls, s); sess.stepStart = performance.now(); sess.cueI = 0; sess.lastCueAt = performance.now();
+  const rest = s.kind === 'trans' || s.kind === 'water';
+  $('restPanel').hidden = !rest; $('stage').classList.toggle('resting', rest);
+  $('roundTag').textContent = { warm: 'Warm-up', main: 'Main', trans: 'Transition', water: 'Water break', cool: 'Cool-down' }[s.kind];
+  $('moveName').textContent = rest ? s.name : s.name;
+  const nxt = cls.steps[sess.i + 1];
+  if (rest) { $('nextName').textContent = nxt?.name || 'Finish'; $('nextHow').textContent = nxt?.how || ''; if (nxt) setClassDemo(cls, nxt); }
+  else setClassDemo(cls, s);
+  music?.start(styleFor(cls, s), s.bpm);
+  setCue(s.combo ? `Combo: ${s.combo}` : s.counts ? s.counts[0] : s.how.split('.')[0]);
+  if (s.kind === 'warm' && sess.i === 0) {} // welcome line already said
+  else if (rest) say(s.kind === 'water' ? `Water break. Grab a sip. Next up: ${nxt?.name}.` : `Nice work. Next up: ${nxt?.name}.`, { kind: 'high' });
+  else if (s.kind === 'cool' && prev?.kind !== 'cool') say(`Cool-down time. ${s.name}. ${s.how}`, { kind: 'high' });
+  else say(`${s.name}. ${s.how}`, { kind: 'high' });
+  if (!rest) beep(1200, 200);
+  $('repCount').textContent = s.rep ? '0' : classMetric();
+  classUpdateTimeline(); ring2(); classEnergy();
+}
+function ring2() { const s = csCur(); if (!s) return; $('ringProg').style.strokeDashoffset = 326.7 * (1 - Math.max(0, sess.t) / s.dur); $('timeLeft').textContent = fmtT(sess.t); }
+function coachSay(text, gap = 6000, kind = 'coach') { const n = performance.now(); if (n - sess.lastSay < gap / SPEED) return false; sess.lastSay = n; setCue(text); if (window.speechSynthesis?.speaking && kind !== 'high') { bubble(text); return true; } say(text, { kind }); return true; }
+function classTick() {
+  if (!sess?.cls) return;
+  const now = performance.now(), dt = (now - sess.lastTick) / 1000 * SPEED; sess.lastTick = now;
+  if (sess.paused) return;
+  const s = csCur(); sess.t -= dt;
+  sess.kcal += metKcal(s.met, sess.kg, dt); $('chKcal').textContent = Math.round(sess.kcal);
+  // 8-count display synced to the music clock
+  if (music && !$('chEight').hidden) { const c = music.count(); if (c !== sess.lastCount) { sess.lastCount = c; $('chEight').querySelectorAll('i').forEach((el, k) => { el.classList.toggle('on', k < c); el.classList.toggle('one', k === 0 && c === 1); }); window.__kova.eightCount = c; } }
+  // countdowns + timed coaching
+  const el = s.dur - sess.t;
+  if (s.kind === 'main' && s.dur >= 60 && el >= s.dur / 2 && !sess.said.half) { sess.said.half = 1; coachSay(s.track === 'hold' ? 'Halfway. Keep breathing.' : 'Halfway there!', 0); }
+  if (s.kind === 'main' && sess.t <= 10 && !sess.said.t10) { sess.said.t10 = 1; say(s.track === 'punch' ? '10 seconds, empty the tank!' : s.track === 'hold' ? '10 more seconds, breathe.' : '10 seconds left!', { kind: 'high' }); }
+  if ((s.kind === 'trans' || s.kind === 'water') && sess.t <= 4.5 && !sess.said.c8) { sess.said.c8 = 1; const nx = sess.cls.steps[sess.i + 1]; if (nx && (sess.cls.id === 'dance' || sess.cls.id === 'latin')) say('Five, six, seven, eight!', { kind: 'high' }); else say('In 3, 2, 1…', { kind: 'high' }); }
+  for (const k of [3, 2, 1]) if (sess.t <= k && !sess.said['b' + k]) { sess.said['b' + k] = 1; beep(660, 110); }
+  if (s.cues?.length && (now - sess.lastCueAt) * SPEED > 14000) { sess.lastCueAt = now; coachSay(s.cues[sess.cueI++ % s.cues.length], 4000); }
+  if (s.counts?.length > 1 && (now - sess.stepStart) * SPEED > 16000 * (sess.said.layer || 1) && (sess.said.layer || 1) < s.counts.length) { const L = sess.said.layer || 1; sess.said.layer = L + 1; coachSay(`Layer it up: ${s.counts[L]}`, 0, 'high'); }
+  if (sess.t <= 0) { beep(440, 300); classNext(); return; }
+  ring2(); classUpdateTimeline();
+}
+function classOnPose(res) {
+  window.__kova.frames = (window.__kova.frames || 0) + 1;
+  if (!sess?.cls || sess.paused) return;
+  const s = csCur(); if (!s || !sess.an) return;
+  const lm = res.landmarks?.[0], w = res.worldLandmarks?.[0]; if (!lm || !w) { setCue('Step back so I can see your whole body', true); return; }
+  classFeed(lm, w, performance.now());
+}
+// Feed one pose frame to the current step's tracker (also used by tests with synthetic landmarks).
+function classFeed(lm, w, t) {
+  const s = csCur(), an = sess.an, st = sess.stats; if (!an) return null;
+  const beat = music ? { period: music.period, phase: x => music.phase(x), count: x => music.count(x) } : { period: 60000 / s.bpm, phase: x => ((x - sess.stepStart) / (60000 / s.bpm)) % 1, count: x => Math.floor((x - sess.stepStart) / (60000 / s.bpm)) % 8 + 1 };
+  const r = an instanceof RhythmMeter ? an.frame(lm, t, beat, s.dir || '') : an.frame(lm, w, t);
+  if (!r.ready) { setCue('Step back so I can see your whole body', true); return r; }
+  if ($('cueLine').classList.contains('warn')) setCue('');
+  const joints = r.joints ? new Set(r.joints) : null; sess.badJoints = r.ok === false && joints ? joints : null; sess.badUntil = performance.now() + 1500;
+  if (an instanceof PunchCounter) {
+    for (const e of r.events) { e.side === 'L' ? st.L++ : st.R++; if (e.kind === 'hook') st.hooks++; }
+    if (r.events.length) { $('repCount').textContent = st.L + st.R; classEnergy(); }
+    $('chStat').textContent = `🥊 L ${st.L} · R ${st.R}`; setMeter(an.guardOk * 100); setForm(an.guardOk * 100); st.guard.push(an.guardOk);
+    if (r.flags.includes('guard')) coachSay('Guard up! Hands back to your cheeks.', 5000);
+    else if (r.events.length && (st.L + st.R) % 25 === 0) coachSay(`${st.L + st.R} punches! Strong work.`, 3000);
+  } else if (an instanceof RhythmMeter) {
+    st.onbeat = st.onbeat + r.events.length; st.scoreSum += r.score; st.scoreN++; st.rhythmSum += r.rhythm;
+    $('chStat').textContent = `💃 Move score ${r.score}`; setMeter(r.rhythm * 100); setForm(r.score); $('repCount').textContent = st.onbeat; if (r.events.length) classEnergy();
+    if (r.rhythm > 0.72 && r.energy > 0.15) coachSay('Great rhythm! You\'re right on the beat.', 20000);
+    else if (r.flags.includes('still')) coachSay('Keep moving. Small steps are perfect.', 9000);
+    else if (r.rhythm < 0.35 && st.scoreN > 60) coachSay('Listen for the kick drum and step with it.', 15000);
+  } else if (an instanceof HoldTracker) {
+    const prevHeld = Math.floor(an.held - (r.held - an.held));
+    st.poseTime++; if (r.ok) st.poseOk++;
+    st.held = (st.heldBase || 0) + an.held; $('repCount').textContent = Math.floor(an.held);
+    $('chStat').textContent = s.pose ? `🧘 Hold ${Math.floor(an.held)}s ${r.ok && r.still ? '✓' : ''}` : `🧘 Steady ${Math.floor(an.held)}s`;
+    setMeter(100 * st.poseOk / Math.max(1, st.poseTime)); setForm(100 * st.poseOk / Math.max(1, st.poseTime));
+    if (s.pose && r.ok === false && r.tip) coachSay(r.tip, 7000);
+    else if (r.flags.includes('wobble')) coachSay('Find a still point to look at. Breathe.', 12000);
+    else if (Math.floor(an.held) > 0 && Math.floor(an.held) % 20 === 0 && Math.floor(an.held) !== sess.said.heldMark) { sess.said.heldMark = Math.floor(an.held); coachSay(`${Math.floor(an.held)} seconds held. Lovely.`, 0); }
+    void prevHeld;
+  } else { // pilates reps / plank
+    if (r.held != null) { st.plank = (st.plankBase || 0) + r.held; $('repCount').textContent = Math.floor(r.held); $('chStat').textContent = `⏱ Plank ${Math.floor(r.held)}s ${r.ok ? '✓' : ''}`; setMeter(r.ok ? 100 : 30); setForm(r.ok ? 100 : 55); if (!r.ok) coachSay(r.tip, 7000); }
+    for (const e of r.events || []) {
+      if (e.type === 'rep') { st.reps++; $('repCount').textContent = an.rc.reps; $('chStat').textContent = `✓ ${an.rc.reps} reps`; const fast = e.ms < 1200; setForm(fast ? 65 : 100); setMeter(fast ? 60 : 100); say(String(an.rc.reps), { kind: 'count' }); if (fast) coachSay('Slower and more controlled.', 8000); classEnergy(); }
+      if (e.type === 'shallow') { setForm(50); coachSay(s.rep === 'bridge' ? 'Lift a little higher, squeeze your glutes.' : 'A little bigger range, still slow.', 7000); }
+    }
+  }
+  return r;
+}
+function setMeter(v) { v = Math.max(0, Math.min(100, Math.round(v))); $('chMeter').style.width = v + '%'; $('chMeterN').textContent = v; }
+$('musicVol').oninput = e => { settings.musicVol = e.target.value / 100; store.set('settings', settings); music?.setVolume(settings.musicVol); };
+function changeVolume(d) { settings.musicVol = Math.max(0, Math.min(1, Math.round(((settings.musicVol ?? 0.5) + d) * 10) / 10)); store.set('settings', settings); music?.setVolume(settings.musicVol); $('musicVol').value = Math.round(settings.musicVol * 100); return settings.musicVol; }
+async function classFinish(completed) {
+  if (!sess?.cls) return;
+  const c = sess.cls, st = sess.stats, s = csCur(); if (s?.rep && sess.an?.rc) st.perStep[s.name] = sess.an.rc.reps;
+  clearInterval(sess.timer); music?.stop(); music = null; stream?.getTracks().forEach(t => t.stop()); stream = null; wakeLock?.release?.(); wakeLock = null;
+  const elapsed = c.steps.slice(0, Math.max(0, sess.i)).reduce((a, x) => a + x.dur, 0) + (s ? s.dur - Math.max(0, sess.t) : 0);
+  const metric = classMetric(), kc = Math.round(sess.kcal);
+  const rec = { date: new Date().toISOString(), cls: c.id, name: c.name, completed, minutes: Math.round(elapsed / 60), kcal: kc, metric, form: sess.form,
+    stats: { punches: st.L + st.R, left: st.L, right: st.R, hooks: st.hooks, guardPct: st.guard.length ? Math.round(100 * st.guard.reduce((a, b) => a + b, 0) / st.guard.length) : null, moveScore: st.scoreN ? Math.round(st.scoreSum / st.scoreN) : null, rhythmPct: st.scoreN ? Math.round(100 * st.rhythmSum / st.scoreN) : null, onbeat: st.onbeat, heldSec: Math.round(st.held), inPosePct: st.poseTime ? Math.round(100 * st.poseOk / st.poseTime) : null, reps: st.reps, plankSec: Math.round(st.plank), perStep: st.perStep } };
+  const hist = store.get('classes', []); const prev = hist.filter(x => x.cls === c.id).slice(-1)[0]; hist.push(rec); store.set('classes', hist);
+  const rows = [['Time', fmtT(elapsed)], ['Calories (approx.)', `≈${kc} kcal${sess.kgKnown ? '' : ' (add a weigh-in for a better estimate)'}`]];
+  if (c.id === 'boxing') rows.push(['Punches', `${st.L + st.R} (L ${st.L} · R ${st.R})`], ['Hooks', st.hooks], ['Guard up', rec.stats.guardPct == null ? '–' : rec.stats.guardPct + '%']);
+  if (c.id === 'dance' || c.id === 'latin') rows.push(['Move score', rec.stats.moveScore ?? '–'], ['Stayed in rhythm', rec.stats.rhythmPct == null ? '–' : rec.stats.rhythmPct + '%'], ['On-beat moves', st.onbeat]);
+  if (c.id === 'yoga') rows.push(['Time held in poses', `${Math.round(st.held)}s`], ['In the pose', rec.stats.inPosePct == null ? '–' : rec.stats.inPosePct + '%']);
+  if (c.id === 'pilates') rows.push(['Controlled reps', st.reps], ['Plank hold', `${Math.round(st.plank)}s`], ...Object.entries(st.perStep).map(([k, v]) => [k, `${v} reps`]));
+  const vs = prev ? (metric > prev.metric ? ` That's more ${metricName(c)} than last time (${prev.metric}).` : ` Last time: ${prev.metric} ${metricName(c)}.`) : '';
+  const summary = `${completed ? 'Class complete!' : 'Nice effort!'} ${c.name.replace(' (Zumba-style)', '')}: ${fmtT(elapsed)} and about ${kc} calories.${vs} Remember to drink some water.`;
+  $('summaryText').textContent = summary;
+  $('totalsTable').innerHTML = rows.map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('');
+  $('stage').classList.remove('classmode'); $('classHud').hidden = true; $('repLabel').textContent = 'reps';
+  sess = null; window.__kova.sess = null; voiceTrainer = null; pickVoice(); applyTrainerAvatar(); buildTimeline();
+  show('screen-end'); say(summary, { kind: 'high' }); renderClassHist();
+}
+function classCommand(t) { // returns undefined when not a class command
+  const m = t.match(/\b(start|begin|play|do)\b.*\b(boxing|box|dance|dancing|latin|zumba|salsa|yoga|pilates)\b/);
+  if (m) { const id = { box: 'boxing', boxing: 'boxing', dance: 'dance', dancing: 'dance', latin: 'latin', zumba: 'latin', salsa: 'latin', yoga: 'yoga', pilates: 'pilates' }[m[2]]; if (sess) return say('Let\'s finish this one first.', { kind: 'high' }); startClass(id); return true; }
+  if (/\b(louder|turn (it|the music) up|music up|volume up|more music)\b/.test(t)) { const v = changeVolume(0.15); return say(`Music up, ${Math.round(v * 100)} percent.`, { kind: 'high' }); }
+  if (/\b(quieter|softer|turn (it|the music) down|music down|volume down|less music)\b/.test(t)) { const v = changeVolume(-0.15); return say(v ? `Music down, ${Math.round(v * 100)} percent.` : 'Music off.', { kind: 'high' }); }
+  if (/\b(mute|stop) (the )?music\b/.test(t)) { changeVolume(-1); return say('Music off.', { kind: 'high' }); }
+  if (sess?.cls && /what'?s next|what is next|what next/.test(t)) { const n = sess.cls.steps.slice(sess.i + 1).find(x => x.kind !== 'trans' && x.kind !== 'water'); return say(n ? `Up next: ${n.name}.` : 'That\'s the end of the class.', { kind: 'high' }); }
+  if (sess?.cls && /how many|how am i doing|rep count|calories/.test(t)) return say(`${classMetric()} ${metricName(sess.cls)} so far, about ${Math.round(sess.kcal)} calories.`, { kind: 'high' });
+  if (/\b(classes|class library)\b/.test(t) && !sess) { switchTab('classes'); return say('Here are your classes. Say "start boxing", or pick one.', { kind: 'high' }); }
+  return undefined;
+}
+
+/* ---------- class library ---------- */
+const classUI = { filter: 'all' };
+const FILTERS = [['all', 'All'], ['cardio', 'Cardio'], ['dance', 'Dance'], ['mind-body', 'Mind-body'], ['gentle', 'Gentle']];
+const lowEnergyToday = () => settings.lowEnergyDay === dayKey();
+async function classPoster(c) {
+  const first = c.steps.find(s => s.kind === 'main');
+  return (await firstExisting([...posterFor(c, first, c.lead), `media/classes/${c.id}/poster.jpg`])) || (await firstExisting([`media/${c.lead}/${MEDIA[first.fb] || 'warmup'}.jpg`, `media/${MEDIA[first.fb] || 'warmup'}.jpg`])) || 'hero.jpg';
+}
+async function renderClasses() {
+  await Promise.all([loadClassManifest(), loadDriveIds()]);
+  const kg = latestKg();
+  const rec = recommend({ history: store.get('classes', []), lowEnergy: lowEnergyToday(), glp1: settings.glp1 });
+  $('recCard').innerHTML = `<div class="small muted">⭐ Recommended for you</div><h3>${esc(rec.cls.name)}</h3><div class="why">${esc(rec.why)} 30 min · ${rec.cls.intensity} · ≈${classKcal(rec.cls, kg)} kcal</div>
+    <div class="btns row" style="gap:8px;margin-top:8px"><button class="primary" data-startclass="${rec.cls.id}">▶ Start ${esc(rec.cls.name.replace(' (Zumba-style)', ''))}</button></div>
+    <label class="toggle"><input type="checkbox" id="lowEnergy" ${lowEnergyToday() ? 'checked' : ''}> Low energy today${settings.glp1 ? ' (GLP-1 friendly gentle options)' : ''}</label>`;
+  $('classFilters').innerHTML = FILTERS.map(([k, v]) => `<button type="button" class="chip ${classUI.filter === k ? 'on' : ''}" data-cfilter="${k}">${v}</button>`).join('');
+  $('classTrainer').value = settings.classTrainer || 'lead';
+  const list = CLASSES.filter(c => classUI.filter === 'all' || c.tags.includes(classUI.filter));
+  const posters = await Promise.all(list.map(classPoster));
+  const avatars = await Promise.all(list.map(c => firstExisting([`media/${c.lead}/avatar.jpg`])));
+  $('classList').innerHTML = list.map((c, k) => `<div class="ccard" id="class-${c.id}">
+    <div class="poster" style="background-image:url('${posters[k]}')"><span class="lead"><img src="${avatars[k] || (c.lead === 'f' ? 'avatar-f.svg' : 'avatar.jpg')}" alt="">${CLS_TRAINER_NAME[c.lead]} leads</span><span class="dur">30:00</span></div>
+    <div class="body"><h3>${esc(c.name)}</h3><div class="tags"><span class="int">${c.intensity}</span><span>Beginner</span><span>Low impact</span><span>No equipment</span><span>≈${classKcal(c, kg)} kcal</span>${c.music !== 'ambient' ? `<span>${c.id === 'latin' ? '100–130' : c.bpm} bpm</span>` : '<span>Ambient music</span>'}</div>
+      <p>${esc(c.blurb)}</p><p class="small">5 min warm-up · 20 min main · 5 min cool-down</p>
+      <div class="btns"><button class="primary" data-startclass="${c.id}">▶ Start class</button>${driveId(c.id) ? `<button type="button" data-watch="${c.id}">📺 Watch full class</button>` : ''}</div></div></div>`).join('');
+  const root = $('tab-classes');
+  root.querySelectorAll('[data-startclass]').forEach(b => b.onclick = () => startClass(b.dataset.startclass));
+  root.querySelectorAll('[data-cfilter]').forEach(b => b.onclick = () => { classUI.filter = b.dataset.cfilter; renderClasses(); });
+  root.querySelectorAll('[data-watch]').forEach(b => b.onclick = () => openDrive(b.dataset.watch));
+  $('lowEnergy').onchange = e => { settings.lowEnergyDay = e.target.checked ? dayKey() : null; store.set('settings', settings); renderClasses(); };
+  renderClassHist();
+}
+$('classTrainer').onchange = e => { settings.classTrainer = e.target.value; store.set('settings', settings); };
+function renderClassHist() {
+  const h = store.get('classes', []), d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+  $('classHist').innerHTML = h.length ? h.slice(-8).reverse().map(x => `<li><span>${d(x.date)} · ${esc(x.name.replace(' (Zumba-style)', ''))}${x.completed ? '' : ' <small class="muted">(ended early)</small>'}</span><span>${x.minutes} min · ≈${x.kcal} kcal</span></li>`).join('') : '<li class="muted">No classes yet. Pick one above!</li>';
+}
+function openDrive(id) {
+  const fid = driveId(id); if (!fid) return;
+  $('driveTitle').textContent = classById(id).name + ': full class';
+  $('driveFrame').src = `https://drive.google.com/file/d/${encodeURIComponent(fid)}/preview`; $('driveModal').hidden = false;
+}
+$('driveClose').onclick = () => { $('driveModal').hidden = true; $('driveFrame').src = 'about:blank'; };
+window.__kova.startClass = startClass; window.__kova.classFeed = (lm, w, t) => classFeed(lm, w, t ?? performance.now()); window.__kova.classNext = () => classNext(); window.__kova.CLASSES = CLASSES; window.__kova.renderClasses = renderClasses;

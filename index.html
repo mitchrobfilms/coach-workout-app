@@ -82,7 +82,7 @@
       <div class="view you pip" id="youView">
         <div class="mirror" id="mirror"><video id="video" playsinline muted autoplay></video><canvas id="overlay"></canvas></div>
         <span class="who you">You</span>
-        <div class="youreps"><div id="repCount" class="reps">0</div><div class="small">reps</div></div>
+        <div class="youreps"><div id="repCount" class="reps">0</div><div class="small" id="repLabel">reps</div></div>
       </div>
 
       <div class="classbar">
@@ -102,6 +102,12 @@
         <span class="tag ghost" id="stepTag" hidden></span>
       </div>
 
+      <div class="classhud" id="classHud" hidden>
+        <div class="eight" id="chEight" hidden></div>
+        <div class="chstat" id="chStat"></div>
+        <div class="meter"><span id="chMeterLabel">Rhythm</span><div class="bar"><i id="chMeter"></i></div><b id="chMeterN">–</b></div>
+        <div class="chrow"><span>🔥 <b id="chKcal">0</b> kcal <small class="muted">approx.</small></span><label class="vol">🎵<input type="range" id="musicVol" min="0" max="100" value="50" aria-label="Music volume"></label></div>
+      </div>
       <div class="hud-center" id="restPanel" hidden><div class="nextup">Next up</div><div class="nextname" id="nextName"></div><p class="nexthow" id="nextHow"></p></div>
       <div class="captions"><div class="cue" id="cueLine"></div><div class="caption" id="bubble"></div></div>
       <div class="listening" id="listenBadge" hidden>🎙️ Listening…</div>
@@ -132,6 +138,18 @@
   <div id="foodResult"></div>
   <p class="small muted">General healthy-eating tips, not medical advice. Aim for a gentle calorie deficit; never crash or very-low-calorie diets. Speak to your GP or a dietitian for personal advice.</p>
 </section>
+
+<!-- CLASSES TAB -->
+<section id="tab-classes" class="tab">
+  <div class="shophead"><h2>🎬 Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Reta coaches you live through the camera.</p></div>
+  <div class="card rec" id="recCard"></div>
+  <div class="row between"><div class="chips" id="classFilters"></div></div>
+  <label class="small trainersel">Trainer <select id="classTrainer"><option value="lead">Class lead (default)</option><option value="m">Reta (male)</option><option value="f">Reta (female)</option></select></label>
+  <div id="classList"></div>
+  <div class="card"><h3>Your classes</h3><ul class="list" id="classHist"></ul></div>
+  <p class="small muted">Calories are rough estimates (MET values × your weight). Latin Dance Cardio is Zumba-style and not affiliated with Zumba®. Stop if anything hurts or you feel dizzy.</p>
+</section>
+<div class="overlay drivemodal" id="driveModal" hidden><div class="drivebox"><div class="row between"><b id="driveTitle">Full class</b><button type="button" id="driveClose">✕ Close</button></div><div class="drivewrap"><iframe id="driveFrame" title="Full class video" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div><p class="small muted">Tap play. Google Drive may ask you to tap twice to start.</p></div></div>
 
 <!-- MEAL PREP TAB -->
 <section id="tab-prep" class="tab">
@@ -200,6 +218,7 @@
 <nav class="tabs">
   <button data-tab="workout" class="active">🏋️<span>Workout</span></button>
   <button data-tab="food">🍽️<span>Food</span></button>
+  <button data-tab="classes">🎬<span>Classes</span></button>
   <button data-tab="prep">🍱<span>Prep</span></button>
   <button data-tab="shop">🛒<span>Shop</span></button>
   <button data-tab="progress">📈<span>Progress</span></button>
