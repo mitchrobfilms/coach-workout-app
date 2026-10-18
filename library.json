@@ -1,5 +1,5 @@
 {
- "version": 3,
+ "version": 4,
  "updated": "2026-10-18",
  "classes": [
   {
@@ -93,7 +93,7 @@
     ],
     "main": [
      {
-      "name": "Jab-cross ×8",
+      "name": "Jab-cross \u00d78",
       "dur": 60,
       "slug": "jab-cross",
       "fb": "march",
@@ -103,20 +103,20 @@
        "Rotate the back hip on the cross",
        "Exhale on every punch"
       ],
-      "combo": "1-2 ×8"
+      "combo": "1-2 \u00d78"
      },
      {
-      "name": "Jab-cross ×8, then hooks",
+      "name": "Jab-cross \u00d78, then hooks",
       "dur": 75,
       "slug": "hooks",
       "fb": "march",
       "how": "Eight jab-crosses, then hooks: elbow up at shoulder height, swing round, pivot.",
       "cues": [
-       "8 jab-crosses…",
+       "8 jab-crosses\u2026",
        "Now hooks!",
        "Elbow up like a hook"
       ],
-      "combo": "1-2 ×8 → 3-4"
+      "combo": "1-2 \u00d78 \u2192 3-4"
      },
      {
       "name": "Speed jabs (low impact)",
@@ -237,7 +237,7 @@
       "fb": "squat",
       "how": "Weave under the rope, come up with a cross.",
       "cues": [
-       "Under… and cross!",
+       "Under\u2026 and cross!",
        "Knees soft"
       ],
       "combo": "weave-2"
@@ -255,7 +255,7 @@
       "combo": "1-2 / 1-2-3 / 1-2-3-2"
      },
      {
-      "name": "Power round: jab-cross ×8 then hooks",
+      "name": "Power round: jab-cross \u00d78 then hooks",
       "dur": 75,
       "slug": "hooks",
       "fb": "march",
@@ -264,7 +264,7 @@
        "Strong and controlled",
        "Hooks now!"
       ],
-      "combo": "1-2 ×8 → 3-4"
+      "combo": "1-2 \u00d78 \u2192 3-4"
      },
      {
       "name": "Finisher: speed punches",
@@ -635,7 +635,7 @@
    "impact": "Low",
    "equipment": "None",
    "poster": "media/classes/latin/salsa-basic.jpg",
-   "blurb": "Merengue, salsa, cumbia and reggaeton-style steps. Low impact, 100–130 bpm. Not affiliated with Zumba®.",
+   "blurb": "Merengue, salsa, cumbia and reggaeton-style steps. Low impact, 100\u2013130 bpm. Not affiliated with Zumba\u00ae.",
    "music": {
     "style": "latin",
     "bpm": 110,
@@ -649,7 +649,7 @@
     "zumba",
     "salsa"
    ],
-   "drive_file_id": "1Zh41kNsA7rqkIjpHlnscpZ03fBfsZ95Y",
+   "drive_file_id": "1HII861BMMdH8w-_4xKMVVjYBq6olTBer",
    "added": "2026-10-18",
    "script": {
     "transition": 15,
@@ -988,8 +988,8 @@
       "fb": "cool",
       "how": "Stand tall. Breathe in for 4 as the arms rise, out for 6 as they lower.",
       "cues": [
-       "Breathe in… 2… 3… 4",
-       "And out… slowly"
+       "Breathe in\u2026 2\u2026 3\u2026 4",
+       "And out\u2026 slowly"
       ]
      },
      {
@@ -1404,7 +1404,7 @@
       "fb": "bridge",
       "how": "Lift, hold for 2, lower slowly.",
       "cues": [
-       "Hold… and lower"
+       "Hold\u2026 and lower"
       ],
       "rep": "bridge"
      },
