@@ -19,7 +19,11 @@ await nav(p, 'workout'); await p.evaluate(() => scrollTo(0, 0)); await p.waitFor
 ok(/Good (morning|afternoon|evening), Mitchell/.test(await p.textContent('#greet')), 'greeting with name');
 ok(/st/.test(await p.textContent('#wCard')) && await p.$('#wCard svg.wring'), 'current weight + ring');
 ok(/lbs/.test(await p.textContent('#wCard')), 'lbs down');
-await p.click('#waterCard'); await p.waitForTimeout(150); ok(/1\/8/.test(await p.textContent('#waterCard')), 'hydration +1');
+await p.click('#waterPlus'); await p.waitForTimeout(150); await p.click('#waterPlus'); await p.waitForTimeout(150); await p.click('#waterPlus'); await p.waitForTimeout(150);
+ok(/1\.5 \/ 2\.5 L/.test(await p.textContent('#waterCard')) && /2\.6 pints · 53 fl oz/.test(await p.textContent('#waterCard')), 'hydration +500 ml x3 = 1.5 / 2.5 L + pints/fl oz');
+await p.$eval('#waterCard', e => e.scrollIntoView({ block: 'center' })); await p.screenshot({ path: '/workspace/shots/glp1life/hydration.png' });
+await p.click('#waterMinus'); await p.waitForTimeout(150); ok(/1\.0 \/ 2\.5 L/.test(await p.textContent('#waterCard')), 'hydration -500 ml undo');
+ok(await p.evaluate(() => { const k = Object.keys(localStorage).find(k => /\.daily$/.test(k)); return Object.values(JSON.parse(localStorage[k])).some(v => v.waterMl === 1000); }), 'stored as ml in daily (cloud-synced key)');
 ok(await p.isVisible('#setRemBtn'), 'next injection card with reminder button');
 ok(await p.$$eval('#weekChecks .wck', l => l.length) === 5, 'this week checks'); ok(await p.$eval('#weekChecks [data-wck=weigh]', e => e.classList.contains('done')), 'weigh check done');
 ok(await p.$$eval('#features .feat', l => l.length) === 11, 'feature row (11 incl. Personal Trainers)');

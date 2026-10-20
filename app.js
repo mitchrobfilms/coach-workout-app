@@ -3,7 +3,9 @@ import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, rest
 import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
 import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
 import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
-import { newAwards, drawCertificate } from './certs.js';
+import { newAwards, drawCertificate, awardsFromHistory, redateCerts } from './certs.js';
+import { saveBlob, shareBlob } from './files.js';
+import { waterMl, migrateDaily, addWater, litres, imperial, STEP_ML, DEFAULT_GOAL_ML } from './hydration.js';
 import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL, fitPortion } from './glp1.js';
 import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
@@ -35,6 +37,10 @@ const store = {
 import { makeCloud } from './cloud.js';
 const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) }); let cloudTimer = null, cloudPulling = false;
 { const set0 = store.set; store.set = (k, v) => { if (cloud.user && !String(k).startsWith('cloud.')) { if (k === 'certificates') store.set('cloud.certImgs', store.get('cloud.certImgs', [])); if (!cloudPulling && ['weights', 'injections', 'certificates'].includes(k)) cloud.noteDelete(k, store.get(k, []), v); clearTimeout(cloudTimer); cloudTimer = setTimeout(() => cloudPush(), 4000); } set0(k, v); }; }
+// Continuous auto-backup: every change is pushed ~4 s later; also when the app is hidden/closed and when back online.
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && cloud.user && cloudTimer) { clearTimeout(cloudTimer); cloudTimer = null; cloudPush(); } });
+addEventListener('online', () => cloud.user && cloudPush());
+setInterval(() => { if (cloud.user && document.visibilityState === 'visible') cloudPush(); }, 5 * 60e3);
 async function cloudPush() { if (!cloud.user || !navigator.onLine || cloudPulling) return; try { await cloud.push(settings, user); renderCloud?.(); } catch (e) { console.warn('cloud sync', e.message); } }
 let restoredFromIdb = 0;
 { const lsKeys = Object.keys(localStorage).filter(k => k.startsWith(PREFIX));
@@ -42,7 +48,12 @@ let restoredFromIdb = 0;
   for (const [k, v] of Object.entries(mirror)) if (localStorage.getItem(k) == null) { try { localStorage.setItem(k, v); restoredFromIdb++; } catch {} }
   for (const k of lsKeys) if (!(k in mirror)) idbSet(k, localStorage.getItem(k)); }
 requestPersist().then(p => { window.__kova && (window.__kova.persisted = p); });
-const settings = Object.assign({ name: user?.name || 'Mitchell', trainer: 'm', onboarded: false, speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
+// Feature flags. Instructor voice (recorded lines, TTS, 'voice' wake word + mic) and the on-screen AI trainer
+// (avatar, name badge, talking/lip-sync clip) are OFF for now; flip here (or localStorage features JSON) to bring them back.
+const FEATURES = Object.assign({ voice: false, trainerOnScreen: false, formCheckDefault: false }, (() => { try { return JSON.parse(localStorage.getItem('glp1life.features') || '{}'); } catch { return {}; } })());
+(window.__kova ||= {}).features = FEATURES;
+document.documentElement.classList.toggle('novoice', !FEATURES.voice); document.documentElement.classList.toggle('notrainer', !FEATURES.trainerOnScreen);
+const settings = Object.assign({ formCheck: !!FEATURES.formCheckDefault, name: user?.name || '', trainer: 'm', onboarded: false, speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
 
 /* ---------- workout definition (bodyweight + household items only) ---------- */
 const MOVES = {
@@ -79,7 +90,7 @@ async function exists(u) { // HEAD probe, cached 60s, so clips dropped into medi
   let ok = false; try { ok = (await fetch(u, { method: 'HEAD', cache: 'no-store' })).ok; } catch {}
   probeCache[u] = { ok, t: Date.now() }; return ok;
 }
-const TRAINERS = { m: { label: 'Reta (male)', voice: /\b(male|daniel|ryan|george|arthur|oliver|thomas|james|alfie)\b/i }, f: { label: 'Reta (female)', voice: /\b(female|woman|serena|kate|libby|sonia|hazel|susan|fiona|martha|amy|emma|maisie)\b/i } };
+const TRAINERS = { m: { label: 'Coach (male)', voice: /\b(male|daniel|ryan|george|arthur|oliver|thomas|james|alfie)\b/i }, f: { label: 'Coach (female)', voice: /\b(female|woman|serena|kate|libby|sonia|hazel|susan|fiona|martha|amy|emma|maisie)\b/i } };
 async function firstExisting(list) { for (const u of list) if (await exists(u)) return u; return null; }
 // Candidates: trainer folder (hd first for the big view), then shared media/, then bundled clips/.
 function demoCandidates(key, hd) {
@@ -220,6 +231,7 @@ if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged 
 const VOICE = { byId: new Map(), byText: new Map(), queue: [], cur: null, cache: new Map(), loaded: false };
 const vnorm = t => String(t || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 async function loadVoiceManifest() {
+  if (!FEATURES.voice) return;
   try {
     const r = await fetch(`media/voice/voice-manifest.json?v=${Date.now()}`, { cache: 'no-store' }); if (!r.ok) return;
     const doc = await r.json(); VOICE.byId.clear(); VOICE.byText.clear();
@@ -241,6 +253,7 @@ function findLine(id, text, t) {
 }
 const voiceTrainerNow = () => voiceTrainer || settings.trainer || 'm';
 function preloadLines(items) { // items: [{id, text}] -> warm the browser cache for the next move's lines
+  if (!FEATURES.voice) return;
   if (settings.voiceMode === 'phone') return;
   for (const { id, text } of items) { const e = findLine(id, text, voiceTrainerNow()); if (!e) continue; const src = voiceSrc(e, voiceTrainerNow()); if (VOICE.cache.has(src)) continue; const a = new Audio(); a.preload = 'auto'; a.src = src; VOICE.cache.set(src, a); if (VOICE.cache.size > 40) VOICE.cache.delete(VOICE.cache.keys().next().value); }
 }
@@ -271,7 +284,7 @@ function playRecorded({ rec, t, kind, text }, k = 0) { // rec: one manifest entr
 const TALK_LOOK = true, TALK_CLIP = (t, hd) => `media/${t}/talk${hd ? '-hd' : ''}.mp4`;
 function talkLook(on) {
   const v = $('talkVid'); if (!v) return;
-  if (on && TALK_LOOK && sess?.cls && settings.talkLook !== false) {
+  if (on && TALK_LOOK && FEATURES.trainerOnScreen && sess?.cls && settings.talkLook !== false) {
     const t = sess.trainer || 'm', src = TALK_CLIP(t, !$('stage').classList.contains('swapped'));
     if (v.getAttribute('src') !== src) v.src = src;
     v.hidden = false; v.play().catch(() => {}); requestAnimationFrame(() => v.classList.add('on')); window.__kova.talking = (window.__kova.talking || 0) + 1; window.__kova.talkOn = true;
@@ -284,6 +297,7 @@ function say(text, { kind = 'coach', id = null, alts = [], parts = null, preferA
   const alt = () => { for (const x of alts) { const r = VOICE.byId.get(`${t}|${x}`) || VOICE.byText.get(`${t}|${vnorm(x)}`); if (r) { text = r.text || text; return r; } } return null; };
   let rec = on && ((preferAlts && alt()) || findLine(id, text, t) || (!preferAlts && alt()));
   if (!rec && on && parts?.length) { const r = parts.map(p => VOICE.byId.get(`${t}|${p}`)); if (r.every(Boolean)) rec = r; } // chained number + phrase clips
+  if (!FEATURES.voice) return; // no instructor voice or coach captions for now
   bubble(text);
   if (!settings.speech) return;
   enqueueVoice({ rec: rec || null, t, kind, text, talk });
@@ -310,7 +324,7 @@ function beep(f = 880, ms = 140, when = 0) {
 }
 const chime = () => { beep(660, 120); beep(990, 180, 0.12); };
 let bubbleT; function bubble(text) { if (window.__kova) (window.__kova.captions ||= []).push(text); const b = $('bubble'); b.textContent = text; b.classList.add('show'); clearTimeout(bubbleT); bubbleT = setTimeout(() => b.classList.remove('show'), Math.max(3500, text.length * 80)); }
-function toast(t, ms = 2500) { const el = $('toast'); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms); }
+function toast(t, ms = 2500) { const el = $('toast'); el.textContent = t; el.classList.remove('hasbtn'); el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms); }
 
 /* ---------- optional LLM hook (text only, off by default) ---------- */
 async function llm(prompt) {
@@ -319,7 +333,7 @@ async function llm(prompt) {
     const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 8000);
     const r = await fetch(settings.llmUrl, { method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${settings.llmKey}` },
       body: JSON.stringify({ model: settings.llmModel || 'gpt-4o-mini', max_tokens: 180, messages: [
-        { role: 'system', content: `You are Reta, a warm, upbeat British home-fitness coach for ${settings.name}, a total beginner using bodyweight only (no equipment to buy). Be brief, kind, specific and non-judgemental. Never suggest extreme or very-low-calorie diets. Not medical advice.` },
+        { role: 'system', content: `You are the GLP1 Life assistant, a warm, upbeat British home-fitness coach for ${settings.name}, a total beginner using bodyweight only (no equipment to buy). Be brief, kind, specific and non-judgemental. Never suggest extreme or very-low-calorie diets. Not medical advice.` },
         { role: 'user', content: prompt }] }) });
     clearTimeout(to); if (!r.ok) return null;
     const j = await r.json(); return j.choices?.[0]?.message?.content?.trim() || null;
@@ -347,6 +361,12 @@ async function startCamera() {
   video.srcObject = stream; await video.play().catch(() => {});
   $('mirror').classList.toggle('flip', facing === 'user');
 }
+// Camera form-check: optional, off by default. Toggle in the session top bar.
+function formCheckUI() { $('stage').classList.toggle('nocam', !settings.formCheck); const b = $('formCheckBtn'); if (b) { b.setAttribute('aria-pressed', String(!!settings.formCheck)); b.textContent = settings.formCheck ? '📷 Form check on' : '📷 Form check'; } }
+async function setFormCheck(on) { settings.formCheck = on; store.set('settings', settings); formCheckUI();
+  if (on && sess) { try { await startCamera(); initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Feedback is off.', true)); } catch { setCue('Camera blocked. Allow camera access for form feedback.', true); } }
+  if (!on) { stream?.getTracks().forEach(t => t.stop()); stream = null; } }
+$('formCheckBtn').onclick = () => setFormCheck(!settings.formCheck); formCheckUI();
 $('flipBtn').onclick = async () => { facing = facing === 'user' ? 'environment' : 'user'; try { await startCamera(); } catch (e) { toast('Could not switch camera'); facing = 'user'; } };
 function draw(res) {
   if (canvas.width !== video.videoWidth) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; }
@@ -354,7 +374,7 @@ function draw(res) {
   const lm = res?.landmarks?.[0]; if (!lm) return;
   const W = canvas.width, H = canvas.height;
   ctx.lineWidth = Math.max(3, W / 200);
-  const bad = sess && sess.badJoints && performance.now() < (sess.badUntil || 0) ? sess.badJoints : null; // "You vs Reta": red = fix this, green = good
+  const bad = sess && sess.badJoints && performance.now() < (sess.badUntil || 0) ? sess.badJoints : null; // "You vs demo": red = fix this, green = good
   const RED = '#ff4d4d', GOOD = bad ? '#3ddc84' : 'rgba(22,212,192,.9)';
   for (const { start, end } of landmarker.CONN) { const a = lm[start], b = lm[end]; if ((a.visibility ?? 1) < .5 || (b.visibility ?? 1) < .5) continue; ctx.strokeStyle = bad && (bad.has(start) || bad.has(end)) ? RED : GOOD; ctx.beginPath(); ctx.moveTo(a.x * W, a.y * H); ctx.lineTo(b.x * W, b.y * H); ctx.stroke(); }
   for (let i = 11; i < 33; i++) { const p = lm[i]; if ((p.visibility ?? 1) < .5) continue; const r = bad?.has(i); ctx.fillStyle = r ? RED : '#fff'; ctx.beginPath(); ctx.arc(p.x * W, p.y * H, ctx.lineWidth * (r ? 2.2 : 1.3), 0, 7); ctx.fill(); }
@@ -386,8 +406,8 @@ async function startWorkout() {
   show('screen-session'); keepAwake(); orient(); setSwapped(false); updateEnergy();
   $('moveName').textContent = 'Getting ready'; setCue('Starting camera…');
   coach.line('greet', { force: true });
-  try { await startCamera(); } catch (e) { setCue('Camera blocked. Allow camera access and reload.', true); console.warn(e); }
-  initPose().then(() => setCue('')).catch(e => { console.error('pose init failed', e); setCue('Pose model failed to load. Check your connection.', true); });
+  if (settings.formCheck) { try { await startCamera(); } catch (e) { setCue('Camera blocked. Allow camera access and reload.', true); console.warn(e); } } else setCue('');
+  if (settings.formCheck) initPose().then(() => setCue('')).catch(e => { console.error('pose init failed', e); setCue('Pose model failed to load. Check your connection.', true); });
   requestAnimationFrame(poseLoop);
   next(); sess.timer = setInterval(tick, 100);
 }
@@ -512,7 +532,8 @@ $('orbBtn').onclick = () => { buzz(); openLauncher($('launcher').hidden || !$('l
 $('launcher').onclick = e => { if (e.target.id === 'launcher') openLauncher(false); };
 addEventListener('keydown', e => { if (e.key === 'Escape' && !$('launcher').hidden) openLauncher(false); });
 document.querySelectorAll('#launcher [data-tab], #launcher [data-ltile]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false);
-  if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "Hey Reta" or tap Talk'); return; }
+  if (b.dataset.ltile === 'coach' && !FEATURES.voice) { switchTab('workout'); scrollTo(0, 0); return; }
+  if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "voice" or tap Talk'); return; }
   window.__noHideUntil = Date.now() + 1200; switchTab(b.dataset.tab); const sc = b.dataset.lscroll; if (sc) setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); else scrollTo(0, 0); });
 
 /* ---------- food check-in ---------- */
@@ -540,7 +561,7 @@ async function analyseFood({ speak = true } = {}) {
   $('foodResult').querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => openRecipe(b.dataset.recipe));
   if (speak) say(`Thanks ${settings.name}. Today's food score is ${r.score} out of 10. ${r.headline}`, { kind: 'high' });
   const extra = await llm(`Food check-in for today (free text): ${JSON.stringify(entries)}. Rule-based flags: ${JSON.stringify(Object.fromEntries(MEALS.map(m => [m.id, r.meals[m.id].flags.map(f => f.k)])))}. ${settings.glp1 ? 'User takes a GLP-1-type medication; emphasise protein at small meals.' : ''} Give 3 short, kind, specific swap ideas for a moderate calorie deficit.`);
-  if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Reta's extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
+  if (extra && $('llmFood')) $('llmFood').innerHTML = `<div class="res"><h4>Extra thoughts</h4><p>${extra.replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p></div>`;
   return r;
 }
 $('analyseBtn').onclick = () => { unlockAudio(); analyseFood(); };
@@ -566,10 +587,23 @@ function mealSuggestion() { // used by the coach (voice + end of workout)
 }
 renderFoodProfile();
 
+{ const dd = store.get('daily', {}); if (migrateDaily(dd)) store.set('daily', dd); }
 /* ---------- progress + weigh-ins ---------- */
 // Weigh-ins: free-text parsing (decimal comma, st+lb, lb) with inline errors. See weight.js.
-function saveWeightKg(kg) { const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg }); store.set('weights', w); renderProgress(); if (injReady) awardCerts(); }
-function saveWeight(text, unit = settings.weightUnit || 'kg') { const r = parseWeightText(text, unit); if (r.kg) saveWeightKg(r.kg); return r; }
+// Weigh-in date: <input type=date> (+ optional time) -> ISO. Past allowed, future rejected. No time: now (today) or 09:00 local.
+const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function weighDate(day, time) {
+  if (!day) return { iso: new Date().toISOString() };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return { error: 'Please pick a valid date.' };
+  const now = new Date(), t = time || (day === localDay(now) ? `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}` : '09:00');
+  const d = new Date(`${day}T${t}`); if (isNaN(d)) return { error: 'Please pick a valid date.' };
+  if (d.getTime() > now.getTime() + 60000) return { error: 'That date is in the future. Pick today or an earlier day.' };
+  if (d.getFullYear() < 2000) return { error: 'Please pick a valid date.' };
+  return { iso: d.toISOString() };
+}
+(window.__kova ||= {}).weighDate = weighDate;
+function saveWeightKg(kg, date = new Date().toISOString()) { const w = store.get('weights', []); while (w.some(x => x.date === date)) date = new Date(Date.parse(date) + 1).toISOString(); w.push({ date, kg }); store.set('weights', w); renderProgress(); if (injReady) awardCerts(); }
+function saveWeight(text, unit = settings.weightUnit || 'kg', date) { const r = parseWeightText(text, unit); if (r.kg) saveWeightKg(r.kg, date); return r; }
 function bindWeightForm(form, { onSaved } = {}) {
   const input = form.querySelector('input'), err = form.querySelector('.error'), segs = form.querySelectorAll('.seg button');
   const setUnit = u => { settings.weightUnit = u; store.set('settings', settings); segs.forEach(b => b.classList.toggle('on', b.dataset.unit === u)); input.placeholder = u === 'st' ? 'e.g. 13st 4lb' : u === 'lb' ? 'e.g. 190' : 'e.g. 85.5'; };
@@ -579,13 +613,16 @@ function bindWeightForm(form, { onSaved } = {}) {
   input.addEventListener('input', () => { err.hidden = true; });
   form.addEventListener('submit', e => {
     e.preventDefault();
-    const r = saveWeight(input.value, settings.weightUnit || 'kg');
+    const dd = form.querySelector('[name=wdate]'), tt = form.querySelector('[name=wtime]'), wd = dd ? weighDate(dd.value, tt?.value) : { iso: undefined };
+    if (wd.error) { err.textContent = wd.error; err.hidden = false; dd.focus(); return; }
+    const r = saveWeight(input.value, settings.weightUnit || 'kg', wd.iso);
     if (r.error) { err.textContent = r.error; err.hidden = false; input.focus(); return; }
-    err.hidden = true; input.value = ''; input.blur();
+    err.hidden = true; input.value = ''; input.blur(); if (dd) { dd.value = localDay(); dd.max = localDay(); if (tt) tt.value = ''; }
     toast(`✅ Weigh-in saved: ${fmtWeight(r.kg, settings.weightUnit)}`); onSaved?.(r.kg);
   });
 }
 bindWeightForm($('weightForm'));
+{ const dd = $('weightDate'); if (dd) { dd.value = dd.max = localDay(); setInterval(() => { if (dd.max !== localDay()) { if (dd.value === dd.max) dd.value = localDay(); dd.max = localDay(); } }, 60000); } }
 function renderProgress() {
   const d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const s = store.get('sessions', []);
@@ -600,24 +637,24 @@ renderProgress();
 settings.voiceMode ||= 'recorded';
 const S = { setVoiceMode: 'voiceMode', setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech: 'speech', setBeeps: 'beeps', setLlm: 'llm', setLlmUrl: 'llmUrl', setLlmModel: 'llmModel', setLlmKey: 'llmKey' };
 for (const [id, k] of Object.entries(S)) { const el = $(id); if (el.type === 'checkbox') el.checked = !!settings[k]; else el.value = settings[k] || (k === 'country' ? 'auto' : ''); }
-$('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.name ||= 'Mitchell'; settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
+$('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
 $('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); idbClear('kova.').then(() => location.reload()); } };
-function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.`; }
+function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}!`; }
 greetText();
 
-/* ---------- voice: "Hey Reta" wake word + commands + dictation ---------- */
+/* ---------- voice: "voice" wake word + commands + dictation ---------- */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const REC_LANG = /^en\b/i.test(navigator.language || '') ? navigator.language : 'en-GB';
 const voiceState = { on: false, mode: 'idle', armedUntil: 0, armedIdx: -1, dictate: null, rec: null, failures: 0, ttsBusy: false, wakeIdx: new Set(), restarts: 0 };
 window.__kova = { voiceState, PLAN, voiceBusy };
-$('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "Hey Reta".';
+$('voiceSupport').textContent = !SR ? 'Voice recognition isn\'t supported in this browser. Use the on-screen buttons, or your keyboard\'s mic for food dictation.' : isIOS ? 'On iPhone/iPad, continuous listening is limited, so use the "Tap to talk" button.' : 'Supported. Tap the mic in the top bar to start listening for "voice".';
 function micUI() {
   const b = $('micBtn'); b.classList.toggle('on', voiceState.on); b.classList.toggle('off', !voiceState.on); b.classList.toggle('armed', voiceState.mode !== 'idle');
-  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : voiceState.ttsBusy ? 'Reta speaking…' : 'Listening for "Hey Reta"';
+  $('micLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode === 'dictate' ? 'Dictating…' : voiceState.mode === 'armed' ? 'Listening…' : voiceState.ttsBusy ? 'Speaking…' : 'Listening for "voice"';
   $('listenBadge').hidden = voiceState.mode === 'idle'; $('listenBadge').textContent = voiceState.mode === 'dictate' ? '🎙️ Dictating…' : '🎙️ Listening…';
   b.setAttribute('aria-pressed', voiceState.on);
-  const sm = $('sessMic'); sm.className = b.className.replace('mic', 'iconbtn mic'); $('sessMicLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode !== 'idle' ? 'Listening…' : 'Hey Reta';
+  const sm = $('sessMic'); sm.className = b.className.replace('mic', 'iconbtn mic'); $('sessMicLabel').textContent = !voiceState.on ? 'Mic off' : voiceState.mode !== 'idle' ? 'Listening…' : 'voice';
 }
 let chipT;
 function heardChip(text, final) { // live transcript so you can see what the phone hears
@@ -636,7 +673,7 @@ function onTranscript(text, final, idx) {
     if (!final) return;
     const d = voiceState.dictate; voiceState.mode = 'idle'; voiceState.dictate = null; micUI(); return d?.(text.trim());
   }
-  // Reta's own short rep counts may leak into the mic: only a wake phrase gets through while speaking.
+  // the coach's own short rep counts may leak into the mic: only a wake phrase gets through while speaking.
   const w = findWake(text);
   if (voiceState.mode === 'idle') {
     if (!w) return;
@@ -652,6 +689,7 @@ function onTranscript(text, final, idx) {
 }
 function handleHeard(alts) { onTranscript(alts[0], true, `t${Date.now()}${Math.random()}`); } // test hook: treat as one final result
 function startRec() {
+  if (!FEATURES.voice) return;
   if (!SR || !voiceState.on || voiceState.ttsBusy || document.hidden || voiceState.rec) return;
   const r = new SR(); r.lang = REC_LANG; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
   const session = ++voiceState.restarts; voiceState.wakeIdx = new Set();
@@ -674,7 +712,7 @@ function startRec() {
   try { r.start(); } catch (err) { voiceState.rec = null; voiceState.failures++; setTimeout(startRec, nextDelay(voiceState.failures)); }
 }
 function stopRec(abort = true) { const r = voiceState.rec; voiceState.rec = null; try { abort ? r?.abort() : r?.stop(); } catch {} }
-// Pause listening while Reta talks (longer lines) so the phone doesn't hear itself; resume right after.
+// Pause listening while the coach talks (longer lines) so the phone doesn't hear itself; resume right after.
 function ttsStart(kind, text = '') { if (!voiceState.on || kind === 'count') return; voiceState.ttsBusy = true; stopRec(); micUI();
   clearTimeout(ttsStart.t); ttsStart.t = setTimeout(() => { if (voiceState.ttsBusy) { voiceState.ttsBusy = false; micUI(); startRec(); } }, 2500 + text.length * 90); } // safety: Chrome Android sometimes never fires onend
 function ttsEnd() { if (!voiceState.ttsBusy) return; if (VOICE.cur || window.speechSynthesis?.speaking || window.speechSynthesis?.pending) return; voiceState.ttsBusy = false; micUI(); setTimeout(startRec, 250); }
@@ -683,19 +721,20 @@ function oneShot() { const r = new SR(); r.lang = REC_LANG; r.continuous = false
   let n = 0; r.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) onTranscript(e.results[i][0].transcript, e.results[i].isFinal, `os${n}:${i}`); };
   r.onend = () => { n++; if (voiceState.mode === 'armed') { voiceState.mode = 'idle'; micUI(); } }; try { r.start(); } catch {} return r; }
 function setMic(on) {
+  if (!FEATURES.voice) return;
   if (!SR) return toast('Voice isn\'t supported in this browser');
   if (isIOS) return toast('On iPhone, use the Tap to talk button');
   unlockAudio(); voiceState.on = on; voiceState.failures = 0;
-  if (on) { startRec(); toast('Listening for "Hey Reta"'); } else { stopRec(); voiceState.mode = 'idle'; voiceState.ttsBusy = false; }
+  if (on) { startRec(); toast('Listening'); } else { stopRec(); voiceState.mode = 'idle'; voiceState.ttsBusy = false; }
   micUI();
 }
 $('micBtn').onclick = () => setMic(!voiceState.on);
 $('sessMic').onclick = () => setMic(!voiceState.on);
 // Tap-to-talk: iOS (partial SR support) gets a one-shot recogniser; browsers without SR get a typed command box.
-if (isIOS || !SR) { $('talkBtn').hidden = false; }
+if (FEATURES.voice && (isIOS || !SR)) { $('talkBtn').hidden = false; }
 $('talkBtn').onclick = () => {
   unlockAudio();
-  if (!SR) { const c = prompt('Type a command for Reta (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
+  if (!SR) { const c = prompt('Type a command (start workout, pause, resume, next, end, log food, how many reps, weigh-in, what\'s next):'); if (c) runCommand(c.toLowerCase()); return; }
   if (voiceState.mode !== 'dictate') arm('tap'); voiceState.armedIdx = -1; oneShot();
 };
 function dictate(prompt, cb) {
@@ -886,7 +925,7 @@ $('shopClearTicked').onclick = () => {
 };
 $('shopShare').onclick = async () => {
   const list = buildList(shop.recipes, shop.extra);
-  const text = 'Reta shopping list\n' + AISLES.filter(a => list[a]?.length).map(a => `\n${a}\n` + list[a].map(e => `${shop.ticks[e.key] ? '[x]' : '[ ]'} ${e.item}${e.pack ? ` (${e.pack})` : ''}`).join('\n')).join('\n');
+  const text = 'GLP1 Life shopping list\n' + AISLES.filter(a => list[a]?.length).map(a => `\n${a}\n` + list[a].map(e => `${shop.ticks[e.key] ? '[x]' : '[ ]'} ${e.item}${e.pack ? ` (${e.pack})` : ''}`).join('\n')).join('\n');
   try { if (navigator.share) await navigator.share({ title: 'Shopping list', text }); else { await navigator.clipboard.writeText(text); toast('List copied'); } } catch {}
 };
 function openRecipe(id) { switchTab('shop'); setTimeout(() => $('recipe-' + id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50); }
@@ -969,8 +1008,8 @@ async function loadLibrary() {
 }
 loadLibrary();
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && !sess && $('tab-classes').classList.contains('active')) renderClasses(); });
-const CLS_TRAINER_NAME = { m: 'Reta (male)', f: 'Reta (female)' };
-const latestKg = () => { const w = store.get('weights', []); return w.length ? w[w.length - 1].kg : null; };
+const CLS_TRAINER_NAME = { m: 'Coach (male)', f: 'Coach (female)' };
+const latestKg = () => { const w = sortEntries(store.get('weights', [])); return w.length ? w[w.length - 1].kg : null; };
 async function loadClassManifest() { // media/classes/manifest.json is written by the clip generator as each class finishes
   try { const r = await fetch('media/classes/manifest.json', { cache: 'no-store' }); classManifest = r.ok ? await r.json() : null; } catch { classManifest = null; }
   return classManifest;
@@ -1071,8 +1110,8 @@ async function startClass(id) {
   $('moveName').textContent = cls.name; setCue('Starting camera…');
   await Promise.race([loadVoiceManifest(), new Promise(r => setTimeout(r, 1200))]); // never block the class on voice files
   sayLine(welcomeLine(cls));
-  try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); }
-  initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
+  if (settings.formCheck) { try { await startCamera(); } catch (e) { setCue('Camera blocked. You can still follow along; allow camera access for live feedback.', true); } } else setCue('');
+  if (settings.formCheck) initPose().then(() => setCue('')).catch(() => setCue('Pose model failed to load. Follow along; feedback is off.', true));
   requestAnimationFrame(poseLoop);
   classNext(); sess.timer = setInterval(classTick, 100);
 }
@@ -1308,7 +1347,7 @@ function renderWeightProgress() {
   $('milestoneList').innerHTML = sum ? sum.milestones.slice(0, 10).map(m => `<li class="${m.done ? 'done' : ''}">${m.done ? '🏅' : '⬜'} ${m.label}${m.done ? '' : ` <small class="muted">(${fmtLoss(Math.max(0, m.need - sum.lost))} to go)</small>`}</li>`).join('') : '<li class="muted">Milestones at 5%, 10%, every 5 kg and every stone.</li>';
   const sorted = sortEntries(w).reverse();
   $('weightList').innerHTML = sorted.length ? sorted.map((x, i) => { const p = sorted[i + 1], dd = p ? x.kg - p.kg : null;
-    if (editingW === x.date) return `<li class="editing"><form class="wedit" data-date="${esc(x.date)}"><input name="v" type="text" inputmode="decimal" value="${esc(fmtWeight(x.kg, unitW()).replace(' kg', ''))}" aria-label="Weight"><input name="d" type="date" value="${x.date.slice(0, 10)}" aria-label="Date"><button class="primary">Save</button><button type="button" data-wcancel>Cancel</button></form></li>`;
+    if (editingW === x.date) return `<li class="editing"><form class="wedit" novalidate data-date="${esc(x.date)}"><input name="v" type="text" inputmode="decimal" value="${esc(fmtWeight(x.kg, unitW()).replace(' kg', ''))}" aria-label="Weight"><input name="d" type="date" value="${localDay(new Date(x.date))}" max="${localDay()}" aria-label="Date"><input name="t" type="time" value="${new Date(x.date).toTimeString().slice(0, 5)}" aria-label="Time"><button class="primary">Save</button><button type="button" data-wcancel>Cancel</button></form></li>`;
     return `<li><span>${d(x.date)}<br><b>${fmtWeight(x.kg, unitW())}</b>${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd.toFixed(1)} kg)</small>` : ''}</span><span class="wbtns"><button type="button" data-wedit="${esc(x.date)}">Edit</button><button type="button" class="danger" data-wdel="${esc(x.date)}">Delete</button></span></li>`; }).join('') : '<li class="muted">No weigh-ins yet.</li>';
   $('goalInput').value ||= settings.goalKg ? fmtWeight(settings.goalKg, unitW()).replace(' kg', '') : ''; $('heightInput').value ||= settings.heightCm || '';
   document.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => { switchTab(b.dataset.gotab); scrollTo(0, 0); });
@@ -1318,13 +1357,14 @@ $('weightList').addEventListener('click', e => {
   const ed = e.target.closest('[data-wedit]'), del = e.target.closest('[data-wdel]'), cancel = e.target.closest('[data-wcancel]');
   if (ed) { editingW = ed.dataset.wedit; renderWeightProgress(); $('weightList').querySelector('.wedit input')?.focus(); }
   if (cancel) { editingW = null; renderWeightProgress(); }
-  if (del) { if (!confirm('Delete this weigh-in?')) return; store.set('weights', store.get('weights', []).filter(x => x.date !== del.dataset.wdel)); toast('Weigh-in deleted'); renderWeightProgress(); }
+  if (del) { if (!confirm('Delete this weigh-in?')) return; store.set('weights', store.get('weights', []).filter(x => x.date !== del.dataset.wdel)); toast('Weigh-in deleted'); renderProgress(); if (injReady) awardCerts(); }
 });
 $('weightList').addEventListener('submit', e => {
   e.preventDefault(); const f = e.target, r = parseWeightText(f.v.value, unitW()); if (!r.kg) return toast(r.error);
   const w = store.get('weights', []), it = w.find(x => x.date === f.dataset.date); if (!it) return;
-  it.kg = r.kg; if (f.d.value && f.d.value !== it.date.slice(0, 10)) it.date = new Date(f.d.value + 'T' + (it.date.slice(11) || '08:00:00.000Z')).toISOString();
-  store.set('weights', w); editingW = null; toast('✅ Weigh-in updated'); renderWeightProgress();
+  const wd = weighDate(f.d.value || localDay(new Date(it.date)), f.t?.value || new Date(it.date).toTimeString().slice(0, 5)); if (wd.error) return toast(wd.error);
+  it.kg = r.kg; if (wd.iso !== it.date) { let iso = wd.iso; while (w.some(x => x !== it && x.date === iso)) iso = new Date(Date.parse(iso) + 1).toISOString(); it.date = iso; }
+  store.set('weights', w); editingW = null; toast('✅ Weigh-in updated'); renderProgress(); if (injReady) awardCerts();
 });
 $('saveGoal').onclick = () => {
   const g = $('goalInput').value.trim(), h = $('heightInput').value.trim(); let err = '';
@@ -1339,16 +1379,16 @@ function renderBackupStatus() {
   $('saveStatus').innerHTML = `✅ Saved on this phone${p === true ? ' · 🔒 Chrome has agreed to keep it (persistent storage)' : ''}${restoredFromIdb ? ` · ♻️ ${restoredFromIdb} item(s) restored from the backup copy` : ''}`;
   $('lastBackup').textContent = last ? `Last backup: ${new Date(last).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : 'No backup file yet.';
   const due = backupDue(last, Date.now(), hasData()) && Date.now() - (store.get('backupNudgeAt', 0)) > 864e5;
-  $('backupNudge').hidden = !due;
+  $('backupNudge').hidden = true; if (window.__noBackupNudge !== false) return; // cloud sync is the only backup
   $('backupNudge').innerHTML = due ? `💾 <b>Time for a backup?</b> It's been ${last ? 'over 2 weeks' : 'a while'}. Keep a copy of your weigh-ins safe in Drive or WhatsApp.<div class="row"><button type="button" class="primary" id="nudgeBackup">Back up now</button><button type="button" id="nudgeLater">Later</button></div>` : '';
   if (due) { $('nudgeBackup').onclick = () => doBackup(); $('nudgeLater').onclick = () => { store.set('backupNudgeAt', Date.now()); renderBackupStatus(); }; }
 }
 async function doBackup() {
   const b = makeBackup(k => store.get(k, null), { account: user ? { name: user.name } : null }), text = JSON.stringify(b, null, 1);
-  const name = `reta-coach-backup-${new Date().toISOString().slice(0, 10)}.json`, file = new File([text], name, { type: 'application/json' });
+  const name = `glp1life-backup-${new Date().toISOString().slice(0, 10)}.json`, file = new File([text], name, { type: 'application/json' });
   let shared = false;
-  try { if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Reta Coach backup', text: 'My Reta Coach backup. Keep this file safe.' }); shared = true; } } catch (e) { if (e?.name === 'AbortError') return; }
-  if (!shared) { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+  try { if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'GLP1 Life backup', text: 'My GLP1 Life backup. Keep this file safe.' }); shared = true; } } catch (e) { if (e?.name === 'AbortError') return; }
+  if (!shared) await saveBlob(file, name);
   store.set('backupAt', new Date().toISOString()); window.__kova.lastBackupText = text; toast(shared ? '💾 Backup shared' : '💾 Backup downloaded'); renderBackupStatus();
 }
 $('backupBtn').onclick = doBackup;
@@ -1522,14 +1562,14 @@ $('injSaveSched').onclick = async () => {
   if (sch && 'Notification' in window && Notification.permission === 'default') { try { await Notification.requestPermission(); } catch {} }
   await scheduleInjNotify(); renderInject(); toast(sch ? `⏰ Reminder saved: ${describeSchedule(sch)}` : 'Reminder off');
 };
-$('injIcs').onclick = () => { const sch = readSched(); if (!sch) return; const blob = new Blob([makeICS(sch)], { type: 'text/calendar' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reta-injection-reminder.ics'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__kova.lastIcs = makeICS(sch); toast('📅 Open the file to add the repeating reminder to your calendar'); };
+$('injIcs').onclick = () => { const sch = readSched(); if (!sch) return; const blob = new Blob([makeICS(sch)], { type: 'text/calendar' }); saveBlob(blob, 'glp1life-injection-reminder.ics').then(r => r.saved !== 'browser' && r.share()); window.__kova.lastIcs = makeICS(sch); toast('📅 Open the file to add the repeating reminder to your calendar'); };
 // Reminders: SW notification now if due (on app open), Notification Triggers where supported, Periodic Background Sync fallback.
 async function scheduleInjNotify() {
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), nd = nextDue(sch, l);
   await idbSet('reta.injectNext', nd ? JSON.stringify({ at: nd.getTime(), text: describeSchedule(sch) }) : 'null');
   if (!nd || !('Notification' in window) || Notification.permission !== 'granted' || !navigator.serviceWorker) return;
   try {
-    const reg = await navigator.serviceWorker.ready, opts = { body: `${INJ_DISCLAIMER} Tap to log it.`, tag: 'reta-inject', icon: 'avatar.jpg', data: { url: './?tab=progress' } };
+    const reg = await navigator.serviceWorker.ready, opts = { body: `${INJ_DISCLAIMER} Tap to log it.`, tag: 'reta-inject', icon: 'icons/any-192.png', data: { url: './?tab=progress' } };
     if (nd <= new Date()) { const shownFor = store.get('injNotified', 0); if (shownFor !== nd.getTime()) { await reg.showNotification('💉 Injection reminder', opts); store.set('injNotified', nd.getTime()); } }
     else if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') await reg.showNotification('💉 Injection reminder', { ...opts, showTrigger: new TimestampTrigger(nd.getTime()) });
     if ('periodicSync' in reg) { try { await reg.periodicSync.register('reta-inject', { minInterval: 12 * 36e5 }); } catch {} }
@@ -1541,15 +1581,21 @@ window.__kova.renderInject = renderInject;
 
 /* ---------- Weight-loss certificates ---------- */
 let avatarImg = null;
-function loadAvatar() { if (avatarImg) return Promise.resolve(avatarImg); return new Promise(res => { const i = new Image(); i.onload = () => res(avatarImg = i); i.onerror = () => res(null); i.src = document.querySelector('.trainer-avatar')?.src || 'avatar.jpg'; }); }
+function loadAvatar() { if (avatarImg) return Promise.resolve(avatarImg); return new Promise(res => { const i = new Image(); i.onload = () => res(avatarImg = i); i.onerror = () => res(null); i.src = 'icons/any-512.png'; }); }
 async function certBlob(c) { const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1350; drawCertificate(cv.getContext('2d'), c, { avatar: await loadAvatar() }); return new Promise(r => cv.toBlob(r, 'image/png')); }
-const certName = c => `reta-certificate-${c.id}.png`;
-async function downloadCert(c) { const b = await certBlob(c), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = certName(c); document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__kova.lastCertBytes = b.size; }
-async function shareCert(c) { const f = new File([await certBlob(c)], certName(c), { type: 'image/png' }); try { if (navigator.canShare?.({ files: [f] })) return await navigator.share({ files: [f], title: c.label, text: `${c.label} with Reta Coach!` }); } catch (e) { if (e?.name === 'AbortError') return; } downloadCert(c); }
+const certName = c => `glp1life-certificate-${c.id}-${localDay(new Date(c.date))}.png`;
+// Toast with an action button (e.g. "Saved to Downloads" + Share).
+function actionToast(t, label, fn, ms = 7000) { const el = $('toast'); el.innerHTML = ''; el.append(Object.assign(document.createElement('span'), { textContent: t })); const b = Object.assign(document.createElement('button'), { type: 'button', className: 'toastbtn', textContent: label }); b.onclick = () => { el.hidden = true; fn(); }; el.append(b); el.classList.add('hasbtn'); el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms); }
+async function downloadCert(c) {
+  try { const b = await certBlob(c), meta = { title: c.label, text: `${c.label} with GLP1 Life!` }, r = await saveBlob(b, certName(c), meta); window.__kova.lastCertBytes = b.size; window.__kova.lastCertSave = r.saved;
+    const msg = r.saved === 'Downloads' ? '✅ Saved to Downloads' : r.saved === 'Documents' ? '✅ Saved to Documents' : r.saved === 'browser' ? '✅ Certificate downloaded' : 'Couldn\'t save. Try Share instead';
+    actionToast(msg, '📤 Share', () => shareBlob(b, certName(c), meta).catch(e => toast('Share failed: ' + e.message)));
+  } catch (e) { toast('Save failed: ' + (e?.message || e)); } }
+async function shareCert(c) { try { const r = await shareBlob(await certBlob(c), certName(c), { title: c.label, text: `${c.label} with GLP1 Life!` }); if (r === 'downloaded') toast('✅ Certificate downloaded'); } catch (e) { toast('Share failed: ' + (e?.message || e)); } }
 function awardCerts() {
   const w = sortEntries(store.get('weights', [])); if (w.length < 2) return [];
-  const certs = store.get('certificates', []), fresh = newAwards(certs, w[0].kg, w[w.length - 1].kg, settings.goalKg, { name: settings.name });
-  if (!fresh.length) return [];
+  const old = store.get('certificates', []), certs = redateCerts(old, w, settings.goalKg), fresh = awardsFromHistory(certs, w, settings.goalKg, { name: settings.name });
+  if (!fresh.length) { if (JSON.stringify(certs) !== JSON.stringify(old)) { store.set('certificates', certs); renderCerts(); } return []; }
   store.set('certificates', [...certs, ...fresh]); renderCerts(); celebrate(fresh[fresh.length - 1], fresh.length); return fresh;
 }
 async function celebrate(c, n) {
@@ -1582,9 +1628,10 @@ function guideHTML(r) {
 const cook = { id: null, i: 0, lock: null, timer: null, left: 0, name: '' };
 async function wake(on) { try { if (on && 'wakeLock' in navigator) { cook.lock = await navigator.wakeLock.request('screen'); window.__kova.wakeLock = true; } else if (!on && cook.lock) { await cook.lock.release(); cook.lock = null; window.__kova.wakeLock = false; } } catch { window.__kova.wakeLock = false; } }
 document.addEventListener('visibilitychange', () => { if (cook.id && document.visibilityState === 'visible' && !cook.lock) wake(true); });
-function openCook(id, name) { Object.assign(cook, { id, i: 0, name }); $('cookMode').hidden = false; wake(true); renderCook(); }
+function openCook(id, name) { const prog = store.get('cookProgress', {}), g0 = guideFor(id); Object.assign(cook, { id, i: Math.min(prog[id]?.i || 0, (g0?.steps?.length || 1) - 1), name }); if (cook.i) toast(`Resuming at step ${cook.i + 1}`); $('cookMode').hidden = false; wake(true); renderCook(); }
 function stopTimer() { clearInterval(cook.timer); cook.timer = null; }
 function renderCook() {
+  { const p = store.get('cookProgress', {}); if (p[cook.id]?.i !== cook.i) { p[cook.id] = { i: cook.i, at: new Date().toISOString() }; store.set('cookProgress', p); } }
   const g = guideFor(cook.id), st = g.steps[cook.i], last = cook.i === g.steps.length - 1;
   $('cookMode').innerHTML = `<div class="cookhead"><b>${esc(cook.name)}</b><button type="button" id="cookClose">✕ Close</button></div>
     <div class="cookprog">Step ${cook.i + 1} of ${g.steps.length}</div>
@@ -1595,7 +1642,7 @@ function renderCook() {
     <div class="cooknav"><button type="button" class="big" id="cookPrev" ${cook.i ? '' : 'disabled'}>◀ Back</button><button type="button" class="primary big" id="cookNext">${last ? '✅ Done' : 'Next ▶'}</button></div>`;
   $('cookClose').onclick = closeCook;
   $('cookPrev').onclick = () => { stopTimer(); cook.i--; renderCook(); };
-  $('cookNext').onclick = () => { stopTimer(); if (last) { closeCook(); toast('🎉 Cooked! Cool, box and label it.'); } else { cook.i++; renderCook(); } };
+  $('cookNext').onclick = () => { stopTimer(); if (last) { const p = store.get('cookProgress', {}); delete p[cook.id]; store.set('cookProgress', p); closeCook(); toast('🎉 Cooked! Cool, box and label it.'); } else { cook.i++; renderCook(); } };
   if (st.timer) $('cookTimerBtn').onclick = () => { if (cook.timer) { stopTimer(); renderCook(); return; } cook.left = st.timer; cook.timer = setInterval(() => { cook.left--; const el = $('cookTime'); if (el) el.textContent = fmtTimer(Math.max(0, cook.left)); if (cook.left <= 0) { stopTimer(); try { navigator.vibrate?.([300, 150, 300]); } catch {} beepDone(); toast('⏲️ Timer done!'); renderCook(); } }, 1000 / SPEED); renderCook(); };
 }
 function beepDone() { try { const a = new AudioContext(), o = a.createOscillator(), gn = a.createGain(); o.connect(gn); gn.connect(a.destination); o.frequency.value = 880; gn.gain.value = .2; o.start(); o.stop(a.currentTime + .6); } catch {} }
@@ -1613,14 +1660,16 @@ function renderHome() {
   if (!$('homeDash')) return;
   const h = +new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: 'numeric', hour12: false });
   $('greet').textContent = `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${settings.name || 'there'} 🌿`;
-  const w = store.get('weights', []), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
+  const w = sortEntries(store.get('weights', [])), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
   const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
   $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>
     <div class="ringrow">${ringSVG(pct)}<div class="down"><b>${lbsDown} lbs</b><span>down</span><p class="small muted">${w.length ? `Since ${new Date(w[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}</p></div></div>`;
   $('wCard').onclick = () => switchTab('progress');
   const day = store.get('daily', {}), t = day[todayKey()] || {};
-  $('waterCard').innerHTML = `<i>💧</i><span><small>Hydration</small><b>${t.water || 0}/8</b><small>glasses · tap +1</small></span>`;
-  $('waterCard').onclick = () => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; x.water = ((x.water || 0) + 1) % 9; store.set('daily', d); renderHome(); };
+  { const ml = waterMl(t), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, pct = Math.min(100, Math.round(ml / goal * 100));
+    $('waterCard').innerHTML = `<div class="wtop"><i>💧</i><span><small>Hydration</small><b id="waterL">${litres(ml)} / ${litres(goal)} L</b><small id="waterImp">${imperial(ml)}</small></span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="wbtns2"><button type="button" id="waterMinus" aria-label="Remove 500 ml" ${ml ? '' : 'disabled'}>−500 ml</button><button type="button" class="primary" id="waterPlus" aria-label="Add 500 ml">+500 ml</button></div>`;
+    const bump = delta => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; const v = addWater(x, delta); store.set('daily', d); renderHome(); toast(delta > 0 ? `💧 +500 ml · ${litres(v)} L today` : `↩️ Removed 500 ml · ${litres(v)} L today`); };
+    $('waterPlus').onclick = () => bump(STEP_ML); $('waterMinus').onclick = () => bump(-STEP_ML); }
   $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · ${t.stepsSrc ? 'from ' + t.stepsSrc : 'tap to sync or add'}</small></span>`;
   $('stepsCard').onclick = () => openStepsSheet(); window._manualSteps = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
@@ -1629,11 +1678,11 @@ function renderHome() {
     <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
   $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
-  const water = Object.entries(store.get('daily', {})).some(([d, v]) => d >= ws && v.water >= 6);
+  const water = Object.entries(store.get('daily', {})).some(([d, v]) => d >= ws && waterMl(v) >= 1500);
   const checks = [['inject', 'Inject', l.some(e => inWeek(e.at))], ['weigh', 'Weigh', w.some(x => inWeek(x.date))], ['water', 'Water', water || !!wk.water], ['meals', 'Meals', !!glp.plan || !!wk.meals], ['mindset', 'Mindset', !!wk.mindset]];
   $('weekChecks').innerHTML = checks.map(([k, n, d]) => `<button type="button" class="wck ${d ? 'done' : ''}" data-wck="${k}" aria-pressed="${d}"><i>${d ? '✓' : ''}</i>${n}</button>`).join('');
   $('weekChecks').querySelectorAll('[data-wck]').forEach(b => b.onclick = () => { const k = b.dataset.wck; if (k === 'inject') return switchTab('progress'); if (k === 'weigh') return switchTab('progress'); const all = store.get('weekChecks', {}), x = all[ws] ||= {}; x[k] = !x[k]; store.set('weekChecks', all); renderHome(); });
-  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP-1 Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
+  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP1 Life Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
   $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
   $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
 }
@@ -1742,6 +1791,7 @@ setTimeout(renderHome, 1500);
 
 /* ---------- Cloud sync UI ---------- */
 function renderCloud() { const u = cloud.user; $('cloudForm').hidden = !!u; $('cloudOn').hidden = !u; const last = store.get('cloud.lastSync', null);
+  { const el = $('cloudSaved'); if (el) { el.hidden = !u; el.classList.toggle('pending', !!cloudTimer && !last); el.textContent = !u ? '' : last ? `Saved to cloud ✓ ${new Date(last).toLocaleTimeString('en-GB', { timeZone: 'Europe/London', hour: '2-digit', minute: '2-digit' })}` : 'Saving to cloud…'; } }
   $('cloudStatus').textContent = u ? `Signed in to cloud as ${u.email}. ${last ? 'Last synced ' + new Date(last).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK.' : 'Not synced yet.'}` : 'Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you\'re online.'; }
 async function cloudFirst() { cloudPulling = true; let n; try { n = await cloud.pull(settings); store.set('settings', settings); try { store.set('cloud.certImgs', (await cloud.certImages()).map(o => o.name.replace(/\.png$/, ''))); } catch {} } finally { if (!n) cloudPulling = false; }
   // Restored data: reload straight away so every module starts from the restored store (no stale in-memory copy can overwrite or tombstone it).
@@ -1752,7 +1802,7 @@ $('cloudForm').onsubmit = async e => { e.preventDefault(); cloudErr(); try { awa
 $('cloudUp').onclick = async () => { cloudErr(); const p = $('cloudPass').value; if (p.length < 8) return cloudErr('Use a password of at least 8 characters.'); try { await cloud.signUp($('cloudEmail').value.trim(), p, settings.name); $('cloudPass').value = ''; await cloudFirst(); } catch (err) { cloudErr(err.message); } };
 $('cloudSync').onclick = async () => { try { await cloudFirst(); } catch (e) { toast('Sync failed: ' + e.message); } };
 $('cloudOut').onclick = async () => { await cloud.signOut(); renderCloud(); toast('Signed out of cloud. Your data stays on this phone.'); };
-$('cloudExport').onclick = async () => { try { const d = await cloud.exportAll(), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' })); a.download = `glp1life-my-data-${todayKey()}.json`; a.click(); } catch (e) { toast('Export failed: ' + e.message); } };
+$('cloudExport').onclick = async () => { try { const d = await cloud.exportAll(), r = await saveBlob(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' }), `glp1life-my-data-${todayKey()}.json`); if (r.saved !== 'browser') actionToast(r.saved ? `✅ Saved to ${r.saved}` : 'Saved', '📤 Share', r.share); } catch (e) { toast('Export failed: ' + e.message); } };
 $('cloudDelete').onclick = async () => { if (!confirm('Delete your cloud account and ALL your cloud data? Data on this phone is kept.')) return; try { await cloud.deleteAll(); renderCloud(); toast('🗑️ Cloud account and data deleted'); } catch (e) { toast('Delete failed: ' + e.message); } };
 renderCloud(); if (cloud.user && navigator.onLine) { cloudPulling = true; cloud.pull(settings).then(n => { cloudPulling = false; if (n) { renderProgress?.(); renderHome(); renderCerts?.(); renderInject?.(); } return cloud.push(settings, user); }).then(renderCloud).catch(e => { cloudPulling = false; console.warn('cloud', e.message); }); }
 addEventListener('online', cloudPush);
@@ -1769,7 +1819,7 @@ async function renderTrainers() {
   $('trainerAdmin').hidden = !trIsAdmin;
   $('trainerList').innerHTML = trainers.length ? trainers.map(t => `<div class="card trcard">
     <div class="trtop">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="" class="trphoto">` : '<div class="trphoto ph">🏋️</div>'}<div><h3>${esc(t.name)}</h3>${t.virtual_pt ? '<span class="vbadge">Virtual PT available</span>' : ''}${t.area ? `<p class="small muted">📍 ${esc(t.area)}</p>` : ''}${!t.active ? '<p class="small muted">Hidden from users</p>' : ''}</div></div>
-    ${t.specialties?.length ? `<div class="chips">${t.specialties.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}
+    ${t.specialties?.length ? `<ul class="trtags" aria-label="Specialties">${t.specialties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
     ${t.glp1_support ? `<p class="small"><b>GLP-1 support:</b> ${esc(t.glp1_support)}</p>` : ''}
     <a class="wabtn" href="${waLink(t)}" target="_blank" rel="noopener">💬 Message on WhatsApp for prices</a></div>`).join('')
     : `<div class="card empty trempty"><div style="font-size:2.4rem">🏋️‍♀️</div><h3>Trainers coming soon</h3><p class="small muted">We're adding GLP-1-friendly personal trainers. Check back soon, or keep going with the 30-minute classes in the meantime.</p><button type="button" class="primary" data-gotab2="classes">Browse classes</button></div>`;
@@ -1803,8 +1853,7 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 
-/* ---------- TV: Cast / AirPlay / big-screen mode ---------- */
-initTvMode();
+/* ---------- TV: Google Cast ---------- */
 { const v = $('trainerVid'), b = $('castBtn');
   setCastSource(() => { const m = window.__kova?.classMedia, src = v.getAttribute('src') || m?.src; return src ? { src, title: m?.step || 'Workout', subtitle: $('trainerName')?.textContent || 'GLP1 Life' } : null; });
   new MutationObserver(() => castFollow()).observe(v, { attributes: true, attributeFilter: ['src'] });
@@ -1812,9 +1861,7 @@ initTvMode();
   // Load the Cast SDK only once a workout/class screen opens (keeps the rest of the app light).
   const ss = $('screen-session'), go = () => { if (ss.classList.contains('active') && !go.done) { go.done = true; initCast(upd); } };
   new MutationObserver(go).observe(ss, { attributes: true, attributeFilter: ['class'] }); go();
-  b.onclick = async () => { navigator.vibrate?.(10); const r = await castClick(v); if (r === 'tvmode') toast(`No Cast or AirPlay on this browser. On your TV's browser open ${location.host}${location.pathname}?tv=1`); };
-  $('tvUrl').textContent = `${location.host}${location.pathname}?tv=1`;
-  $('tvTry').onclick = () => { location.href = location.pathname + '?tv=1'; };
+  b.onclick = async () => { navigator.vibrate?.(10); const r = await castClick(v); if (r === 'nocast') toast('Google Cast isn\'t available here. Use Chrome on Android or a computer, on the same Wi-Fi as your Chromecast / Google TV.'); };
 }
 
 /* ---------- Steps: Health Connect (Android app) / manual ---------- */

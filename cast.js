@@ -1,12 +1,11 @@
 // TV casting for workout/class sessions.
 // - Chromecast / Google TV / Sky Glass? (see docs/tv.md): Google Cast Web Sender SDK + Default Media Receiver (CC1AD845).
 //   Casts the current move clip on repeat; follows the class as each move changes.
-// - AirPlay (Safari iPhone/iPad/Mac -> Apple TV / AirPlay 2 TVs): native picker on the trainer <video>.
 // - Anything else: open the app on the TV's own browser with ?tv=1 (big-screen mode).
 const RECEIVER = 'CC1AD845';
 let ctx = null, ready = false, lastSrc = '', onState = () => {};
 const abs = u => new URL(u, location.href).href;
-export const castState = () => ({ cast: ready, airplay: !!window.WebKitPlaybackTargetAvailabilityEvent, connected: !!ctx?.getCurrentSession() });
+export const castState = () => ({ cast: ready, connected: !!ctx?.getCurrentSession() });
 export function initCast(cb = () => {}) {
   onState = cb;
   if (window.WebKitPlaybackTargetAvailabilityEvent) cb(castState());
@@ -37,9 +36,7 @@ export async function follow() {
 }
 export async function castClick(video) {
   if (ctx) { if (ctx.getCurrentSession()) return ctx.endCurrentSession(true); try { await ctx.requestSession(); } catch {} return; }
-  if (video?.webkitShowPlaybackTargetPicker) { video.disableRemotePlayback = false; return video.webkitShowPlaybackTargetPicker(); }
-  if (video?.remote?.prompt) { try { await video.remote.prompt(); return; } catch {} }
-  return 'tvmode';
+  return 'nocast'; // Google Cast only (no AirPlay / TV-browser mode)
 }
 // Big-screen TV mode: ?tv=1. Bigger type, no camera self-view, D-pad/arrow-key focus navigation.
 export function initTvMode() {

@@ -7,8 +7,8 @@ export function makeBackup(get, { account = null, now = new Date() } = {}) {
   return { app: 'reta-coach', version: BACKUP_VERSION, created: now.toISOString(), account, data };
 }
 export function parseBackup(text) {
-  let o; try { o = typeof text === 'string' ? JSON.parse(text) : text; } catch { return { error: 'That file isn\'t a Reta Coach backup (not valid JSON).' }; }
-  if (!o || o.app !== 'reta-coach' || typeof o.data !== 'object') return { error: 'That file isn\'t a Reta Coach backup.' };
+  let o; try { o = typeof text === 'string' ? JSON.parse(text) : text; } catch { return { error: 'That file isn\'t a GLP1 Life backup (not valid JSON).' }; }
+  if (!o || o.app !== 'reta-coach' || typeof o.data !== 'object') return { error: 'That file isn\'t a GLP1 Life backup.' };
   if (o.version > BACKUP_VERSION) return { error: 'This backup is from a newer version of the app. Update the app and try again.' };
   if (o.data.weights && !Array.isArray(o.data.weights)) return { error: 'The weigh-ins in that backup look damaged.' };
   return { backup: o };

@@ -1,3 +1,5 @@
+import { cleanupTestData } from './cleanup.mjs';
+for (const ev of ['uncaughtException', 'unhandledRejection']) process.on(ev, async e => { console.error(e); await cleanupTestData({ quiet: true }).catch(() => {}); process.exit(1); });
 // Admin page + trainers section with throwaway users (cleaned up). Needs SUPABASE_ACCESS_TOKEN (Management API) to grant admin.
 import { chromium, devices } from 'playwright-core';
 import { nav } from './nav.mjs';
@@ -49,6 +51,7 @@ try {
   const left = await sql(`select count(*)::int n from public.trainers where id = '${row?.id}'`); ok(left[0]?.n === 0, 'admin delete removed trainer');
   if (row?.photo_url) await fetch(row.photo_url.replace('/object/public/', '/object/'), { method: 'DELETE', headers: { apikey: SB_KEY, authorization: 'Bearer ' + ad.access_token } });
 } finally {
+  await cleanupTestData({ quiet: true }).catch(() => {});
   await b.close();
   await sql(`delete from auth.users where email in ('${AD}','${US}')`);
   const n = await sql(`select count(*)::int n from auth.users where email like 'glp1life.test.%'`); console.log('test users left:', n[0]?.n);

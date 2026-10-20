@@ -16,7 +16,27 @@ const more = newAwards(certs, 100, 97.9, null); ok(more.map(c => c.id).join() ==
 // drawing (mock 2D context)
 const calls = []; const ctx = new Proxy({}, { get: (t, k) => k in t ? t[k] : k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : (...a) => calls.push([k, ...a]), set: (t, k, v) => (t[k] = v, true) });
 drawCertificate(ctx, { ...more[0], name: 'Mitchell' }); const text = calls.filter(c => c[0] === 'fillText').map(c => c[1]).join(' | ');
-ok(/Mitchell/.test(text) && /Lost 2 kg/.test(text) && /100\.0 kg  →  97\.9 kg/.test(text) && /Coach/.test(text) && text.includes(encouragement('kg2')), 'certificate has name, milestone, start→current, branding, encouragement');
+ok(/Mitchell/.test(text) && /Lost 2 kg/.test(text) && /100\.0 kg  →  97\.9 kg/.test(text) && /GLP1 Life/.test(text) && !/Reta/.test(text) && text.includes(encouragement('kg2')), 'certificate has name, milestone, start→current, branding, encouragement');
 const dst = {}; restoreInto(k => dst[k] ?? null, (k, v) => { dst[k] = v; }, parseBackup(makeBackup(k => k === 'certificates' ? certs : null)).backup);
 ok(dst.certificates?.length === 2, 'certificates in backup/restore');
 console.log(fail ? `${fail} FAILED` : 'ALL CERTIFICATE TESTS PASSED'); process.exitCode = fail ? 1 : 0;
+
+// --- backdated history: certificate date = weigh-in date, chronological ---
+import { awardsFromHistory } from '../certs.js';
+import { sortEntries } from '../progress.js';
+{
+  const raw = [{ date: '2026-03-01T09:00:00Z', kg: 100 }, { date: '2026-01-01T09:00:00Z', kg: 104 }, { date: '2026-02-01T09:00:00Z', kg: 102 }];
+  const w = sortEntries(raw), got = awardsFromHistory([], w, null, { name: 'M' });
+  const first = got.find(c => c.id === 'first2lb'), k4 = got.find(c => c.id === 'kg4');
+  if (!first || first.date !== '2026-02-01T09:00:00Z' || first.startKg !== 104) throw new Error('first2lb should be dated Feb (backdated weigh-in)');
+  if (!k4 || k4.date !== '2026-03-01T09:00:00Z') throw new Error('kg4 should be dated Mar');
+  if (awardsFromHistory(got, w, null).length) throw new Error('no duplicate awards');
+  if (awardsFromHistory([], w.slice(0, 1), null).length) throw new Error('needs 2 weigh-ins');
+  console.log('ok awardsFromHistory backdated');
+}
+import { redateCerts } from '../certs.js';
+{ const w = sortEntries([{ date: '2026-01-01T09:00:00Z', kg: 104 }, { date: '2026-10-20T09:00:00Z', kg: 100 }]);
+  const c = awardsFromHistory([], w, null); const w2 = sortEntries([...w, { date: '2026-05-01T09:00:00Z', kg: 101 }]);
+  const r = redateCerts(c, w2, null); if (r.find(x => x.id === 'first2lb').date !== '2026-05-01T09:00:00Z' || r.find(x => x.id === 'kg4').date !== '2026-10-20T09:00:00Z' || r.length !== c.length) throw new Error('redate');
+  if (redateCerts(c, sortEntries([w[0], { date: '2026-02-01T09:00:00Z', kg: 103.5 }]), null).length !== c.length) throw new Error('never revoke');
+  console.log('ok redateCerts after backfill'); }

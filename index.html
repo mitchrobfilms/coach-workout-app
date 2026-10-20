@@ -8,12 +8,12 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=32">
+<link rel="stylesheet" href="style.css?v=33">
 </head>
 <body>
 <header class="topbar">
   <div class="brand"><img src="logo.svg" alt="" class="logo"><span class="wordmark">GLP1<i>Life</i></span></div>
-  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Reta" aria-label="Voice: Hey Reta"><span class="dot"></span><span id="micLabel">Mic off</span></button>
+  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice" aria-label="Voice"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
 <div id="heardChip" class="heard" hidden></div>
 
@@ -46,8 +46,8 @@
 </div>
 <div class="overlay" id="onboard" hidden>
   <div class="authbox">
-    <h2>Pick your trainer</h2>
-    <div class="trainers" id="trainerPick"></div>
+    <div class="flagtrainer"><h2>Pick your trainer</h2>
+    <div class="trainers" id="trainerPick"></div></div>
     <h3>Starting weight <span class="muted small">(optional)</span></h3>
     <form id="obWeightForm" class="weightform" novalidate autocomplete="off">
       <input name="weight" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" placeholder="e.g. 85.5">
@@ -67,17 +67,17 @@
       <p class="tagline">Support · Track · Learn · Eat Well · Save Money</p>
       <h2 class="greet" id="greet">Good morning</h2><p class="small muted greetsub">You're doing great! Keep going 💜</p>
       <div class="card wcard" id="wCard"></div>
-      <div class="grid2 minis"><button type="button" class="card mini" id="waterCard"></button><button type="button" class="card mini" id="stepsCard"></button></div>
+      <div class="grid2 minis"><div class="card mini water" id="waterCard"></div><button type="button" class="card mini" id="stepsCard"></button></div>
       <div class="card nextinj" id="nextInjCard"></div>
       <div class="card" id="weekCard"><h3>This week</h3><div class="weekchecks" id="weekChecks"></div></div>
       <div class="features" id="features"></div>
       <h2 class="sep">Today's workout</h2>
     </div>
-    <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
+    <div class="hero"><img src="hero.jpg" alt="Person doing a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
-    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
+    <p id="startGreeting" class="small muted" hidden></p>
     <div class="card homeprog" id="homeProgress"></div>
-    <div class="card note" id="backupNudge" hidden></div>
+    <div id="backupNudge" hidden aria-hidden="true"></div>
     <div class="card injnext" id="injNext" hidden></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
@@ -93,7 +93,7 @@
         <video id="trainerVid" muted playsinline loop autoplay preload="auto"></video>
         <video id="talkVid" class="talkvid" muted playsinline loop preload="none" hidden aria-hidden="true"></video>
         <div class="fixlabel" id="fixLabel" hidden></div>
-        <span class="who">Reta</span>
+        <span class="who">Class</span>
       </div>
       <!-- You (live camera + skeleton) -->
       <div class="view you pip" id="youView">
@@ -103,8 +103,8 @@
       </div>
 
       <div class="classbar">
-        <div class="instructor"><img class="trainer-avatar" src="avatar.jpg" alt=""><div><div class="iname" id="trainerName">Reta</div><span class="livebadge"><span class="pulse"></span>Live coaching</span></div></div>
-        <div class="topbtns"><button class="iconbtn mic off" id="sessMic" title="Voice: Hey Reta"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲</button><button class="iconbtn" id="swapBtn" title="Swap views">⇄</button></div>
+        <div class="instructor"><img class="trainer-avatar" src="avatar.jpg" alt=""><div><div class="iname" id="trainerName">GLP1 Life</div><span class="livebadge"><span class="pulse"></span>Live coaching</span></div></div>
+        <div class="topbtns"><button class="iconbtn fcbtn" id="formCheckBtn" type="button" aria-pressed="false">📷 Form check</button><button class="iconbtn mic off" id="sessMic" title="Voice"><span class="dot"></span><span id="sessMicLabel">Mic</span></button><button class="iconbtn" id="flipBtn" title="Switch camera">⟲</button><button class="iconbtn" id="swapBtn" title="Swap views">⇄</button></div>
       </div>
       <div class="timeline" id="timeline"></div>
 
@@ -133,7 +133,7 @@
   </div>
 
   <div id="screen-end" class="screen">
-    <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="summaryText"></p></div>
+    <div class="card coachline"><p id="summaryText"></p></div>
     <h2>Today's reps</h2><table class="totals" id="totalsTable"></table>
     <div class="card note small">Next time, make it harder with bodyweight only: slower 3-second lowering, a few extra reps, or a harder variation (feet further from the wall, no hands on the chair).</div>
     <button class="primary" id="endFoodBtn">🍽️ Do today's food check-in</button>
@@ -145,7 +145,7 @@
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
   <button class="primary big shopcta" data-goshop>🛒 What to buy this week: recipes and shopping lists</button>
-  <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p>What did you eat today? Just jot it down, no need to weigh anything. Say "Hey Reta, log food" to dictate.</p></div>
+  <div class="card"><p>What did you eat today? Just jot it down, no need to weigh anything.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
   <label class="check"><input type="checkbox" id="glp1"> I take a GLP-1-type medication (e.g. semaglutide, tirzepatide, retatrutide)</label>
   <form id="foodForm"></form>
@@ -158,19 +158,15 @@
 
 <!-- CLASSES TAB -->
 <section id="tab-classes" class="tab">
-  <h2 class="pagehead">GLP-1 Classes &amp; Support</h2>
+  <h2 class="pagehead">GLP1 Life Classes</h2>
   <div id="supportCards"></div>
-  <h2 class="sep">30-minute workout classes</h2>
-  <div class="shophead"><h2>🎬 Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Reta coaches you live through the camera.</p></div>
+  <h2 class="sep">GLP1 Life Classes: 30-minute workouts</h2>
+  <div class="shophead"><h2>🎬 GLP1 Life Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Follow along at your own pace.</p></div>
   <div class="card rec" id="recCard"></div>
   <input type="search" id="classSearch" placeholder="🔎 Search classes, moves or trainers" aria-label="Search classes">
   <div class="row between"><div class="chips" id="classFilters"></div></div>
-  <label class="small trainersel">Trainer <select id="classTrainer"><option value="lead">Class lead (default)</option><option value="m">Reta (male)</option><option value="f">Reta (female)</option></select></label>
-  <div class="card tvcard" id="tvCard"><h3>📺 Watch on your TV</h3>
-    <p class="small">During a class, tap <b>📺 Cast</b> to send the trainer video to a Chromecast / Google TV (Chrome on Android, Mac, PC) or use AirPlay to an Apple TV (iPhone/iPad Safari). Your phone keeps the camera and coaching.</p>
-    <p class="small">Smart TV with a web browser (Samsung, LG, Fire TV Silk, Sky Glass browser)? Open <b id="tvUrl"></b> on the TV for big-screen mode with remote-control navigation.</p>
-    <button type="button" id="tvTry">Preview big-screen TV mode</button></div>
-  <div id="classList"></div>
+  <select id="classTrainer" hidden aria-hidden="true"><option value="lead">lead</option></select>
+    <div id="classList"></div>
   <div class="card"><h3>Your classes</h3><ul class="list" id="classHist"></ul></div>
   <p class="small muted">Calories are rough estimates (MET values × your weight). Latin Dance Cardio is Zumba-style and not affiliated with Zumba®. Stop if anything hurts or you feel dizzy.</p>
 </section>
@@ -241,8 +237,10 @@
   <h2 class="pagehead">Personal Trainers</h2>
   <p class="small muted">Local and virtual PTs who understand GLP-1 journeys. Message them directly on WhatsApp for prices; no payments in the app.</p>
   <div id="trainerList"></div>
-  <a class="card" id="trainerAdmin" href="admin/" hidden>🛠️ Manage trainers in the admin page ›</a>
-  <a class="card" href="trainer/">🏋️ Are you a personal trainer? Join GLP1 Life or sign in to your trainer dashboard ›</a>
+  <div class="linkcards">
+  <a class="linkcard" id="trainerAdmin" href="admin/" hidden><span class="lcicon" aria-hidden="true">🛠️</span><span class="lctext"><b>Manage trainers</b><small>Approvals, promo codes and commission in the admin page</small></span><span class="lcgo" aria-hidden="true">›</span></a>
+  <a class="linkcard" href="trainer/"><span class="lcicon" aria-hidden="true">🏋️</span><span class="lctext"><b>Are you a personal trainer?</b><small>Join GLP1 Life or sign in to your trainer dashboard</small></span><span class="lcgo" aria-hidden="true">›</span></a>
+  </div>
 </section>
 
 <!-- MEMBERSHIP TAB -->
@@ -284,9 +282,10 @@
   <div id="progSummary"></div>
   <div class="card"><h3>Log a weigh-in</h3>
   <form id="weightForm" class="weightform" novalidate autocomplete="off">
-    <label for="weightInput" class="small muted">Today's weight (optional). E.g. 85, 85.5, 190 lb or 13st 4lb</label>
+    <label for="weightInput" class="small muted">Your weight. E.g. 85, 85.5, 190 lb or 13st 4lb</label>
     <input id="weightInput" name="weight" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="e.g. 85.5">
     <div class="seg" role="radiogroup" aria-label="Unit"><button type="button" data-unit="kg" class="on">kg</button><button type="button" data-unit="st">st + lb</button><button type="button" data-unit="lb">lb</button></div>
+    <div class="wdaterow"><label class="small muted">Date<input id="weightDate" name="wdate" type="date" aria-label="Weigh-in date"></label><label class="small muted">Time (optional)<input id="weightTime" name="wtime" type="time" aria-label="Weigh-in time"></label></div>
     <p id="weightError" class="error" role="alert" hidden></p>
     <button type="submit" id="weightBtn" class="primary big">Save weigh-in</button>
   </form>
@@ -323,13 +322,7 @@
   <div class="card"><h3>🏆 My certificates</h3><div class="certgrid" id="certList"></div></div>
   <div class="card"><h3>🏅 Milestones</h3><ul class="milestones" id="milestoneList"></ul></div>
   <div class="card"><h3>All weigh-ins</h3><p class="small muted">Tap Edit to fix a typo, or Delete to remove an entry.</p><ul class="list wlist" id="weightList"></ul></div>
-  <div class="card backupcard" id="backupCard"><h3>💾 Keep your data safe</h3>
-    <p class="small" id="saveStatus"></p>
-    <p class="small muted">Your data is saved on this phone (twice: in the browser's storage and a backup copy). It is <b>not</b> uploaded anywhere. If you clear Chrome's site data or uninstall Chrome, it can be lost, so tap Back up every couple of weeks and keep the file in Google Drive, WhatsApp or email.</p>
-    <button type="button" id="backupBtn" class="primary big">⬇️ Back up my data</button>
-    <button type="button" id="restoreBtn" class="big">⬆️ Restore from backup</button>
-    <input type="file" id="restoreFile" accept="application/json,.json" hidden>
-    <p class="small muted" id="lastBackup"></p></div>
+  <div id="backupCard" hidden aria-hidden="true"><p id="saveStatus"></p><button type="button" id="backupBtn"></button><button type="button" id="restoreBtn"></button><input type="file" id="restoreFile" hidden><p id="lastBackup"></p></div>
   <h2>Workouts</h2><ul class="list" id="sessionList"></ul>
   <h2>Food check-ins</h2><ul class="list" id="foodList"></ul>
 </section>
@@ -341,32 +334,32 @@
   <div class="card" id="helpCard"><h3>💬 Help &amp; support</h3><p>Questions, problems or ideas? Email <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a>. <a href="privacy.html">Privacy policy</a></p></div>
   <div class="card" id="helpCard"><h3>💬 Help &amp; support</h3><p>Questions, problems or ideas? Email <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a>. <a href="privacy.html">Privacy policy</a></p></div>
   <div class="card" id="shareSetCard" hidden><h3>🤝 Sharing with your trainer</h3><p class="small muted">Choose what your trainer can see. Change it any time — switching off stops sharing straight away.</p><div class="shareSet"></div></div>
-  <div class="card" id="cloudCard"><h3>☁️ Cloud backup &amp; sync</h3>
+  <div class="card" id="cloudCard"><h3>☁️ Cloud backup &amp; sync</h3><p class="cloudsaved" id="cloudSaved" role="status" hidden></p>
     <p class="small muted" id="cloudStatus">Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you're online.</p>
     <form id="cloudForm" autocomplete="on" novalidate><label>Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password (8+ characters)<input id="cloudPass" type="password" autocomplete="current-password"></label>
       <p class="error" id="cloudErr" role="alert" hidden></p><div class="row"><button type="submit" class="primary" id="cloudIn">Sign in</button><button type="button" id="cloudUp">Create cloud account</button></div></form>
     <div id="cloudOn" hidden><div class="row"><button type="button" class="primary" id="cloudSync">Sync now</button><button type="button" id="cloudOut">Sign out of cloud</button></div>
-      <div class="row"><button type="button" id="cloudExport">⬇️ Export my data</button><button type="button" class="danger" id="cloudDelete">Delete my cloud data</button></div></div>
+      <div class="row"><button type="button" id="cloudExport">⬇️ Download my data (GDPR export)</button><button type="button" class="danger" id="cloudDelete">Delete my cloud data</button></div></div>
     <p class="small muted">Private: only you can see your rows. Injection entries are your own log only; nothing is calculated.</p></div>
-  <h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div>
+  <div class="flagtrainer"><h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div></div>
   <label>Your name <input id="setName" type="text"></label>
-  <label class="check"><input type="checkbox" id="setSpeech" checked> Reta speaks out loud</label>
-  <label class="small">Instructor voice <select id="setVoiceMode"><option value="recorded">Recorded (realistic)</option><option value="phone">Phone voice</option></select></label>
+  <div class="flagvoice"><label class="check"><input type="checkbox" id="setSpeech" checked> Instructor speaks out loud</label>
+  <label class="small">Instructor voice <select id="setVoiceMode"><option value="recorded">Recorded (realistic)</option><option value="phone">Phone voice</option></select></label></div>
   <label class="check"><input type="checkbox" id="setBeeps" checked> Beeps</label>
   <h3>Food profile</h3>
   <label>Country for ready-meal ideas <select id="setCountry"><option value="auto">Auto-detect</option><option value="UK">United Kingdom</option><option value="IE">Ireland</option><option value="US">United States</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="OTHER">Other / not listed</option></select></label>
   <label class="check"><input type="checkbox" id="setFussy"> Fussy eater mode (simple, familiar meals)</label>
   <p class="small muted">Tap a food once for 👍 like, twice for 🚫 won't eat, three times to clear. Every suggestion skips foods you won't eat.</p>
   <div class="chips" id="foodPicker"></div>
-  <h3>Voice ("Hey Reta")</h3>
+  <div class="flagvoice"><h3>Voice commands</h3>
   <p class="small muted" id="voiceSupport"></p>
-  <p class="small muted">Say "Hey Reta" then: start workout, pause, resume, next, end, log food, how many reps, weigh-in, shopping list, what should I prep, or what's next. Only works while the app is open on screen. In Chrome, speech recognition may be processed by the browser's online speech service (audio only, never video). Turn the mic off any time.</p>
-  <h3>Optional AI chat coach (off by default)</h3>
-  <p class="small muted">If you add your own API key, Reta sends short <b>text-only</b> summaries (rep counts, food notes) to an OpenAI-compatible endpoint for chattier feedback. Never video or audio. The key is stored only on this phone.</p>
+  <p class="small muted">Say the wake word then: start workout, pause, resume, next, end, log food, how many reps, weigh-in, shopping list, what should I prep, or what's next. Only works while the app is open on screen. In Chrome, speech recognition may be processed by the browser's online speech service (audio only, never video). Turn the mic off any time.</p></div>
+  <div class="flagvoice"><h3>Optional AI chat coach (off by default)</h3>
+  <p class="small muted">If you add your own API key, the app sends short <b>text-only</b> summaries (rep counts, food notes) to an OpenAI-compatible endpoint for chattier feedback. Never video or audio. The key is stored only on this phone.</p>
   <label class="check"><input type="checkbox" id="setLlm"> Use AI chat coach</label>
   <label>Endpoint <input id="setLlmUrl" type="url" placeholder="https://api.openai.com/v1/chat/completions"></label>
   <label>Model <input id="setLlmModel" type="text" placeholder="gpt-4o-mini"></label>
-  <label>API key <input id="setLlmKey" type="password" autocomplete="off"></label>
+  <label>API key <input id="setLlmKey" type="password" autocomplete="off"></label></div>
   <button id="saveSettings" class="primary">Save</button>
   <button id="clearData" class="danger">Clear all saved data</button>
 </section>
@@ -382,7 +375,7 @@
 <div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-label="All sections">
   <div class="lgrab"></div><h3>More</h3>
   <div class="lgrid">
-    <button type="button" data-ltile="coach"><i>🎙️</i><span>Coach</span></button>
+    <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
     <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
     <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
     <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
@@ -399,6 +392,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=32"></script>
+<script type="module" src="native.js?v=33"></script><script type="module" src="app.js?v=33"></script>
 </body>
 </html>

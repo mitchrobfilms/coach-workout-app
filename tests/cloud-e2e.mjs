@@ -1,3 +1,5 @@
+import { cleanupTestData } from './cleanup.mjs';
+for (const ev of ['uncaughtException', 'unhandledRejection']) process.on(ev, async e => { console.error(e); await cleanupTestData({ quiet: true }).catch(() => {}); process.exit(1); });
 // Cloud sync against the real Supabase project with throwaway users (deleted at the end). Usage: node tests/cloud-e2e.mjs [URL]
 import { chromium, devices } from 'playwright-core';
 import { nav } from './nav.mjs';
@@ -58,4 +60,4 @@ await p1.click('#cloudDelete'); await p1.waitForTimeout(2500); ok(!(await p1.isH
 const gone = await fetch(SB_URL + '/auth/v1/token?grant_type=password', { method: 'POST', headers: { apikey: SB_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ email: A, password: PW }) }); ok(gone.status >= 400, 'user A can no longer sign in');
 ok(await p1.evaluate(() => Object.keys(localStorage).filter(k => k.endsWith('weights')).some(k => JSON.parse(localStorage.getItem(k)).length === 2)), 'phone data kept after cloud delete');
 await fetch(SB_URL + '/rest/v1/rpc/delete_my_account', { method: 'POST', headers: { apikey: SB_KEY, authorization: 'Bearer ' + rB.access_token, 'content-type': 'application/json' }, body: '{}' });
-await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL CLOUD TESTS PASSED'); process.exit(fail ? 1 : 0);
+await b.close(); await cleanupTestData({ quiet: true }).catch(() => {}); console.log(fail ? `${fail} FAILED` : 'ALL CLOUD TESTS PASSED'); process.exit(fail ? 1 : 0);

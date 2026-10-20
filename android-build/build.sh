@@ -14,9 +14,9 @@ VER=${APP_VERSION:-1.0.$(date +%y%j)}; CODE=${VERSION_CODE:-1}
 cat > package.json <<J
 { "name": "glp1life-android", "private": true, "version": "1.0.0" }
 J
-npm i --no-audit --no-fund @capacitor/core@^8 @capacitor/cli@^8 @capacitor/android@^8 @capgo/capacitor-health@^8 >/dev/null
+npm i --no-audit --no-fund @capacitor/core@^8 @capacitor/cli@^8 @capacitor/android@^8 @capgo/capacitor-health@^8 @capacitor/filesystem@^8 @capacitor/share@^8 @capacitor/status-bar@^8 @capacitor/haptics@^8 @capacitor/local-notifications@^8 @capacitor/app@^8 @capacitor/browser@^8 @capacitor/camera@^8 capacitor-plugin-safe-area@^5 >/dev/null
 cat > capacitor.config.json <<J
-{ "appId": "com.glp1life.app", "appName": "GLP1 Life", "webDir": "www", "server": { "url": "$APP_ORIGIN", "errorPath": "index.html", "allowNavigation": ["mitchrobfilms.github.io", "glp1life.co.uk", "*.glp1life.co.uk", "*.supabase.co"] }, "android": { "allowMixedContent": false, "backgroundColor": "#5b2a86" }, "plugins": { "SystemBars": { "insetsHandling": "css", "style": "DARK" } } }
+{ "appId": "com.glp1life.app", "appName": "GLP1 Life", "webDir": "www", "server": { "url": "$APP_ORIGIN", "errorPath": "index.html", "allowNavigation": ["mitchrobfilms.github.io", "glp1life.co.uk", "*.glp1life.co.uk", "*.supabase.co"] }, "android": { "allowMixedContent": false, "backgroundColor": "#5b2a86" }, "plugins": { "SystemBars": { "insetsHandling": "css", "style": "DARK" }, "LocalNotifications": { "smallIcon": "ic_launcher_foreground", "iconColor": "#5b2a86" } } }
 J
 npx cap add android >/dev/null
 npx cap sync android >/dev/null
@@ -33,6 +33,7 @@ for t in types:
     n=f'{rw}_{t}'
     if n not in keep: perms.append(f'<uses-permission android:name="android.permission.health.{n}" tools:node="remove"/>')
 perms.append('<uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" tools:node="remove"/>')
+perms+=['<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>','<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>','<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.VIBRATE"/>','<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>','<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>']
 perms.append('<uses-feature android:name="android.hardware.camera" android:required="false"/>')
 perms.append('<queries><package android:name="com.google.android.apps.healthdata"/><intent><action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/></intent></queries>')
 s=s.replace('<application','\n    '.join(perms)+'\n    <application',1)
@@ -40,6 +41,20 @@ open(p,'w').write(s)
 PY
 mkdir -p android/app/src/main/res/values
 grep -q health_connect_privacy_policy_url android/app/src/main/res/values/strings.xml || sed -i "s#</resources>#    <string name=\"health_connect_privacy_policy_url\">${APP_ORIGIN}privacy.html</string>\n</resources>#" android/app/src/main/res/values/strings.xml
+# in-app updater plugin (download release APK + open installer via FileProvider)
+J=android/app/src/main/java/com/glp1life/app; cp "$ROOT/android-build/native/ApkUpdaterPlugin.java" $J/
+cat > $J/MainActivity.java <<X
+package com.glp1life.app;
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+public class MainActivity extends BridgeActivity {
+  @Override public void onCreate(Bundle b) { registerPlugin(ApkUpdaterPlugin.class); super.onCreate(b); }
+}
+X
+mkdir -p android/app/src/main/res/xml; cat > android/app/src/main/res/xml/file_paths.xml <<X
+<?xml version="1.0" encoding="utf-8"?>
+<paths xmlns:android="http://schemas.android.com/apk/res/android"><external-path name="my_images" path="." /><cache-path name="my_cache_images" path="." /><files-path name="files" path="." /></paths>
+X
 sed -i "s/minSdkVersion = [0-9]*/minSdkVersion = 26/" android/variables.gradle
 sed -i "s/versionCode [0-9]*/versionCode $CODE/; s/versionName \"[^\"]*\"/versionName \"$VER\"/" android/app/build.gradle
 # adaptive launcher icon (background gradient + centred leaf in safe zone + monochrome for themed icons)

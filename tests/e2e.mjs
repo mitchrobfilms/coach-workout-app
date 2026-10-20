@@ -3,6 +3,7 @@ import { chromium } from 'playwright-core';
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true,
   args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader'] });
 const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, permissions: ['camera', 'microphone'] });
+await ctx.addInitScript(() => localStorage.setItem('glp1life.features', JSON.stringify({ voice: true, trainerOnScreen: true, formCheckDefault: true }))); // legacy coach/voice/camera features (flagged off for users)
 const page = await ctx.newPage();
 const errors = []; let errors404 = 0;
 page.on('pageerror', e => errors.push('pageerror: ' + e.message));

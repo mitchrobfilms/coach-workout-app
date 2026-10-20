@@ -5,6 +5,7 @@ const cornerTap = async sel => { const bb = await p.$eval(sel, e => { const r = 
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'] });
 const ctx = await b.newContext({ ...devices['Pixel 5'], permissions: ['camera', 'microphone'] });
+await ctx.addInitScript(() => localStorage.setItem('glp1life.features', JSON.stringify({ voice: true, trainerOnScreen: true, formCheckDefault: true }))); // legacy coach/voice/camera features (flagged off for users)
 const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/404/.test(m.text()) && errs.push(m.text()));
 await p.goto(URL); await p.evaluate(() => { localStorage.clear(); localStorage.setItem('kova.weights', '[{"date":"2026-10-16T08:00:00Z","kg":86}]'); }); await p.reload();
 ok(await p.isVisible('#authScreen') && await p.isVisible('#wCreate') && await p.isVisible('#wLogin'), 'first launch shows Welcome (Create account + Log in)');

@@ -28,24 +28,21 @@ ok(!small.length, `all progress buttons ≥48 px ${small.join(',')}`);
 await p.screenshot({ path: `${OUT}/progress.png`, fullPage: true });
 // edit + delete
 const n0 = await p.$$eval('#weightList li', l => l.length);
-await p.click('#weightList [data-wedit]'); await p.fill('#weightList .wedit input[name=v]', '91.2'); await p.click('#weightList .wedit button.primary'); await p.waitForTimeout(200);
+await p.click('#weightList [data-wedit]'); await p.fill('#weightList .wedit input[name=v]', '91.2'); await p.click('#weightList .wedit button.primary'); await p.waitForTimeout(1500); if (await p.isVisible('#celebClose')) await p.click('#celebClose');
 ok((await p.$eval('#weightList li', e => e.innerText)).includes('91.2'), 'edit weigh-in');
 p.once('dialog', d => d.accept()); await p.click('#weightList [data-wdel]'); await p.waitForTimeout(200);
 ok(await p.$$eval('#weightList li', l => l.length) === n0 - 1, 'delete weigh-in');
 // backup download
-const [dl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#backupBtn')]);
-ok(!!dl, 'backup file downloaded'); const bpath = dl ? await dl.path() : null;
+ok(!(await p.isVisible('#backupBtn')) && !(await p.isVisible('#restoreBtn')) && !(await p.isVisible('#backupCard')), 'no on-device backup/restore UI (cloud is the only backup)');
 // IDB auto-restore after localStorage is cleared (but account kept)
 await p.waitForTimeout(500);
 await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (/weights$/.test(k)) localStorage.removeItem(k); });
 await p.reload(); await p.waitForTimeout(800); await nav(p, 'progress');
 ok(await p.$$eval('#weightList li', l => l.length) === n0 - 1, 'weigh-ins auto-restored from IndexedDB after localStorage wipe');
-// restore from file
 await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (/weights$/.test(k)) localStorage.removeItem(k); });
 await p.evaluate(async () => { await new Promise(r => { const q = indexedDB.deleteDatabase('reta-coach'); q.onsuccess = q.onerror = q.onblocked = r; }); });
 await p.reload(); await p.waitForTimeout(600); await nav(p, 'progress');
 ok(await p.$$eval('#weightList li:not(.muted)', l => l.length) === 0, 'data gone after full wipe');
-if (bpath) { p.once('dialog', d => d.accept()); await p.setInputFiles('#restoreFile', bpath); await p.waitForTimeout(1800); await nav(p, 'progress'); ok(await p.$$eval('#weightList li', l => l.length) === n0 - 1, 'restore from backup file'); }
 // GLP-1 builder
 await nav(p, 'prep'); await p.waitForTimeout(800);
 await p.click('#glpStore [data-gstore=aldi]'); await p.selectOption('#glpMeals', '4'); await p.click('#glpBuild'); await p.waitForTimeout(300);
@@ -64,8 +61,8 @@ await nav(p, 'prices'); await p.waitForTimeout(300); ok((await p.$$eval('#cmpLis
 { const t = await p.textContent('#tab-prices'); ok(/Typical price/.test(t) && !/403|block/i.test(t), 'Asda typical label, no block notice'); }
 await nav(p, 'aldi'); await p.click('#aldiHp'); await p.waitForTimeout(200); await p.click('#aldiOffers [data-useoffer]'); await p.waitForTimeout(300);
 // certificates
-await nav(p, 'progress'); await p.click('#weightForm .seg button[data-unit=kg]'); await p.fill('#weightInput', '90'); await p.click('#weightBtn'); await p.waitForTimeout(800);
-ok(await p.$eval('#celebrate', e => !e.hidden), 'celebration shown on milestone weigh-in');
+await nav(p, 'progress'); await p.click('#weightForm .seg button[data-unit=kg]'); await p.fill('#weightInput', '100'); await p.$eval('#weightDate', e => { const d = new Date(Date.now() - 7 * 864e5); e.value = d.toISOString().slice(0, 10); }); await p.click('#weightBtn'); await p.waitForTimeout(400); await p.fill('#weightInput', '84'); await p.$eval('#weightDate', e => e.value = e.max); await p.click('#weightBtn'); await p.waitForTimeout(800);
+await p.waitForTimeout(1200); console.log('DBG', await p.textContent('#weightError'), await p.evaluate(() => [window.__kova.injReady, JSON.parse(localStorage[Object.keys(localStorage).find(k => /\.certificates$/.test(k))] || '[]').length, JSON.parse(localStorage[Object.keys(localStorage).find(k => /\.weights$/.test(k))]).slice(-2)])); ok(await p.$eval('#celebrate', e => !e.hidden), 'celebration shown on milestone weigh-in');
 await p.waitForTimeout(2600); await p.screenshot({ path: `${OUT}/certificate-celebration.png` });
 const [cdl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#celebDl')]);
 ok(cdl && /\.png$/.test(cdl.suggestedFilename()), 'certificate PNG downloaded'); if (cdl) await cdl.saveAs(`${OUT}/certificate.png`);

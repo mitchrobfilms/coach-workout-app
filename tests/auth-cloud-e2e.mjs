@@ -1,3 +1,5 @@
+import { cleanupTestData } from './cleanup.mjs';
+for (const ev of ['uncaughtException', 'unhandledRejection']) process.on(ev, async e => { console.error(e); await cleanupTestData({ quiet: true }).catch(() => {}); process.exit(1); });
 // Welcome -> Create account (Supabase sign-up) -> data syncs; fresh phone -> Log in restores; forgot password request. Throwaway user, cleaned up.
 import { chromium, devices } from 'playwright-core';
 import { nav } from './nav.mjs';
@@ -31,5 +33,6 @@ try {
   const cw = await sql(`select w.id, w.deleted from public.weights w join auth.users u on u.id=w.user_id where u.email='${E}'`); console.log('CLOUDW', JSON.stringify(cw), 'LOCALW', JSON.stringify(w), await q.evaluate(() => Object.keys(localStorage).filter(k => /weights|tomb/.test(k)).map(k => k + '=' + localStorage[k]).join(' | ')));
   ok(w.some(x => Math.abs(x.kg - 91.2) < .01), 'fresh phone log in restores cloud data');
   ok(!errs.length, 'no page errors ' + errs.join(' | '));
-} finally { await b.close(); await sql(`delete from auth.users where email='${E}'`); }
+} finally {
+  await cleanupTestData({ quiet: true }).catch(() => {}); await b.close(); await sql(`delete from auth.users where email='${E}'`); }
 console.log(fail ? `${fail} FAILED` : 'ALL AUTH CLOUD TESTS PASSED'); process.exit(fail ? 1 : 0);

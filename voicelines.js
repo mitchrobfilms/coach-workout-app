@@ -74,7 +74,7 @@ const plain = c => c.name.replace(' (Zumba-style)', '').replace('(Zumba-style)',
 /** Line ids/texts used by a class (same strings the class engine speaks). */
 export function classLines(c) {
   const out = [], add = (id, text, tags) => out.push({ id, text, tags });
-  add(`class.${c.id}.welcome`, `Welcome to ${plain(c)}! I'm Reta. ${Math.round(c.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(c.sections.warm / 60)} minute warm-up.`, ['class', c.id]);
+  add(`class.${c.id}.welcome`, `Welcome to ${plain(c)}! ${Math.round(c.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(c.sections.warm / 60)} minute warm-up.`, ['class', c.id]);
   for (const s of c.steps) {
     const k = `class.${c.id}.${slug(s.name)}`;
     if (s.kind === 'trans' || s.kind === 'water') continue;

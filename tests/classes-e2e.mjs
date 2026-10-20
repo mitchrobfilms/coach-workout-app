@@ -9,6 +9,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   console.log(`[${name}]`);
   const b = await type.launch(type === chromium ? { executablePath: '/usr/bin/google-chrome', args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'] } : {});
   const ctx = await b.newContext({ ...dev, locale: 'en-GB', timezoneId: 'Europe/London', permissions: type === chromium ? ['camera'] : [] });
+  await ctx.addInitScript(() => localStorage.setItem('glp1life.features', JSON.stringify({ voice: true, trainerOnScreen: true, formCheckDefault: true }))); // legacy coach/voice/camera features (flagged off for users)
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => { if (!/access control checks/.test(e.message)) errs.push(e.message); });
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
   await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');

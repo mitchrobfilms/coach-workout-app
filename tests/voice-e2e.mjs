@@ -3,7 +3,7 @@ import { chromium, devices } from 'playwright-core';
 const URL = process.argv[2] || 'http://localhost:8765/';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'] });
 const ctx = await b.newContext({ ...devices['Pixel 5'], locale: 'en-GB', permissions: ['camera', 'microphone'] });
-await ctx.addInitScript(() => {
+await ctx.addInitScript(() => { localStorage.setItem('glp1life.features', JSON.stringify({ voice: true, trainerOnScreen: true, formCheckDefault: true })); localStorage.setItem('kova.formCheckDefault', '1');
   window.__sr = { starts: 0, active: null, script: [] };
   class FakeSR { constructor() { this.continuous = false; this.interimResults = false; this.lang = ''; }
     start() { if (window.__sr.active) throw new Error('InvalidStateError: already started'); window.__sr.active = this; window.__sr.starts++; window.__sr.lang = this.lang; this._idx = 0; this._results = [];
@@ -21,7 +21,7 @@ if (await p.$('#authScreen:not([hidden])')) { await (async () => { if (await p.i
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 await p.click('#micBtn'); await p.waitForTimeout(300);
 ok(await p.evaluate(() => window.__sr.starts === 1 && !!window.__sr.active), 'mic on starts recognition (lang ' + await p.evaluate(() => window.__sr.lang) + ')');
-ok((await p.textContent('#micLabel')).includes('Hey Reta'), 'indicator: ' + await p.textContent('#micLabel'));
+ok((await p.textContent('#micLabel')).includes('Listening'), 'indicator: ' + await p.textContent('#micLabel'));
 await p.waitForTimeout(3200);
 ok(await p.evaluate(() => window.__sr.starts >= 2 && !!window.__sr.active), 'auto-restarts after session ends (starts=' + await p.evaluate(() => window.__sr.starts) + ')');
 await p.evaluate(() => window.__sr.active._error('no-speech')); await p.waitForTimeout(400);

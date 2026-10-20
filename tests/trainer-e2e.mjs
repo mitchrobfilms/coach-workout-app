@@ -1,3 +1,5 @@
+import { cleanupTestData } from './cleanup.mjs';
+for (const ev of ['uncaughtException', 'unhandledRejection']) process.on(ev, async e => { console.error(e); await cleanupTestData({ quiet: true }).catch(() => {}); process.exit(1); });
 // Trainer programme: registration -> admin approve -> client code w/ explicit consent -> trainer dashboard (RLS) -> commission. Throwaway users, cleaned up.
 import { chromium, devices } from 'playwright-core';
 import { nav } from './nav.mjs';
@@ -74,6 +76,7 @@ try {
   await a.click(`[data-paid="${tid}"]`); await a.waitForTimeout(1500); ok(/Paid/.test(await a.textContent(`#cbody tr:has-text("Sam Test ${s}")`)), 'mark invoice paid');
   await a.click('[data-v="promos"]'); await a.waitForSelector('#plist li'); if (OUT) await a.screenshot({ path: `${OUT}/admin-promos.png` });
 } finally {
+  await cleanupTestData({ quiet: true }).catch(() => {});
   await b.close();
   for (const o of await sql(`select name from storage.objects where bucket_id='trainers' and name like 'pending/%icon-192.png'`).catch(() => [])) await fetch(`${SB_URL}/storage/v1/object/trainers/${o.name}`, { method: 'DELETE', headers: { apikey: SB_KEY, authorization: 'Bearer ' + ad.access_token } });
   await sql(`delete from public.promo_codes where trainer_id='${tid}'; delete from public.trainers where id='${tid}'; delete from auth.users where email in ('${AD}','${TR}','${CL}','${OT}')`);

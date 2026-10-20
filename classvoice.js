@@ -20,7 +20,7 @@ const SOFAR = { punches: 'punches', 'on-beat moves': 'onbeat', 'seconds held': '
 export const soFarLine = (metric, name, kcal) => ({ text: `${metric} ${name} so far. That's about ${kcal} calories.`, kind: 'high',
   parts: SOFAR[name] ? [...(numberParts(metric) || []), `sfx.sofar.${SOFAR[name]}`, 'sfx.about', ...(numberParts(kcal) || []), 'sfx.calories'] : null });
 
-export const welcomeLine = c => ({ text: `Welcome to ${plainName(c)}! I'm Reta. ${Math.round(c.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(c.sections.warm / 60)} minute warm-up.`, id: `class.${c.id}.welcome`, alts: [`${c.id}.intro`], kind: 'high', talk: true });
+export const welcomeLine = c => ({ text: `Welcome to ${plainName(c)}! ${Math.round(c.total / 60)} minutes, beginner friendly. Let's start with a ${Math.round(c.sections.warm / 60)} minute warm-up.`, id: `class.${c.id}.welcome`, alts: [`${c.id}.intro`], kind: 'high', talk: true });
 export const nextLine = (c, n) => ({ text: `Next up: ${n.name}.`, id: `class.${c.id}.${slug(n.name)}.next_short` });
 /** Lines spoken when step i starts (after the welcome, step 0 says nothing). */
 export function stepStartLines(c, i) {

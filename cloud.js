@@ -3,7 +3,7 @@
 export const SB_URL = 'https://paxukvgdavcolzkvcapo.supabase.co', SB_KEY = 'sb_publishable_UXJgDeGI2ELqWfrNYBrtWg_oC6wV9rr';
 const LIST = { weights: ['weights', x => x.date], injections: ['injections', x => x.id || x.at], certificates: ['certificates', x => x.id || x.key || x.at] };
 // Everything the app stores per account: list collections get one row per item; the rest are whole documents.
-const DOCS = { meal_plans: ['glp1', 'myPlan', 'shop'], check_ins: ['daily', 'weekChecks', 'food', 'sessions', 'classes', 'classSeen', 'injectSchedule', 'injNotified', 'backupAt'] };
+const DOCS = { meal_plans: ['glp1', 'myPlan', 'shop', 'cookProgress'], check_ins: ['daily', 'weekChecks', 'food', 'sessions', 'classes', 'classSeen', 'injectSchedule', 'injNotified', 'backupAt'] };
 export const SYNCED_KEYS = ['weights', 'injections', 'certificates', ...Object.values(DOCS).flat(), 'settings'];
 const isEmpty = v => v == null || (Array.isArray(v) ? !v.length : typeof v === 'object' && !Object.keys(v).length);
 const SKIP_SETTINGS = ['llmKey', 'llmUrl']; // never upload secrets
@@ -42,13 +42,13 @@ export function makeCloud(store, prefix, { certBlob } = {}) {
       store.set('cloud.lastSync', now);
     },
     // merge cloud rows into the phone (union by id; cloud tombstones remove local items; docs fill gaps)
-    async pull(settings) {
+    async pull(settings, { fresh = !store.get('cloud.lastSync', null) } = {}) { // fresh install / new phone: the cloud copy wins
       if (!ses) return 0; let n = 0;
       for (const [tbl, [key, id]] of Object.entries(LIST)) { const rows = await api(`/rest/v1/${tbl}?select=id,data,deleted`); const local = store.get(key, []), m = new Map(local.map(x => [String(id(x)), x]));
         for (const r of rows) { if (r.deleted) { if (m.delete(r.id)) n++; } else if (!m.has(r.id)) { m.set(r.id, r.data); n++; } }
         let arr = [...m.values()]; if (key === 'weights') arr.sort((a, b) => Date.parse(a.date) - Date.parse(b.date)); if (key === 'injections') arr.sort((a, b) => Date.parse(a.at) - Date.parse(b.at)); store.set(key, arr); }
       for (const tbl of Object.keys(DOCS)) for (const r of await api(`/rest/v1/${tbl}?select=id,data`)) if (isEmpty(store.get(r.id, null)) && !isEmpty(r.data?.v)) { store.set(r.id, r.data.v); n++; }
-      const [s] = await api('/rest/v1/settings?select=data'); if (s?.data) for (const [k, v] of Object.entries(s.data)) if (settings[k] == null || settings[k] === '') settings[k] = v;
+      const [s] = await api('/rest/v1/settings?select=data'); if (s?.data) for (const [k, v] of Object.entries(s.data)) if (fresh || settings[k] == null || settings[k] === '') settings[k] = v;
       return n;
     },
     async exportAll() { const out = { exported: new Date().toISOString(), email: ses?.user?.email }; for (const t of ['profiles', 'settings', ...Object.keys(LIST), ...Object.keys(DOCS)]) out[t] = await api(`/rest/v1/${t}?select=*`); return out; },
