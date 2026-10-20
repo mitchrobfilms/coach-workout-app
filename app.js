@@ -4,7 +4,7 @@ import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from
 import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
 import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
 import { newAwards, drawCertificate } from './certs.js';
-import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL } from './glp1.js';
+import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL, fitPortion } from './glp1.js';
 import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
@@ -507,8 +507,6 @@ addEventListener('keydown', e => { if (e.key === 'Escape' && !$('launcher').hidd
 document.querySelectorAll('#launcher [data-tab], #launcher [data-ltile]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false);
   if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "Hey Reta" or tap Talk'); return; }
   window.__noHideUntil = Date.now() + 1200; switchTab(b.dataset.tab); const sc = b.dataset.lscroll; if (sc) setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); else scrollTo(0, 0); });
-{ let lastY = scrollY, tick = false; addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { const y = scrollY, d = $('dock');
-  if (y > lastY + 6 && y > 120 && $('launcher').hidden && Date.now() > (window.__noHideUntil || 0)) d.classList.add('hide'); else if (y < lastY - 6 || y < 60) d.classList.remove('hide'); lastY = y; tick = false; }); }, { passive: true }); }
 
 /* ---------- food check-in ---------- */
 const foodHist = () => store.get('food', {});
@@ -1575,3 +1573,140 @@ function beepDone() { try { const a = new AudioContext(), o = a.createOscillator
 function closeCook() { stopTimer(); wake(false); cook.id = null; $('cookMode').hidden = true; }
 document.addEventListener('click', e => { const b = e.target.closest('[data-cook]'); if (!b) return; const r = [...PREP_RECIPES, ...GLP1_RECIPES_ALL].find(x => x.id === b.dataset.cook); openCook(b.dataset.cook, r?.name || 'Cook mode'); });
 window.__kova.openCook = openCook;
+
+/* ================= GLP1 Life screens ================= */
+const ICO = { breakfast: ['🥣', '#fde9d9'], lunch: ['🥗', '#e3f4e6'], dinner: ['🍲', '#f6e3d3'], snack: ['🍎', '#fbe4e4'] };
+const KG_LB = 2.20462, stlb = kg => { const lb = Math.round(kg * KG_LB); return `${Math.floor(lb / 14)} st ${lb % 14} lb`; };
+const todayKey = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+function weekStartISO() { const d = new Date(todayKey() + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10); }
+function ringSVG(pct) { const r = 50, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, pct)); return `<svg class="wring" viewBox="0 0 120 120" role="img" aria-label="${p}% to goal"><circle cx="60" cy="60" r="${r}" fill="none" stroke="#e6f5ec" stroke-width="12"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="#2e9d5b" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c * p / 100} ${c}" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle">${p}%</text></svg>`; }
+function renderHome() {
+  if (!$('homeDash')) return;
+  const h = +new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: 'numeric', hour12: false });
+  $('greet').textContent = `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${settings.name || 'there'} 🌿`;
+  const w = store.get('weights', []), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
+  const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
+  $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>
+    <div class="ringrow">${ringSVG(pct)}<div class="down"><b>${lbsDown} lbs</b><span>down</span><p class="small muted">${w.length ? `Since ${new Date(w[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}</p></div></div>`;
+  $('wCard').onclick = () => switchTab('progress');
+  const day = store.get('daily', {}), t = day[todayKey()] || {};
+  $('waterCard').innerHTML = `<i>💧</i><span><small>Hydration</small><b>${t.water || 0}/8</b><small>glasses · tap +1</small></span>`;
+  $('waterCard').onclick = () => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; x.water = ((x.water || 0) + 1) % 9; store.set('daily', d); renderHome(); };
+  $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · tap to add</small></span>`;
+  $('stepsCard').onclick = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
+  const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
+  $('nextInjCard').innerHTML = `<div class="row between"><div><h3>💉 Next injection</h3><p style="margin:0"><b>${esc(last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged')}</b>${last?.dose ? `<br>${esc(last.dose)} ${esc(last.unit || '')} <small class="muted">(your last logged dose)</small>` : ''}</p>
+    <p class="small" style="margin:6px 0 0">📅 ${nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set'}</p></div>
+    <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
+  $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+  const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
+  const water = Object.entries(store.get('daily', {})).some(([d, v]) => d >= ws && v.water >= 6);
+  const checks = [['inject', 'Inject', l.some(e => inWeek(e.at))], ['weigh', 'Weigh', w.some(x => inWeek(x.date))], ['water', 'Water', water || !!wk.water], ['meals', 'Meals', !!glp.plan || !!wk.meals], ['mindset', 'Mindset', !!wk.mindset]];
+  $('weekChecks').innerHTML = checks.map(([k, n, d]) => `<button type="button" class="wck ${d ? 'done' : ''}" data-wck="${k}" aria-pressed="${d}"><i>${d ? '✓' : ''}</i>${n}</button>`).join('');
+  $('weekChecks').querySelectorAll('[data-wck]').forEach(b => b.onclick = () => { const k = b.dataset.wck; if (k === 'inject') return switchTab('progress'); if (k === 'weigh') return switchTab('progress'); const all = store.get('weekChecks', {}), x = all[ws] ||= {}; x[k] = !x[k]; store.set('weekChecks', all); renderHome(); });
+  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP-1 Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards']];
+  $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
+  $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
+}
+const sortInjL = l => l.slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+// Track: segment tabs + body site map
+document.querySelectorAll('#trackSeg [data-seg]').forEach(b => b.onclick = () => { document.querySelectorAll('#trackSeg button').forEach(x => x.classList.toggle('on', x === b)); $(b.dataset.seg)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+function renderBodySites() {
+  if (!$('bodyFig')) return;
+  const since = Date.now() - 56 * 864e5, l = store.get('injections', []).filter(e => Date.parse(e.at) >= since), n = s => l.filter(e => e.site === s).length;
+  const z = (s, path) => `<path d="${path}" fill="${n(s) ? `rgba(91,42,134,${Math.min(.85, .25 + n(s) * .15)})` : 'rgba(46,157,91,.12)'}" stroke="#5b2a86" stroke-width="1"><title>${s}: ${n(s)}</title></path>`;
+  const body = '<path d="M50 8a10 10 0 1 1 0 20a10 10 0 1 1 0-20M34 32h32l8 40-8 4-4-26v40l4 50h-12l-4-46-4 46H34l4-50V50l-4 26-8-4z" fill="#f3eefa" stroke="#bfb2d3"/>';
+  const fig = (title, inner) => `<div><svg viewBox="0 0 100 160">${body}${inner}</svg><small>${title}</small></div>`;
+  $('bodyFig').innerHTML = `<div class="bodyfig">${fig('Stomach', z('Abdomen left', 'M51 56h12v18H51z') + z('Abdomen right', 'M37 56h12v18H37z'))}${fig('Arms', z('Arm right', 'M27 44l6-6 2 22-6 4z') + z('Arm left', 'M73 44l-6-6-2 22 6 4z'))}${fig('Thighs', z('Thigh right', 'M38 92h10v24H38z') + z('Thigh left', 'M52 92h10v24H52z'))}</div>
+    <p class="small muted">${l.length ? `Last site: <b>${esc(sortInjL(l).at(-1).site || 'not recorded')}</b>. Shaded = logged in the last 8 weeks.` : 'No injections logged in the last 8 weeks.'}</p>`;
+}
+// Classes & support
+const SUPPORT = [
+  ['🧭', 'GLP-1 Basics for New Users', 'How GLP-1 medicines work, what to expect in the first weeks, and questions to ask your prescriber.', ['GLP-1 medicines (such as semaglutide, tirzepatide and, in trials, retatrutide) mimic gut hormones that reduce appetite and slow stomach emptying.', 'Early weeks: smaller appetite, feeling full quickly, sometimes nausea. These often ease as your body adjusts.', 'Your prescriber decides your dose and when it changes. This app never gives dosing advice.', 'Ask your GP or prescriber: what side effects should I report, and how should I store my pens?']],
+  ['🩺', 'Managing Side Effects', 'Practical tips for nausea, constipation and low energy.', ['Eat slowly, stop at the first sign of fullness, and choose smaller meals.', 'Bland, lower-fat foods (toast, rice, chicken, yoghurt) are often easier when queasy.', 'Sip water through the day: aim for 6–8 glasses. Add fibre gradually for constipation.', 'Seek urgent help for severe tummy pain, persistent vomiting or signs of dehydration, and tell your GP or prescriber about anything that worries you.']],
+  ['🥗', 'Nutrition for GLP-1', 'Protein first, high-fibre and balanced meals.', ['Aim for protein at every meal (around 25–40 g) to help protect muscle.', 'Fill half your plate with veg or salad; add a fist of carbs if you can manage it.', 'Use the Meal Plan Builder for high-protein, small-portion ideas with Aldi, Lidl and Asda prices.']],
+  ['🧠', 'Mindset & Motivation', 'Build healthy habits that last.', ['Track small wins: weigh-ins, water, steps and workouts all count.', 'Expect plateaus; they are normal. Focus on the trend, not one day.', 'Tick "Mindset" on your Home screen each week you take time to reflect.']],
+  ['👥', 'Member Community', 'Connect with others on the same journey.', ['A members\' community is coming soon. For now, share progress with friends using your milestone certificates.']]];
+function renderSupport() {
+  if (!$('supportCards')) return;
+  $('supportCards').innerHTML = SUPPORT.map(([i, t, d], k) => `<div class="card scard"><div class="sic">${i}</div><div><h3>${t}</h3><p class="small muted">${d}</p></div><button type="button" class="primary" data-sup="${k}">${k === 4 ? 'Join' : 'Open'}</button></div>`).join('');
+  $('supportCards').querySelectorAll('[data-sup]').forEach(b => b.onclick = () => { const [i, t, d, pts] = SUPPORT[+b.dataset.sup]; openSheet(`<div class="rhero" style="background:var(--lav)">${i}</div><div class="rbody"><h2>${t}</h2><p class="muted">${d}</p><ul>${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul>${+b.dataset.sup === 4 ? '<button type="button" class="primary big" disabled>Coming soon</button>' : ''}<p class="small muted">General information only, not medical advice. Check with your GP or prescriber.</p></div>`); });
+}
+function openSheet(html) { $('recipeBody').innerHTML = html; $('recipeModal').hidden = false; $('recipeModal').scrollTop = 0; }
+$('recipeClose').onclick = () => { $('recipeModal').hidden = true; }; $('recipeModal').onclick = e => { if (e.target.id === 'recipeModal') $('recipeModal').hidden = true; };
+// Meals: My Plan
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const mp = Object.assign({ min: 1200, max: 1800, focus: 'High protein', day: (new Date().getDay() + 6) % 7, seed: 1, added: [] }, store.get('myPlan', {}));
+const saveMp = () => store.set('myPlan', mp);
+const LOWCARB_OUT = /oats|rice|pasta|potato|lentil|chickpea|bread|wrap/;
+function dayMeals(d) {
+  const target = (mp.min + mp.max) / 2, slots = ['breakfast', 'lunch', 'dinner', 'snack'], share = { breakfast: .25, lunch: .3, dinner: .33, snack: .12 };
+  return slots.map((slot, si) => { let pool = GLP1_RECIPES_ALL.filter(r => r.meal === slot); if (mp.focus === 'Low carb') { const p = pool.filter(r => !r.ing.some(([k]) => LOWCARB_OUT.test(k))); if (p.length) pool = p; }
+    if (mp.focus === 'High protein') pool = pool.slice().sort((a, b) => STAPLE[b.core].protein - STAPLE[a.core].protein);
+    const added = mp.added.map(id => GLP1_RECIPES_ALL.find(r => r.id === id)).filter(r => r?.meal === slot);
+    const r = added.length && d % 2 === 0 ? added[(d / 2) % added.length | 0] : pool[(d + mp.seed + si) % pool.length];
+    const f = fitPortion(r, slot === 'snack' ? 15 : mp.focus === 'High protein' ? 32 : 26); const scale = Math.max(.6, Math.min(1.4, target * share[slot] / Math.max(1, f.kcal)));
+    return { slot, r, kcal: Math.round(f.kcal * scale / 10) * 10, protein: Math.round(f.protein * scale) }; });
+}
+function renderMyPlan() {
+  if (!$('myPlan')) return;
+  const ms = dayMeals(mp.day), tot = ms.reduce((s, m) => s + m.kcal, 0), pro = ms.reduce((s, m) => s + m.protein, 0);
+  $('myPlan').innerHTML = `<div class="row between"><b>Calorie range</b><span class="muted small">daily guide</span></div><p class="kcal"><b id="kcalVal">${mp.min.toLocaleString('en-GB')} – ${mp.max.toLocaleString('en-GB')}</b> kcal</p>
+    <div class="calrange"><label class="small">Min<input type="range" id="kMin" min="1000" max="2200" step="50" value="${mp.min}"></label><label class="small">Max<input type="range" id="kMax" min="1100" max="2600" step="50" value="${mp.max}"></label></div>
+    <div class="focus" id="focusChips">${['High protein', 'Low carb', 'Balanced'].map(f => `<button type="button" class="${mp.focus === f ? 'on' : ''}" data-focus="${f}">${f}</button>`).join('')}</div>
+    <h3>Your meal plan</h3><div class="dayt" id="dayTabs">${DAYS.map((d, i) => `<button type="button" class="${mp.day === i ? 'on' : ''}" data-day="${i}">${d}</button>`).join('')}</div>
+    <div id="mealList">${ms.map(m => `<button type="button" class="meal" data-recipe="${m.r.id}" data-kcal="${m.kcal}" data-prot="${m.protein}"><span class="mimg" style="background:${ICO[m.slot][1]}">${ICO[m.slot][0]}</span><span><small style="text-transform:capitalize;font-weight:700;color:var(--txt)">${m.slot}</small><b>${esc(m.r.name)}</b><small>${m.kcal} kcal | ${m.protein}g protein</small></span></button>`).join('')}</div>
+    <p class="small muted">Day total about ${tot} kcal, ${pro} g protein. Eat to appetite; smaller portions are fine on GLP-1 medicines.</p>
+    <button type="button" class="greenbtn big" id="genPlan">Generate New Meal Plan</button>`;
+  const upd = () => { let a = +$('kMin').value, b = +$('kMax').value; if (a > b - 100) { if (document.activeElement.id === 'kMin') a = b - 100; else b = a + 100; } mp.min = a; mp.max = b; saveMp(); renderMyPlan(); };
+  $('kMin').onchange = upd; $('kMax').onchange = upd; $('kMin').oninput = $('kMax').oninput = () => { $('kcalVal').textContent = `${(+$('kMin').value).toLocaleString('en-GB')} – ${(+$('kMax').value).toLocaleString('en-GB')}`; };
+  $('focusChips').querySelectorAll('[data-focus]').forEach(b => b.onclick = () => { mp.focus = b.dataset.focus; saveMp(); renderMyPlan(); });
+  $('dayTabs').querySelectorAll('[data-day]').forEach(b => b.onclick = () => { mp.day = +b.dataset.day; saveMp(); renderMyPlan(); });
+  $('mealList').querySelectorAll('[data-recipe]').forEach(b => b.onclick = () => glpRecipe(b.dataset.recipe, +b.dataset.kcal, +b.dataset.prot));
+  $('genPlan').onclick = () => { mp.seed = (mp.seed + 3) % 97; saveMp(); renderMyPlan(); toast('✨ New meal plan ready'); };
+}
+document.querySelectorAll('#mealSeg [data-mseg]').forEach(b => b.onclick = () => { document.querySelectorAll('#mealSeg button').forEach(x => x.classList.toggle('on', x === b)); if (b.dataset.mseg === 'shop') return switchTab('shop'); $(b.dataset.mseg === 'myplan' ? 'myPlan' : b.dataset.mseg)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+function glpRecipe(id, kcal, prot) {
+  const r = GLP1_RECIPES_ALL.find(x => x.id === id); if (!r) return; const f = fitPortion(r, r.meal === 'snack' ? 15 : 30);
+  const fat = Math.round(Object.entries(f.grams).reduce((s, [k, g]) => s + (STAPLE[k]?.fat || 0) * g / 100, 0)) || null;
+  const carbs = Math.max(0, Math.round(((kcal || f.kcal) - (prot || f.protein) * 4 - (fat || 0) * 9) / 4));
+  const g = guideFor(id);
+  openSheet(`<div class="rhero" style="background:${ICO[r.meal][1]}">${ICO[r.meal][0]}</div><div class="rbody"><h2>${esc(r.name)}</h2>
+    <div class="macros"><div><b>${kcal || f.kcal}</b><small>kcal</small></div><div><b>${prot || f.protein}g</b><small>Protein</small></div><div><b>${r.fridgeDays}d</b><small>Fridge</small></div><div><b>${g ? g.total + ' min' : '–'}</b><small>Time</small></div></div>
+    <div class="segtabs" id="rSeg"><button type="button" class="on" data-rs="ing">Ingredients</button><button type="button" data-rs="method">Method</button><button type="button" data-rs="nut">Nutrition</button></div>
+    <div id="rs-ing" class="ingl">${Object.entries(f.grams).map(([k, gr]) => `<label><input type="checkbox"> ${gr} ${STAPLE[k]?.unit === 'ml' ? 'ml' : 'g'} ${esc((STAPLE[k]?.name || k).replace(/\s*\(.*?\)/g, ''))}</label>`).join('')}</div>
+    <div id="rs-method" hidden><ol>${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>${g ? `<p class="small">${g.ovenText ? '🔥 ' + esc(g.ovenText) + '<br>' : ''}Keeps ${r.fridgeDays} days in the fridge.</p><button type="button" class="big" data-cook="${r.id}">👩‍🍳 Start Cook mode (timers &amp; temperatures)</button>` : ''}</div>
+    <div id="rs-nut" hidden><p>Per portion (estimate): <b>${kcal || f.kcal} kcal</b>, <b>${prot || f.protein} g protein</b>, about ${carbs} g carbs.</p><p class="small muted">*Estimated from typical UK values. Check labels.</p></div>
+    <button type="button" class="greenbtn big" id="addMyPlan">${mp.added.includes(id) ? '✓ In My Meal Plan' : 'Add to My Meal Plan'}</button></div>`);
+  $('rSeg').querySelectorAll('[data-rs]').forEach(b => b.onclick = () => { $('rSeg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); ['ing', 'method', 'nut'].forEach(k => $('rs-' + k).hidden = k !== b.dataset.rs); });
+  $('addMyPlan').onclick = () => { if (!mp.added.includes(id)) mp.added.push(id); saveMp(); $('addMyPlan').textContent = '✓ In My Meal Plan'; toast('✅ Added to My Meal Plan'); renderMyPlan(); };
+}
+// Price compare (food only) + weekly offers
+const CMP_CATS = { All: null, Protein: /chicken|turkey|beef|salmon|tuna|egg|tofu|prawn|mince|cod/i, Dairy: /skyr|yog|milk|cheese|cottage|quark/i, 'Veg & fruit': /pepper|spinach|broccoli|veg|berr|banana|apple|carrot|onion|tomato|salad|pea/i, Cupboard: /oat|rice|pasta|lentil|chickpea|bean|bread|wrap|potato/i };
+const cmpCat = { c: 'All' };
+const _renderCompare = renderCompare;
+renderCompare = function () {
+  if (!$('cmpList')) return;
+  $('cmpCats').innerHTML = Object.keys(CMP_CATS).map(c => `<button type="button" class="chip ${cmpCat.c === c ? 'on' : ''}" data-ccat="${c}">${c}</button>`).join('');
+  $('cmpCats').querySelectorAll('[data-ccat]').forEach(b => b.onclick = () => { cmpCat.c = b.dataset.ccat; renderCompare(); });
+  const q = cmpUI.q.trim().toLowerCase(), re = CMP_CATS[cmpCat.c], items = (pricesData?.items || []).filter(i => (!q || i.name.toLowerCase().includes(q)) && (!re || re.test(i.name + ' ' + i.key)));
+  $('cmpStatus').textContent = `Aldi and Lidl update daily at 00:30 (last checked ${fmtUK(offersData?.stores?.aldi?.checked)}). Asda: typical price. Food only.`;
+  $('cmpList').innerHTML = items.length ? items.map(i => { const pr = { aldi: i.offers?.aldi?.price != null && i.offers.aldi.grams ? i.offers.aldi.price / i.offers.aldi.grams * i.pack : i.prices.aldi, lidl: i.offers?.lidl?.price != null && i.offers.lidl.grams ? i.offers.lidl.price / i.offers.lidl.grams * i.pack : i.prices.lidl, asda: i.prices.asda };
+    const ks = ['aldi', 'lidl', 'asda'].filter(k => pr[k] != null).map(k => [k, Math.round(pr[k] * 100) / 100]), min = Math.min(...ks.map(x => x[1])), max = Math.max(...ks.map(x => x[1])), best = ks.find(x => x[1] === min)?.[0];
+    const tag = { aldi: i.full?.aldi ? 'live' : (i.offers?.aldi ? 'offer' : 'typical'), lidl: i.offers?.lidl ? 'offer' : 'typical', asda: 'Typical price' };
+    return `<div class="card cmp"><b>${esc(i.name)}</b> <small class="muted">per ${i.pack >= 1000 ? i.pack / 1000 + ' kg' : i.pack + ' g'} · ${i.protein} g protein /100 g</small>
+      <div class="pcmp">${ks.map(([k, v]) => `<div class="prow ${k === best ? 'best' : ''}"><span><span class="ostore ${k}">${STORE_NAMES[k]}</span> <small class="muted">${tag[k]}</small></span><b>${fmtGBP(v)}</b></div>`).join('')}</div>
+      <div class="row between" style="margin-top:8px"><span class="bestbadge">✓ Best value: ${STORE_NAMES[best]}</span>${max > min ? `<span class="save">Save ${fmtGBP(Math.round((max - min) * 100) / 100)} vs ${STORE_NAMES[ks.find(x => x[1] === max)[0]]}</span>` : ''}</div></div>`; }).join('') : '<p class="empty">No matching foods.</p>';
+  const ql = q.length > 1 ? (fullData?.stores?.aldi?.items || []).filter(i => i.name.toLowerCase().includes(q)).slice(0, 10) : [], lo = q.length > 1 ? (offersData?.stores?.lidl?.items || []).filter(i => i.name.toLowerCase().includes(q)).slice(0, 10) : [];
+  $('cmpMore').innerHTML = q.length > 1 ? `<h3>Aldi shelf prices for "${esc(cmpUI.q.trim())}"</h3>${ql.length ? ql.map(priceRow).join('') : '<p class="empty">None found.</p>'}<h3>Lidl offers for "${esc(cmpUI.q.trim())}"</h3>${lo.length ? lo.map(offerCard).join('') : '<p class="empty">None on offer right now.</p>'}` : '';
+  bindUseOffer($('cmpMore'));
+  const top = ['aldi', 'lidl'].flatMap(k => offersFor(offersData || {}, { store: k, highProtein: true }).slice(0, 3));
+  const asda = (pricesData?.items || []).filter(i => i.prices?.asda && i.protein >= 15).slice(0, 2).map(i => ({ store: 'asda', name: i.name, price: i.prices.asda, size: i.pack >= 1000 ? i.pack / 1000 + 'kg' : i.pack + 'g', typical: true }));
+  $('weeklyOffers').innerHTML = [...top, ...asda].map(o => `<div class="prow"><span><span class="ostore ${o.store}">${STORE_NAMES[o.store]}</span> <b>${esc(o.name)}</b><br><small class="muted">${esc(o.size || '')}${o.typical ? ' · Typical price' : ''}</small></span><b>${fmtGBP(o.price)}</b></div>`).join('') || '<p class="empty">Offers couldn\'t load.</p>';
+};
+$('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
+const _switchTab = switchTab;
+switchTab = function (t) { _switchTab(t); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes'].includes(t)); };
+settings.plan = 'plus'; // private testing: everyone gets Plus
+renderHome(); renderSupport(); renderMyPlan(); renderBodySites();
+setTimeout(renderHome, 1500);

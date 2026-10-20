@@ -1,0 +1,48 @@
+// GLP1 Life redesign: every main screen renders and works at Android phone size. Usage: node tests/glp1life.mjs [URL] [OUTDIR]
+import { chromium, devices } from 'playwright-core';
+import { nav } from './nav.mjs';
+const URL = process.argv[2] || 'http://localhost:8765/', OUT = process.argv[3] || '';
+let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true });
+const ctx = await b.newContext({ ...devices['Pixel 7'] }); const p = await ctx.newPage(); const errs = [];
+p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/404|favicon/.test(m.text()) && errs.push(m.text()));
+const shot = async n => { if (OUT) { await p.waitForTimeout(250); await p.screenshot({ path: `${OUT}/${n}.png` }); } };
+await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'networkidle' });
+ok(await p.title() === 'GLP1 Life', 'title GLP1 Life');
+await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
+if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(400);
+// seed some data like a real user
+await p.evaluate(() => { const k = Object.keys(localStorage).find(k => /\.weights$/.test(k)) || ''; });
+await nav(p, 'progress'); await p.waitForTimeout(300);
+for (const kg of ['90', '88.5']) { await p.fill('#weightInput', kg); await p.click('#weightBtn'); await p.waitForTimeout(500); if (await p.isVisible('#celebClose')) await p.click('#celebClose'); }
+await nav(p, 'workout'); await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(300);
+ok(/Good (morning|afternoon|evening), Mitchell/.test(await p.textContent('#greet')), 'greeting with name');
+ok(/st/.test(await p.textContent('#wCard')) && await p.$('#wCard svg.wring'), 'current weight + ring');
+ok(/lbs/.test(await p.textContent('#wCard')), 'lbs down');
+await p.click('#waterCard'); await p.waitForTimeout(150); ok(/1\/8/.test(await p.textContent('#waterCard')), 'hydration +1');
+ok(await p.isVisible('#setRemBtn'), 'next injection card with reminder button');
+ok(await p.$$eval('#weekChecks .wck', l => l.length) === 5, 'this week checks'); ok(await p.$eval('#weekChecks [data-wck=weigh]', e => e.classList.contains('done')), 'weigh check done');
+ok(await p.$$eval('#features .feat', l => l.length) === 10, 'feature row (10)');
+ok(await p.$$eval('#dock button', l => l.map(b => b.textContent.trim()).join(',')) === 'Home,Track,Meals,Classes,More', 'bottom nav Home/Track/Meals/Classes/More');
+await shot('01-home');
+await nav(p, 'progress'); await p.evaluate(() => scrollTo(0, 0)); ok(await p.$$eval('#trackSeg button', l => l.length) === 3, 'Track segment tabs'); await shot('02-tracker');
+await p.click('#trackSeg [data-seg=bodySites]'); await p.waitForTimeout(600); ok(await p.$$eval('#bodyFig svg', l => l.length) === 3, 'body site figures'); await shot('02b-body-sites');
+await nav(p, 'classes'); await p.evaluate(() => scrollTo(0, 0)); ok(await p.$$eval('#supportCards .scard', l => l.length) === 5, 'support cards'); await shot('03-classes');
+await p.click('#supportCards [data-sup="1"]'); await p.waitForTimeout(200); ok(/GP or prescriber/.test(await p.textContent('#recipeBody')), 'support sheet with GP note'); await p.click('#recipeClose');
+ok(await p.$$eval('#classGrid .ccard, #classList .ccard, [data-class]', l => l.length) > 0, '30-min workout classes still listed');
+await nav(p, 'prep'); await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(200);
+ok(await p.$$eval('#mealList .meal', l => l.length) === 4, 'four meals for the day'); ok(/1,200 – 1,800/.test(await p.textContent('#kcalVal')), 'calorie range');
+const m1 = await p.textContent('#mealList'); await p.click('#dayTabs [data-day="2"]'); ok(await p.$eval('#dayTabs [data-day="2"]', e => e.classList.contains('on')), 'day tab selected');
+await p.click('#genPlan'); await p.waitForTimeout(200); ok(await p.textContent('#mealList') !== m1, 'generate new plan changes meals'); await shot('04-meal-plan');
+await p.click('#mealList .meal'); await p.waitForTimeout(250); ok(await p.isVisible('#recipeModal') && await p.$$eval('#rs-ing label', l => l.length) > 1, 'recipe details with ingredients'); await shot('05-recipe');
+await p.click('#rSeg [data-rs=method]'); ok(await p.isVisible('#rs-method'), 'method tab'); await p.click('#addMyPlan'); ok(/In My Meal Plan/.test(await p.textContent('#addMyPlan')), 'added to my plan'); await p.click('#recipeClose');
+await nav(p, 'prices'); await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(300);
+ok(await p.$$eval('#cmpList .cmp', l => l.length) > 5, 'price compare cards'); ok(await p.$$eval('#cmpList .bestbadge', l => l.length) > 5, 'best value badges');
+const pt = await p.textContent('#tab-prices'); ok(!/retatrutide|tirzepatide|semaglutide|liraglutide|peptide/i.test(pt), 'price compare is food only (no medication)');
+ok(await p.$$eval('#weeklyOffers .prow', l => l.length) > 0, 'weekly offers'); await shot('06-price-compare');
+await nav(p, 'lidl'); await p.waitForTimeout(300); ok(await p.isVisible('#lidlWeeks'), 'Lidl section still reachable'); await nav(p, 'aldi'); await p.waitForTimeout(300); ok(await p.isVisible('#aldiPriceList'), 'Aldi section still reachable');
+await nav(p, 'member'); await p.evaluate(() => scrollTo(0, 0)); ok(/£0/.test(await p.textContent('#tab-member')) && /£5/.test(await p.textContent('#tab-member')) && /£45/.test(await p.textContent('#tab-member')), 'membership plans');
+await p.click('#plusBtn'); await p.waitForTimeout(200); ok(/coming soon/i.test(await p.textContent('#toast')), 'Plus shows Coming soon'); await shot('07-membership');
+await p.click('#orbBtn'); await p.waitForTimeout(350); await shot('08-more-menu'); await p.click('#orbBtn'); await p.waitForTimeout(300);
+ok(!errs.length, 'no console errors ' + errs.join(' | '));
+await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL GLP1 LIFE TESTS PASSED'); process.exit(fail ? 1 : 0);

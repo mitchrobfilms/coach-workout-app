@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1116">
+<meta name="theme-color" content="#5b2a86">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Reta Coach</title>
+<title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="avatar.jpg">
-<link rel="stylesheet" href="style.css?v=25">
+<link rel="icon" href="logo.svg"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><img class="trainer-avatar" src="avatar.jpg" alt=""><span>Reta <b>Coach</b></span></div>
+  <div class="brand"><img src="logo.svg" alt="" class="logo"><span class="wordmark">GLP1<i>Life</i></span></div>
   <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Reta"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
 <div id="heardChip" class="heard" hidden></div>
@@ -60,10 +60,19 @@
 <!-- WORKOUT TAB -->
 <section id="tab-workout" class="tab active">
   <div id="screen-start" class="screen active">
+    <div id="homeDash">
+      <p class="tagline">Support · Track · Learn · Eat Well · Save Money</p>
+      <h2 class="greet" id="greet">Good morning</h2><p class="small muted greetsub">You're doing great! Keep going 💜</p>
+      <div class="card wcard" id="wCard"></div>
+      <div class="grid2 minis"><button type="button" class="card mini" id="waterCard"></button><button type="button" class="card mini" id="stepsCard"></button></div>
+      <div class="card nextinj" id="nextInjCard"></div>
+      <div class="card" id="weekCard"><h3>This week</h3><div class="weekchecks" id="weekChecks"></div></div>
+      <div class="features" id="features"></div>
+      <h2 class="sep">Today's workout</h2>
+    </div>
     <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
-    <div class="hometiles"><button type="button" class="hometile" data-gotab="aldi"><span class="ostore aldi">Aldi</span><small>Offers &amp; prices</small></button><button type="button" class="hometile" data-gotab="lidl"><span class="ostore lidl">Lidl</span><small>Offers</small></button><button type="button" class="hometile" data-gotab="prices"><b>💷</b><small>Compare prices</small></button></div>
     <div class="card homeprog" id="homeProgress"></div>
     <div class="card note" id="backupNudge" hidden></div>
     <div class="card injnext" id="injNext" hidden></div>
@@ -146,6 +155,9 @@
 
 <!-- CLASSES TAB -->
 <section id="tab-classes" class="tab">
+  <h2 class="pagehead">GLP-1 Classes &amp; Support</h2>
+  <div id="supportCards"></div>
+  <h2 class="sep">30-minute workout classes</h2>
   <div class="shophead"><h2>🎬 Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Reta coaches you live through the camera.</p></div>
   <div class="card rec" id="recCard"></div>
   <input type="search" id="classSearch" placeholder="🔎 Search classes, moves or trainers" aria-label="Search classes">
@@ -159,7 +171,10 @@
 
 <!-- MEAL PREP TAB -->
 <section id="tab-prep" class="tab">
-  <div class="shophead"><h2>💉 GLP-1 meal prep builder</h2><p class="small muted">For people on GLP-1 medicines (e.g. retatrutide, semaglutide, tirzepatide) or anyone who wants high-protein, small-portion meals. General healthy-eating guidance only, not medical or dosing advice.</p></div>
+  <h2 class="pagehead">Meal Plan Builder</h2>
+  <div class="segtabs" id="mealSeg"><button type="button" class="on" data-mseg="myplan">My Plan</button><button type="button" data-mseg="glpCard">Build Plan</button><button type="button" data-mseg="shop">Shopping List</button></div>
+  <div class="card" id="myPlan"></div>
+  <div class="shophead"><h2>🛒 Build a batch-prep plan &amp; shopping list</h2><p class="small muted">For people on GLP-1 medicines (e.g. retatrutide, semaglutide, tirzepatide) or anyone who wants high-protein, small-portion meals. General healthy-eating guidance only, not medical or dosing advice.</p></div>
   <div class="card" id="glpCard">
     <div class="field"><b class="steplabel">1. Choose your store</b><div class="chips storechips" id="glpStore"></div><p class="small muted">Tap a store: the plan, prices and shopping list update straight away.</p></div>
     <div class="grid2">
@@ -207,11 +222,27 @@
 </section>
 <!-- PRICES TAB -->
 <section id="tab-prices" class="tab">
-  <div class="shophead"><h2>💷 Prices</h2><p class="storeline" id="cmpStatus"></p></div>
+  <div class="shophead"><h2>Price Compare &amp; Offers</h2><p class="storeline" id="cmpStatus"></p></div>
   <div class="card"><input type="search" id="cmpSearch" class="searchbox" placeholder="Compare e.g. chicken, eggs, rice" autocomplete="off" enterkeyhint="search">
   <p class="small muted">Cheapest per pack is highlighted. Prices vary by store and region.</p>
-  <div id="cmpList"></div><div id="cmpMore"></div></div>
+  <div class="chips catscroll" id="cmpCats"></div><div id="cmpList"></div><div id="cmpMore"></div></div>
+  <div class="card"><div class="row between"><h3>Weekly Offers</h3><button type="button" class="linkbtn" data-gotab="aldi">View all ›</button></div><div id="weeklyOffers"></div></div>
 </section>
+
+<!-- MEMBERSHIP TAB -->
+<section id="tab-member" class="tab">
+  <h2 class="pagehead">Membership Plans</h2>
+  <div class="card unlocked"><b>⭐ All Plus features unlocked while in private testing.</b><p class="small muted" style="margin:4px 0 0">No payments are taken. Plans below are a preview only.</p></div>
+  <div class="plans">
+    <div class="card plan1"><h3>Free Forever</h3><p class="price">£0</p><p class="small muted">Essential GLP-1 support</p><ul class="ticks"><li>Weight tracking</li><li>Injection log</li><li>Medication reminders</li><li>Side-effect diary</li><li>Basic recipes</li><li>Community access</li></ul><button type="button" class="big" disabled>Included</button></div>
+    <div class="card plan2"><span class="bestv">Best Value</span><h3>GLP1 <i>Life</i> Plus</h3><p class="price">£5<small>/month</small></p><p class="small muted">or £45/year · Full app experience</p><ul class="ticks"><li>Everything in Free</li><li>Aldi, Lidl &amp; Asda price comparison</li><li>Weekly offers &amp; deal search</li><li>Unlimited meal plans</li><li>Recipes &amp; cooking guides</li><li>Classes &amp; workshops</li><li>Advanced reports</li><li>Basket cost comparison</li><li>Priority new features</li></ul><button type="button" class="primary big" id="plusBtn">✓ Unlocked (private testing)</button></div>
+  </div>
+  <div class="card"><h3>Feature Comparison</h3><table class="cmptable"><thead><tr><th>Feature</th><th>Free</th><th>Plus</th></tr></thead><tbody>
+  <tr><td>Unlimited weigh-ins</td><td>✓</td><td>✓</td></tr><tr><td>Injection tracking</td><td>✓</td><td>✓</td></tr><tr><td>Medication reminders</td><td>✓</td><td>✓</td></tr><tr><td>Basic recipes</td><td>✓</td><td>✓</td></tr><tr><td>Price comparison (Aldi, Lidl, Asda)</td><td>–</td><td>✓</td></tr><tr><td>Full offers search</td><td>–</td><td>✓</td></tr><tr><td>Meal plan builder</td><td>–</td><td>✓</td></tr><tr><td>Classes library</td><td>–</td><td>✓</td></tr><tr><td>Advanced reports</td><td>–</td><td>✓</td></tr></tbody></table>
+  <p class="small muted">This app is private. All Plus features unlocked while in private testing; no payments are taken.</p></div>
+  <div class="card"><h3>🇬🇧 Fair UK Pricing</h3><p class="small">Designed for UK customers. GLP1 Life Plus is priced to stay affordable while combining GLP-1 tracking, meal planning, classes and supermarket savings in one app.</p></div>
+</section>
+<div class="overlay recipe" id="recipeModal" hidden><div class="rsheet"><button type="button" class="rclose" id="recipeClose" aria-label="Close">✕</button><div id="recipeBody"></div></div></div>
 
 <!-- SHOP TAB -->
 <section id="tab-shop" class="tab">
@@ -226,7 +257,8 @@
 
 <!-- PROGRESS TAB -->
 <section id="tab-progress" class="tab">
-  <h2>📉 Weight-loss progress</h2>
+  <h2 class="pagehead">Injection &amp; Weigh-In Tracker</h2>
+  <div class="segtabs" id="trackSeg"><button type="button" class="on" data-seg="progSummary">Weight</button><button type="button" data-seg="injCard">Injections</button><button type="button" data-seg="bodySites">Body Sites</button></div>
   <div id="progSummary"></div>
   <div class="card"><h3>Log a weigh-in</h3>
   <form id="weightForm" class="weightform" novalidate autocomplete="off">
@@ -260,6 +292,7 @@
     <button type="button" id="injIcs">📅 Add to calendar (most reliable)</button>
     <p class="small muted" id="injNotifyStatus"></p>
   </div>
+  <div class="card" id="bodySites"><h3>Body Site Log</h3><p class="small muted">Where you've logged injections (last 8 weeks). Rotating sites is usually advised; follow your prescriber's guidance.</p><div id="bodyFig"></div></div>
   <div class="card"><h3>Goal and height</h3>
     <div class="grid2"><label>Goal weight<input id="goalInput" type="text" inputmode="decimal" placeholder="e.g. 80 or 12st 7lb"></label><label>Height (cm)<input id="heightInput" type="text" inputmode="decimal" placeholder="e.g. 178"></label></div>
     <p id="goalError" class="error" role="alert" hidden></p>
@@ -308,23 +341,23 @@
 </main>
 
 <nav class="dock" id="dock" aria-label="Main">
-  <span class="dockind" id="dockInd" aria-hidden="true"></span>
-  <button type="button" data-tab="workout" class="active" aria-label="Home"><i>🏠</i><span>Home</span></button>
-  <button type="button" data-tab="classes" aria-label="Train"><i>🎬</i><span>Train</span></button>
-  <button type="button" class="orb" id="orbBtn" aria-label="Open menu" aria-expanded="false" aria-controls="launcher"><b>R</b></button>
-  <button type="button" data-tab="food" aria-label="Food"><i>🍽️</i><span>Food</span></button>
-  <button type="button" data-tab="progress" aria-label="Progress"><i>📈</i><span>Progress</span></button>
+  <button type="button" data-tab="workout" class="active"><i><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></i><span>Home</span></button>
+  <button type="button" data-tab="progress"><i><svg viewBox="0 0 24 24"><path d="M5 19C5 10 11 5 20 4c-1 9-6 15-15 15zM5 19l8-8"/></svg></i><span>Track</span></button>
+  <button type="button" data-tab="prep"><i><svg viewBox="0 0 24 24"><path d="M6 3v8a2 2 0 0 0 4 0V3M8 11v10M16 3c-2 2-2 7 0 9v9M16 12h1V3"/></svg></i><span>Meals</span></button>
+  <button type="button" data-tab="classes"><i><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></i><span>Classes</span></button>
+  <button type="button" class="orb" id="orbBtn" aria-label="More" aria-expanded="false" aria-controls="launcher"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="16" cy="12" r=".6"/></svg></i><span>More</span></button>
 </nav>
 <div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-label="All sections">
-  <div class="lgrab"></div><h3>Reta</h3>
+  <div class="lgrab"></div><h3>More</h3>
   <div class="lgrid">
     <button type="button" data-ltile="coach"><i>🎙️</i><span>Coach</span></button>
-    <button type="button" data-tab="prep"><i>🍱</i><span>Meal prep</span></button>
+    <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
+    <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
+    <button type="button" data-tab="member"><i>⭐</i><span>Membership</span></button>
     <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
     <button type="button" data-tab="aldi"><i><span class="ostore aldi">Aldi</span></i><span>Aldi</span></button>
     <button type="button" data-tab="lidl"><i><span class="ostore lidl">Lidl</span></i><span>Lidl</span></button>
-    <button type="button" data-tab="prices"><i>💷</i><span>Prices</span></button>
-    <button type="button" data-tab="progress" data-lscroll="injCard"><i>💉</i><span>Injection log</span></button>
+        <button type="button" data-tab="progress" data-lscroll="injCard"><i>💉</i><span>Injection log</span></button>
     <button type="button" data-tab="progress" data-lscroll="certList"><i>🏆</i><span>Certificates</span></button>
     <button type="button" data-tab="settings"><i>⚙️</i><span>Settings</span></button>
   </div></div></div>
@@ -333,6 +366,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=25"></script>
+<script type="module" src="app.js?v=26"></script>
 </body>
 </html>

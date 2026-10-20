@@ -13,9 +13,9 @@ await p.fill('#regName', 'Test'); await p.fill('#regEmail', 't@example.com'); aw
 if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(500);
 const count = sel => p.$$eval(sel, l => l.length);
 // home tiles
-ok(await p.isVisible('.hometiles [data-gotab=aldi]') && await p.isVisible('.hometiles [data-gotab=lidl]') && await p.isVisible('.hometiles [data-gotab=prices]'), 'three home tiles');
+ok(await p.isVisible('#features [data-ftab=aldi]') && await p.isVisible('#features [data-ftab=prices]'), 'home feature tiles for offers and prices');
 // Aldi
-await p.click('.hometiles [data-gotab=aldi]'); await p.waitForTimeout(1500);
+await p.click('#features [data-ftab=aldi]'); await p.waitForTimeout(1500);
 ok(await p.isVisible('#tab-aldi'), 'Aldi tile opens Aldi section');
 const as = await p.textContent('#aldiStatus'); ok(/00:30/.test(as) && /Last checked: \d+ \w+, \d\d:\d\d UK/.test(as), 'Aldi status: ' + as);
 ok(await count('#aldiOffers .offer') > 0, `Aldi offers render (${await count('#aldiOffers .offer')})`);
@@ -42,23 +42,19 @@ await p.click('#lidlHp'); await p.waitForTimeout(200); const tw = await count('#
 ok(await p.$$eval('#lidlOffers .ostore', l => l.every(x => x.textContent === 'Lidl')), 'Lidl section only shows Lidl');
 await p.evaluate(() => scrollTo(0, 0)); if (OUT) await p.screenshot({ path: `${OUT}/lidl-this-week.png` });
 await p.click('#lidlWeeks [data-lweek="1"]'); await p.waitForTimeout(300);
-ok(await p.$eval('#lidlWeeks [data-lweek="1"]', e => e.classList.contains('on') && getComputedStyle(e).backgroundColor === 'rgb(22, 212, 192)'), 'Next week button turns teal');
+ok(await p.$eval('#lidlWeeks [data-lweek="1"]', e => e.classList.contains('on') && getComputedStyle(e).backgroundColor === 'rgb(46, 157, 91)'), 'Next week button turns green');
 const nw = await count('#lidlOffers .offer'), nwt = await p.textContent('#lidlOffers'); ok(nw > 0 || /appear from/.test(nwt), `Lidl next week (${nw}${nw ? '' : ': ' + nwt})`);
 ok(/Next week: Thu/.test(await p.textContent('#lidlWeekRange')), 'next week range line');
 await p.evaluate(() => scrollTo(0, 0)); if (OUT) await p.screenshot({ path: `${OUT}/lidl-next-week.png` });
 ok(/Lidl only publishes offer prices online|Lidl products/.test(await p.textContent('#lidlPriceStatus')), 'Lidl price list status');
 ok(await p.isVisible('#lidlManual'), 'in-store prices card');
 await p.mouse.wheel(0, 3000); await p.waitForTimeout(400); ok(await p.evaluate(() => scrollY > 500), 'Lidl list scrolls');
-ok(await p.$eval('#dock', e => e.classList.contains('hide')), 'dock hides on scroll down');
-await p.mouse.wheel(0, -400); await p.waitForTimeout(400); ok(await p.$eval('#dock', e => !e.classList.contains('hide')), 'dock shows on scroll up');
 // Dock + launcher
-ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'dock: 4 icons + orb');
+ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'nav: Home/Track/Meals/Classes + More');
 const db = await p.$$eval('#dock button', l => l.map(b => b.getBoundingClientRect().height)); ok(db.every(h => h >= 48), 'dock touch targets ' + db.map(Math.round).join(','));
 await p.click('#dock [data-tab=progress]'); await p.waitForTimeout(450);
-ok(await p.$eval('#dockInd', i => { const a = document.querySelector('#dock [data-tab=progress]').getBoundingClientRect(), r = i.getBoundingClientRect(); return Math.abs(a.left - r.left) < 3 && getComputedStyle(i).opacity === '1'; }), 'indicator slides to active item');
-ok(await p.$eval('#dock [data-tab=progress] span', e => getComputedStyle(e).opacity === '1') && await p.$eval('#dock [data-tab=food] span', e => getComputedStyle(e).opacity === '0'), 'label only on active item');
 await p.click('#orbBtn'); await p.waitForTimeout(400); ok(await p.isVisible('#launcher .lgrid'), 'orb opens launcher');
-const tiles = await p.$$eval('#launcher .lgrid button span:last-child', l => l.map(x => x.textContent)); ok(['Coach', 'Aldi', 'Lidl', 'Prices', 'Injection log', 'Certificates', 'Settings'].every(t => tiles.includes(t)), 'launcher tiles: ' + tiles.join(', '));
+const tiles = await p.$$eval('#launcher .lgrid button span:last-child', l => l.map(x => x.textContent)); ok(['Coach', 'Aldi', 'Lidl', 'Compare prices', 'Injection log', 'Certificates', 'Settings', 'Membership'].every(t => tiles.includes(t)), 'launcher tiles: ' + tiles.join(', '));
 if (OUT) await p.screenshot({ path: `${OUT}/nav-launcher-open.png` });
 await p.click('#launcher [data-lscroll=injCard]'); await p.waitForTimeout(700); ok(await p.isVisible('#tab-progress') && await p.isHidden('#launcher'), 'Injection log tile opens progress');
 await p.click('#orbBtn'); await p.waitForTimeout(350); await p.mouse.click(200, 120); await p.waitForTimeout(350); ok(await p.isHidden('#launcher'), 'tap outside closes launcher');
@@ -67,7 +63,7 @@ await nav(p, 'workout'); await p.evaluate(() => scrollTo(0, 0)); await p.waitFor
 // Prices
 await nav(p, 'prices'); await p.waitForTimeout(400);
 ok(await count('#cmpList .cmp') > 10, `comparison rows (${await count('#cmpList .cmp')})`);
-ok(await count('#cmpList .cmpcell .ostore.asda') > 0 && /Typical price/.test(await p.textContent('#cmpList')), 'Asda typical prices in comparison');
+ok(await count('#cmpList .prow .ostore.asda') > 0 && /Typical price/.test(await p.textContent('#cmpList')), 'Asda typical prices in comparison');
 ok(!/403|block/i.test(await p.textContent('#tab-prices')), 'no block notice');
 await p.fill('#cmpSearch', 'chicken'); await p.waitForTimeout(300);
 ok(await count('#cmpList .cmp') > 0 && await count('#cmpMore .offer') > 0, `compare search chicken (${await count('#cmpList .cmp')} staples, ${await count('#cmpMore .offer')} items)`);
