@@ -1,7 +1,7 @@
 // "Save so it's not lost": localStorage + IndexedDB mirror, persistent-storage request, JSON backup/restore.
 // Pure helpers (makeBackup/parseBackup/restoreInto) are unit-tested; IDB helpers no-op where IndexedDB is missing.
 export const BACKUP_VERSION = 1;
-export const BACKUP_KEYS = ['settings', 'weights', 'sessions', 'food', 'shop', 'prep', 'glp1', 'classes', 'classHistory', 'backupAt', 'injections', 'injectSchedule'];
+export const BACKUP_KEYS = ['settings', 'weights', 'sessions', 'food', 'shop', 'prep', 'glp1', 'classes', 'classHistory', 'backupAt', 'injections', 'injectSchedule', 'certificates'];
 export function makeBackup(get, { account = null, now = new Date() } = {}) {
   const data = {}; for (const k of BACKUP_KEYS) { const v = get(k); if (v !== undefined && v !== null) data[k] = v; }
   return { app: 'reta-coach', version: BACKUP_VERSION, created: now.toISOString(), account, data };

@@ -304,3 +304,7 @@ h2.sep{margin-top:30px}
 .wchart .inj line{stroke:#ffb84d;stroke-width:1.5;stroke-dasharray:3 3;opacity:.8}.wchart .inj text{font-size:10px}
 .injnext h3{margin:0 0 6px}.injnext.due{border-color:#ffb84d}
 input[type=datetime-local],input[type=time],input[type=date]{color-scheme:dark;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--txt)}
+.celebrate{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:16px}.celebrate[hidden]{display:none}
+.celebrate .sheet{background:var(--card);border:2px solid var(--teal);border-radius:22px;padding:18px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center}
+.celebrate .confetti{font-size:2.4rem}.celebrate img{width:70%;border-radius:12px;margin:8px 0}.celebrate button{width:100%;margin-top:8px}
+.certgrid .cert{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;display:flex;flex-direction:column;gap:4px}.cert .row button{flex:1}

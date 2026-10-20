@@ -239,6 +239,7 @@
     <p id="goalError" class="error" role="alert" hidden></p>
     <button type="button" id="saveGoal" class="primary">Save goal and height</button>
     <p class="small muted">BMI is a rough guide only and doesn't account for muscle, age or ethnicity.</p></div>
+  <div class="card"><h3>🏆 My certificates</h3><div class="certgrid" id="certList"></div></div>
   <div class="card"><h3>🏅 Milestones</h3><ul class="milestones" id="milestoneList"></ul></div>
   <div class="card"><h3>All weigh-ins</h3><p class="small muted">Tap Edit to fix a typo, or Delete to remove an entry.</p><ul class="list wlist" id="weightList"></ul></div>
   <div class="card backupcard" id="backupCard"><h3>💾 Keep your data safe</h3>
@@ -291,6 +292,7 @@
 </nav>
 <button id="talkBtn" class="talk" hidden>🎙️ Tap to talk</button>
 <button type="button" class="updatetoast" id="updateToast" hidden>🔄 Update available, tap to refresh</button>
+<div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div id="toast" class="toast" hidden></div>
 <script type="module" src="app.js"></script>
 </body>

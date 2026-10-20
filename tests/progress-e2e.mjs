@@ -60,6 +60,15 @@ ok(/Asda/.test(await p.textContent('#offerStatus')), 'offer status explains each
 await p.waitForTimeout(2600); await p.$eval('#offersCard', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/offers.png`, fullPage: false });
 await p.click('#offerStore [data-ostore=asda]'); ok(/blocks automated/.test(await p.textContent('#offerList')), 'Asda fallback explained');
 await p.click('#offerStore [data-ostore=all]'); await p.click('#offerList [data-useoffer]'); await p.waitForTimeout(300);
+// certificates
+await p.click('.tabs button[data-tab=progress]'); await p.click('#weightForm .seg button[data-unit=kg]'); await p.fill('#weightInput', '90'); await p.click('#weightBtn'); await p.waitForTimeout(800);
+ok(await p.$eval('#celebrate', e => !e.hidden), 'celebration shown on milestone weigh-in');
+await p.waitForTimeout(2600); await p.screenshot({ path: `${OUT}/certificate-celebration.png` });
+const [cdl] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#celebDl')]);
+ok(cdl && /\.png$/.test(cdl.suggestedFilename()), 'certificate PNG downloaded'); if (cdl) await cdl.saveAs(`${OUT}/certificate.png`);
+await p.click('#celebClose'); const nc = await p.$$eval('#certList .cert', l => l.length); ok(nc >= 3, `certificates gallery (${nc})`);
+await p.fill('#weightInput', '90.4'); await p.click('#weightBtn'); await p.waitForTimeout(400); await p.fill('#weightInput', '90.1'); await p.click('#weightBtn'); await p.waitForTimeout(600);
+ok(await p.$eval('#celebrate', e => e.hidden) && await p.$$eval('#certList .cert', l => l.length) === nc, 'fluctuation: no duplicate awards');
 // injection log
 await p.click('.tabs button[data-tab=progress]'); await p.waitForTimeout(200);
 ok(/does not give dosing advice/.test(await p.textContent('#injDisclaimer')), 'injection disclaimer shown');

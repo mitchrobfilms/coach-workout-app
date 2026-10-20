@@ -2,6 +2,7 @@ import { getAuth } from './auth.js';
 import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, restoreInto, backupDue, BACKUP_KEYS } from './backup.js';
 import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
 import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
+import { newAwards, drawCertificate } from './certs.js';
 import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE } from './glp1.js';
 import { offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
@@ -548,7 +549,7 @@ renderFoodProfile();
 
 /* ---------- progress + weigh-ins ---------- */
 // Weigh-ins: free-text parsing (decimal comma, st+lb, lb) with inline errors. See weight.js.
-function saveWeightKg(kg) { const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg }); store.set('weights', w); renderProgress(); }
+function saveWeightKg(kg) { const w = store.get('weights', []); w.push({ date: new Date().toISOString(), kg }); store.set('weights', w); renderProgress(); if (injReady) awardCerts(); }
 function saveWeight(text, unit = settings.weightUnit || 'kg') { const r = parseWeightText(text, unit); if (r.kg) saveWeightKg(r.kg); return r; }
 function bindWeightForm(form, { onSaved } = {}) {
   const input = form.querySelector('input'), err = form.querySelector('.error'), segs = form.querySelectorAll('.seg button');
@@ -1438,3 +1439,30 @@ async function scheduleInjNotify() {
 injReady = true; injResetForm(); renderInject(); renderWeightProgress(); scheduleInjNotify();
 if (new URLSearchParams(location.search).get('tab') === 'progress') setTimeout(() => switchTab('progress'), 0);
 window.__kova.renderInject = renderInject;
+
+/* ---------- Weight-loss certificates ---------- */
+let avatarImg = null;
+function loadAvatar() { if (avatarImg) return Promise.resolve(avatarImg); return new Promise(res => { const i = new Image(); i.onload = () => res(avatarImg = i); i.onerror = () => res(null); i.src = document.querySelector('.trainer-avatar')?.src || 'avatar.jpg'; }); }
+async function certBlob(c) { const cv = document.createElement('canvas'); cv.width = 1080; cv.height = 1350; drawCertificate(cv.getContext('2d'), c, { avatar: await loadAvatar() }); return new Promise(r => cv.toBlob(r, 'image/png')); }
+const certName = c => `reta-certificate-${c.id}.png`;
+async function downloadCert(c) { const b = await certBlob(c), a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = certName(c); document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__kova.lastCertBytes = b.size; }
+async function shareCert(c) { const f = new File([await certBlob(c)], certName(c), { type: 'image/png' }); try { if (navigator.canShare?.({ files: [f] })) return await navigator.share({ files: [f], title: c.label, text: `${c.label} with Reta Coach!` }); } catch (e) { if (e?.name === 'AbortError') return; } downloadCert(c); }
+function awardCerts() {
+  const w = sortEntries(store.get('weights', [])); if (w.length < 2) return [];
+  const certs = store.get('certificates', []), fresh = newAwards(certs, w[0].kg, w[w.length - 1].kg, settings.goalKg, { name: settings.name });
+  if (!fresh.length) return [];
+  store.set('certificates', [...certs, ...fresh]); renderCerts(); celebrate(fresh[fresh.length - 1], fresh.length); return fresh;
+}
+async function celebrate(c, n) {
+  $('celebTitle').textContent = `🎉 ${c.label}`; $('celebText').textContent = n > 1 ? `You earned ${n} new certificates! They're saved in Progress › My certificates.` : 'You earned a new certificate. It\'s saved in Progress › My certificates.';
+  $('celebImg').src = URL.createObjectURL(await certBlob(c)); $('celebrate').hidden = false;
+  $('celebDl').onclick = () => downloadCert(c); $('celebShare').onclick = () => shareCert(c);
+}
+$('celebClose').onclick = () => { $('celebrate').hidden = true; };
+function renderCerts() {
+  const l = store.get('certificates', []);
+  $('certList').innerHTML = l.length ? l.slice().reverse().map(c => `<div class="cert"><b>🏆 ${esc(c.label)}</b><small class="muted">${new Date(c.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · ${c.startKg.toFixed(1)} → ${c.currentKg.toFixed(1)} kg</small><div class="row"><button type="button" data-certdl="${esc(c.id)}">⬇️ Download</button><button type="button" data-certsh="${esc(c.id)}">📤 Share</button></div></div>`).join('') : '<p class="small muted">Your first certificate comes at 2 lb (about 0.9 kg) lost. Keep logging weigh-ins!</p>';
+}
+$('certList').addEventListener('click', e => { const d = e.target.closest('[data-certdl]'), s2 = e.target.closest('[data-certsh]'), find = id => store.get('certificates', []).find(c => c.id === id); if (d) downloadCert(find(d.dataset.certdl)); if (s2) shareCert(find(s2.dataset.certsh)); });
+renderCerts();
+window.__kova.awardCerts = awardCerts;

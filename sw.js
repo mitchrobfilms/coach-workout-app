@@ -2,7 +2,7 @@
 // - Network-first for the shell; a new version waits until the page asks it to activate ("Update available, tap to refresh").
 // - library.json is never cached here (the app fetches it network-first with ?v= and keeps its own offline copy).
 // - Videos are never cached or intercepted: class clips stream straight from the network (Range requests work).
-const C = 'reta-v17', SHELL = ['inject.js', 'progress.js', 'backup.js', 'glp1.js', 'offers.js', './', 'index.html', 'style.css', 'app.js', 'logic.js', 'food.js', 'hero.jpg', 'avatar.jpg', 'manifest.webmanifest', 'weight.js', 'voice.js', 'auth.js', 'avatar-f.svg', 'shopping.js', 'prep.js', 'classes.js', 'music.js', 'voicelines.js', 'classvoice.js'];
+const C = 'reta-v18', SHELL = ['certs.js', 'inject.js', 'progress.js', 'backup.js', 'glp1.js', 'offers.js', './', 'index.html', 'style.css', 'app.js', 'logic.js', 'food.js', 'hero.jpg', 'avatar.jpg', 'manifest.webmanifest', 'weight.js', 'voice.js', 'auth.js', 'avatar-f.svg', 'shopping.js', 'prep.js', 'classes.js', 'music.js', 'voicelines.js', 'classvoice.js'];
 self.addEventListener('install', e => e.waitUntil(caches.open(C).then(c => c.addAll(SHELL))));
 self.addEventListener('message', e => { if (e.data?.type === 'SKIP_WAITING') self.skipWaiting(); });
 self.addEventListener('activate', e => e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())));
