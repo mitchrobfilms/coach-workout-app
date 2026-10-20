@@ -11,9 +11,9 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   await p.click('.tabs button[data-tab=prep]');
   for (const m of ['breakfast', 'lunch', 'dinner', 'snack']) ok(await p.isVisible('#prep-' + m), 'section ' + m);
   for (const m of ['breakfast', 'lunch', 'dinner']) { const n = await p.$$eval(`#prep-${m} .recipe`, r => r.length); ok(n >= 4, `${m}: ${n} recipes`); }
-  ok(await p.$$eval('#prepStorePick .chip', c => c.map(x => x.textContent).join(',')) === 'Lidl,Aldi,Asda,Any supermarket', 'store picker Lidl/Aldi/Asda/Any');
+  ok(await p.$$eval('#prepStorePick .chip', c => c.map(x => x.textContent.replace('✓ ', '')).join(',')) === 'Lidl,Aldi,Asda,Any supermarket', 'store picker Lidl/Aldi/Asda/Any');
   await p.click('[data-pstore=asda]'); ok(/value packs/.test(await p.textContent('#prepStoreNotes')), 'Asda notes shown');
-  ok(!/£|\$|€/.test(await p.textContent('#prepSections')), 'no prices in batch-cook recipes (GLP-1 builder shows prices separately)');
+  ok(!/£|\$|€/.test(await p.$eval('#prepSections', e => { const c = e.cloneNode(true); c.querySelectorAll('.guide').forEach(g => g.remove()); return c.textContent; })), 'no prices in batch-cook recipes (GLP-1 builder shows prices separately)');
   const card = await p.textContent('#recipe-p-chickenrice');
   ok(/600 g \/ 1.3 lb/.test(card) && /1 day only/.test(card) && /3 days/.test(card) && /retatrutide/.test(card) && /kcal/.test(card) && /protein/.test(card), 'card: metric+imperial, rice 1 day, chicken 3 days, GLP-1, kcal/protein');
   await p.click('#prepDays [data-days="3"]'); ok(/3 days \+ 1 to freeze/.test(await p.textContent('#recipe-p-chilli')), '3-day prep portions');

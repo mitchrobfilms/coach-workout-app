@@ -308,3 +308,18 @@ input[type=datetime-local],input[type=time],input[type=date]{color-scheme:dark;b
 .celebrate .sheet{background:var(--card);border:2px solid var(--teal);border-radius:22px;padding:18px;max-width:420px;width:100%;max-height:92vh;overflow:auto;text-align:center}
 .celebrate .confetti{font-size:2.4rem}.celebrate img{width:70%;border-radius:12px;margin:8px 0}.celebrate button{width:100%;margin-top:8px}
 .certgrid .cert{border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;display:flex;flex-direction:column;gap:4px}.cert .row button{flex:1}
+/* store picker: big, obvious, selected state */
+.storechips{display:grid;grid-template-columns:1fr 1fr;gap:10px}.storechips .chip{width:100%;min-height:56px;font-size:1.1rem;font-weight:700}
+.chip.storechip.on{background:var(--teal);color:#032623;border-color:var(--teal);box-shadow:0 0 0 3px rgba(22,212,192,.35)}
+.steplabel{font-size:1.1rem}
+/* cooking guide + cook mode */
+.guide{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:10px}.guide>summary{min-height:48px;display:flex;align-items:center;gap:6px;cursor:pointer;flex-wrap:wrap}
+.gtimes{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}.gtimes span{background:rgba(255,255,255,.07);border-radius:999px;padding:4px 10px;font-size:.9rem}
+.gsteps li{margin:8px 0}.tchip{background:rgba(22,212,192,.18);color:var(--teal);border-radius:999px;padding:1px 8px}
+.safe{background:rgba(22,212,192,.1);border-left:4px solid var(--teal);padding:8px 10px;border-radius:8px}.oven{font-size:1rem}
+.cookmode{position:fixed;inset:0;z-index:90;background:var(--bg);padding:calc(16px + env(safe-area-inset-top)) 18px 24px;display:flex;flex-direction:column;gap:12px;overflow:auto}.cookmode[hidden]{display:none}
+.cookhead{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:1.1rem}
+.cookprog{color:var(--teal);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.cookstep{font-size:1.9rem;line-height:1.3;font-weight:700;margin:0}.cookheat{font-size:1.2rem;color:#ffb84d;margin:0}
+.cooktimer{display:flex;flex-direction:column;align-items:center;gap:10px}.cooktimer span{font-size:3.6rem;font-weight:900;font-variant-numeric:tabular-nums}
+.cooknav{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:auto}

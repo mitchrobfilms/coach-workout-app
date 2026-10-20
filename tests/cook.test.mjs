@@ -1,0 +1,14 @@
+import { GUIDES, guideFor, OVEN, ovenText, SAFE, SAFETY, stepText } from '../cook.js';
+import { PREP_RECIPES } from '../prep.js';
+import { GLP1_RECIPES } from '../glp1.js';
+let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
+const all = [...PREP_RECIPES, ...GLP1_RECIPES];
+ok(all.every(r => guideFor(r.id)?.steps.length >= 2), `every recipe (${all.length}) has a numbered guide`);
+ok(all.every(r => { const g = guideFor(r.id); return g.prep >= 0 && g.cook >= 0 && g.safe; }), 'prep/cook times + safe-to-eat line for all');
+ok(ovenText(180) === '180°C (fan 160°C) / 350°F / gas mark 4' && ovenText(200) === '200°C (fan 180°C) / 400°F / gas mark 6', 'oven conversions');
+ok(Object.values(GUIDES).every(g => !g.oven || OVEN[g.oven]) && Object.values(GUIDES).every(g => g.steps.every(s => !s.oven || OVEN[s.oven])), 'all oven temps convertible');
+ok(/75°C \/ 165°F/.test(SAFE.poultry) && /75°C \/ 160°F/.test(SAFE.mince) && /63–71°C/.test(SAFE.pork) && /63°C \/ 145°F/.test(SAFE.fish) && /set/.test(SAFE.eggs), 'FSA/USDA core temps');
+ok(SAFETY.some(t => /1–2 hours/.test(t)) && SAFETY.some(t => /5°C \/ 41°F/.test(t)) && SAFETY.some(t => /24 hours/.test(t)) && SAFETY.some(t => /3 months/.test(t)) && SAFETY.some(t => /fridge overnight/.test(t)), 'meal-prep safety rules');
+ok(all.filter(r => /chicken|turkey/i.test(r.name)).every(r => ['poultry', 'mince'].includes(GUIDES[r.id].protein)), 'chicken/turkey recipes use poultry/mince temps');
+ok(Object.values(GUIDES).some(g => g.steps.some(s => s.timer)) && /Medium heat/.test(stepText({ hob: 'medium' })), 'step timers + hob levels');
+console.log(fail ? `${fail} FAILED` : 'ALL COOK GUIDE TESTS PASSED'); process.exitCode = fail ? 1 : 0;

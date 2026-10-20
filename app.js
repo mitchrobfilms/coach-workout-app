@@ -2,8 +2,9 @@ import { getAuth } from './auth.js';
 import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, restoreInto, backupDue, BACKUP_KEYS } from './backup.js';
 import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
 import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
+import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
 import { newAwards, drawCertificate } from './certs.js';
-import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE } from './glp1.js';
+import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL } from './glp1.js';
 import { offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
@@ -865,7 +866,7 @@ function prepCard(r) {
     <b class="small">Shopping list (whole batch)</b>${r.ing.map(g => { const q = fmtQty(g.q); return tickRow(shopKey(g.item), g.item, `<span class="qty">${esc(q.metric)}${q.imperial ? ` / ${esc(q.imperial)}` : ''}</span>${g.pack ? ` · Pack: ${esc(g.pack)}` : ''}`); }).join('')}
     <div class="storebox">🧊 <b>Fridge:</b> ${esc(r.store.fridge)} · <b>Freezer:</b> ${esc(r.store.freezer)}<br>🔥 <b>Reheat:</b> ${esc(r.store.reheat)}</div>
     <div class="glp1">💊 <b>GLP-1 / retatrutide-friendly:</b> ${esc(r.glp1)}</div>
-    <details><summary class="small">Method</summary><ol>${r.steps.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details></div>`;
+    ${guideHTML(r)}</div>`;
 }
 function prepSummary() {
   const w = shop.prep.week, names = ['breakfast', 'lunch', 'dinner'].map(m => w[m] && prepById(w[m])).filter(Boolean);
@@ -884,7 +885,7 @@ function buildMyWeek({ silent = false } = {}) {
 }
 function renderPrep() {
   shop.prep.days ||= 4;
-  $('prepStorePick').innerHTML = Object.entries(STORES).map(([k, v]) => `<button type="button" class="chip ${shop.store === k ? 'on' : ''}" data-pstore="${k}">${v.name}</button>`).join('');
+  $('prepStorePick').innerHTML = Object.entries(STORES).map(([k, v]) => `<button type="button" class="chip storechip ${shop.store === k ? 'on' : ''}" data-pstore="${k}" aria-pressed="${shop.store === k}">${shop.store === k ? '✓ ' : ''}${v.name}</button>`).join('');
   $('prepStoreNotes').innerHTML = (PREP_STORE_NOTES[shop.store] || PREP_STORE_NOTES.any).map(x => `<li>${esc(x)}</li>`).join('') + '<li class="muted">No prices or product names. Availability varies, so check labels.</li>';
   document.querySelectorAll('#prepDays button').forEach(b => b.classList.toggle('on', +b.dataset.days === shop.prep.days));
   $('prepSafety').innerHTML = SAFETY.map(x => `<li>${esc(x)}</li>`).join('');
@@ -896,7 +897,7 @@ function renderPrep() {
     return `<section class="prepsec" id="prep-${m}"><h2>${title}</h2>${list.map(prepCard).join('') || '<p class="small muted">Nothing here without foods you won\'t eat. Edit your food profile in Settings.</p>'}</section>`;
   }).join('');
   const root = $('tab-prep');
-  root.querySelectorAll('[data-pstore]').forEach(b => b.onclick = () => { shop.store = b.dataset.pstore; saveShop(); renderPrep(); });
+  root.querySelectorAll('[data-pstore]').forEach(b => b.onclick = () => { shop.store = b.dataset.pstore; saveShop(); renderPrep(); toast(`🛒 Store: ${STORES[shop.store].name}`); });
   root.querySelectorAll('#prepDays button').forEach(b => b.onclick = () => { shop.prep.days = +b.dataset.days; saveShop(); renderPrep(); });
   root.querySelectorAll('[data-tick]').forEach(c => c.onchange = () => { if (c.checked) shop.ticks[c.dataset.tick] = true; else delete shop.ticks[c.dataset.tick]; saveShop(); renderPrep(); });
   root.querySelectorAll('[data-week]').forEach(b => b.onclick = () => { const id = b.dataset.week; shop.recipes = shop.recipes.includes(id) ? shop.recipes.filter(x => x !== id) : [...shop.recipes, id]; saveShop(); renderPrep(); toast(shop.recipes.includes(id) ? '🛒 Added to your shopping list' : 'Removed from the list'); });
@@ -1353,10 +1354,10 @@ function renderOffers() {
 }
 $('offerHp').onchange = e => { offerUI.hp = e.target.checked; renderOffers(); };
 function renderGlpForm() {
-  $('glpStore').innerHTML = [['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda'], ['mix', 'Mix (cheapest)']].map(([k, n]) => `<button type="button" class="chip ${glp.store === k ? 'on' : ''}" data-gstore="${k}">${n}</button>`).join('');
+  $('glpStore').innerHTML = [['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda'], ['mix', 'Cheapest mix']].map(([k, n]) => `<button type="button" class="chip storechip ${glp.store === k ? 'on' : ''}" data-gstore="${k}" aria-pressed="${glp.store === k}">${glp.store === k ? '✓ ' : ''}${n}</button>`).join('');
   $('glpDays').value = glp.days; $('glpMeals').value = glp.meals; $('glpProt').value = glp.protein; $('glpProtVal').textContent = `${glp.protein} g`;
   $('glpFussy').checked = glp.fussy; $('glpGentle').checked = glp.gentle; $('glpVeg').checked = glp.veg;
-  $('glpStore').querySelectorAll('[data-gstore]').forEach(b => b.onclick = () => { glp.store = b.dataset.gstore; saveGlp(); renderGlpForm(); if (glp.plan) buildGlp(); });
+  $('glpStore').querySelectorAll('[data-gstore]').forEach(b => b.onclick = () => { glp.store = b.dataset.gstore; saveGlp(); renderGlpForm(); buildGlp(); toast(`🛒 Store: ${b.textContent.replace('✓ ', '')}. Plan and prices updated`); });
 }
 for (const [id, k, num] of [['glpDays', 'days', 1], ['glpMeals', 'meals', 1], ['glpProt', 'protein', 1], ['glpFussy', 'fussy'], ['glpGentle', 'gentle'], ['glpVeg', 'veg']]) $(id).addEventListener(num ? 'input' : 'change', e => { glp[k] = num ? +e.target.value : e.target.checked; $('glpProtVal').textContent = `${glp.protein} g`; saveGlp(); });
 function buildGlp() {
@@ -1371,7 +1372,8 @@ function renderGlpPlan() {
     ${p.plan.map(x => `<div class="glpmeal"><div class="row between"><b>${SL[x.slot]}</b><small>${x.portions} portion${x.portions > 1 ? 's' : ''}</small></div><h4>${esc(x.recipe.name)}</h4>
       <div class="tags"><span class="pb">${x.protein} g protein</span><span>${x.kcal} kcal</span><span>${fmtGBP(x.costPerPortion)} a portion</span>${x.onOffer ? '<span class="v">Uses offers</span>' : ''}${x.recipe.gentle ? '<span>Gentle</span>' : ''}</div>
       <p class="small"><b>Per portion:</b> ${x.lines.map(l => `${esc(l.name.replace(/\s*\(.*\)$/, ''))} ${l.g} g`).join(', ')}</p>
-      <details><summary class="small">Method</summary><ol class="small">${x.recipe.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol><p class="small muted">Fridge up to ${x.recipe.fridgeDays} days; freeze extra portions. Reheat once until steaming hot.</p></details></div>`).join('')}
+      ${guideHTML(x.recipe)}</div>`).join('')}
+    <details class="card"><summary><b>🗂️ Batch-cook order</b></summary><ul class="small">${BATCH_ORDER.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
     <h3>🛒 Shopping list · total ${fmtGBP(p.total)}</h3>
     ${Object.entries(p.shop).map(([st, items]) => `<div class="aisle">${STORE_NAMES[st]}</div><ul class="shoplines">${items.map(i => `<li><span>${i.packs} × ${esc(i.name)}${i.offer ? ' <span class="pbadge hp">Offer</span>' : ''}<br><small class="muted">You need about ${i.need}${i.unit}</small></span><span><b>${fmtGBP(i.cost)}</b>${i.was ? `<br><del class="small">${fmtGBP(i.was * i.packs)}</del>` : ''}</span></li>`).join('')}</ul>`).join('')}
     <p class="small muted">${storeStatusText()}</p>
@@ -1466,3 +1468,40 @@ function renderCerts() {
 $('certList').addEventListener('click', e => { const d = e.target.closest('[data-certdl]'), s2 = e.target.closest('[data-certsh]'), find = id => store.get('certificates', []).find(c => c.id === id); if (d) downloadCert(find(d.dataset.certdl)); if (s2) shareCert(find(s2.dataset.certsh)); });
 renderCerts();
 window.__kova.awardCerts = awardCerts;
+
+/* ---------- Cooking guides + Cook mode ---------- */
+function guideHTML(r) {
+  const g = guideFor(r.id); if (!g) return '';
+  return `<details class="guide"><summary>👩‍🍳 <b>Cooking guide</b> · ${g.prep} min prep${g.cook ? ` + ${g.cook} min cook` : ', no cooking'}</summary>
+    <div class="gtimes"><span>⏱️ Prep ${g.prep} min</span><span>🔥 Cook ${g.cook} min</span><span>Total ${g.total} min</span></div>
+    ${g.ovenText ? `<p class="oven">🔥 <b>Oven:</b> ${g.ovenText}</p>` : ''}
+    <ol class="gsteps">${g.steps.map(st => `<li>${esc(st.t)}${stepText(st) ? `<br><small class="muted">${esc(stepText(st))}</small>` : ''}${st.timer ? ` <small class="tchip">⏲️ ${fmtTimer(st.timer)}</small>` : ''}</li>`).join('')}</ol>
+    <p class="safe">🌡️ <b>Safe to eat:</b> ${esc(g.safe)}<br>♨️ ${esc(g.reheat)}</p>
+    <p class="small muted">${esc(THERMO_TIP)}</p>
+    <details><summary class="small"><b>🧊 Meal prep safety</b></summary><ul class="small">${COOK_SAFETY.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
+    <details><summary class="small"><b>💊 GLP-1-friendly cooking</b></summary><ul class="small">${GLP1_NOTES.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
+    <button type="button" class="primary big" data-cook="${esc(r.id)}">👩‍🍳 Start Cook mode</button></details>`;
+}
+const cook = { id: null, i: 0, lock: null, timer: null, left: 0, name: '' };
+async function wake(on) { try { if (on && 'wakeLock' in navigator) { cook.lock = await navigator.wakeLock.request('screen'); window.__kova.wakeLock = true; } else if (!on && cook.lock) { await cook.lock.release(); cook.lock = null; window.__kova.wakeLock = false; } } catch { window.__kova.wakeLock = false; } }
+document.addEventListener('visibilitychange', () => { if (cook.id && document.visibilityState === 'visible' && !cook.lock) wake(true); });
+function openCook(id, name) { Object.assign(cook, { id, i: 0, name }); $('cookMode').hidden = false; wake(true); renderCook(); }
+function stopTimer() { clearInterval(cook.timer); cook.timer = null; }
+function renderCook() {
+  const g = guideFor(cook.id), st = g.steps[cook.i], last = cook.i === g.steps.length - 1;
+  $('cookMode').innerHTML = `<div class="cookhead"><b>${esc(cook.name)}</b><button type="button" id="cookClose">✕ Close</button></div>
+    <div class="cookprog">Step ${cook.i + 1} of ${g.steps.length}</div>
+    <p class="cookstep">${esc(st.t)}</p>${stepText(st) ? `<p class="cookheat">${esc(stepText(st))}</p>` : ''}
+    ${st.timer ? `<div class="cooktimer"><span id="cookTime">${fmtTimer(cook.timer ? cook.left : st.timer)}</span><button type="button" class="primary big" id="cookTimerBtn">${cook.timer ? '⏸ Stop timer' : '▶️ Start timer'}</button></div>` : ''}
+    ${last ? `<p class="safe">🌡️ ${esc(g.safe)}</p>` : ''}
+    <p class="small muted">${cook.lock ? '🔆 Screen will stay on while cooking' : 'Tip: your screen may dim; tap to wake it'}</p>
+    <div class="cooknav"><button type="button" class="big" id="cookPrev" ${cook.i ? '' : 'disabled'}>◀ Back</button><button type="button" class="primary big" id="cookNext">${last ? '✅ Done' : 'Next ▶'}</button></div>`;
+  $('cookClose').onclick = closeCook;
+  $('cookPrev').onclick = () => { stopTimer(); cook.i--; renderCook(); };
+  $('cookNext').onclick = () => { stopTimer(); if (last) { closeCook(); toast('🎉 Cooked! Cool, box and label it.'); } else { cook.i++; renderCook(); } };
+  if (st.timer) $('cookTimerBtn').onclick = () => { if (cook.timer) { stopTimer(); renderCook(); return; } cook.left = st.timer; cook.timer = setInterval(() => { cook.left--; const el = $('cookTime'); if (el) el.textContent = fmtTimer(Math.max(0, cook.left)); if (cook.left <= 0) { stopTimer(); try { navigator.vibrate?.([300, 150, 300]); } catch {} beepDone(); toast('⏲️ Timer done!'); renderCook(); } }, 1000 / SPEED); renderCook(); };
+}
+function beepDone() { try { const a = new AudioContext(), o = a.createOscillator(), gn = a.createGain(); o.connect(gn); gn.connect(a.destination); o.frequency.value = 880; gn.gain.value = .2; o.start(); o.stop(a.currentTime + .6); } catch {} }
+function closeCook() { stopTimer(); wake(false); cook.id = null; $('cookMode').hidden = true; }
+document.addEventListener('click', e => { const b = e.target.closest('[data-cook]'); if (!b) return; const r = [...PREP_RECIPES, ...GLP1_RECIPES_ALL].find(x => x.id === b.dataset.cook); openCook(b.dataset.cook, r?.name || 'Cook mode'); });
+window.__kova.openCook = openCook;

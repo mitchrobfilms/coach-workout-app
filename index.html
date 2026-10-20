@@ -8,7 +8,7 @@
 <title>Reta Coach</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="avatar.jpg">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=19">
 </head>
 <body>
 <header class="topbar">
@@ -160,7 +160,7 @@
 <section id="tab-prep" class="tab">
   <div class="shophead"><h2>💉 GLP-1 meal prep builder</h2><p class="small muted">For people on GLP-1 medicines (e.g. retatrutide, semaglutide, tirzepatide) or anyone who wants high-protein, small-portion meals. General healthy-eating guidance only, not medical or dosing advice.</p></div>
   <div class="card" id="glpCard">
-    <div class="field"><b>Store</b><div class="chips" id="glpStore"></div></div>
+    <div class="field"><b class="steplabel">1. Choose your store</b><div class="chips storechips" id="glpStore"></div><p class="small muted">Tap a store: the plan, prices and shopping list update straight away.</p></div>
     <div class="grid2">
       <label>Days<select id="glpDays"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>7</option></select></label>
       <label>Meals a day<select id="glpMeals"><option value="2">2</option><option value="3" selected>3</option><option value="4">3 + snack</option></select></label>
@@ -179,7 +179,7 @@
     <div id="offerList"></div></div>
   <h2 class="sep">More batch-cook ideas</h2>
   <div class="shophead"><h2>🍱 Meal prep</h2><p class="small muted">Batch-cook once, eat well for 3–4 days. Pick a store, then tap Build my week and your shopping list fills itself.</p></div>
-  <div class="card"><div class="row between"><b>Store</b><div class="chips" id="prepStorePick"></div></div><ul class="small" id="prepStoreNotes"></ul>
+  <div class="card"><b class="steplabel">Choose your store</b><div class="chips storechips" id="prepStorePick"></div><ul class="small" id="prepStoreNotes"></ul>
     <div class="row between"><b>Prep for</b><div class="seg" id="prepDays"><button type="button" data-days="3">3 days</button><button type="button" data-days="4">4 days</button></div></div>
     <button class="primary big" id="buildWeekBtn">✨ Build my week</button>
     <div id="prepWeek"></div></div>
@@ -293,7 +293,8 @@
 <button id="talkBtn" class="talk" hidden>🎙️ Tap to talk</button>
 <button type="button" class="updatetoast" id="updateToast" hidden>🔄 Update available, tap to refresh</button>
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
+<div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js"></script>
+<script type="module" src="app.js?v=19"></script>
 </body>
 </html>
