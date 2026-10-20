@@ -1,6 +1,7 @@
 import { getAuth } from './auth.js';
 import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, restoreInto, backupDue, BACKUP_KEYS } from './backup.js';
 import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
+import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
 import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE } from './glp1.js';
 import { offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
@@ -22,7 +23,7 @@ const SPEED = Math.max(1, +qs.get('speed') || 1); // test hook: ?speed=30 runs t
 const $ = id => document.getElementById(id);
 const auth = getAuth(), user = auth.currentUser(), PREFIX = auth.dataPrefix(user); // per-account data
 // Saved twice: localStorage (fast, sync) + an IndexedDB mirror. If Chrome drops localStorage, we restore from IndexedDB on launch.
-var wpReady = false;
+var wpReady = false, injReady = false;
 const store = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem(PREFIX + k)) ?? d; } catch { return d; } },
   set: (k, v) => { const j = JSON.stringify(v); try { localStorage.setItem(PREFIX + k, j); } catch {} idbSet(PREFIX + k, j); },
@@ -1261,7 +1262,7 @@ function renderWeightProgress() {
       ${w.length > 1 ? chartSVG(w, { goalKg: settings.goalKg, unit: unitW() === 'st' ? 'st' : unitW() === 'lb' ? 'lb' : 'kg', height: 120 }) : ''}
       ${sum.goal ? `<div class="bar"><i style="width:${sum.goal.pct}%"></i></div><p class="small muted">${sum.goal.pct}% of the way to your goal</p>` : ''}`;
   }
-  $('progChart').innerHTML = w.length > 1 ? chartSVG(w, { goalKg: settings.goalKg, unit: unitW() === 'st' ? 'st' : unitW() === 'lb' ? 'lb' : 'kg' }) : '<p class="small muted">Your chart appears after 2 weigh-ins.</p>';
+  $('progChart').innerHTML = w.length > 1 ? chartSVG(w, { goalKg: settings.goalKg, unit: unitW() === 'st' ? 'st' : unitW() === 'lb' ? 'lb' : 'kg', marks: store.get('injections', []).map(e => e.at) }) : '<p class="small muted">Your chart appears after 2 weigh-ins.</p>';
   $('milestoneList').innerHTML = sum ? sum.milestones.slice(0, 10).map(m => `<li class="${m.done ? 'done' : ''}">${m.done ? '🏅' : '⬜'} ${m.label}${m.done ? '' : ` <small class="muted">(${fmtLoss(Math.max(0, m.need - sum.lost))} to go)</small>`}</li>`).join('') : '<li class="muted">Milestones at 5%, 10%, every 5 kg and every stone.</li>';
   const sorted = sortEntries(w).reverse();
   $('weightList').innerHTML = sorted.length ? sorted.map((x, i) => { const p = sorted[i + 1], dd = p ? x.kg - p.kg : null;
@@ -1269,7 +1270,7 @@ function renderWeightProgress() {
     return `<li><span>${d(x.date)}<br><b>${fmtWeight(x.kg, unitW())}</b>${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd.toFixed(1)} kg)</small>` : ''}</span><span class="wbtns"><button type="button" data-wedit="${esc(x.date)}">Edit</button><button type="button" class="danger" data-wdel="${esc(x.date)}">Delete</button></span></li>`; }).join('') : '<li class="muted">No weigh-ins yet.</li>';
   $('goalInput').value ||= settings.goalKg ? fmtWeight(settings.goalKg, unitW()).replace(' kg', '') : ''; $('heightInput').value ||= settings.heightCm || '';
   document.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => { switchTab(b.dataset.gotab); scrollTo(0, 0); });
-  renderBackupStatus();
+  renderBackupStatus(); if (typeof renderInject === 'function' && injReady) renderInject();
 }
 $('weightList').addEventListener('click', e => {
   const ed = e.target.closest('[data-wedit]'), del = e.target.closest('[data-wdel]'), cancel = e.target.closest('[data-wcancel]');
@@ -1380,3 +1381,60 @@ function renderGlpPlan() {
 $('glpBuild').onclick = () => { buildGlp(); toast('✨ GLP-1 plan built'); };
 renderGlpForm(); renderGlpPlan(); loadOffers();
 window.__kova.glp = glp; window.__kova.buildGlp = buildGlp;
+
+/* ---------- Injection log (log only: no dose suggestions, maths or validation) ---------- */
+const injDT = iso => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+const localInput = d => { const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
+$('injDisclaimer').textContent = '⚠️ ' + INJ_DISCLAIMER;
+$('injMed').innerHTML = MEDS.map(m => `<option>${m}</option>`).join(''); $('injUnit').innerHTML = UNITS.map(u => `<option>${u}</option>`).join('');
+$('injSite').innerHTML = '<option value="">Choose site</option>' + SITES.map(x => `<option>${x}</option>`).join('');
+$('injEffects').innerHTML = EFFECTS.map(x => `<label class="check"><input type="checkbox" value="${x}"> ${x}</label>`).join('');
+$('injMed').onchange = () => { $('injCustomWrap').hidden = $('injMed').value !== 'Other'; };
+function injResetForm() {
+  const l = sortInj(store.get('injections', [])), last = l[l.length - 1];
+  if (last) { const known = MEDS.includes(last.med); $('injMed').value = known ? last.med : 'Other'; $('injCustom').value = known ? '' : last.med; $('injUnit').value = last.unit; }
+  $('injCustomWrap').hidden = $('injMed').value !== 'Other';
+  $('injDose').value = ''; $('injAt').value = localInput(new Date()); $('injSite').value = ''; $('injNotes').value = '';
+  $('injEffects').querySelectorAll('input').forEach(c => c.checked = false);
+}
+function renderInject() {
+  const l = sortInj(store.get('injections', [])), ls = lastSite(l), sch = store.get('injectSchedule', null);
+  $('injLastSite').textContent = ls ? `(last used: ${ls}, try a different spot)` : '';
+  $('injList').innerHTML = l.length ? l.slice().reverse().map(e => `<li><span>${injDT(e.at)}<br><b>${esc(e.med)}${e.dose ? ` · ${esc(e.dose)} ${esc(e.unit)}` : ''}</b>${e.site ? `<br><small>${esc(e.site)}</small>` : ''}${e.effects?.length ? `<br><small class="muted">${esc(e.effects.join(', '))}</small>` : ''}${e.notes ? `<br><small class="muted">${esc(e.notes)}</small>` : ''}</span><span class="wbtns"><button type="button" class="danger" data-injdel="${esc(e.id)}">Delete</button></span></li>`).join('') : '<li class="muted">No injections logged yet.</li>';
+  if (sch) { $('injSchedType').value = sch.type; $('injWeekday').value = sch.weekday ?? 1; $('injDays').value = sch.days ?? 7; $('injTime').value = sch.time; }
+  $('injWdWrap').hidden = $('injSchedType').value !== 'weekly'; $('injDaysWrap').hidden = $('injSchedType').value !== 'every'; $('injIcs').hidden = !$('injSchedType').value;
+  const nd = nextDue(sch, l), due = isDue(sch, l);
+  $('injNext').hidden = !sch && !l.length; $('injNext').classList.toggle('due', due);
+  $('injNext').innerHTML = `<h3>💉 ${due ? 'Injection due' : 'Next injection'}</h3><p>${nd ? `<b>${injDT(nd.toISOString())}</b> · ${describeSchedule(sch)}` : 'No reminder set.'}${l.length ? `<br><small class="muted">Last: ${injDT(l[l.length - 1].at)}${lastSite(l) ? ` · ${esc(lastSite(l))}` : ''}</small>` : ''}</p><p class="small muted">${INJ_DISCLAIMER}</p><button type="button" class="primary" data-gotab="progress" id="injGo">Log an injection</button>`;
+  $('injGo').onclick = () => { switchTab('progress'); $('injCard').scrollIntoView(); };
+  $('injNotifyStatus').textContent = !('Notification' in window) ? 'This browser can\'t show notifications. Use Add to calendar.' : Notification.permission === 'granted' ? `Notifications on${'showTrigger' in Notification.prototype ? ' (scheduled)' : ': you\'ll be reminded when you open the app, and in the background where Chrome allows'}. For a reminder that always fires, also tap Add to calendar.` : Notification.permission === 'denied' ? 'Notifications are blocked for this site in Chrome. Use Add to calendar instead.' : 'Saving a reminder asks for notification permission. For a reminder that always fires on Android, also tap Add to calendar.';
+}
+$('injSchedType').onchange = () => { $('injWdWrap').hidden = $('injSchedType').value !== 'weekly'; $('injDaysWrap').hidden = $('injSchedType').value !== 'every'; $('injIcs').hidden = !$('injSchedType').value; };
+$('injForm').onsubmit = e => {
+  e.preventDefault(); const at = $('injAt').value ? new Date($('injAt').value) : new Date();
+  const entry = makeEntry({ med: $('injMed').value, custom: $('injCustom').value, dose: $('injDose').value, unit: $('injUnit').value, at, site: $('injSite').value, effects: [...$('injEffects').querySelectorAll('input:checked')].map(c => c.value), notes: $('injNotes').value });
+  store.set('injections', [...store.get('injections', []), entry]); toast('✅ Injection logged'); injResetForm(); renderWeightProgress(); scheduleInjNotify();
+};
+$('injList').addEventListener('click', e => { const b = e.target.closest('[data-injdel]'); if (!b || !confirm('Delete this injection entry?')) return; store.set('injections', store.get('injections', []).filter(x => x.id !== b.dataset.injdel)); renderWeightProgress(); scheduleInjNotify(); });
+const readSched = () => { const t = $('injSchedType').value; return t ? { type: t, weekday: +$('injWeekday').value, days: Math.max(1, +$('injDays').value || 7), time: $('injTime').value || '09:00' } : null; };
+$('injSaveSched').onclick = async () => {
+  const sch = readSched(); store.set('injectSchedule', sch);
+  if (sch && 'Notification' in window && Notification.permission === 'default') { try { await Notification.requestPermission(); } catch {} }
+  await scheduleInjNotify(); renderInject(); toast(sch ? `⏰ Reminder saved: ${describeSchedule(sch)}` : 'Reminder off');
+};
+$('injIcs').onclick = () => { const sch = readSched(); if (!sch) return; const blob = new Blob([makeICS(sch)], { type: 'text/calendar' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'reta-injection-reminder.ics'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); window.__kova.lastIcs = makeICS(sch); toast('📅 Open the file to add the repeating reminder to your calendar'); };
+// Reminders: SW notification now if due (on app open), Notification Triggers where supported, Periodic Background Sync fallback.
+async function scheduleInjNotify() {
+  const sch = store.get('injectSchedule', null), l = store.get('injections', []), nd = nextDue(sch, l);
+  await idbSet('reta.injectNext', nd ? JSON.stringify({ at: nd.getTime(), text: describeSchedule(sch) }) : 'null');
+  if (!nd || !('Notification' in window) || Notification.permission !== 'granted' || !navigator.serviceWorker) return;
+  try {
+    const reg = await navigator.serviceWorker.ready, opts = { body: `${INJ_DISCLAIMER} Tap to log it.`, tag: 'reta-inject', icon: 'avatar.jpg', data: { url: './?tab=progress' } };
+    if (nd <= new Date()) { const shownFor = store.get('injNotified', 0); if (shownFor !== nd.getTime()) { await reg.showNotification('💉 Injection reminder', opts); store.set('injNotified', nd.getTime()); } }
+    else if ('showTrigger' in Notification.prototype && typeof TimestampTrigger !== 'undefined') await reg.showNotification('💉 Injection reminder', { ...opts, showTrigger: new TimestampTrigger(nd.getTime()) });
+    if ('periodicSync' in reg) { try { await reg.periodicSync.register('reta-inject', { minInterval: 12 * 36e5 }); } catch {} }
+  } catch {}
+}
+injReady = true; injResetForm(); renderInject(); renderWeightProgress(); scheduleInjNotify();
+if (new URLSearchParams(location.search).get('tab') === 'progress') setTimeout(() => switchTab('progress'), 0);
+window.__kova.renderInject = renderInject;

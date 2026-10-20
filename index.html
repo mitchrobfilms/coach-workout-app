@@ -65,6 +65,7 @@
     <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
     <div class="card homeprog" id="homeProgress"></div>
     <div class="card note" id="backupNudge" hidden></div>
+    <div class="card injnext" id="injNext" hidden></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
     <div class="card note"><b>Set-up:</b> Prop your phone about 2m / 6ft away so your whole body is in view. You'll use a wall, a sturdy chair and a towel or carpet. That's it.</div>
@@ -211,6 +212,28 @@
   </form>
   </div>
   <div class="card" id="progChartCard"><h3>Your weight over time</h3><div id="progChart"></div></div>
+  <div class="card" id="injCard"><h3>💉 Injection log</h3>
+    <p class="disclaimer" id="injDisclaimer"></p>
+    <form id="injForm" autocomplete="off" novalidate>
+      <label>Medication<select id="injMed"></select></label>
+      <label id="injCustomWrap" hidden>Name<input id="injCustom" type="text" placeholder="Medication name"></label>
+      <div class="grid2"><label>Dose you were given<input id="injDose" type="text" inputmode="decimal" placeholder="As prescribed"></label><label>Unit<select id="injUnit"></select></label></div>
+      <label>Date and time<input id="injAt" type="datetime-local"></label>
+      <label>Injection site <small class="muted" id="injLastSite"></small><select id="injSite"></select></label>
+      <fieldset class="effects"><legend>Side effects (optional)</legend><div id="injEffects"></div></fieldset>
+      <label>Notes<textarea id="injNotes" rows="2" placeholder="Anything to remember or tell your prescriber"></textarea></label>
+      <button type="submit" class="primary big">Save injection</button>
+    </form>
+    <h3>History</h3><ul class="list wlist" id="injList"></ul>
+    <h3>⏰ Reminder</h3>
+    <div class="grid2"><label>Repeat<select id="injSchedType"><option value="">Off</option><option value="weekly">Weekly</option><option value="every">Every N days</option></select></label>
+      <label id="injWdWrap">Day<select id="injWeekday"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select></label>
+      <label id="injDaysWrap" hidden>Every (days)<input id="injDays" type="number" min="1" max="60" value="7"></label>
+      <label>Time<input id="injTime" type="time" value="09:00"></label></div>
+    <button type="button" id="injSaveSched" class="primary">Save reminder</button>
+    <button type="button" id="injIcs">📅 Add to calendar (most reliable)</button>
+    <p class="small muted" id="injNotifyStatus"></p>
+  </div>
   <div class="card"><h3>Goal and height</h3>
     <div class="grid2"><label>Goal weight<input id="goalInput" type="text" inputmode="decimal" placeholder="e.g. 80 or 12st 7lb"></label><label>Height (cm)<input id="heightInput" type="text" inputmode="decimal" placeholder="e.g. 178"></label></div>
     <p id="goalError" class="error" role="alert" hidden></p>

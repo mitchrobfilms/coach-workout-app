@@ -60,5 +60,18 @@ ok(/Asda/.test(await p.textContent('#offerStatus')), 'offer status explains each
 await p.waitForTimeout(2600); await p.$eval('#offersCard', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/offers.png`, fullPage: false });
 await p.click('#offerStore [data-ostore=asda]'); ok(/blocks automated/.test(await p.textContent('#offerList')), 'Asda fallback explained');
 await p.click('#offerStore [data-ostore=all]'); await p.click('#offerList [data-useoffer]'); await p.waitForTimeout(300);
+// injection log
+await p.click('.tabs button[data-tab=progress]'); await p.waitForTimeout(200);
+ok(/does not give dosing advice/.test(await p.textContent('#injDisclaimer')), 'injection disclaimer shown');
+await p.selectOption('#injMed', 'Retatrutide'); await p.fill('#injDose', '2'); await p.selectOption('#injUnit', 'mg'); await p.selectOption('#injSite', 'Abdomen left'); await p.check('#injEffects input[value=Nausea]');
+await p.click('#injForm button[type=submit]'); await p.waitForTimeout(300);
+ok(/Retatrutide · 2 mg/.test(await p.textContent('#injList')) && /Abdomen left/.test(await p.textContent('#injLastSite')), 'injection logged, last site shown for rotation');
+ok(await p.$$eval('#progChart .inj', l => l.length) === 1, 'injection day marked on weight chart');
+await p.selectOption('#injSchedType', 'weekly'); await p.selectOption('#injWeekday', '2'); await p.fill('#injTime', '09:00'); await p.click('#injSaveSched'); await p.waitForTimeout(300);
+const [ics] = await Promise.all([p.waitForEvent('download', { timeout: 5000 }).catch(() => null), p.click('#injIcs')]); ok(ics && /\.ics$/.test(ics.suggestedFilename()), 'Add to calendar .ics download');
+await p.$eval('#injCard', e => e.scrollIntoView()); await p.waitForTimeout(2600); await p.screenshot({ path: `${OUT}/injection-log.png` });
+await p.click('.tabs button[data-tab=workout]'); await p.waitForTimeout(200);
+ok(await p.$eval('#injNext', e => !e.hidden && /Next injection|Injection due/.test(e.innerText) && /dosing advice/.test(e.innerText)), 'next injection card on home');
+await p.$eval('#injNext', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/home-next-injection.png` });
 ok(errs.length === 0, `no page errors ${errs.join(' | ')}`);
 await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL PROGRESS/MEAL/OFFERS E2E PASSED'); process.exitCode = fail ? 1 : 0;

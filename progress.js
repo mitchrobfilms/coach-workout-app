@@ -34,11 +34,11 @@ export function summary(entries, { goalKg = null, heightCm = null, now = null } 
     trend7: trend(w, 7, now), trend30: trend(w, 30, now), bmi: bmi(cur, heightCm), goal, milestones: ms, nextMilestone: ms.find(m => !m.done) || null, reached: ms.filter(m => m.done) };
 }
 // Inline SVG line chart (no libraries). Returns an SVG string.
-export function chartSVG(entries, { width = 340, height = 180, goalKg = null, unit = 'kg' } = {}) {
+export function chartSVG(entries, { width = 340, height = 180, goalKg = null, unit = 'kg', marks = [] } = {}) {
   const w = sortEntries(entries); if (w.length < 1) return '';
   const conv = kg => unit === 'lb' ? kg / KG_PER_LB : unit === 'st' ? kg / KG_PER_ST : kg;
   const xs = w.map(e => Date.parse(e.date)), ys = w.map(e => conv(e.kg)); if (goalKg) ys.push(conv(goalKg));
-  let x0 = Math.min(...xs), x1 = Math.max(...xs); if (x1 === x0) { x0 -= DAY; x1 += DAY; }
+  let x0 = Math.min(...xs), x1 = Math.max(...xs); const mk = marks.map(t => Date.parse(t)).filter(t => t >= x0 && t <= x1 + 14 * DAY); if (mk.length) x1 = Math.max(x1, ...mk); if (x1 === x0) { x0 -= DAY; x1 += DAY; }
   let y0 = Math.min(...ys), y1 = Math.max(...ys); const pad = Math.max((y1 - y0) * .12, unit === 'st' ? .1 : 1); y0 -= pad; y1 += pad;
   const L = 40, R = 10, T = 10, B = 24, X = t => L + (t - x0) / (x1 - x0) * (width - L - R), Y = v => T + (y1 - v) / (y1 - y0) * (height - T - B);
   const pts = w.map(e => `${X(Date.parse(e.date)).toFixed(1)},${Y(conv(e.kg)).toFixed(1)}`);
@@ -46,6 +46,7 @@ export function chartSVG(entries, { width = 340, height = 180, goalKg = null, un
   const dt = t => new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
   return `<svg class="wchart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Weight chart, ${w.length} weigh-ins"><g class="grid">${ticks.map(v => `<line x1="${L}" x2="${width - R}" y1="${Y(v).toFixed(1)}" y2="${Y(v).toFixed(1)}"/><text x="${L - 6}" y="${(Y(v) + 4).toFixed(1)}" text-anchor="end">${v.toFixed(unit === 'st' ? 1 : 0)}</text>`).join('')}</g>`
     + (goalKg ? `<line class="goal" x1="${L}" x2="${width - R}" y1="${Y(conv(goalKg)).toFixed(1)}" y2="${Y(conv(goalKg)).toFixed(1)}"/><text class="goaltxt" x="${width - R}" y="${(Y(conv(goalKg)) - 5).toFixed(1)}" text-anchor="end">Goal</text>` : '')
+    + marks.map(t => Date.parse(t)).filter(t => t >= x0 && t <= x1).map(t => `<g class="inj"><line x1="${X(t).toFixed(1)}" x2="${X(t).toFixed(1)}" y1="${T}" y2="${height - B}"/><text x="${X(t).toFixed(1)}" y="${T + 9}" text-anchor="middle">💉</text></g>`).join('')
     + `<polyline class="line" points="${pts.join(' ')}"/>${w.length <= 60 ? pts.map(p => `<circle class="dot" cx="${p.split(',')[0]}" cy="${p.split(',')[1]}" r="3.5"/>`).join('') : ''}`
     + `<text class="ax" x="${L}" y="${height - 6}">${dt(x0)}</text><text class="ax" x="${width - R}" y="${height - 6}" text-anchor="end">${dt(x1)}</text></svg>`;
 }

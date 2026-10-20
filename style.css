@@ -297,3 +297,10 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 .tips ul{padding-left:20px}
 h2.sep{margin-top:30px}
 @media (max-width:380px){.tabs button span{font-size:.66rem}.statgrid.three .stat2 b{font-size:1.15rem}}
+.disclaimer{background:rgba(255,184,77,.12);border:1px solid rgba(255,184,77,.5);border-radius:12px;padding:10px 12px;font-weight:700;font-size:.95rem}
+.effects{border:1px solid var(--line);border-radius:14px;padding:8px 12px;margin:10px 0}.effects .check{margin:4px 0}
+#injCard textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px}
+#injCard select,#injCard input:not([type=checkbox]){width:100%}#injCard>button{width:100%;margin-top:10px}
+.wchart .inj line{stroke:#ffb84d;stroke-width:1.5;stroke-dasharray:3 3;opacity:.8}.wchart .inj text{font-size:10px}
+.injnext h3{margin:0 0 6px}.injnext.due{border-color:#ffb84d}
+input[type=datetime-local],input[type=time],input[type=date]{color-scheme:dark;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;color:var(--txt)}
