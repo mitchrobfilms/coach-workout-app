@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="logo.svg"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=28">
+<link rel="stylesheet" href="style.css?v=29">
 </head>
 <body>
 <header class="topbar">
@@ -127,7 +127,7 @@
       <div class="captions"><div class="cue" id="cueLine"></div><div class="caption" id="bubble"></div></div>
       <div class="listening" id="listenBadge" hidden>🎙️ Listening…</div>
     </div>
-    <div class="controls"><button id="pauseBtn">Pause</button><button id="skipBtn">Skip</button><button id="endBtn" class="danger">End</button></div>
+    <div class="controls"><button id="castBtn" type="button" aria-label="Cast to TV" title="Cast to TV">📺 Cast</button><button id="pauseBtn">Pause</button><button id="skipBtn">Skip</button><button id="endBtn" class="danger">End</button></div>
   </div>
 
   <div id="screen-end" class="screen">
@@ -164,6 +164,10 @@
   <input type="search" id="classSearch" placeholder="🔎 Search classes, moves or trainers" aria-label="Search classes">
   <div class="row between"><div class="chips" id="classFilters"></div></div>
   <label class="small trainersel">Trainer <select id="classTrainer"><option value="lead">Class lead (default)</option><option value="m">Reta (male)</option><option value="f">Reta (female)</option></select></label>
+  <div class="card tvcard" id="tvCard"><h3>📺 Watch on your TV</h3>
+    <p class="small">During a class, tap <b>📺 Cast</b> to send the trainer video to a Chromecast / Google TV (Chrome on Android, Mac, PC) or use AirPlay to an Apple TV (iPhone/iPad Safari). Your phone keeps the camera and coaching.</p>
+    <p class="small">Smart TV with a web browser (Samsung, LG, Fire TV Silk, Sky Glass browser)? Open <b id="tvUrl"></b> on the TV for big-screen mode with remote-control navigation.</p>
+    <button type="button" id="tvTry">Preview big-screen TV mode</button></div>
   <div id="classList"></div>
   <div class="card"><h3>Your classes</h3><ul class="list" id="classHist"></ul></div>
   <p class="small muted">Calories are rough estimates (MET values × your weight). Latin Dance Cardio is Zumba-style and not affiliated with Zumba®. Stop if anything hurts or you feel dizzy.</p>
@@ -391,6 +395,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=28"></script>
+<script type="module" src="app.js?v=29"></script>
 </body>
 </html>

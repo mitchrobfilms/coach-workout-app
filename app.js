@@ -8,6 +8,8 @@ import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES
 import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
+import { healthConnectAvailable, healthConnectSteps, fitbitConnect, fitbitLinked, fitbitUnlink, fitbitSteps, FITBIT } from './health.js';
+import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -31,9 +33,9 @@ const store = {
   set: (k, v) => { const j = JSON.stringify(v); try { localStorage.setItem(PREFIX + k, j); } catch {} idbSet(PREFIX + k, j); },
 };
 import { makeCloud } from './cloud.js';
-const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) }); let cloudTimer = null;
-{ const set0 = store.set; store.set = (k, v) => { if (cloud.user && !String(k).startsWith('cloud.')) { if (k === 'certificates') store.set('cloud.certImgs', store.get('cloud.certImgs', [])); if (['weights', 'injections', 'certificates'].includes(k)) cloud.noteDelete(k, store.get(k, []), v); clearTimeout(cloudTimer); cloudTimer = setTimeout(() => cloudPush(), 4000); } set0(k, v); }; }
-async function cloudPush() { if (!cloud.user || !navigator.onLine) return; try { await cloud.push(settings, user); renderCloud?.(); } catch (e) { console.warn('cloud sync', e.message); } }
+const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) }); let cloudTimer = null, cloudPulling = false;
+{ const set0 = store.set; store.set = (k, v) => { if (cloud.user && !String(k).startsWith('cloud.')) { if (k === 'certificates') store.set('cloud.certImgs', store.get('cloud.certImgs', [])); if (!cloudPulling && ['weights', 'injections', 'certificates'].includes(k)) cloud.noteDelete(k, store.get(k, []), v); clearTimeout(cloudTimer); cloudTimer = setTimeout(() => cloudPush(), 4000); } set0(k, v); }; }
+async function cloudPush() { if (!cloud.user || !navigator.onLine || cloudPulling) return; try { await cloud.push(settings, user); renderCloud?.(); } catch (e) { console.warn('cloud sync', e.message); } }
 let restoredFromIdb = 0;
 { const lsKeys = Object.keys(localStorage).filter(k => k.startsWith(PREFIX));
   const mirror = await Promise.race([idbAll(PREFIX), new Promise(r => setTimeout(() => r({}), 1500))]);
@@ -339,6 +341,7 @@ async function initPose() {
   return landmarker;
 }
 async function startCamera() {
+  if (window.__tvMode) throw new Error('TV mode: no camera');
   stream?.getTracks().forEach(t => t.stop());
   stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } } });
   video.srcObject = stream; await video.play().catch(() => {});
@@ -1596,8 +1599,8 @@ function renderHome() {
   const day = store.get('daily', {}), t = day[todayKey()] || {};
   $('waterCard').innerHTML = `<i>💧</i><span><small>Hydration</small><b>${t.water || 0}/8</b><small>glasses · tap +1</small></span>`;
   $('waterCard').onclick = () => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; x.water = ((x.water || 0) + 1) % 9; store.set('daily', d); renderHome(); };
-  $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · tap to add</small></span>`;
-  $('stepsCard').onclick = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
+  $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · ${t.stepsSrc ? 'from ' + t.stepsSrc : 'tap to sync or add'}</small></span>`;
+  $('stepsCard').onclick = () => openStepsSheet(); window._manualSteps = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
   $('nextInjCard').innerHTML = `<div class="row between"><div><h3>💉 Next injection</h3><p style="margin:0"><b>${esc(last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged')}</b>${last?.dose ? `<br>${esc(last.dose)} ${esc(last.unit || '')} <small class="muted">(your last logged dose)</small>` : ''}</p>
     <p class="small" style="margin:6px 0 0">📅 ${nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set'}</p></div>
@@ -1718,7 +1721,10 @@ setTimeout(renderHome, 1500);
 /* ---------- Cloud sync UI ---------- */
 function renderCloud() { const u = cloud.user; $('cloudForm').hidden = !!u; $('cloudOn').hidden = !u; const last = store.get('cloud.lastSync', null);
   $('cloudStatus').textContent = u ? `Signed in to cloud as ${u.email}. ${last ? 'Last synced ' + new Date(last).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK.' : 'Not synced yet.'}` : 'Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you\'re online.'; }
-async function cloudFirst() { const n = await cloud.pull(settings); try { store.set('cloud.certImgs', (await cloud.certImages()).map(o => o.name.replace(/\.png$/, ''))); } catch {} store.set('settings', settings); await cloud.push(settings, user); toast(`☁️ Synced. ${n ? n + ' item' + (n === 1 ? '' : 's') + ' restored from cloud, ' : ''}your phone data is backed up.`); renderCloud(); renderProgress(); renderCerts(); renderHome(); renderInject(); if (n) setTimeout(() => location.reload(), 1500); }
+async function cloudFirst() { cloudPulling = true; let n; try { n = await cloud.pull(settings); store.set('settings', settings); try { store.set('cloud.certImgs', (await cloud.certImages()).map(o => o.name.replace(/\.png$/, ''))); } catch {} } finally { if (!n) cloudPulling = false; }
+  // Restored data: reload straight away so every module starts from the restored store (no stale in-memory copy can overwrite or tombstone it).
+  if (n) { clearTimeout(cloudTimer); toast(`☁️ ${n} item${n === 1 ? '' : 's'} restored from cloud`); store.set('cloud.justPulled', Date.now()); setTimeout(() => location.reload(), 600); return; }
+  await cloud.push(settings, user); toast('☁️ Synced. Your phone data is backed up.'); renderCloud(); }
 const cloudErr = m => { $('cloudErr').textContent = m || ''; $('cloudErr').hidden = !m; };
 $('cloudForm').onsubmit = async e => { e.preventDefault(); cloudErr(); try { await cloud.signIn($('cloudEmail').value.trim(), $('cloudPass').value); $('cloudPass').value = ''; await cloudFirst(); } catch (err) { cloudErr(err.message); } };
 $('cloudUp').onclick = async () => { cloudErr(); const p = $('cloudPass').value; if (p.length < 8) return cloudErr('Use a password of at least 8 characters.'); try { await cloud.signUp($('cloudEmail').value.trim(), p, settings.name); $('cloudPass').value = ''; await cloudFirst(); } catch (err) { cloudErr(err.message); } };
@@ -1726,7 +1732,7 @@ $('cloudSync').onclick = async () => { try { await cloudFirst(); } catch (e) { t
 $('cloudOut').onclick = async () => { await cloud.signOut(); renderCloud(); toast('Signed out of cloud. Your data stays on this phone.'); };
 $('cloudExport').onclick = async () => { try { const d = await cloud.exportAll(), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' })); a.download = `glp1life-my-data-${todayKey()}.json`; a.click(); } catch (e) { toast('Export failed: ' + e.message); } };
 $('cloudDelete').onclick = async () => { if (!confirm('Delete your cloud account and ALL your cloud data? Data on this phone is kept.')) return; try { await cloud.deleteAll(); renderCloud(); toast('🗑️ Cloud account and data deleted'); } catch (e) { toast('Delete failed: ' + e.message); } };
-renderCloud(); if (cloud.user && navigator.onLine) cloud.pull(settings).then(n => { if (n) { renderProgress?.(); renderHome(); } return cloud.push(settings, user); }).then(renderCloud).catch(e => console.warn('cloud', e.message));
+renderCloud(); if (cloud.user && navigator.onLine) { cloudPulling = true; cloud.pull(settings).then(n => { cloudPulling = false; if (n) { renderProgress?.(); renderHome(); renderCerts?.(); renderInject?.(); } return cloud.push(settings, user); }).then(renderCloud).catch(e => { cloudPulling = false; console.warn('cloud', e.message); }); }
 addEventListener('online', cloudPush);
 
 /* ---------- Personal Trainers (Supabase: public read, admin write) ---------- */
@@ -1774,3 +1780,38 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
     if (j.needs_consent) { if (!await consent(j.trainer)) return err('Not joined — joining with a trainer code needs your consent to share.'); j = await rpcF('redeem_promo', { p_code: code, p_consent: true }); }
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
+
+/* ---------- TV: Cast / AirPlay / big-screen mode ---------- */
+initTvMode();
+{ const v = $('trainerVid'), b = $('castBtn');
+  setCastSource(() => { const m = window.__kova?.classMedia, src = v.getAttribute('src') || m?.src; return src ? { src, title: m?.step || 'Workout', subtitle: $('trainerName')?.textContent || 'GLP1 Life' } : null; });
+  new MutationObserver(() => castFollow()).observe(v, { attributes: true, attributeFilter: ['src'] });
+  const upd = s => { b.classList.toggle('on', !!s.connected); b.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
+  // Load the Cast SDK only once a workout/class screen opens (keeps the rest of the app light).
+  const ss = $('screen-session'), go = () => { if (ss.classList.contains('active') && !go.done) { go.done = true; initCast(upd); } };
+  new MutationObserver(go).observe(ss, { attributes: true, attributeFilter: ['class'] }); go();
+  b.onclick = async () => { navigator.vibrate?.(10); const r = await castClick(v); if (r === 'tvmode') toast(`No Cast or AirPlay on this browser. On your TV's browser open ${location.host}${location.pathname}?tv=1`); };
+  $('tvUrl').textContent = `${location.host}${location.pathname}?tv=1`;
+  $('tvTry').onclick = () => { location.href = location.pathname + '?tv=1'; };
+}
+
+/* ---------- Steps: Health Connect (Android app) / Fitbit / manual ---------- */
+async function syncSteps(quiet) {
+  let n = null, src = '';
+  try { if (await healthConnectAvailable()) { n = await healthConnectSteps(); src = 'Health Connect'; } else if (fitbitLinked()) { n = await fitbitSteps(); src = 'Fitbit'; } }
+  catch (e) { if (!quiet) toast('Steps: ' + e.message); return; }
+  if (n == null) return; const d = store.get('daily', {}); const t = (d[todayKey()] ||= {}); if (t.steps !== n) { t.steps = n; t.stepsSrc = src; store.set('daily', d); renderHome(); } if (!quiet) toast(`👣 ${n.toLocaleString('en-GB')} steps from ${src}`);
+}
+async function openStepsSheet() {
+  const hc = await healthConnectAvailable(), fb = fitbitLinked(), native = !!window.Capacitor?.isNativePlatform?.();
+  const box = document.createElement('div'); box.className = 'overlay stepsheet'; box.innerHTML = `<div class="card" style="max-width:460px;margin:auto"><h2>👣 Steps</h2>
+    ${hc ? '<button class="primary" data-a="hc">Sync from Health Connect</button><p class="small muted">Reads today\'s steps only. Manage access in Health Connect settings.</p>' : native ? '<p class="small">Install <b>Health Connect</b> from the Play Store to sync steps from your phone, Samsung Health, Google Fit and more.</p>' : '<p class="small muted">Phone step syncing (Health Connect) works in the GLP1 Life Android app.</p>'}
+    ${fb ? '<button class="primary" data-a="fbsync">Sync from Fitbit</button><button data-a="fboff">Disconnect Fitbit</button>' : `<button data-a="fb" ${FITBIT.clientId ? '' : 'disabled'}>Connect Fitbit</button>${FITBIT.clientId ? '' : '<p class="small muted">Fitbit connection is coming soon.</p>'}`}
+    <button data-a="man">Enter steps by hand</button><button data-a="x">Close</button></div>`;
+  document.body.appendChild(box); const close = () => box.remove();
+  box.onclick = async e => { const a = e.target.dataset?.a; if (!a) return; if (a === 'x') return close();
+    if (a === 'man') { close(); return window._manualSteps?.(); } if (a === 'fb') { try { await fitbitConnect(); } catch (x) { toast(x.message); } return; }
+    if (a === 'fboff') { fitbitUnlink(); toast('Fitbit disconnected'); return close(); }
+    close(); await syncSteps(false); };
+}
+syncSteps(true); addEventListener('visibilitychange', () => { if (!document.hidden) syncSteps(true); });
