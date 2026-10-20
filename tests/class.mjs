@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = process.argv[2] || 'http://localhost:8765/?speed=10';
 const cornerTap = async sel => { const bb = await p.$eval(sel, e => { const r = e.getBoundingClientRect(); return { w: r.width, h: r.height }; }); await p.click(sel, { position: { x: bb.w - 12, y: bb.h - 12 } }); };
@@ -66,19 +67,19 @@ await p.click('#againBtn'); await p.click('#startBtn'); await p.waitForTimeout(1
 ok((await p.textContent('#eLastN')) !== '–', 'energy panel shows last session total: ' + await p.textContent('#eLastN'));
 await p.click('#endBtn'); await p.waitForSelector('#screen-end.active');
 // accounts: log out, second account isolation, login, forgot PIN
-await p.click('.tabs button[data-tab=settings]'); ok((await p.textContent('#acctInfo')).includes('Mitchell'), 'account info: ' + await p.textContent('#acctInfo'));
+await nav(p, 'settings'); ok((await p.textContent('#acctInfo')).includes('Mitchell'), 'account info: ' + await p.textContent('#acctInfo'));
 await p.click('#logoutBtn'); await p.waitForLoadState(); await p.waitForTimeout(500);
 ok(await p.isVisible('#loginForm') && (await p.textContent('#authAccounts')).includes('Mitchell'), 'logout -> login with account list');
 await p.click('#toRegister'); await p.fill('#regName', 'Sam'); await p.fill('#regEmail', 'sam@example.com'); await p.fill('#regSecret', 'password123'); await p.click('#regBtn'); await p.waitForTimeout(900);
-await p.click('#obSkip'); await p.click('.tabs button[data-tab=progress]');
+await p.click('#obSkip'); await nav(p, 'progress');
 ok((await p.textContent('#weightList')).includes('No weigh-ins') && (await p.textContent('#sessionList')).includes('No workouts'), 'second account has its own empty data');
-await p.click('.tabs button[data-tab=settings]'); await p.click('#switchAcct'); await p.waitForTimeout(500);
+await nav(p, 'settings'); await p.click('#switchAcct'); await p.waitForTimeout(500);
 await p.click('.acct[data-email="mitch@example.com"]'); await p.fill('#loginSecret', '0000'); await p.click('#loginBtn'); await p.waitForTimeout(600);
 ok(await p.isVisible('#loginError'), 'wrong PIN: ' + await p.textContent('#loginError'));
 await p.fill('#loginSecret', '4321'); await p.click('#loginBtn'); await p.waitForTimeout(900);
-await p.click('.tabs button[data-tab=progress]');
+await nav(p, 'progress');
 ok((await p.textContent('#weightList')).includes('13st 4lb') || (await p.textContent('#weightList')).includes('84.4'), 'Mitchell\'s data back after login: ' + (await p.textContent('#weightList')).slice(0, 60));
-await p.click('.tabs button[data-tab=settings]'); await p.click('#logoutBtn'); await p.waitForTimeout(500);
+await nav(p, 'settings'); await p.click('#logoutBtn'); await p.waitForTimeout(500);
 p.once('dialog', d => { ok(/delete/i.test(d.message()), 'forgot PIN warns data will be wiped'); d.accept(); });
 await p.click('.acct[data-email="sam@example.com"]'); await p.click('#forgotBtn'); await p.waitForTimeout(300);
 ok(await p.isVisible('#registerForm') && await p.inputValue('#regEmail') === 'sam@example.com', 'after reset: register prefilled');

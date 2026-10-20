@@ -62,7 +62,7 @@ export function parseLidl(html, { source = 'Lidl', baseUrl = 'https://www.lidl.c
     const was = pk.oldPrice ? pk.oldPrice : money(pk.packaging?.text?.match(/regular price.*$/i)?.[0]);
     const base = pk.basePrice?.text || '';
     const promo = [d.lidlPlus?.length && typeof p.price !== 'number' ? 'Lidl Plus price' : '', pk.discount?.discountText || d.lidlPlus?.[0]?.highlightText || ''].filter(Boolean).join(' · ');
-    const iso = t => t ? new Date(t * 1000).toISOString().slice(0, 10) : null;
+    const iso = t => t ? new Date(t * 1000).toLocaleDateString('en-CA', { timeZone: 'Europe/London' }) : null; // UK calendar date (Lidl weeks start Thu 00:00 UK)
     out.push({ store: 'lidl', source, id, name: unesc(d.fullTitle || d.title || '').trim(), brand: '', size: d.keyfacts?.supplementalDescription || pk.packaging?.text?.replace(/regular price.*$/i, '').trim() || '', price, was: was && was > price ? was : null, perKg: perKg(base.replace(/^(\d+(?:\.\d+)?)p/, (_, n) => '£' + (n / 100))), promo: promo || source, url: d.canonicalUrl ? baseUrl + d.canonicalUrl : baseUrl, from: iso(d.storeStartDate), to: iso(d.storeEndDate) });
   }
   return out;
@@ -70,6 +70,27 @@ export function parseLidl(html, { source = 'Lidl', baseUrl = 'https://www.lidl.c
 export function enrich(items) {
   return items.map(o => { const n = nutritionFor(o.name); return { ...o, protein: n?.protein ?? null, kcal100: n?.kcal ?? null, tag: n?.tag ?? null }; });
 }
+// Lidl leaflet viewer JSON (public endpoint used by lidl.co.uk/l/... viewer) -> offer items with the leaflet's valid dates.
+export function parseLidlLeaflet(j, { baseUrl = 'https://www.lidl.co.uk' } = {}) {
+  const f = j?.flyer; if (!f) return [];
+  return Object.values(f.products || {}).filter(x => x.price && x.categoryPrimary !== 'Non-Food').map(x => {
+    const d = String(x.description || '').replace(/&ndash;/g, '-').replace(/&[a-z]+;/g, ' ');
+    return { store: 'lidl', source: `Leaflet ${f.name || ''}`.trim(), id: String(x.productId), name: String(x.title || '').trim(), brand: x.brand || '', size: '', price: +x.price, was: null, perKg: null,
+      promo: /lidl plus/i.test(d) ? 'Lidl Plus' : 'Leaflet', url: x.canonicalUrl ? baseUrl + x.canonicalUrl : (x.url || baseUrl), from: f.offerStartDate || null, to: f.offerEndDate || null }; });
+}
+// Lidl offer weeks run Thursday to Wednesday (UK). Returns {start,end} ISO dates for this week (offset 0) or next (1).
+export function lidlWeek(now = new Date(), offset = 0) {
+  const uk = new Date(now.toLocaleDateString('en-CA', { timeZone: 'Europe/London' }) + 'T12:00:00Z');
+  const back = (uk.getUTCDay() - 4 + 7) % 7; const s = new Date(uk); s.setUTCDate(uk.getUTCDate() - back + 7 * offset);
+  const e = new Date(s); e.setUTCDate(s.getUTCDate() + 6); const f = d => d.toISOString().slice(0, 10); return { start: f(s), end: f(e) };
+}
+// Offers valid during that week. Undated items count as this week only. Same product in both weeks appears in both.
+export function lidlWeekOffers(items, wk, offset) {
+  const seen = new Set();
+  return (items || []).filter(o => { if (!o.from && !o.to) return offset === 0; return (o.from || '0000') <= wk.end && (o.to || '9999') >= wk.start; })
+    .filter(o => { const k = o.id || o.name; if (seen.has(k)) return false; seen.add(k); return true; });
+}
+export const fmtDay = iso => new Date(iso + 'T12:00:00Z').toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).replace(',', '');
 /* ---------- app helpers ---------- */
 export const STORE_NAMES = { aldi: 'Aldi', lidl: 'Lidl', asda: 'Asda' };
 export function offersFor(data, { store = 'all', highProtein = false } = {}) {

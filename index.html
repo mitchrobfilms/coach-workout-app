@@ -8,7 +8,7 @@
 <title>Reta Coach</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="avatar.jpg">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=25">
 </head>
 <body>
 <header class="topbar">
@@ -198,8 +198,12 @@
 <!-- LIDL TAB -->
 <section id="tab-lidl" class="tab">
   <div class="shophead"><h2><span class="ostore lidl">Lidl</span> Lidl</h2><p class="storeline" id="lidlStatus"></p></div>
-  <div class="card"><h3>🏷️ Lidl offers</h3><label class="check"><input type="checkbox" id="lidlHp" checked> High protein only (10 g+ per 100 g)</label><p class="small muted" id="lidlOfferCount"></p><div id="lidlOffers"></div>
-  <p class="small muted">Lidl only shows prices online for its offers, so there's no full Lidl price list.</p></div>
+  <div class="card"><h3>🏷️ Lidl offers</h3>
+  <div class="weektoggle" id="lidlWeeks"></div><p class="weekrange" id="lidlWeekRange"></p>
+  <label class="check"><input type="checkbox" id="lidlHp" checked> High protein only (10 g+ per 100 g)</label><p class="small muted" id="lidlOfferCount"></p><div id="lidlOffers"></div></div>
+  <div class="card" id="lidlPricesCard"><h3>💷 Lidl price list</h3><p class="small muted" id="lidlPriceStatus"></p>
+    <div id="lidlPriceBox" hidden><input type="search" id="lidlSearch" class="searchbox" placeholder="Search Lidl prices" autocomplete="off" enterkeyhint="search"><div id="lidlPriceList"></div></div></div>
+  <div class="card" id="lidlManualCard"><h3>🧾 Prices seen in store</h3><p class="small muted">Added by hand from shelf labels and receipts, with the date they were seen.</p><div id="lidlManual"></div></div>
 </section>
 <!-- PRICES TAB -->
 <section id="tab-prices" class="tab">
@@ -303,23 +307,32 @@
 </section>
 </main>
 
-<nav class="tabs">
-  <button data-tab="workout" class="active">🏋️<span>Workout</span></button>
-  <button data-tab="food">🍽️<span>Food</span></button>
-  <button data-tab="classes">🎬<span>Classes</span></button>
-  <button data-tab="prep">🍱<span>Prep</span></button>
-  <button data-tab="shop">🛒<span>Shop</span></button>
-  <button data-tab="aldi">🟦<span>Aldi</span></button>
-  <button data-tab="lidl">🟨<span>Lidl</span></button>
-  <button data-tab="prices">💷<span>Prices</span></button>
-  <button data-tab="progress">📈<span>Progress</span></button>
-  <button data-tab="settings">⚙️<span>Settings</span></button>
+<nav class="dock" id="dock" aria-label="Main">
+  <span class="dockind" id="dockInd" aria-hidden="true"></span>
+  <button type="button" data-tab="workout" class="active" aria-label="Home"><i>🏠</i><span>Home</span></button>
+  <button type="button" data-tab="classes" aria-label="Train"><i>🎬</i><span>Train</span></button>
+  <button type="button" class="orb" id="orbBtn" aria-label="Open menu" aria-expanded="false" aria-controls="launcher"><b>R</b></button>
+  <button type="button" data-tab="food" aria-label="Food"><i>🍽️</i><span>Food</span></button>
+  <button type="button" data-tab="progress" aria-label="Progress"><i>📈</i><span>Progress</span></button>
 </nav>
+<div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-label="All sections">
+  <div class="lgrab"></div><h3>Reta</h3>
+  <div class="lgrid">
+    <button type="button" data-ltile="coach"><i>🎙️</i><span>Coach</span></button>
+    <button type="button" data-tab="prep"><i>🍱</i><span>Meal prep</span></button>
+    <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
+    <button type="button" data-tab="aldi"><i><span class="ostore aldi">Aldi</span></i><span>Aldi</span></button>
+    <button type="button" data-tab="lidl"><i><span class="ostore lidl">Lidl</span></i><span>Lidl</span></button>
+    <button type="button" data-tab="prices"><i>💷</i><span>Prices</span></button>
+    <button type="button" data-tab="progress" data-lscroll="injCard"><i>💉</i><span>Injection log</span></button>
+    <button type="button" data-tab="progress" data-lscroll="certList"><i>🏆</i><span>Certificates</span></button>
+    <button type="button" data-tab="settings"><i>⚙️</i><span>Settings</span></button>
+  </div></div></div>
 <button id="talkBtn" class="talk" hidden>🎙️ Tap to talk</button>
 <button type="button" class="updatetoast" id="updateToast" hidden>🔄 Update available, tap to refresh</button>
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=23"></script>
+<script type="module" src="app.js?v=25"></script>
 </body>
 </html>

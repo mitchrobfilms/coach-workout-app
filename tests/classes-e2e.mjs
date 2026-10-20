@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = (process.argv[2] || 'http://localhost:8765/') + '?speed=90';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
@@ -11,7 +12,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => { if (!/access control checks/.test(e.message)) errs.push(e.message); });
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
   await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
-  await p.click('.tabs button[data-tab=classes]'); await p.waitForSelector('#classList .ccard');
+  await nav(p, 'classes'); await p.waitForSelector('#classList .ccard');
   ok(await p.$$eval('#classList .ccard', c => c.length) === 5, '5 class cards');
   ok((await p.textContent('#classList')).includes('Latin Dance Cardio (Zumba-style)') && /not affiliated with Zumba/.test(await p.textContent('#tab-classes')), 'Latin label + no-affiliation note');
   ok(await p.$$eval('#classList .dur', d => d.every(x => x.textContent === '30:00')), 'every card shows 30:00');
@@ -29,7 +30,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   lib.classes[0].drive_file_id = '1AbCdEfGhIjKlMnOp_test'; lib.classes[1].drive_file_id = '';
   lib.classes.push({ id: 'stretch-test', title: 'Gentle Stretch', category: 'Recovery', tags: ['gentle'], trainer: 'f', duration: 195, intensity: 'Gentle', poster: 'media/classes/yoga/seated-fold.jpg', blurb: 'Test class from library.json only.', music: { style: 'ambient', bpm: 60 }, met: 2, track: 'hold', voice: ['stretch'], drive_file_id: '', added: new Date().toISOString().slice(0, 10), script: { warm: [{ name: 'Breathe', dur: 60, slug: 'mountain-arms' }], main: [{ name: 'Seated forward fold', dur: 60, slug: 'seated-fold' }], cool: [{ name: 'Child\'s pose', dur: 60, slug: 'childs-pose' }] } });
   await p.route('**/library.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(lib) }));
-  await p.click('.tabs button[data-tab=progress]'); await p.click('.tabs button[data-tab=classes]'); await p.waitForSelector('#class-stretch-test');
+  await nav(p, 'progress'); await nav(p, 'classes'); await p.waitForSelector('#class-stretch-test');
   ok(await p.isVisible('#class-stretch-test .newbadge') && await p.isVisible('[data-cfilter=Recovery]') && /3:15/.test(await p.textContent('#class-stretch-test .dur')), 'new library entry appears on returning to the tab, with New badge + its own category');
   await p.click('[data-cfilter=new]'); await p.waitForTimeout(300); ok(await p.$$eval('#classList .ccard', c => c.length) >= 1, 'New filter');
   await p.click('[data-cfilter=all]'); await p.waitForTimeout(300);
@@ -95,7 +96,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   if (cls === 'boxing') ok(/Punches6|Punches/.test(end.rows) && end.h[0].stats.punches === 6, 'boxing stats: punches ' + end.h[0].stats.punches);
   await p.screenshot({ path: `class-end-${name}.png` });
   // yoga hold check (short)
-  await p.click('.tabs button[data-tab=classes]'); await p.click('[data-startclass=yoga]'); await p.waitForFunction(() => window.__kova.sess?.cls?.id === 'yoga' && window.__kova.sess.i >= 0);
+  await nav(p, 'classes'); await p.click('[data-startclass=yoga]'); await p.waitForFunction(() => window.__kova.sess?.cls?.id === 'yoga' && window.__kova.sess.i >= 0);
   ok(await p.evaluate(() => window.__kova.sess.trainer === 'f'), 'yoga led by the female trainer');
   await p.evaluate(() => { while (window.__kova.sess.cls.steps[window.__kova.sess.i].pose !== 'chair') window.__kova.classNext(); window.__kova.sess.paused = true; });
   const y = await p.evaluate(`(() => { ${PB} const ch = P({ ...base, 23: { x: .55, y: .6, z: .15 }, 24: { x: .45, y: .6, z: .15 }, 25: { x: .55, y: .75, z: -.05 }, 26: { x: .45, y: .75, z: -.05 }, 27: { x: .55, y: .92 }, 28: { x: .45, y: .92 } });

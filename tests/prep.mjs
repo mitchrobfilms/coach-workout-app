@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = process.argv[2] || 'http://localhost:8765/';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
@@ -8,7 +9,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
   await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
   ok(/Reta/.test(await p.title()) && /Reta/.test(await p.textContent('.brand')) && !/Kova/.test(await p.textContent('body')), 'renamed: Reta everywhere, no Kova');
-  await p.click('.tabs button[data-tab=prep]');
+  await nav(p, 'prep');
   for (const m of ['breakfast', 'lunch', 'dinner', 'snack']) ok(await p.isVisible('#prep-' + m), 'section ' + m);
   for (const m of ['breakfast', 'lunch', 'dinner']) { const n = await p.$$eval(`#prep-${m} .recipe`, r => r.length); ok(n >= 4, `${m}: ${n} recipes`); }
   ok(await p.$$eval('#prepStorePick .chip', c => c.map(x => x.textContent.replace('✓ ', '')).join(',')) === 'Lidl,Aldi,Asda,Any supermarket', 'store picker Lidl/Aldi/Asda/Any');
@@ -25,13 +26,13 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   // dislikes respected
   const builds = await p.evaluate(() => { window.__kova.settings && (window.__kova.settings.dislikes = ['chicken', 'egg']); return null; });
   await p.evaluate(() => { const k = Object.keys(localStorage).find(k => k.endsWith('.settings')); const s = JSON.parse(localStorage[k]); s.dislikes = ['chicken', 'eggs']; localStorage[k] = JSON.stringify(s); });
-  await p.reload(); await p.click('.tabs button[data-tab=prep]');
+  await p.reload(); await nav(p, 'prep');
   let bad = 0; for (let k = 0; k < 6; k++) { await p.click('#buildWeekBtn'); await p.waitForTimeout(50); if (/chicken|\begg/i.test(await p.textContent('#prepWeek'))) bad++; }
   ok(!bad && !(await p.$('#recipe-p-chickenrice')), 'dislikes (chicken, eggs) never picked or listed');
   await p.click('[data-pstore=lidl]'); await p.evaluate(() => { scrollTo(0, 0); document.getElementById('toast').hidden = true; });
   await p.screenshot({ path: `prep-${name}.png`, fullPage: false });
   // voice
-  await p.click('.tabs button[data-tab=workout]');
+  await nav(p, 'workout');
   await p.evaluate(() => window.__kova.handleHeard(['hey reta what should I prep'])); await p.waitForTimeout(300);
   ok(await p.isVisible('#tab-prep') && /prep/i.test(await p.evaluate(() => window.__kova.captions.slice(-1)[0] || '')), 'voice "Hey Reta, what should I prep?" opens prep + answers: ' + (await p.evaluate(() => window.__kova.captions.slice(-1)[0] || '')).slice(0, 90));
   ok(!errs.length, 'no page errors ' + errs.join(' | '));

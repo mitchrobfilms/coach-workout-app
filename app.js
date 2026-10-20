@@ -5,7 +5,7 @@ import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, l
 import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
 import { newAwards, drawCertificate } from './certs.js';
 import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL } from './glp1.js';
-import { offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
+import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
@@ -492,10 +492,23 @@ $('endFoodBtn').onclick = () => switchTab('food');
 /* ---------- tabs ---------- */
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
+  document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); moveDockInd(); document.querySelectorAll('#launcher [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t && !b.dataset.lscroll)); $('orbBtn').classList.toggle('active', !['workout', 'classes', 'food', 'progress'].includes(t));
   if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses(); if (t === 'prices' || t === 'aldi' || t === 'lidl') renderPrices();
 }
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
+const buzz = () => { try { navigator.vibrate?.(12); } catch {} };
+function moveDockInd() { const on = document.querySelector('#dock [data-tab].active'), ind = $('dockInd'); if (!ind) return; if (!on) { ind.style.opacity = 0; return; } const d = $('dock').getBoundingClientRect(), r = on.getBoundingClientRect(); ind.style.opacity = 1; ind.style.width = r.width + 'px'; ind.style.transform = `translateX(${r.left - d.left}px)`; }
+addEventListener('resize', moveDockInd); requestAnimationFrame(moveDockInd);
+function openLauncher(on) { const l = $('launcher'); if (on) { l.hidden = false; requestAnimationFrame(() => l.classList.add('open')); } else { l.classList.remove('open'); setTimeout(() => { if (!l.classList.contains('open')) l.hidden = true; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220); } $('orbBtn').setAttribute('aria-expanded', on); $('orbBtn').classList.toggle('open', on); }
+window.__reta = Object.assign(window.__reta || {}, { openLauncher });
+document.querySelectorAll('#dock [data-tab]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false); switchTab(b.dataset.tab); scrollTo(0, 0); });
+$('orbBtn').onclick = () => { buzz(); openLauncher($('launcher').hidden || !$('launcher').classList.contains('open')); };
+$('launcher').onclick = e => { if (e.target.id === 'launcher') openLauncher(false); };
+addEventListener('keydown', e => { if (e.key === 'Escape' && !$('launcher').hidden) openLauncher(false); });
+document.querySelectorAll('#launcher [data-tab], #launcher [data-ltile]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false);
+  if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "Hey Reta" or tap Talk'); return; }
+  window.__noHideUntil = Date.now() + 1200; switchTab(b.dataset.tab); const sc = b.dataset.lscroll; if (sc) setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); else scrollTo(0, 0); });
+{ let lastY = scrollY, tick = false; addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { const y = scrollY, d = $('dock');
+  if (y > lastY + 6 && y > 120 && $('launcher').hidden && Date.now() > (window.__noHideUntil || 0)) d.classList.add('hide'); else if (y < lastY - 6 || y < 60) d.classList.remove('hide'); lastY = y; tick = false; }); }, { passive: true }); }
 
 /* ---------- food check-in ---------- */
 const foodHist = () => store.get('food', {});
@@ -1322,17 +1335,17 @@ $('restoreFile').onchange = async e => {
 renderWeightProgress();
 
 /* ---------- GLP-1 meal prep builder + live offers ---------- */
-let offersData = null, pricesData = null, fullData = null;
+let offersData = null, pricesData = null, fullData = null, lidlPrices = null, lidlManual = null;
 const glp = Object.assign({ store: 'aldi', days: 3, meals: 3, protein: 30, fussy: !!settings.fussy, gentle: false, veg: false, prefer: [], plan: null }, store.get('glp1', {}));
 const saveGlp = () => store.set('glp1', glp);
 async function loadOffers() {
-  for (const [f, set] of [['data/offers.json', v => offersData = v], ['data/prices.json', v => pricesData = v], ['data/full-prices.json', v => fullData = v]]) {
+  for (const [f, set] of [['data/offers.json', v => offersData = v], ['data/prices.json', v => pricesData = v], ['data/full-prices.json', v => fullData = v], ['data/lidl-prices.json', v => lidlPrices = v], ['data/lidl-manual.json', v => lidlManual = v]]) {
     try { const r = await fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { const j = await r.json(); set(j); localStorage.setItem('reta.' + f, JSON.stringify(j)); continue; } } catch {}
     try { set(JSON.parse(localStorage.getItem('reta.' + f) || 'null')); } catch {}
   }
   renderPrices(); if (glp.plan) renderGlpPlan();
 }
-const offerUI = { aldi: true, lidl: true };
+const offerUI = { aldi: true, lidl: true, lidlWeek: 0 };
 const fmtUK = iso => iso ? new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK' : '?';
 const storeLine = k => { const s = offersData?.stores?.[k]; return s ? `Live offers update daily at 00:30. Last checked: ${fmtUK(s.checked)}${s.status === 'stale' ? ' (latest check failed, showing last list)' : ''}.` : 'Offers couldn\'t load. Check your connection and reopen this page.'; };
 function storeStatusText() { return ['aldi', 'lidl'].map(k => `${STORE_NAMES[k]}: ${storeLine(k)}`).join(' ') + ' Asda: typical prices.'; }
@@ -1347,11 +1360,31 @@ function bindUseOffer(root) { root.querySelectorAll('[data-useoffer]').forEach(b
 function renderStoreOffers(k) {
   const el = $(k + 'Offers'); if (!el) return;
   $(k + 'Status').textContent = storeLine(k); $(k + 'Hp').checked = offerUI[k];
-  const list = offersData ? offersFor(offersData, { store: k, highProtein: offerUI[k] }) : [];
+  let list = offersData ? offersFor(offersData, { store: k, highProtein: offerUI[k] }) : [], emptyMsg = '';
+  if (k === 'lidl') {
+    const wk = offerUI.lidlWeek, W = [0, 1].map(o => lidlWeek(new Date(), o));
+    $('lidlWeeks').innerHTML = ['This week', 'Next week'].map((n, i) => `<button type="button" class="weekbtn ${wk === i ? 'on' : ''}" aria-pressed="${wk === i}" data-lweek="${i}"><b>${n}</b><small>${fmtDay(W[i].start)} to ${fmtDay(W[i].end)}</small></button>`).join('');
+    $('lidlWeekRange').textContent = `${wk ? 'Next week' : 'This week'}: ${fmtDay(W[wk].start)} to ${fmtDay(W[wk].end)}`;
+    list = lidlWeekOffers(list, W[wk], wk);
+    if (wk === 1 && !lidlWeekOffers(offersData?.stores?.lidl?.items, W[1], 1).length) emptyMsg = `Next week's offers appear from ${fmtDay(W[0].start)} (Lidl publishes each week's leaflet a week ahead). They'll show here after the next 00:30 check.`;
+    $('lidlWeeks').querySelectorAll('[data-lweek]').forEach(b => b.onclick = () => { offerUI.lidlWeek = +b.dataset.lweek; renderStoreOffers('lidl'); });
+    renderLidlPrices();
+  }
   $(k + 'OfferCount').textContent = offersData ? `${list.length} offer${list.length === 1 ? '' : 's'}${offerUI[k] ? ' (high protein)' : ''}` : '';
-  el.innerHTML = list.length ? list.slice(0, 80).map(offerCard).join('') : `<p class="empty">${offersData ? (offerUI[k] ? 'No high-protein offers right now. Untick "High protein only" to see all.' : 'No offers right now.') : 'Offers couldn\'t load.'}</p>`;
+  el.innerHTML = list.length ? list.slice(0, 80).map(offerCard).join('') : `<p class="empty">${emptyMsg || (offersData ? (offerUI[k] ? 'No high-protein offers for this week. Untick "High protein only" to see all.' : 'No offers right now.') : 'Offers couldn\'t load.')}</p>`;
   bindUseOffer(el);
 }
+const lidlUI = { q: '' };
+function renderLidlPrices() {
+  const live = lidlPrices?.status === 'live' && lidlPrices.items?.length;
+  $('lidlPriceStatus').textContent = live ? `${lidlPrices.items.length} Lidl products. Prices update daily at 00:30. Last checked: ${fmtUK(lidlPrices.checked)}.` : `Lidl only publishes offer prices online. We check every night at 00:30 and will add a full price list here if that changes${lidlPrices?.checked ? ` (last checked ${fmtUK(lidlPrices.checked)})` : ''}.`;
+  $('lidlPriceBox').hidden = !live;
+  if (live) { const q = lidlUI.q.trim().toLowerCase(), l = lidlPrices.items.filter(i => !q || i.name.toLowerCase().includes(q));
+    $('lidlPriceList').innerHTML = l.length ? l.slice(0, 60).map(i => `<div class="offer"><div class="otop"><span class="ostore lidl">Lidl</span><b>${esc(i.name)}</b></div><div class="oprice"><b>${fmtGBP(i.price)}</b></div><div class="small">${histLine(i)}</div><div class="row"><a class="btnlink" href="${esc(i.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`).join('') : '<p class="empty">No matches.</p>'; }
+  const m = lidlManual?.items || [];
+  $('lidlManual').innerHTML = m.length ? m.slice().sort((a, b) => String(b.date).localeCompare(a.date)).map(i => `<div class="row between small manualrow"><span><b>${esc(i.item)}</b>${i.size ? ` <span class="muted">· ${esc(i.size)}</span>` : ''}<br><span class="muted">${esc(i.source || 'shelf label')} · seen ${i.date ? fmtDay(i.date) : '?'}</span></span><b>${fmtGBP(+i.price)}</b></div>`).join('') : '<p class="empty">No in-store prices added yet.</p>';
+}
+$('lidlSearch').oninput = e => { lidlUI.q = e.target.value; renderLidlPrices(); };
 for (const k of ['aldi', 'lidl']) $(k + 'Hp').onchange = e => { offerUI[k] = e.target.checked; renderStoreOffers(k); };
 function renderOffers() { renderStoreOffers('aldi'); renderStoreOffers('lidl'); }
 const priceUI = { q: '', cat: 'All' };

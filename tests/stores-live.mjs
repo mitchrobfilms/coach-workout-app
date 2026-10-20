@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 // Aldi / Lidl / Prices sections against real data. Usage: node tests/stores-live.mjs [URL] [OUTDIR]
 // Default URL is the live site. Registers a fresh account at Android phone size, then taps through every section.
 import { chromium, devices } from 'playwright-core';
@@ -31,16 +32,40 @@ ok(await p.$eval('#aldiSearch', e => getComputedStyle(e).color) === 'rgb(11, 17,
 ok(/was|Last price/.test(await p.textContent('#aldiPriceList')), 'last-price history shown');
 await p.fill('#aldiSearch', 'zzzz'); await p.waitForTimeout(200); ok(/No matches/.test(await p.textContent('#aldiPriceList')), 'empty state');
 if (OUT) { await p.fill('#aldiSearch', ''); await p.evaluate(() => scrollTo(0, 0)); await p.click('#aldiHp'); await p.waitForTimeout(300); await p.screenshot({ path: `${OUT}/aldi-section-top.png` }); }
-// Lidl via nav
-await p.click('.tabs button[data-tab=lidl]'); await p.waitForTimeout(400);
+// Lidl via the Reta launcher
+await nav(p, 'lidl'); await p.waitForTimeout(400);
 const ls = await p.textContent('#lidlStatus'); ok(/00:30/.test(ls) && /Last checked/.test(ls), 'Lidl status: ' + ls);
-ok(await count('#lidlOffers .offer') > 0, `Lidl offers render (${await count('#lidlOffers .offer')})`);
-await p.click('#lidlHp'); await p.waitForTimeout(200); ok(await count('#lidlOffers .offer') > 0, `Lidl all offers (${await count('#lidlOffers .offer')})`);
+ok(await count('#lidlWeeks .weekbtn') === 2, 'two week buttons');
+const wr = await p.$$eval('#lidlWeeks .weekbtn small', l => l.map(x => x.textContent)); ok(wr.every(t => /^\w{3} \d+ \w{3} to \w{3} \d+ \w{3}$/.test(t)) && /^Thu/.test(wr[0]), 'week ranges: ' + wr.join(' | '));
+ok(await p.$eval('#lidlWeeks [data-lweek="0"]', e => e.classList.contains('on')), 'This week selected by default');
+await p.click('#lidlHp'); await p.waitForTimeout(200); const tw = await count('#lidlOffers .offer'); ok(tw > 0, `Lidl this week offers (${tw})`);
 ok(await p.$$eval('#lidlOffers .ostore', l => l.every(x => x.textContent === 'Lidl')), 'Lidl section only shows Lidl');
-await p.evaluate(() => scrollTo(0, 0)); if (OUT) await p.screenshot({ path: `${OUT}/lidl-section.png` });
-await p.mouse.wheel(0, 3000); await p.waitForTimeout(300); ok(await p.evaluate(() => scrollY > 500), 'Lidl list scrolls');
+await p.evaluate(() => scrollTo(0, 0)); if (OUT) await p.screenshot({ path: `${OUT}/lidl-this-week.png` });
+await p.click('#lidlWeeks [data-lweek="1"]'); await p.waitForTimeout(300);
+ok(await p.$eval('#lidlWeeks [data-lweek="1"]', e => e.classList.contains('on') && getComputedStyle(e).backgroundColor === 'rgb(22, 212, 192)'), 'Next week button turns teal');
+const nw = await count('#lidlOffers .offer'), nwt = await p.textContent('#lidlOffers'); ok(nw > 0 || /appear from/.test(nwt), `Lidl next week (${nw}${nw ? '' : ': ' + nwt})`);
+ok(/Next week: Thu/.test(await p.textContent('#lidlWeekRange')), 'next week range line');
+await p.evaluate(() => scrollTo(0, 0)); if (OUT) await p.screenshot({ path: `${OUT}/lidl-next-week.png` });
+ok(/Lidl only publishes offer prices online|Lidl products/.test(await p.textContent('#lidlPriceStatus')), 'Lidl price list status');
+ok(await p.isVisible('#lidlManual'), 'in-store prices card');
+await p.mouse.wheel(0, 3000); await p.waitForTimeout(400); ok(await p.evaluate(() => scrollY > 500), 'Lidl list scrolls');
+ok(await p.$eval('#dock', e => e.classList.contains('hide')), 'dock hides on scroll down');
+await p.mouse.wheel(0, -400); await p.waitForTimeout(400); ok(await p.$eval('#dock', e => !e.classList.contains('hide')), 'dock shows on scroll up');
+// Dock + launcher
+ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'dock: 4 icons + orb');
+const db = await p.$$eval('#dock button', l => l.map(b => b.getBoundingClientRect().height)); ok(db.every(h => h >= 48), 'dock touch targets ' + db.map(Math.round).join(','));
+await p.click('#dock [data-tab=progress]'); await p.waitForTimeout(450);
+ok(await p.$eval('#dockInd', i => { const a = document.querySelector('#dock [data-tab=progress]').getBoundingClientRect(), r = i.getBoundingClientRect(); return Math.abs(a.left - r.left) < 3 && getComputedStyle(i).opacity === '1'; }), 'indicator slides to active item');
+ok(await p.$eval('#dock [data-tab=progress] span', e => getComputedStyle(e).opacity === '1') && await p.$eval('#dock [data-tab=food] span', e => getComputedStyle(e).opacity === '0'), 'label only on active item');
+await p.click('#orbBtn'); await p.waitForTimeout(400); ok(await p.isVisible('#launcher .lgrid'), 'orb opens launcher');
+const tiles = await p.$$eval('#launcher .lgrid button span:last-child', l => l.map(x => x.textContent)); ok(['Coach', 'Aldi', 'Lidl', 'Prices', 'Injection log', 'Certificates', 'Settings'].every(t => tiles.includes(t)), 'launcher tiles: ' + tiles.join(', '));
+if (OUT) await p.screenshot({ path: `${OUT}/nav-launcher-open.png` });
+await p.click('#launcher [data-lscroll=injCard]'); await p.waitForTimeout(700); ok(await p.isVisible('#tab-progress') && await p.isHidden('#launcher'), 'Injection log tile opens progress');
+await p.click('#orbBtn'); await p.waitForTimeout(350); await p.mouse.click(200, 120); await p.waitForTimeout(350); ok(await p.isHidden('#launcher'), 'tap outside closes launcher');
+await nav(p, 'settings'); await p.waitForTimeout(300); ok(await p.isVisible('#tab-settings') && await p.$eval('#orbBtn', e => e.classList.contains('active')), 'settings via launcher, orb marked');
+await nav(p, 'workout'); await p.evaluate(() => scrollTo(0, 0)); await p.waitForTimeout(450); if (OUT) await p.screenshot({ path: `${OUT}/nav-dock.png` });
 // Prices
-await p.click('.tabs button[data-tab=prices]'); await p.waitForTimeout(400);
+await nav(p, 'prices'); await p.waitForTimeout(400);
 ok(await count('#cmpList .cmp') > 10, `comparison rows (${await count('#cmpList .cmp')})`);
 ok(await count('#cmpList .cmpcell .ostore.asda') > 0 && /Typical price/.test(await p.textContent('#cmpList')), 'Asda typical prices in comparison');
 ok(!/403|block/i.test(await p.textContent('#tab-prices')), 'no block notice');

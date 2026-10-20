@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = process.argv[2] || 'http://localhost:8765/';
 let fail = 0;
@@ -7,7 +8,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   const errs = []; p.on('pageerror', e => { if (!/due to access control checks/.test(e.message)) errs.push(e.message); }); // WebKit reports HEAD probes cancelled by the test's own reload as page errors
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
   if (await p.$('#authScreen:not([hidden])')) { await p.fill('#regName', 'Test'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); }
-  await p.click('.tabs button[data-tab=progress]');
+  await nav(p, 'progress');
   const r = await p.$eval('#weightBtn', e => { const r = e.getBoundingClientRect(); return [r.width, r.height]; });
   const ir = await p.$eval('#weightInput', e => e.getBoundingClientRect().width);
   console.log(`[${name}] input width ${Math.round(ir)}px, save button ${r.map(Math.round).join('x')}`);

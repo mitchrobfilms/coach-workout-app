@@ -1,3 +1,4 @@
+import { nav } from './nav.mjs';
 import { chromium } from 'playwright-core';
 const browser = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true,
   args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required', '--enable-unsafe-swiftshader'] });
@@ -75,16 +76,16 @@ await page.evaluate(() => window.__kova.runCommand('what should I eat'));
 console.log('meal suggestion:', await page.textContent('#bubble'));
 console.log('ready card:', await page.textContent('#readyCountry'), (await page.textContent('#readyStores')).slice(0,80));
 await page.screenshot({ path: '/workspace/coach-test/06-food.png', fullPage: true });
-await page.click('.tabs button[data-tab=settings]'); await page.check('#setFussy'); await page.click('#foodPicker [data-f=eggs]'); await page.click('#foodPicker [data-f=eggs]'); await page.click('#foodPicker [data-f=carrots]'); await page.click('#saveSettings');
+await nav(page, 'settings'); await page.check('#setFussy'); await page.click('#foodPicker [data-f=eggs]'); await page.click('#foodPicker [data-f=eggs]'); await page.click('#foodPicker [data-f=carrots]'); await page.click('#saveSettings');
 console.log('dislikes:', await page.evaluate(() => JSON.parse(localStorage[Object.keys(localStorage).find(k => k.endsWith('.settings'))]).dislikes), 'likes:', await page.evaluate(() => JSON.parse(localStorage[Object.keys(localStorage).find(k => k.endsWith('.settings'))]).likes));
 await page.screenshot({ path: '/workspace/coach-test/08-settings.png', fullPage: true });
-await page.click('.tabs button[data-tab=food]'); console.log('fussy list:', (await page.$$eval('#fussyList li', l => l.map(x => x.textContent))).slice(0,2));
-await page.click('.tabs button[data-tab=progress]');
+await nav(page, 'food'); console.log('fussy list:', (await page.$$eval('#fussyList li', l => l.map(x => x.textContent))).slice(0,2));
+await nav(page, 'progress');
 console.log('progress:', (await page.$$eval('.list li', l => l.map(x => x.textContent))).join(' | '));
 await page.screenshot({ path: '/workspace/coach-test/07-progress.png', fullPage: true });
 console.log('localStorage keys:', await page.evaluate(() => Object.keys(localStorage)));
 // second session -> comparison with last session
-await page.click('.tabs button[data-tab=workout]'); await page.click('#againBtn'); await page.click('#startBtn');
+await nav(page, 'workout'); await page.click('#againBtn'); await page.click('#startBtn');
 await page.waitForTimeout(1500); await page.click('#endBtn'); await page.waitForSelector('#screen-end.active');
 console.log('summary 2:', await page.textContent('#summaryText'));
 console.log('404s (expected for missing media/ probes):', errors404); console.log('ERRORS:', errors.length ? errors : 'none');
