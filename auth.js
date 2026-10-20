@@ -47,6 +47,9 @@ export class LocalAuth {
     if (!acc || !sameStr(await hashSecret(String(secret || ''), acc.salt, acc.iter), acc.hash)) throw new Error('That email and PIN/password don\'t match.');
     this.s.setItem(CUR, acc.id); return this._pub(acc);
   }
+  // Cloud already verified this email+password: update this phone's copy to the same password and sign in (keeps data).
+  async adoptCloud({ email, secret }) { const all = this._all(), acc = all.find(a => a.email === normEmail(email)); if (!acc) return null;
+    acc.salt = b64(crypto.getRandomValues(new Uint8Array(16))); acc.iter = ITER; acc.hash = await hashSecret(String(secret), acc.salt); acc.kind = 'password'; this._save(all); this.s.setItem(CUR, acc.id); return this._pub(acc); }
   signOut() { this.s.removeItem(CUR); }
   resetAccount(id) { // "Forgot PIN": there's no server to verify you, so the account and its data are wiped
     const p = `kova.u.${id}.`;

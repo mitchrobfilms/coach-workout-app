@@ -37,9 +37,9 @@ try {
   const code = (await sql(`select client_code from public.trainers where id = '${tid}'`))[0]?.client_code; ok(/^[A-Z]{3}PT-[A-Z0-9]{4}$/.test(code || ''), `client code issued (${code})`);
   // 3. client redeems in app: consent required
   const p = await (await b.newContext({ ...devices['Pixel 7'] })).newPage(); p.on('pageerror', e => console.log('APP ERR', e.message));
-  await p.goto(URL + '?t=' + s, { waitUntil: 'networkidle' }); await p.fill('#regName', 'Casey'); await p.fill('#regEmail', 'casey@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200); if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(300);
+  await p.goto(URL + '?t=' + s, { waitUntil: 'networkidle' }); await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Casey'); await p.fill('#regEmail', 'casey@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200); if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(300);
   const nocon = await rpc(cl.access_token, 'redeem_promo', { p_code: code }); ok(nocon.j?.needs_consent && !(await sql(`select 1 from public.promo_redemptions where user_id='${cl.user.id}'`)).length, 'server refuses trainer code without consent');
-  await nav(p, 'settings'); await p.fill('#cloudEmail', CL); await p.fill('#cloudPass', PW); await p.click('#cloudIn'); await p.waitForSelector('#cloudOn:not([hidden])', { timeout: 15000 });
+  await nav(p, 'settings'); await p.fill('#cloudEmail', CL); await p.fill('#cloudPass', PW); await p.click('#cloudIn'); await p.waitForFunction(() => Object.keys(localStorage).some(k => k.endsWith('cloud.session')), null, { timeout: 15000 }); await p.waitForTimeout(2500);
   await p.waitForTimeout(4000);
   await nav(p, 'member'); await p.fill('#promoCode', code.toLowerCase()); await p.$eval('#promoForm', f => f.requestSubmit());
   await p.waitForSelector('#consentModal:not([hidden])'); ok(/Sam Test.*will see your weight, progress, workouts, meal plans and injection log/.test(await p.textContent('#consentTxt')), 'consent screen names trainer + data');

@@ -7,7 +7,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   const b = await type.launch(type === chromium ? { executablePath: '/usr/bin/google-chrome' } : {});
   const p = await (await b.newContext({ ...dev, locale: 'en-GB', timezoneId: 'Europe/London' })).newPage(); const errs = []; p.on('pageerror', e => { if (!/access control checks/.test(e.message)) errs.push(e.message); });
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
-  await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
+  await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
   ok(/GLP1 Life/.test(await p.title()) && /GLP1Life/.test(await p.textContent('.brand')) && !/Kova/.test(await p.textContent('body')), 'renamed: GLP1 Life, no Kova');
   await nav(p, 'prep');
   for (const m of ['breakfast', 'lunch', 'dinner', 'snack']) ok(await p.isVisible('#prep-' + m), 'section ' + m);

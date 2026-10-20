@@ -405,3 +405,61 @@ html.tv #classList{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}htm
 html.tv :focus-visible,html.tv button:focus,html.tv a:focus{outline:5px solid var(--green);outline-offset:4px}
 html.tv #screen-session .stage{height:calc(100vh - 160px)}html.tv #screen-session .view.trainer{position:absolute;inset:0;width:100%;height:100%}html.tv #youView{display:none}
 html.tv .controls button{font-size:1.1rem;padding:18px 34px}
+
+/* ===== Offers & price lists: roomy, single-column, phone-first (Android incl. 130% text) ===== */
+:is(#tab-prices,#tab-aldi,#tab-lidl){overflow-wrap:break-word}
+:is(#tab-prices,#tab-aldi,#tab-lidl) > .card{padding:16px 12px;margin-left:-4px;margin-right:-4px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) :is(.small,small,.muted,.storeline,label.check,p){font-size:1rem;line-height:1.45}
+:is(#tab-prices,#tab-aldi,#tab-lidl) h3{font-size:1.2rem;line-height:1.3}
+:is(#tab-prices,#tab-aldi,#tab-lidl) :is(button,.btnlink,a.btnlink,input,select,.chip){min-height:48px;font-size:1rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) label.check{display:flex;gap:12px;align-items:center;min-height:48px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) label.check input{width:24px;height:24px;min-height:0;flex:none}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .catscroll{flex-wrap:wrap;overflow:visible}
+/* offer / price item card */
+:is(#tab-prices,#tab-aldi,#tab-lidl) .offer{display:block;padding:16px;margin:12px 0;border-radius:18px;background:#fff;box-shadow:0 1px 3px rgba(40,10,70,.06)}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .otop{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .otop b{font-size:1.15rem;line-height:1.3;white-space:normal}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .ostore{font-size:1rem;padding:4px 10px;border-radius:8px;white-space:nowrap}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .oprice{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin:10px 0 6px;font-size:1.6rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .oprice :is(small,del){font-size:1rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .offer .small{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .pbadge{font-size:1rem;padding:4px 10px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .offer .row{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .offer .row > *{width:100%;flex:none}
+/* compare card: store rows full width */
+:is(#tab-prices,#tab-aldi,#tab-lidl) .card.cmp{padding:16px;border-radius:18px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .card.cmp > b{display:block;font-size:1.2rem;line-height:1.3}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .card.cmp > small{display:block;margin:4px 0 10px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .pcmp{display:flex;flex-direction:column;gap:8px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .prow{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:56px;padding:12px 14px;border-radius:14px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .prow > span:first-child{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0;flex:1}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .prow > b{font-size:1.3rem;white-space:nowrap;flex:none}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .prow.best{border-width:2px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .prow.best > span:first-child::after{content:"Cheapest";white-space:nowrap;background:var(--green);color:#fff;border-radius:999px;padding:3px 10px;font-weight:800;font-size:.9rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .card.cmp .row.between{flex-direction:column;align-items:stretch;gap:8px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .bestbadge{display:block;text-align:center;font-size:1rem;padding:12px}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .save{display:block;text-align:center;font-size:1rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .weekbtn{min-height:72px;font-size:1.05rem}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .weekbtn small{font-size:1rem}
+
+/* ===== Full-screen, edge-to-edge sign-up / sign-in / onboarding ===== */
+#authScreen,#onboard{padding:0;background:#fff;overflow-y:auto;display:flex;flex-direction:column;min-height:100dvh}
+#authScreen[hidden],#onboard[hidden]{display:none}
+#authScreen .authbox,#onboard .authbox{max-width:none;width:100%;margin:0;flex:1;display:flex;flex-direction:column;gap:12px;background:#fff;box-shadow:none;border-radius:0;padding:0 0 calc(24px + env(safe-area-inset-bottom))}
+#authScreen .authbox > :not(.authhero),#onboard .authbox > :not(.authhero){margin-left:max(20px, env(safe-area-inset-left));margin-right:max(20px, env(safe-area-inset-right))}
+.authhero{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;color:#fff;
+  padding:calc(36px + env(safe-area-inset-top)) 20px 34px;background:linear-gradient(160deg,#5b2a86 0%,#7a3fb0 55%,#2e9d5b 120%);border-radius:0 0 28px 28px;min-height:34dvh}
+.authhero .authlogo{width:88px;height:88px;padding:14px;border-radius:26px;background:rgba(255,255,255,.16)}
+.authhero .wordmark{color:#fff;margin:0}.authhero .wordmark i{color:#b9f5cf}
+.authhero .tagline{color:rgba(255,255,255,.92);margin:0;font-size:1rem}
+#authScreen form{max-width:520px;width:auto}
+#authScreen input{min-height:52px;font-size:1.05rem}
+#authScreen .primary.big{min-height:56px}
+#onboard .authbox > h2:first-child{margin-top:calc(28px + env(safe-area-inset-top))}
+.authnote{display:flex;gap:8px;align-items:flex-start;font-size:1rem}
+.authwelcome{display:flex;flex-direction:column;gap:12px;margin-top:8px}.authwelcome h2{margin:6px 0 0}.secondbig{min-height:56px;background:#fff;color:var(--teal);border:2px solid var(--teal);font-weight:800;border-radius:16px;width:100%}
+:is(#tab-prices,#tab-aldi,#tab-lidl) .chips .chip{white-space:normal;max-width:100%;text-align:left}
+.dock{box-sizing:border-box;max-width:calc(100vw - 16px)}.dock button{min-width:0;flex:1 1 0}.dock button span{white-space:nowrap;font-size:.72rem;line-height:1.1;text-align:center}
+@media (max-width:420px){.topbar .mic #micLabel{display:none}.topbar .mic{min-width:48px;padding-left:14px;padding-right:14px}}
+.topbar{box-sizing:border-box;max-width:100vw}
+#aldiPriceCount,#lidlWeekRange{scroll-margin-top:90px}

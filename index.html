@@ -7,39 +7,41 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="logo.svg"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=29">
+<link rel="icon" href="logo.svg"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css?v=31">
 </head>
 <body>
 <header class="topbar">
   <div class="brand"><img src="logo.svg" alt="" class="logo"><span class="wordmark">GLP1<i>Life</i></span></div>
-  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Reta"><span class="dot"></span><span id="micLabel">Mic off</span></button>
+  <button id="micBtn" class="mic off" aria-pressed="false" title="Voice: Hey Reta" aria-label="Voice: Hey Reta"><span class="dot"></span><span id="micLabel">Mic off</span></button>
 </header>
 <div id="heardChip" class="heard" hidden></div>
 
 <div class="overlay" id="authScreen" hidden>
   <div class="authbox">
-    <img src="logo.svg" class="authlogo" alt="">
-    <h1 class="wordmark big">GLP1<i>Life</i></h1>
-    <p class="tagline">Support · Track · Learn · Eat Well · Save Money</p>
+    <div class="authhero"><img src="logo-white.svg" class="authlogo" alt=""><h1 class="wordmark big">GLP1<i>Life</i></h1><p class="tagline">Support · Track · Learn · Eat Well · Save Money</p></div>
+    <div id="authWelcome" class="authwelcome"><h2>Welcome</h2><p class="muted">Your GLP-1 companion for weight, injections, classes, meals and saving money.</p>
+      <button type="button" class="primary big" id="wCreate">Create account</button>
+      <button type="button" class="big secondbig" id="wLogin">Already a member? Log in</button></div>
+    <form id="resetForm" hidden novalidate><h2>Set a new password</h2><label>New password (8+ characters) <input id="newPw" type="password" autocomplete="new-password"></label><p class="error" id="resetError" role="alert" hidden></p><button class="primary big" type="submit">Save new password</button></form>
     <div id="authAccounts"></div>
     <form id="loginForm" hidden novalidate><h2>Log in</h2>
       <label>Email <input id="loginEmail" type="email" autocomplete="username" inputmode="email"></label>
-      <label>PIN or password <input id="loginSecret" type="password" autocomplete="current-password"></label>
+      <label>Password <input id="loginSecret" type="password" autocomplete="current-password"></label>
       <p class="error" id="loginError" role="alert" hidden></p>
       <button class="primary big" id="loginBtn" type="submit">Log in</button>
-      <button type="button" class="linkbtn" id="forgotBtn">Forgot PIN?</button>
-      <button type="button" class="linkbtn" id="toRegister">New here? Create an account</button>
+      <button type="button" class="linkbtn" id="forgotBtn">Forgot password?</button>
+      <button type="button" class="big secondbig" id="toRegister">New here? Create an account</button>
     </form>
     <form id="registerForm" novalidate><h2>Create your account</h2>
       <label>Name <input id="regName" type="text" autocomplete="name" value=""></label>
       <label>Email <input id="regEmail" type="email" autocomplete="email" inputmode="email"></label>
-      <label>4-digit PIN or password (8+ characters) <input id="regSecret" type="password" autocomplete="new-password"></label>
+      <label>Password (8+ characters) <input id="regSecret" type="password" autocomplete="new-password"></label>
       <p class="error" id="regError" role="alert" hidden></p>
       <button class="primary big" id="regBtn" type="submit">Create account</button>
-      <button type="button" class="linkbtn" id="toLogin" hidden>I already have an account</button>
+      <button type="button" class="big secondbig" id="toLogin">Already a member? Log in</button>
     </form>
-    <p class="small muted">🔒 Your account and all your data stay on this phone only. Nothing is sent to a server.</p>
+    <p class="authnote muted">🔒 Your data is securely saved to your private cloud account (UK/EU servers).</p>
   </div>
 </div>
 <div class="overlay" id="onboard" hidden>
@@ -336,6 +338,8 @@
 <section id="tab-settings" class="tab">
   <h2>Settings</h2>
   <div class="card"><b>Account</b><p class="small" id="acctInfo"></p><div class="row"><button id="switchAcct">Switch account</button><button id="logoutBtn">Log out</button></div><p class="small muted">Accounts are stored on this phone only.</p></div>
+  <div class="card" id="helpCard"><h3>💬 Help &amp; support</h3><p>Questions, problems or ideas? Email <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a>. <a href="privacy.html">Privacy policy</a></p></div>
+  <div class="card" id="helpCard"><h3>💬 Help &amp; support</h3><p>Questions, problems or ideas? Email <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a>. <a href="privacy.html">Privacy policy</a></p></div>
   <div class="card" id="shareSetCard" hidden><h3>🤝 Sharing with your trainer</h3><p class="small muted">Choose what your trainer can see. Change it any time — switching off stops sharing straight away.</p><div class="shareSet"></div></div>
   <div class="card" id="cloudCard"><h3>☁️ Cloud backup &amp; sync</h3>
     <p class="small muted" id="cloudStatus">Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you're online.</p>
@@ -395,6 +399,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=29"></script>
+<script type="module" src="app.js?v=31"></script>
 </body>
 </html>

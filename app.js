@@ -8,7 +8,7 @@ import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES
 import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
-import { healthConnectAvailable, healthConnectSteps, fitbitConnect, fitbitLinked, fitbitUnlink, fitbitSteps, FITBIT } from './health.js';
+import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
@@ -774,32 +774,54 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 
 /* ---------- accounts (phone-only, see auth.js) + onboarding + trainer picker ---------- */
 function showErr(id, msg) { const e = $(id); e.textContent = msg || ''; e.hidden = !msg; }
-function authView(which) { $('loginForm').hidden = which !== 'login'; $('registerForm').hidden = which !== 'register'; $('toLogin').hidden = !auth.listAccounts().length; }
+function authView(which) { $('loginForm').hidden = which !== 'login'; $('registerForm').hidden = which !== 'register'; $('authWelcome').hidden = which !== 'welcome'; $('resetForm').hidden = which !== 'reset'; $('authAccounts').hidden = which !== 'login'; $('toLogin').hidden = false; }
 function renderAccounts() {
   const list = auth.listAccounts();
   $('authAccounts').innerHTML = list.length ? `<p class="small muted">Accounts on this phone</p>${list.map(a => `<button type="button" class="acct" data-email="${a.email}"><b>${a.name.replace(/</g, '&lt;')}</b><span>${a.email}</span></button>`).join('')}` : '';
   $('authAccounts').querySelectorAll('.acct').forEach(b => b.onclick = () => { authView('login'); $('loginEmail').value = b.dataset.email; $('loginSecret').focus(); });
 }
-function openAuth() { renderAccounts(); authView(auth.listAccounts().length ? 'login' : 'register'); $('authScreen').hidden = false; }
+function openAuth() { renderAccounts(); authView(auth.listAccounts().length ? 'login' : 'welcome'); $('authScreen').hidden = false; }
+$('wCreate').onclick = () => { authView('register'); $('regName').focus(); };
+$('wLogin').onclick = () => { authView('login'); $('loginEmail').focus(); };
 $('toRegister').onclick = () => authView('register');
 $('toLogin').onclick = () => authView('login');
+// Accounts are cloud (Supabase) accounts; a local profile on this phone mirrors it for offline use.
+// Dev only (localhost test server): local-only accounts so the offline test suites don't create cloud users.
+import { SB_URL as SB_URL_A, SB_KEY as SB_KEY_A } from './cloud.js';
+const LOCAL_DEV = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]cloudauth=1/.test(location.search);
+const moveCloudSession = u => { const k = PREFIX + 'cloud.session', s = localStorage.getItem(k); if (s && u) { localStorage.setItem(auth.dataPrefix(u) + 'cloud.session', s); if (auth.dataPrefix(u) !== PREFIX) localStorage.removeItem(k); } };
+const friendly = m => /already registered|already exists/i.test(m) ? 'That email already has an account. Tap "I already have an account" to log in.' : /invalid login|invalid credentials/i.test(m) ? 'Email or password is wrong.' : /fetch|network/i.test(m) ? 'No internet connection. Connect and try again.' : m;
 $('registerForm').addEventListener('submit', async e => {
   e.preventDefault(); showErr('regError'); $('regBtn').disabled = true;
-  try { const u = await auth.signUp({ name: $('regName').value, email: $('regEmail').value, secret: $('regSecret').value }); localStorage.setItem(auth.dataPrefix(u) + 'settings', JSON.stringify({ ...JSON.parse(localStorage.getItem(auth.dataPrefix(u) + 'settings') || '{}'), name: u.name })); location.reload(); }
-  catch (err) { showErr('regError', err.message); } finally { $('regBtn').disabled = false; }
+  const name = $('regName').value.trim(), email = $('regEmail').value.trim().toLowerCase(), pw = $('regSecret').value;
+  try {
+    if (!LOCAL_DEV) { if (!name) throw new Error('Please enter your name.'); if (pw.length < 8) throw new Error('Use a password of at least 8 characters.'); await cloud.signUp(email, pw, name); }
+    const u = await auth.signUp({ name, email, secret: pw }); moveCloudSession(u);
+    localStorage.setItem(auth.dataPrefix(u) + 'settings', JSON.stringify({ ...JSON.parse(localStorage.getItem(auth.dataPrefix(u) + 'settings') || '{}'), name: u.name })); location.reload(); }
+  catch (err) { showErr('regError', friendly(err.message)); } finally { $('regBtn').disabled = false; }
 });
 $('loginForm').addEventListener('submit', async e => {
   e.preventDefault(); showErr('loginError'); $('loginBtn').disabled = true;
-  try { await auth.signIn({ email: $('loginEmail').value, secret: $('loginSecret').value }); location.reload(); }
-  catch (err) { showErr('loginError', err.message); } finally { $('loginBtn').disabled = false; }
+  const email = $('loginEmail').value.trim().toLowerCase(), pw = $('loginSecret').value, local = auth.listAccounts().find(a => a.email === email);
+  try {
+    if (LOCAL_DEV || (local && !navigator.onLine)) { await auth.signIn({ email, secret: pw }); return location.reload(); }
+    const cu = await cloud.signIn(email, pw); // new phone or existing: cloud is the source of truth
+    const u = local ? await auth.adoptCloud({ email, secret: pw }) : await auth.signUp({ name: email.split('@')[0], email, secret: pw });
+    moveCloudSession(u || auth.currentUser()); location.reload(); }
+  catch (err) { showErr('loginError', friendly(err.message)); } finally { $('loginBtn').disabled = false; }
 });
-$('forgotBtn').onclick = () => {
-  const email = $('loginEmail').value.trim().toLowerCase(), acc = auth.listAccounts().find(a => a.email === email);
-  if (!acc) return showErr('loginError', 'Type the email of the account first (or tap it above).');
-  if (!confirm(`Reset "${acc.name}" (${acc.email})?\n\nYour account lives only on this phone, so there's no way to recover the PIN. Resetting permanently deletes this account and ALL its workouts, weigh-ins and food logs on this phone. You can then create it again.`)) return;
-  auth.resetAccount(acc.id); renderAccounts(); authView('register'); $('regName').value = acc.name; $('regEmail').value = acc.email; $('regSecret').focus();
-  showErr('regError', 'Account reset. Choose a new PIN to start fresh.');
+$('forgotBtn').onclick = async () => {
+  const email = $('loginEmail').value.trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(email)) return showErr('loginError', 'Type your email first, then tap Forgot password.');
+  try { const r = await fetch(`${SB_URL_A}/auth/v1/recover?redirect_to=${encodeURIComponent(location.origin + location.pathname)}`, { method: 'POST', headers: { apikey: SB_KEY_A, 'content-type': 'application/json' }, body: JSON.stringify({ email }) });
+    if (!r.ok && r.status !== 429) throw new Error('Could not send the reset email. Try again in a minute.'); toast('📧 If that email has an account, a reset link is on its way.'); } catch (x) { showErr('loginError', friendly(x.message)); }
 };
+// Password-reset link lands here with #access_token=…&type=recovery
+{ const hp = new URLSearchParams(location.hash.slice(1)); if (hp.get('type') === 'recovery' && hp.get('access_token')) { const tok = hp.get('access_token'); history.replaceState(null, '', location.pathname); $('authScreen').hidden = false; authView('reset');
+  $('resetForm').onsubmit = async e => { e.preventDefault(); const pw = $('newPw').value; if (pw.length < 8) return showErr('resetError', 'Use at least 8 characters.');
+    const r = await fetch(`${SB_URL_A}/auth/v1/user`, { method: 'PUT', headers: { apikey: SB_KEY_A, authorization: 'Bearer ' + tok, 'content-type': 'application/json' }, body: JSON.stringify({ password: pw }) }), j = await r.json().catch(() => ({}));
+    if (!r.ok) return showErr('resetError', j.msg || j.message || 'Reset link expired. Request a new one.');
+    const email = (j.email || '').toLowerCase(); // this phone's copy adopts the new password at next log in (data kept)
+    toast('✅ Password changed. Log in with your new password.'); authView('login'); $('loginEmail').value = email; }; } }
 $('logoutBtn').onclick = () => { if (sess) return toast('End the workout first'); stopRec?.(); auth.signOut(); location.reload(); };
 $('switchAcct').onclick = $('logoutBtn').onclick;
 if (user) $('acctInfo').textContent = `Signed in as ${user.name} (${user.email}) on this phone.`;
@@ -1795,23 +1817,21 @@ initTvMode();
   $('tvTry').onclick = () => { location.href = location.pathname + '?tv=1'; };
 }
 
-/* ---------- Steps: Health Connect (Android app) / Fitbit / manual ---------- */
+/* ---------- Steps: Health Connect (Android app) / manual ---------- */
 async function syncSteps(quiet) {
   let n = null, src = '';
-  try { if (await healthConnectAvailable()) { n = await healthConnectSteps(); src = 'Health Connect'; } else if (fitbitLinked()) { n = await fitbitSteps(); src = 'Fitbit'; } }
+  try { if (await healthConnectAvailable()) { n = await healthConnectSteps(); src = 'Health Connect'; } }
   catch (e) { if (!quiet) toast('Steps: ' + e.message); return; }
   if (n == null) return; const d = store.get('daily', {}); const t = (d[todayKey()] ||= {}); if (t.steps !== n) { t.steps = n; t.stepsSrc = src; store.set('daily', d); renderHome(); } if (!quiet) toast(`👣 ${n.toLocaleString('en-GB')} steps from ${src}`);
 }
 async function openStepsSheet() {
-  const hc = await healthConnectAvailable(), fb = fitbitLinked(), native = !!window.Capacitor?.isNativePlatform?.();
+  const hc = await healthConnectAvailable(), native = !!window.Capacitor?.isNativePlatform?.();
   const box = document.createElement('div'); box.className = 'overlay stepsheet'; box.innerHTML = `<div class="card" style="max-width:460px;margin:auto"><h2>👣 Steps</h2>
     ${hc ? '<button class="primary" data-a="hc">Sync from Health Connect</button><p class="small muted">Reads today\'s steps only. Manage access in Health Connect settings.</p>' : native ? '<p class="small">Install <b>Health Connect</b> from the Play Store to sync steps from your phone, Samsung Health, Google Fit and more.</p>' : '<p class="small muted">Phone step syncing (Health Connect) works in the GLP1 Life Android app.</p>'}
-    ${fb ? '<button class="primary" data-a="fbsync">Sync from Fitbit</button><button data-a="fboff">Disconnect Fitbit</button>' : `<button data-a="fb" ${FITBIT.clientId ? '' : 'disabled'}>Connect Fitbit</button>${FITBIT.clientId ? '' : '<p class="small muted">Fitbit connection is coming soon.</p>'}`}
     <button data-a="man">Enter steps by hand</button><button data-a="x">Close</button></div>`;
   document.body.appendChild(box); const close = () => box.remove();
   box.onclick = async e => { const a = e.target.dataset?.a; if (!a) return; if (a === 'x') return close();
-    if (a === 'man') { close(); return window._manualSteps?.(); } if (a === 'fb') { try { await fitbitConnect(); } catch (x) { toast(x.message); } return; }
-    if (a === 'fboff') { fitbitUnlink(); toast('Fitbit disconnected'); return close(); }
+    if (a === 'man') { close(); return window._manualSteps?.(); }
     close(); await syncSteps(false); };
 }
 syncSteps(true); addEventListener('visibilitychange', () => { if (!document.hidden) syncSteps(true); });

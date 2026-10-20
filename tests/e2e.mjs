@@ -8,7 +8,7 @@ const errors = []; let errors404 = 0;
 page.on('pageerror', e => errors.push('pageerror: ' + e.message));
 page.on('console', m => { if (m.type() === 'error') { if (!/404/.test(m.text())) errors.push('console: ' + m.text()); else errors404++; } if (/GPU delegate|pose init/.test(m.text())) console.log('[console]', m.text().slice(0, 200)); });
 await page.goto('http://localhost:8765/?speed=10');
-await page.fill('#regName', 'Mitchell'); await page.fill('#regEmail', 'm@example.com'); await page.fill('#regSecret', '1234'); await page.click('#regBtn'); await page.waitForTimeout(900); await page.click('#obSkip');
+await (async () => { if (await page.isVisible('#wCreate')) await page.click('#wCreate'); })(); await page.fill('#regName', 'Mitchell'); await page.fill('#regEmail', 'm@example.com'); await page.fill('#regSecret', '1234'); await page.click('#regBtn'); await page.waitForTimeout(900); await page.click('#obSkip');
 await page.screenshot({ path: '/workspace/coach-test/01-start.png', fullPage: true });
 console.log('badge:', await page.textContent('.badge'));
 console.log('notes:', (await page.$$eval('.note', n => n.map(x => x.textContent))).join(' | '));

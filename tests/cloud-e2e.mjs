@@ -7,7 +7,7 @@ let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'F
 const stamp = Date.now(), A = `glp1life.test.a${stamp}@example.com`, B = `glp1life.test.b${stamp}@example.com`, PW = 'Test-' + stamp;
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true });
 async function phone(name) { const ctx = await b.newContext({ ...devices['Pixel 7'] }); const p = await ctx.newPage(); p.on('dialog', d => d.accept());
-  await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'networkidle' }); await p.fill('#regName', name); await p.fill('#regEmail', name.toLowerCase() + '@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
+  await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'networkidle' }); await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', name); await p.fill('#regEmail', name.toLowerCase() + '@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
   if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(300); return p; }
 // Phone 1: local data first, then create cloud account -> migrates
 const p1 = await phone('Ann');

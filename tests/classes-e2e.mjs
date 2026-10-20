@@ -11,7 +11,7 @@ for (const [name, type, dev, cls] of [['chrome-android', chromium, devices['Pixe
   const ctx = await b.newContext({ ...dev, locale: 'en-GB', timezoneId: 'Europe/London', permissions: type === chromium ? ['camera'] : [] });
   const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => { if (!/access control checks/.test(e.message)) errs.push(e.message); });
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
-  await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
+  await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip');
   await nav(p, 'classes'); await p.waitForSelector('#classList .ccard');
   ok(await p.$$eval('#classList .ccard', c => c.length) === 5, '5 class cards');
   ok((await p.textContent('#classList')).includes('Latin Dance Cardio (Zumba-style)') && /not affiliated with Zumba/.test(await p.textContent('#tab-classes')), 'Latin label + no-affiliation note');

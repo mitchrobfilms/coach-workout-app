@@ -9,7 +9,7 @@ const ctx = await b.newContext({ ...devices['Pixel 7'] }); const p = await ctx.n
 p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 'error' && !/404|favicon/.test(m.text()) && errs.push(m.text()));
 p.on('response', r => /\/data\/.+\.json/.test(r.url()) && !r.ok() && bad.push(r.status() + ' ' + r.url()));
 await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'networkidle' });
-await p.fill('#regName', 'Test'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
+await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Test'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
 if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(500);
 const count = sel => p.$$eval(sel, l => l.length);
 // home tiles
@@ -21,7 +21,7 @@ const as = await p.textContent('#aldiStatus'); ok(/00:30/.test(as) && /Last chec
 ok(await count('#aldiOffers .offer') > 0, `Aldi offers render (${await count('#aldiOffers .offer')})`);
 await p.click('#aldiHp'); await p.waitForTimeout(200); ok(await count('#aldiOffers .offer') > 0, `Aldi all offers (${await count('#aldiOffers .offer')})`);
 ok(await count('#aldiPriceList .offer') > 0, `Aldi price list renders (${await count('#aldiPriceList .offer')})`);
-await p.click('#aldiCats [data-pcat=Eggs]'); await p.waitForTimeout(700);
+await p.click('#aldiCats [data-pcat=Eggs]'); await p.waitForTimeout(1500);
 ok(await p.$eval('#aldiCats [data-pcat=Eggs]', e => e.classList.contains('on') && getComputedStyle(e).backgroundColor !== getComputedStyle(document.querySelector('#aldiCats [data-pcat=All]')).backgroundColor), 'tapped category is highlighted');
 const eggs = await p.$$eval('#aldiPriceList .offer b', l => l.map(x => x.textContent)); ok(eggs.length > 0 && eggs.some(t => /egg/i.test(t)), `Eggs category shows eggs (${eggs.length})`);
 ok(await p.$eval('#aldiPriceCount', e => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.top < innerHeight; }), 'results scrolled into view after tapping category');

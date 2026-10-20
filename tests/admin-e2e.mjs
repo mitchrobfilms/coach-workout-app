@@ -17,7 +17,7 @@ try {
   const an = await fetch(SB_URL + '/rest/v1/trainers', { method: 'POST', headers: { apikey: SB_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ name: 'Hack', whatsapp: '447700900000' }) }); ok(an.status >= 400, `anon insert rejected (${an.status})`);
   // app empty state first
   const ctx = await b.newContext({ ...devices['Pixel 7'] }), p = await ctx.newPage(); p.on('dialog', d => d.accept());
-  await p.goto(URL + '?t=' + s, { waitUntil: 'networkidle' }); await p.fill('#regName', 'Tess'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200); if (await p.isVisible('#obSkip')) await p.click('#obSkip');
+  await p.goto(URL + '?t=' + s, { waitUntil: 'networkidle' }); await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Tess'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200); if (await p.isVisible('#obSkip')) await p.click('#obSkip');
   const before = (await (await fetch(SB_URL + '/rest/v1/trainers?select=id', { headers: { apikey: SB_KEY } })).json()).length;
   await nav(p, 'trainers'); await p.waitForTimeout(1200); if (!before) { ok(await p.isVisible('.trempty'), 'friendly empty state (no fake trainers)'); if (OUT) await p.screenshot({ path: `${OUT}/trainers-empty.png` }); }
   // admin page: non-admin denied

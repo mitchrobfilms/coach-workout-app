@@ -7,7 +7,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   const b = await type.launch(type === chromium ? { executablePath: '/usr/bin/google-chrome' } : {});
   const p = await (await b.newContext({ ...dev, locale: 'en-GB', timezoneId: 'Europe/London' })).newPage(); const errs = []; p.on('pageerror', e => { if (!/access control checks/.test(e.message)) errs.push(e.message); else console.log('  (ignored WebKit unload-cancelled fetch:', e.message.slice(0, 60) + ')'); });
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
-  const reg = async (n, e) => { await p.fill('#regName', n); await p.fill('#regEmail', e); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); };
+  const reg = async (n, e) => { await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', n); await p.fill('#regEmail', e); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); };
   await reg('Mitchell', 'm@example.com');
   await p.click('#orbBtn'); await p.waitForTimeout(350); ok(await p.isVisible('#launcher [data-tab=shop]'), 'Shop tile in launcher'); await p.click('#orbBtn'); await p.waitForTimeout(300);
   await nav(p, 'food'); await p.click('#tab-food [data-goshop]'); ok(await p.isVisible('#tab-shop'), 'Food tab CTA opens Shop');

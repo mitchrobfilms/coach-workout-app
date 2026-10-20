@@ -17,7 +17,7 @@ await ctx.addInitScript(() => {
 });
 const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message));
 await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
-if (await p.$('#authScreen:not([hidden])')) { await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); }
+if (await p.$('#authScreen:not([hidden])')) { await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); }
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 await p.click('#micBtn'); await p.waitForTimeout(300);
 ok(await p.evaluate(() => window.__sr.starts === 1 && !!window.__sr.active), 'mic on starts recognition (lang ' + await p.evaluate(() => window.__sr.lang) + ')');

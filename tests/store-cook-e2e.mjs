@@ -8,7 +8,7 @@ for (const width of [360, 412]) {
   const ctx = await b.newContext({ ...devices['Pixel 5'], viewport: { width, height: 800 }, hasTouch: true, isMobile: true }); const p = await ctx.newPage();
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
-  if (await p.$('#authScreen:not([hidden])')) { await p.fill('#regName', 'T'); await p.fill('#regEmail', 't@e.com'); await p.fill('#regSecret', '1234'); await p.tap('#regBtn'); await p.waitForSelector('#onboard:not([hidden])'); await p.tap('#obSkip'); }
+  if (await p.$('#authScreen:not([hidden])')) { await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'T'); await p.fill('#regEmail', 't@e.com'); await p.fill('#regSecret', '1234'); await p.tap('#regBtn'); await p.waitForSelector('#onboard:not([hidden])'); await p.tap('#obSkip'); }
   await p.evaluate(() => Promise.race([navigator.serviceWorker?.ready, new Promise(r => setTimeout(r, 5000))])); await p.reload(); await p.waitForTimeout(800); // now SW-controlled
   const ctl = await p.evaluate(() => !!navigator.serviceWorker?.controller); ok(ctl || !URL.startsWith('https'), `[${width}] SW-controlled: ${ctl}`);
   await nav(p, 'prep'); await p.waitForTimeout(600);

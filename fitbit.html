@@ -1,4 +1,0 @@
-<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Connecting Fitbit · GLP1 Life</title><link rel="stylesheet" href="style.css"></head>
-<body><main style="padding:40px 20px;text-align:center"><img src="logo.svg" width="64" alt=""><h2 id="m">Connecting your Fitbit…</h2><p><a href="./">Back to GLP1 Life</a></p></main>
-<script type="module">import { fitbitCallback } from './health.js';
-fitbitCallback(new URLSearchParams(location.search)).then(back => { document.getElementById('m').textContent = '✅ Fitbit connected'; setTimeout(() => location.replace((back || './').replace(/#.*$/, '') ), 800); }).catch(e => document.getElementById('m').textContent = '⚠️ ' + e.message);</script></body></html>

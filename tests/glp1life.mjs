@@ -9,7 +9,7 @@ p.on('pageerror', e => errs.push(e.message)); p.on('console', m => m.type() === 
 const shot = async n => { if (OUT) { await p.waitForTimeout(250); await p.screenshot({ path: `${OUT}/${n}.png` }); } };
 await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'networkidle' });
 ok(await p.title() === 'GLP1 Life', 'title GLP1 Life');
-await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
+await (async () => { if (await p.isVisible('#wCreate')) await p.click('#wCreate'); })(); await p.fill('#regName', 'Mitchell'); await p.fill('#regEmail', 'm@example.com'); await p.fill('#regSecret', '4321'); await p.click('#regBtn'); await p.waitForTimeout(1200);
 if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(400);
 // seed some data like a real user
 await p.evaluate(() => { const k = Object.keys(localStorage).find(k => /\.weights$/.test(k)) || ''; });
