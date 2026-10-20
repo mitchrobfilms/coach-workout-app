@@ -1,7 +1,8 @@
 name: Daily store offers
 on:
   schedule:
-    - cron: '0 5 * * *'   # 05:00 UTC = 06:00 UK (BST); 05:00 in winter
+    - cron: '30 23 * * *'  # 00:30 UK during BST
+    - cron: '30 0 * * *'   # 00:30 UK during GMT
   workflow_dispatch:
 permissions:
   contents: write
@@ -11,12 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Only run at 00:30 UK
+        id: gate
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(TZ=Europe/London date +%H)" != "00" ]; then echo "run=false" >> $GITHUB_OUTPUT; else echo "run=true" >> $GITHUB_OUTPUT; fi
       - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
       - uses: actions/setup-node@v4
+        if: steps.gate.outputs.run == 'true'
         with: { node-version: 20 }
       - run: node tests/progress.test.mjs
+        if: steps.gate.outputs.run == 'true'
       - run: node tools/fetch-offers.mjs
+        if: steps.gate.outputs.run == 'true'
       - name: Commit data
+        if: steps.gate.outputs.run == 'true'
         run: |
           git config user.name "reta-offers-bot"
           git config user.email "actions@users.noreply.github.com"

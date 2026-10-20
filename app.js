@@ -1333,15 +1333,16 @@ async function loadOffers() {
   renderOffers(); if (glp.plan) renderGlpPlan();
 }
 const offerUI = { store: 'all', hp: true };
+const fmtUK = iso => iso ? new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK' : '?';
 function storeStatusText() {
   if (!offersData) return 'Offers couldn\'t load. Check your connection. The meal builder uses typical prices instead.';
-  return Object.entries(offersData.stores).map(([k, s]) => s.status === 'live' ? `${STORE_NAMES[k]}: live offers, checked ${fmtChecked(s.checked)}` : s.status === 'stale' ? `${STORE_NAMES[k]}: last list from ${fmtChecked(s.checked)} (today's check failed)` : `${STORE_NAMES[k]}: no live offers (${(s.note || 'not available').replace(/\.$/, '')}). Typical prices from ${fmtChecked(pricesData?.curatedChecked)} used instead`).join('. ') + '. Prices may vary in store and by region.';
+  return ['aldi', 'lidl'].filter(k => offersData.stores[k]).map(k => `${STORE_NAMES[k]}: live offers update daily at 00:30. Last checked: ${fmtUK(offersData.stores[k].checked)}`).join('. ') + '. Asda: typical prices. Prices may vary in store and by region.';
 }
 function renderOffers() {
   $('offerStore').innerHTML = [['all', 'All'], ['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda']].map(([k, n]) => `<button type="button" class="chip ${offerUI.store === k ? 'on' : ''}" data-ostore="${k}">${n}</button>`).join('');
   $('offerHp').checked = offerUI.hp; $('offerStatus').textContent = storeStatusText();
   const list = offersFor(offersData, { store: offerUI.store, highProtein: offerUI.hp });
-  const asdaNote = offerUI.store === 'asda' && offersData?.stores?.asda?.status !== 'live' ? `<p class="small">Asda's website blocks automated price checks, so we can't show live Asda offers. The meal builder uses typical Asda prices (checked ${fmtChecked(pricesData?.curatedChecked)}). <a href="https://groceries.asda.com/special-offers" target="_blank" rel="noopener">Open Asda's offers ↗</a></p>` : '';
+  const asdaNote = offerUI.store === 'asda' && offersData?.stores?.asda?.status !== 'live' ? `<p class="small muted">Typical price · <a href="https://groceries.asda.com/special-offers" target="_blank" rel="noopener">Asda offers ↗</a></p>` : '';
   $('offerList').innerHTML = asdaNote + (list.length ? list.slice(0, 60).map(o => { const key = STAPLES.find(s => s.match.test(o.name) && !(s.exclude && s.exclude.test(o.name)))?.key;
     return `<div class="offer"><div class="otop"><span class="ostore ${o.store}">${STORE_NAMES[o.store]}</span><b>${esc(o.name)}</b></div>
     <div class="oprice"><b>${fmtGBP(o.price)}</b>${o.was ? ` <del>${fmtGBP(o.was)}</del>` : ''}${o.perKg ? ` <small>${fmtGBP(o.perKg)}/kg</small>` : ''}${o.size ? ` <small>· ${esc(o.size)}</small>` : ''}</div>
