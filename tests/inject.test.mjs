@@ -18,6 +18,6 @@ ok(DISCLAIMER === "Log only. Follow your prescriber's instructions. This app doe
 const src = { injections: [e], injectSchedule: wk }, dst = {};
 restoreInto(k => dst[k] ?? null, (k, v) => { dst[k] = v; }, parseBackup(JSON.stringify(makeBackup(k => src[k] ?? null))).backup);
 ok(dst.injections?.[0]?.dose === '2.5' && dst.injectSchedule?.weekday === 2, 'injections + schedule in backup/restore');
-const code = fs.readFileSync('../inject.js', 'utf8');
+const code = fs.readFileSync(new URL('../inject.js', import.meta.url), 'utf8');
 ok(!/parseFloat|Number\(dose|\* ?dose|dose ?\*|reconstitut|bac water|units per/i.test(code), 'no dose maths/reconstitution in inject.js');
 console.log(fail ? `${fail} FAILED` : 'ALL INJECTION TESTS PASSED'); process.exitCode = fail ? 1 : 0;
