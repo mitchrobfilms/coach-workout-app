@@ -1,0 +1,41 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>GLP1 Life Admin</title><link rel="icon" href="../logo.svg"><link rel="stylesheet" href="admin.css?v=3"></head><body>
+<header><img src="../logo.svg" alt=""><b>GLP1<i>Life</i></b><span>Admin</span><button id="out" hidden>Sign out</button></header>
+<main>
+<section id="login" class="card narrow"><h1>Admin sign in</h1><p class="muted">Use your GLP1 Life cloud account. Only accounts marked as admin can make changes; this is enforced by the database.</p>
+  <form id="lf"><label>Email<input id="le" type="email" autocomplete="username" required></label><label>Password<input id="lp" type="password" autocomplete="current-password" required></label><p class="err" id="lerr" hidden></p><button class="primary">Sign in</button></form></section>
+<section id="denied" class="card narrow" hidden><h1>Not an admin</h1><p>You're signed in as <b id="who"></b>, but this account isn't an admin.</p></section>
+<section id="app" hidden>
+  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button></nav>
+  <div id="v-trainers" class="grid">
+    <div><div class="row between"><h2>Trainers</h2><button class="primary" id="new">+ Add trainer</button></div><p class="muted small">Drag ↑ ↓ to reorder. Hidden trainers don't show in the app.</p><ul id="list" class="list"></ul></div>
+    <div class="card" id="editor"><h2 id="etitle">Add trainer</h2>
+      <form id="f" novalidate><input type="hidden" id="id">
+        <label>Name *<input id="name" required maxlength="80"></label>
+        <label>Photo <small class="muted">JPG/PNG, max 5 MB</small><input id="photo" type="file" accept="image/png,image/jpeg,image/webp"></label>
+        <label>Specialties <small class="muted">comma separated</small><input id="spec" placeholder="Strength, Beginners, Low impact"></label>
+        <label>How they support GLP-1 users<textarea id="glp" rows="3" maxlength="500"></textarea></label>
+        <label>Area <small class="muted">optional</small><input id="area" maxlength="80"></label>
+        <label>WhatsApp number *<input id="wa" inputmode="tel" placeholder="07700 900123 or +44 7700 900123"><small id="wahint" class="muted"></small></label>
+        <div class="checks"><label><input type="checkbox" id="virtual" checked> Virtual PT available</label><label><input type="checkbox" id="active" checked> Visible in app</label></div>
+        <p class="err" id="ferr" hidden></p>
+        <div class="row"><button class="primary" id="save">Save</button><button type="button" id="del" class="danger" hidden>Delete</button></div></form>
+      <h3>Preview</h3><div id="preview"></div></div>
+  </div>
+  <div id="v-promos" hidden class="grid">
+    <div><h2>Promo codes</h2><ul id="plist" class="list"></ul></div>
+    <div class="card"><h2>Create code</h2><form id="pf" novalidate>
+      <label>Code *<input id="pcode" maxlength="24" placeholder="SARAHFIT" style="text-transform:uppercase"></label>
+      <label>Trainer<select id="ptrainer"></select></label>
+      <label>Max uses <small class="muted">blank = unlimited</small><input id="pmax" type="number" min="1"></label>
+      <label>Expires <small class="muted">optional</small><input id="pexp" type="date"></label>
+      <p class="err" id="perr" hidden></p><button class="primary">Create code</button></form>
+      <h3>Redeemed by</h3><div id="pusers" class="small muted">Tap a code to see who used it.</div></div>
+  </div>
+  <div id="v-comm" hidden><h2>Trainer commission</h2>
+    <p class="small muted">£2 per active monthly client + £20 per yearly client whose start/renewal falls in the month. <b>No payment processing yet</b> — invoice trainers yourself and mark paid here (Stripe later).</p>
+    <div class="row"><label>Month <input id="cmonth" type="month"></label><button id="csv">Export CSV</button></div>
+    <table class="ctable"><thead><tr><th>Trainer</th><th>Monthly</th><th>Yearly</th><th>Yearly due</th><th>Owed</th><th>Yearly renewals</th><th>Invoice</th></tr></thead><tbody id="cbody"></tbody><tfoot><tr><th>Total</th><th id="tm"></th><th id="ty"></th><th id="tyd"></th><th id="towed"></th><th></th><th></th></tr></tfoot></table></div>
+  <div id="v-classes" hidden><h2>Classes library</h2><p class="muted">The classes library is <code>library.json</code> in the GitHub repo (it updates the app automatically). Edit it on GitHub: <a href="https://github.com/mitchrobfilms/coach-workout-app/edit/main/library.json" target="_blank" rel="noopener">open library.json ↗</a></p><div id="classes"></div></div>
+</section></main><div id="toast" hidden></div>
+<script type="module" src="admin.js?v=2"></script></body></html>

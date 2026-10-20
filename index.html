@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="logo.svg"><link rel="apple-touch-icon" href="icon-192.png">
-<link rel="stylesheet" href="style.css?v=26">
+<link rel="stylesheet" href="style.css?v=28">
 </head>
 <body>
 <header class="topbar">
@@ -19,8 +19,9 @@
 
 <div class="overlay" id="authScreen" hidden>
   <div class="authbox">
-    <img src="avatar.jpg" class="trainer-avatar big" alt="">
-    <h1>Reta <b>Coach</b></h1>
+    <img src="logo.svg" class="authlogo" alt="">
+    <h1 class="wordmark big">GLP1<i>Life</i></h1>
+    <p class="tagline">Support · Track · Learn · Eat Well · Save Money</p>
     <div id="authAccounts"></div>
     <form id="loginForm" hidden novalidate><h2>Log in</h2>
       <label>Email <input id="loginEmail" type="email" autocomplete="username" inputmode="email"></label>
@@ -229,6 +230,15 @@
   <div class="card"><div class="row between"><h3>Weekly Offers</h3><button type="button" class="linkbtn" data-gotab="aldi">View all ›</button></div><div id="weeklyOffers"></div></div>
 </section>
 
+<!-- TRAINERS TAB -->
+<section id="tab-trainers" class="tab">
+  <h2 class="pagehead">Personal Trainers</h2>
+  <p class="small muted">Local and virtual PTs who understand GLP-1 journeys. Message them directly on WhatsApp for prices; no payments in the app.</p>
+  <div id="trainerList"></div>
+  <a class="card" id="trainerAdmin" href="admin/" hidden>🛠️ Manage trainers in the admin page ›</a>
+  <a class="card" href="trainer/">🏋️ Are you a personal trainer? Join GLP1 Life or sign in to your trainer dashboard ›</a>
+</section>
+
 <!-- MEMBERSHIP TAB -->
 <section id="tab-member" class="tab">
   <h2 class="pagehead">Membership Plans</h2>
@@ -240,8 +250,14 @@
   <div class="card"><h3>Feature Comparison</h3><table class="cmptable"><thead><tr><th>Feature</th><th>Free</th><th>Plus</th></tr></thead><tbody>
   <tr><td>Unlimited weigh-ins</td><td>✓</td><td>✓</td></tr><tr><td>Injection tracking</td><td>✓</td><td>✓</td></tr><tr><td>Medication reminders</td><td>✓</td><td>✓</td></tr><tr><td>Basic recipes</td><td>✓</td><td>✓</td></tr><tr><td>Price comparison (Aldi, Lidl, Asda)</td><td>–</td><td>✓</td></tr><tr><td>Full offers search</td><td>–</td><td>✓</td></tr><tr><td>Meal plan builder</td><td>–</td><td>✓</td></tr><tr><td>Classes library</td><td>–</td><td>✓</td></tr><tr><td>Advanced reports</td><td>–</td><td>✓</td></tr></tbody></table>
   <p class="small muted">This app is private. All Plus features unlocked while in private testing; no payments are taken.</p></div>
+  <div class="card" id="promoCard"><h3>🎟️ Have a promo code?</h3><p class="small muted" id="promoStatus">Got a code from your personal trainer? Enter it to get GLP1 Life Plus free.</p>
+    <form id="promoForm" class="row" novalidate><input id="promoCode" placeholder="e.g. SARAHFIT" autocomplete="off" style="text-transform:uppercase;flex:1"><button class="primary" type="submit">Redeem</button></form><p class="error" id="promoErr" hidden></p><div id="promoShare" hidden><h4>What your trainer can see</h4><div class="shareSet"></div></div></div>
   <div class="card"><h3>🇬🇧 Fair UK Pricing</h3><p class="small">Designed for UK customers. GLP1 Life Plus is priced to stay affordable while combining GLP-1 tracking, meal planning, classes and supermarket savings in one app.</p></div>
 </section>
+<div class="overlay" id="consentModal" hidden role="dialog" aria-modal="true" aria-labelledby="consentT"><div class="card consent"><h2 id="consentT">Share your progress?</h2>
+  <p id="consentTxt"></p><ul class="ticks"><li>⚖️ Weight &amp; progress</li><li>🏋️ Workouts &amp; classes</li><li>🥗 Meal plans</li><li>💉 Injection log (as you entered it)</li></ul>
+  <p class="small muted">This is health data, so we need your explicit consent (UK GDPR). Your trainer can only view it, not change it. You can switch any item off in Settings at any time.</p>
+  <div class="row"><button class="greenbtn primary" id="consentYes">I agree to share</button><button id="consentNo">Cancel</button></div></div></div>
 <div class="overlay recipe" id="recipeModal" hidden><div class="rsheet"><button type="button" class="rclose" id="recipeClose" aria-label="Close">✕</button><div id="recipeBody"></div></div></div>
 
 <!-- SHOP TAB -->
@@ -316,6 +332,14 @@
 <section id="tab-settings" class="tab">
   <h2>Settings</h2>
   <div class="card"><b>Account</b><p class="small" id="acctInfo"></p><div class="row"><button id="switchAcct">Switch account</button><button id="logoutBtn">Log out</button></div><p class="small muted">Accounts are stored on this phone only.</p></div>
+  <div class="card" id="shareSetCard" hidden><h3>🤝 Sharing with your trainer</h3><p class="small muted">Choose what your trainer can see. Change it any time — switching off stops sharing straight away.</p><div class="shareSet"></div></div>
+  <div class="card" id="cloudCard"><h3>☁️ Cloud backup &amp; sync</h3>
+    <p class="small muted" id="cloudStatus">Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you're online.</p>
+    <form id="cloudForm" autocomplete="on" novalidate><label>Email<input id="cloudEmail" type="email" autocomplete="email" inputmode="email"></label><label>Password (8+ characters)<input id="cloudPass" type="password" autocomplete="current-password"></label>
+      <p class="error" id="cloudErr" role="alert" hidden></p><div class="row"><button type="submit" class="primary" id="cloudIn">Sign in</button><button type="button" id="cloudUp">Create cloud account</button></div></form>
+    <div id="cloudOn" hidden><div class="row"><button type="button" class="primary" id="cloudSync">Sync now</button><button type="button" id="cloudOut">Sign out of cloud</button></div>
+      <div class="row"><button type="button" id="cloudExport">⬇️ Export my data</button><button type="button" class="danger" id="cloudDelete">Delete my cloud data</button></div></div>
+    <p class="small muted">Private: only you can see your rows. Injection entries are your own log only; nothing is calculated.</p></div>
   <h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div>
   <label>Your name <input id="setName" type="text"></label>
   <label class="check"><input type="checkbox" id="setSpeech" checked> Reta speaks out loud</label>
@@ -353,6 +377,7 @@
     <button type="button" data-ltile="coach"><i>🎙️</i><span>Coach</span></button>
     <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
     <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
+    <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
     <button type="button" data-tab="member"><i>⭐</i><span>Membership</span></button>
     <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
     <button type="button" data-tab="aldi"><i><span class="ostore aldi">Aldi</span></i><span>Aldi</span></button>
@@ -366,6 +391,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=26"></script>
+<script type="module" src="app.js?v=28"></script>
 </body>
 </html>

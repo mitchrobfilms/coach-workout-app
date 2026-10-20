@@ -394,3 +394,6 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}.talk{bottom:calc(8
 .storeline{color:var(--green)}
 .toast{background:#3a1a5a;color:#fff;box-shadow:0 6px 20px rgba(31,21,52,.3)}
 .unlocked{background:var(--green2);border-color:var(--green)}
+.authlogo{width:72px;height:72px}.wordmark.big{font-size:2.2rem;margin:4px 0 0}.wordmark.big i{font-size:2.5rem}.authbox{background:#fff;color:var(--txt)}#authScreen,#onboard{background:var(--bg)}
+.trtop{display:flex;gap:12px;align-items:center}.trphoto{width:76px;height:76px;border-radius:50%;object-fit:cover;flex:none}.trphoto.ph{display:grid;place-items:center;background:var(--lav);font-size:2rem}.trcard h3{margin:0}.vbadge{display:inline-block;background:var(--green2);color:var(--green);border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:800;margin-top:4px}.wabtn{display:block;text-align:center;background:#25d366;color:#fff;font-weight:800;border-radius:14px;padding:14px;text-decoration:none;margin-top:8px}.trempty{text-align:center}
+.consent{max-width:440px;margin:auto}.consent .ticks{list-style:none;padding:0}.consent .ticks li{padding:4px 0}label.sw{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}label.sw input{width:22px;height:22px;accent-color:var(--green)}

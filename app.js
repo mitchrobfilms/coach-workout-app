@@ -30,6 +30,10 @@ const store = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem(PREFIX + k)) ?? d; } catch { return d; } },
   set: (k, v) => { const j = JSON.stringify(v); try { localStorage.setItem(PREFIX + k, j); } catch {} idbSet(PREFIX + k, j); },
 };
+import { makeCloud } from './cloud.js';
+const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) }); let cloudTimer = null;
+{ const set0 = store.set; store.set = (k, v) => { if (cloud.user && !String(k).startsWith('cloud.')) { if (k === 'certificates') store.set('cloud.certImgs', store.get('cloud.certImgs', [])); if (['weights', 'injections', 'certificates'].includes(k)) cloud.noteDelete(k, store.get(k, []), v); clearTimeout(cloudTimer); cloudTimer = setTimeout(() => cloudPush(), 4000); } set0(k, v); }; }
+async function cloudPush() { if (!cloud.user || !navigator.onLine) return; try { await cloud.push(settings, user); renderCloud?.(); } catch (e) { console.warn('cloud sync', e.message); } }
 let restoredFromIdb = 0;
 { const lsKeys = Object.keys(localStorage).filter(k => k.startsWith(PREFIX));
   const mirror = await Promise.race([idbAll(PREFIX), new Promise(r => setTimeout(() => r({}), 1500))]);
@@ -1604,7 +1608,7 @@ function renderHome() {
   const checks = [['inject', 'Inject', l.some(e => inWeek(e.at))], ['weigh', 'Weigh', w.some(x => inWeek(x.date))], ['water', 'Water', water || !!wk.water], ['meals', 'Meals', !!glp.plan || !!wk.meals], ['mindset', 'Mindset', !!wk.mindset]];
   $('weekChecks').innerHTML = checks.map(([k, n, d]) => `<button type="button" class="wck ${d ? 'done' : ''}" data-wck="${k}" aria-pressed="${d}"><i>${d ? '✓' : ''}</i>${n}</button>`).join('');
   $('weekChecks').querySelectorAll('[data-wck]').forEach(b => b.onclick = () => { const k = b.dataset.wck; if (k === 'inject') return switchTab('progress'); if (k === 'weigh') return switchTab('progress'); const all = store.get('weekChecks', {}), x = all[ws] ||= {}; x[k] = !x[k]; store.set('weekChecks', all); renderHome(); });
-  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP-1 Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards']];
+  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP-1 Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
   $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
   $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
 }
@@ -1706,7 +1710,67 @@ renderCompare = function () {
 };
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
-switchTab = function (t) { _switchTab(t); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes'].includes(t)); };
+switchTab = function (t) { _switchTab(t); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes'].includes(t)); };
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites();
 setTimeout(renderHome, 1500);
+
+/* ---------- Cloud sync UI ---------- */
+function renderCloud() { const u = cloud.user; $('cloudForm').hidden = !!u; $('cloudOn').hidden = !u; const last = store.get('cloud.lastSync', null);
+  $('cloudStatus').textContent = u ? `Signed in to cloud as ${u.email}. ${last ? 'Last synced ' + new Date(last).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK.' : 'Not synced yet.'}` : 'Keep your weigh-ins, injection log, certificates, meal plans and check-ins safe and on all your phones. The app still works offline; changes sync when you\'re online.'; }
+async function cloudFirst() { const n = await cloud.pull(settings); try { store.set('cloud.certImgs', (await cloud.certImages()).map(o => o.name.replace(/\.png$/, ''))); } catch {} store.set('settings', settings); await cloud.push(settings, user); toast(`☁️ Synced. ${n ? n + ' item' + (n === 1 ? '' : 's') + ' restored from cloud, ' : ''}your phone data is backed up.`); renderCloud(); renderProgress(); renderCerts(); renderHome(); renderInject(); if (n) setTimeout(() => location.reload(), 1500); }
+const cloudErr = m => { $('cloudErr').textContent = m || ''; $('cloudErr').hidden = !m; };
+$('cloudForm').onsubmit = async e => { e.preventDefault(); cloudErr(); try { await cloud.signIn($('cloudEmail').value.trim(), $('cloudPass').value); $('cloudPass').value = ''; await cloudFirst(); } catch (err) { cloudErr(err.message); } };
+$('cloudUp').onclick = async () => { cloudErr(); const p = $('cloudPass').value; if (p.length < 8) return cloudErr('Use a password of at least 8 characters.'); try { await cloud.signUp($('cloudEmail').value.trim(), p, settings.name); $('cloudPass').value = ''; await cloudFirst(); } catch (err) { cloudErr(err.message); } };
+$('cloudSync').onclick = async () => { try { await cloudFirst(); } catch (e) { toast('Sync failed: ' + e.message); } };
+$('cloudOut').onclick = async () => { await cloud.signOut(); renderCloud(); toast('Signed out of cloud. Your data stays on this phone.'); };
+$('cloudExport').onclick = async () => { try { const d = await cloud.exportAll(), a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(d, null, 1)], { type: 'application/json' })); a.download = `glp1life-my-data-${todayKey()}.json`; a.click(); } catch (e) { toast('Export failed: ' + e.message); } };
+$('cloudDelete').onclick = async () => { if (!confirm('Delete your cloud account and ALL your cloud data? Data on this phone is kept.')) return; try { await cloud.deleteAll(); renderCloud(); toast('🗑️ Cloud account and data deleted'); } catch (e) { toast('Delete failed: ' + e.message); } };
+renderCloud(); if (cloud.user && navigator.onLine) cloud.pull(settings).then(n => { if (n) { renderProgress?.(); renderHome(); } return cloud.push(settings, user); }).then(renderCloud).catch(e => console.warn('cloud', e.message));
+addEventListener('online', cloudPush);
+
+/* ---------- Personal Trainers (Supabase: public read, admin write) ---------- */
+import { SB_URL as TR_URL, SB_KEY as TR_KEY } from './cloud.js';
+const trHead = () => { const s = JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null'); return { apikey: TR_KEY, 'content-type': 'application/json', ...(s ? { authorization: 'Bearer ' + s.access_token } : {}) }; };
+let trainers = [], trIsAdmin = false;
+const waLink = t => `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hi ${t.name.split(' ')[0]}, I found you on GLP1 Life and I'd like to know your prices for personal training${t.virtual_pt ? ' (virtual is fine)' : ''}.`)}`;
+async function renderTrainers() {
+  try { const r = await fetch(`${TR_URL}/rest/v1/trainers?select=id,name,photo_url,specialties,glp1_support,area,whatsapp,virtual_pt,active,sort,status,business,bio&order=sort.asc,created_at.asc`, { headers: trHead() }); trainers = r.ok ? await r.json() : []; localStorage.setItem('glp1life.trainers', JSON.stringify(trainers)); }
+  catch { trainers = JSON.parse(localStorage.getItem('glp1life.trainers') || '[]'); }
+  try { trIsAdmin = cloud.user ? await (await fetch(`${TR_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: trHead(), body: '{}' })).json() === true : false; } catch { trIsAdmin = false; }
+  $('trainerAdmin').hidden = !trIsAdmin;
+  $('trainerList').innerHTML = trainers.length ? trainers.map(t => `<div class="card trcard">
+    <div class="trtop">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="" class="trphoto">` : '<div class="trphoto ph">🏋️</div>'}<div><h3>${esc(t.name)}</h3>${t.virtual_pt ? '<span class="vbadge">Virtual PT available</span>' : ''}${t.area ? `<p class="small muted">📍 ${esc(t.area)}</p>` : ''}${!t.active ? '<p class="small muted">Hidden from users</p>' : ''}</div></div>
+    ${t.specialties?.length ? `<div class="chips">${t.specialties.map(x => `<span class="chip">${esc(x)}</span>`).join('')}</div>` : ''}
+    ${t.glp1_support ? `<p class="small"><b>GLP-1 support:</b> ${esc(t.glp1_support)}</p>` : ''}
+    <a class="wabtn" href="${waLink(t)}" target="_blank" rel="noopener">💬 Message on WhatsApp for prices</a></div>`).join('')
+    : `<div class="card empty trempty"><div style="font-size:2.4rem">🏋️‍♀️</div><h3>Trainers coming soon</h3><p class="small muted">We're adding GLP-1-friendly personal trainers. Check back soon, or keep going with the 30-minute classes in the meantime.</p><button type="button" class="primary" data-gotab2="classes">Browse classes</button></div>`;
+  $('trainerList').querySelectorAll('[data-gotab2]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab2));
+}
+
+/* ---------- Promo / trainer codes (validated + redeemed server-side by redeem_promo RPC) ---------- */
+const rpcF = async (f, b = {}) => { const r = await fetch(`${TR_URL}/rest/v1/rpc/${f}`, { method: 'POST', headers: trHead(), body: JSON.stringify(b) }), t = await r.text(), j = t ? JSON.parse(t) : null; if (!r.ok) throw new Error(j?.message || 'Could not reach GLP1 Life cloud'); return j; };
+const SHARE = { weights: '⚖️ Weight & progress', workouts: '🏋️ Workouts & classes', meals: '🥗 Meal plans', injections: '💉 Injection log' };
+function shareUI(p) {
+  const on = p.plan === 'plus' && p.by_trainer; $('shareSetCard').hidden = !on; $('promoShare').hidden = !on; if (!on) return;
+  document.querySelectorAll('.shareSet').forEach(box => { box.innerHTML = Object.entries(SHARE).map(([k, v]) => `<label class="sw"><input type="checkbox" data-share="${k}" ${p.share?.[k] ? 'checked' : ''}> ${esc(v)} <small class="muted">with ${esc(p.trainer)}</small></label>`).join('');
+    box.querySelectorAll('[data-share]').forEach(cb => cb.onchange = async () => { const s = { ...p.share, [cb.dataset.share]: cb.checked };
+      try { p.share = await rpcF('set_share', { s }); toast(cb.checked ? 'Sharing on' : 'Sharing off'); shareUI(p); } catch (x) { cb.checked = !cb.checked; toast(x.message); } }); });
+}
+async function renderPlan() {
+  const st = $('promoStatus'); if (!st) return;
+  if (!cloud.user) { st.textContent = 'Got a code from your personal trainer? Sign in to Cloud backup (Settings) first, then enter it here to get GLP1 Life Plus free.'; shareUI({}); return; }
+  try { const p = await rpcF('my_plan'); store.set('cloud.plan', p);
+    if (p.plan === 'plus') { const by = p.by_trainer ? `Included by ${esc(p.trainer)}` : `Plus included${p.trainer ? ` with ${esc(p.trainer)}` : ''}`;
+      st.innerHTML = `<b>✓ ${by}</b> · £0 · code ${esc(p.code)}`; $('promoForm').hidden = true; document.querySelector('.plan2 .price').innerHTML = `£0<small> · ${by}</small>`; }
+    else { $('promoForm').hidden = false; st.textContent = 'Got a code from your personal trainer? Enter it to get GLP1 Life Plus free.'; }
+    shareUI(p); } catch {}
+}
+const consent = trainer => new Promise(res => { $('consentTxt').innerHTML = `<b>${esc(trainer || 'Your trainer')}</b> will see your weight, progress, workouts, meal plans and injection log.`; $('consentModal').hidden = false;
+  $('consentYes').onclick = () => { $('consentModal').hidden = true; res(true); }; $('consentNo').onclick = () => { $('consentModal').hidden = true; res(false); }; });
+$('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $('promoErr').textContent = m || ''; $('promoErr').hidden = !m; }; err();
+  if (!cloud.user) return err('Sign in to Cloud backup in Settings first.');
+  try { const code = $('promoCode').value; let j = await rpcF('redeem_promo', { p_code: code });
+    if (j.needs_consent) { if (!await consent(j.trainer)) return err('Not joined — joining with a trainer code needs your consent to share.'); j = await rpcF('redeem_promo', { p_code: code, p_consent: true }); }
+    toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
+{ const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }

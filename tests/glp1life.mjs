@@ -22,7 +22,7 @@ ok(/lbs/.test(await p.textContent('#wCard')), 'lbs down');
 await p.click('#waterCard'); await p.waitForTimeout(150); ok(/1\/8/.test(await p.textContent('#waterCard')), 'hydration +1');
 ok(await p.isVisible('#setRemBtn'), 'next injection card with reminder button');
 ok(await p.$$eval('#weekChecks .wck', l => l.length) === 5, 'this week checks'); ok(await p.$eval('#weekChecks [data-wck=weigh]', e => e.classList.contains('done')), 'weigh check done');
-ok(await p.$$eval('#features .feat', l => l.length) === 10, 'feature row (10)');
+ok(await p.$$eval('#features .feat', l => l.length) === 11, 'feature row (11 incl. Personal Trainers)');
 ok(await p.$$eval('#dock button', l => l.map(b => b.textContent.trim()).join(',')) === 'Home,Track,Meals,Classes,More', 'bottom nav Home/Track/Meals/Classes/More');
 await shot('01-home');
 await nav(p, 'progress'); await p.evaluate(() => scrollTo(0, 0)); ok(await p.$$eval('#trackSeg button', l => l.length) === 3, 'Track segment tabs'); await shot('02-tracker');

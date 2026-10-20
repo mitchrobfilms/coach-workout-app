@@ -1,0 +1,33 @@
+<!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>GLP1 Life · Trainers</title><meta name="theme-color" content="#5b2a86"><link rel="icon" href="../logo.svg"><link rel="stylesheet" href="../admin/admin.css?v=3"><link rel="stylesheet" href="trainer.css?v=1"></head><body>
+<header><img src="../logo.svg" alt=""><b>GLP1<i>Life</i></b><span>Trainers</span><button id="out" hidden>Sign out</button></header>
+<main>
+<section id="auth" class="card narrow">
+  <div class="tabs"><button data-m="reg" class="on">Join as a trainer</button><button data-m="in">Trainer sign in</button></div>
+  <form id="rf" novalidate>
+    <p class="muted small">Help GLP-1 users train safely. Register below — Mitchell reviews every trainer before you go live. Once approved you get your own client code.</p>
+    <label>Your name *<input id="rname" maxlength="80" autocomplete="name"></label>
+    <label>Business name<input id="rbiz" maxlength="120"></label>
+    <label>Email *<input id="remail" type="email" autocomplete="email"></label>
+    <label>Password * <small class="muted">8+ characters, for your trainer login</small><input id="rpw" type="password" minlength="8" autocomplete="new-password"></label>
+    <label>WhatsApp number *<input id="rwa" inputmode="tel" placeholder="07700 900123"></label><small id="rwahint" class="muted"></small>
+    <label>Specialties <small class="muted">comma separated</small><input id="rspec" placeholder="Strength, Beginners, Mobility"></label>
+    <label>Area <small class="muted">optional</small><input id="rarea" maxlength="80"></label>
+    <label>Photo <small class="muted">JPG/PNG, max 5 MB</small><input id="rphoto" type="file" accept="image/jpeg,image/png,image/webp"></label>
+    <label>Bio *<textarea id="rbio" rows="3" maxlength="1000" placeholder="Your experience and qualifications"></textarea></label>
+    <label>How you support GLP-1 users<textarea id="rglp" rows="2" maxlength="600"></textarea></label>
+    <label class="chk"><input id="rvirt" type="checkbox"> I offer virtual PT</label>
+    <label class="chk"><input id="rterms" type="checkbox"> I agree to the <a href="terms.html" target="_blank">GLP1 Life trainer terms</a>, including the client fee (£2/month or £20/year per client I add), and I will only view client data they choose to share.</label>
+    <p class="err" id="rerr" hidden></p><button class="primary" id="rgo">Submit registration</button>
+  </form>
+  <form id="lf" hidden novalidate><label>Email<input id="le" type="email" autocomplete="email"></label><label>Password<input id="lp" type="password" autocomplete="current-password"></label><p class="err" id="lerr" hidden></p><button class="primary">Sign in</button></form>
+</section>
+<section id="pending" class="card narrow" hidden><h2>⏳ Thanks — registration received</h2><p>Mitchell will review your details. When approved you'll get your client code here; sign in any time to check.</p></section>
+<section id="dash" hidden>
+  <div class="codecard card"><div><small class="muted">Your client code</small><div class="bigcode" id="mycode"></div><p class="small muted">Clients enter this in GLP1 Life → Membership to get Plus included by you (£0 to them).</p></div><button id="copy">Copy code</button></div>
+  <div class="row stats"><div class="card stat"><b id="sc">0</b><small>clients</small></div><div class="card stat"><b id="sm">0</b><small>monthly (£2)</small></div><div class="card stat"><b id="sy">0</b><small>yearly (£20)</small></div><div class="card stat"><b id="sowe">£0</b><small>est. this month</small></div></div>
+  <p class="small muted">Billing is invoiced by GLP1 Life — no card payments are taken in the app yet.</p>
+  <h2>Your clients</h2><ul id="clients" class="list"></ul>
+  <div id="cdetail" class="card" hidden></div>
+</section>
+</main><div id="toast" hidden></div>
+<script type="module" src="trainer.js?v=1"></script></body></html>
