@@ -4,3 +4,8 @@ node_modules/
 *.log
 .DS_Store
 android-build/work/
+/c-*.png
+/class-*.png
+/classes-*.png
+/prep-*.png
+/shop-*.png
