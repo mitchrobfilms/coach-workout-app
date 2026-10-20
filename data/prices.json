@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-20T12:48:24.748Z",
+ "updated": "2026-10-20T17:19:56.738Z",
  "curatedChecked": "2026-10-20",
  "note": "Typical shelf prices (estimates) unless marked as a live offer. Prices vary by store and region.",
  "items": [
@@ -30,7 +30,7 @@
      "price": 4.25,
      "size": "1 kg",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-chicken-breast-fillets-000000000000365448",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -51,7 +51,7 @@
      "price": 2.99,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/ashfields-british-turkey-mince-7-fat-000000000000386144",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -72,7 +72,7 @@
      "price": 3.19,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-beef-mince-25-fat-000000000000576030",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -103,7 +103,7 @@
      "price": 3.29,
      "size": "1 kg",
      "url": "https://www.aldi.co.uk/product/ashfields-xxl-5-fat-pork-mince-000000000000723124",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -134,7 +134,7 @@
      "price": 6.85,
      "size": "480 g",
      "url": "https://www.aldi.co.uk/product/the-fishmonger-boneless-salmon-fillets-4-pack-000000000000525810",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -155,7 +155,7 @@
      "price": 1.79,
      "size": "380 g",
      "url": "https://www.aldi.co.uk/product/the-fishmonger-skinless-boneless-basa-fillets-000000000000273392",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -186,7 +186,7 @@
      "price": 4.99,
      "size": "700 g",
      "url": "https://www.aldi.co.uk/product/specially-selected-prawn-white-wine-salmon-wellington-000000000365932002",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -207,7 +207,7 @@
      "price": 0.59,
      "size": "145 g",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-tuna-chunks-in-brine-000000000000227713",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -228,7 +228,7 @@
      "price": 0.55,
      "size": "250 g",
      "url": "https://www.aldi.co.uk/product/worldwide-foods-ready-to-heat-egg-fried-rice-000000000000653709",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -261,7 +261,7 @@
      "price": 0.55,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-fat-free-natural-yogurt-000000000000416735",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -294,7 +294,7 @@
      "price": 0.95,
      "size": "200 g",
      "url": "https://www.aldi.co.uk/product/plant-menu-organic-super-firm-tofu-000000000513086001",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -315,7 +315,7 @@
      "price": 0.89,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/worldwide-foods-red-lentils-000000000000336258",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -336,7 +336,7 @@
      "price": 1.99,
      "size": "227 g",
      "url": "https://www.aldi.co.uk/product/specially-selected-harissa-red-pepper-and-chickpea-burgers-000000000639389002",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -357,7 +357,7 @@
      "price": 0.85,
      "size": "1 kg",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-porridge-oats-000000000000337387",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -371,14 +371,24 @@
     "lidl": 2.4,
     "asda": 3
    },
-   "offers": {},
+   "offers": {
+    "lidl": {
+     "name": "MAI THAI Jasmine Rice",
+     "price": 4.65,
+     "was": 6.15,
+     "size": "5kg",
+     "grams": 5000,
+     "url": "https://www.lidl.co.uk/p/mai-thai-jasmine-rice/p10056457",
+     "promo": "Lidl Plus price · SAVE £1.50"
+    }
+   },
    "full": {
     "aldi": {
      "name": "Easy Cook Long Grain Rice",
      "price": 1.25,
      "size": "1 kg",
      "url": "https://www.aldi.co.uk/product/worldwide-foods-easy-cook-long-grain-rice-000000000000459326",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -409,7 +419,7 @@
      "price": 0.99,
      "size": "1 kg",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-british-baby-potatoes-000000000000339748",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -423,7 +433,17 @@
     "lidl": 1.09,
     "asda": 1.25
    },
-   "offers": {}
+   "offers": {
+    "lidl": {
+     "name": "MCENNEDY Tortilla Rolls",
+     "price": 0.99,
+     "was": 1.19,
+     "size": "125g",
+     "grams": 125,
+     "url": "https://www.lidl.co.uk/p/mcennedy-tortilla-rolls/p10056444",
+     "promo": "Lidl Plus price · SAVE £0.20"
+    }
+   }
   },
   {
    "key": "frozenveg",
@@ -442,7 +462,7 @@
      "price": 1.69,
      "size": "640 g",
      "url": "https://www.aldi.co.uk/product/four-seasons-carrot-broccoli-sweetcorn-steam-bags-4-pack-000000000365332001",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -463,7 +483,7 @@
      "price": 1.09,
      "size": "240 g",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-baby-spinach-000000000000339750",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -484,7 +504,7 @@
      "price": 0.89,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/ready-set-cook-frozen-chopped-mix-pepper-000000000367190004",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -524,7 +544,7 @@
      "price": 0.47,
      "size": "300 g",
      "url": "https://www.aldi.co.uk/product/four-seasons-sliced-carrots-in-water-000000000000335759",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -545,7 +565,7 @@
      "price": 0.43,
      "size": "400 g",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-chopped-tomatoes-in-tomato-juice-000000000000278702",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -566,7 +586,7 @@
      "price": 0.95,
      "size": "1 l",
      "url": "https://www.aldi.co.uk/product/cowbelle-strawberry-flavoured-milk-000000000755310001",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -587,7 +607,7 @@
      "price": 0.95,
      "size": "1 l",
      "url": "https://www.aldi.co.uk/product/cowbelle-banana-flavoured-milk-000000000755310002",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -608,7 +628,7 @@
      "price": 0.65,
      "size": "1 l",
      "url": "https://www.aldi.co.uk/product/everyday-essentials-semi-skimmed-uht-milk-000000000000534181",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   },
@@ -629,7 +649,7 @@
      "price": 2.15,
      "size": "500 g",
      "url": "https://www.aldi.co.uk/product/nordpak-lighter-spreadable-butter-000000000000423842",
-     "checked": "2026-10-20T12:48:56.521Z"
+     "checked": "2026-10-20T17:20:41.478Z"
     }
    }
   }
