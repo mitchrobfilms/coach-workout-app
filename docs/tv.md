@@ -12,5 +12,5 @@
 Notes
 - Google Cast from a web page only works in **Chrome** (Android, Windows, Mac, ChromeOS). iPhone browsers can't use Google Cast — use AirPlay from Safari, or TV mode.
 - We cast with the Google **Default Media Receiver** (no Cast developer registration needed). It plays each move's clip on repeat and follows the class as moves change; the music, voice coaching and rep counting stay on the phone.
-- TV mode (`https://mitchrobfilms.github.io/coach-workout-app/?tv=1`) uses big text, hides the bottom bar and camera self-view, and supports remote-control arrow keys. Most TVs have no camera, so coaching feedback is off; the class still runs with the trainer video, timer and voice.
+- TV mode (`https://glp1life.co.uk/?tv=1`) uses big text, hides the bottom bar and camera self-view, and supports remote-control arrow keys. Most TVs have no camera, so coaching feedback is off; the class still runs with the trainer video, timer and voice.
 - Screen mirroring (Android "Smart View"/"Cast screen", iPhone Screen Mirroring) also works on any TV that supports it.

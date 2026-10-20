@@ -8,8 +8,8 @@ cat > www/index.html <<'H'
 <!doctype html><html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>GLP1 Life</title></head><body style="font-family:sans-serif;text-align:center;padding:60px 20px;color:#2a1740;background:#f7f4fb"><h2>GLP1 Life</h2><p>You're offline. Connect to the internet once to load GLP1 Life; after that it works offline.</p><button onclick="location.reload()" style="padding:14px 24px;border-radius:12px;border:0;background:#5b2a86;color:#fff;font-size:1rem">Try again</button></body></html>
 H
 cp "$ROOT/privacy.html" www/privacypolicy.html
-# Where the app is served. Switch to https://glp1life.co.uk/ once the custom domain + DNS are live (also publish .well-known/assetlinks.json there).
-APP_ORIGIN=${APP_ORIGIN:-https://mitchrobfilms.github.io/coach-workout-app/}
+# Where the app is served. Custom domain (GitHub Pages CNAME). .well-known/assetlinks.json is served from its root.
+APP_ORIGIN=${APP_ORIGIN:-https://glp1life.co.uk/}
 VER=${APP_VERSION:-1.0.$(date +%y%j)}; CODE=${VERSION_CODE:-1}
 cat > package.json <<J
 { "name": "glp1life-android", "private": true, "version": "1.0.0" }
