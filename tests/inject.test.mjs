@@ -1,5 +1,5 @@
-import { DISCLAIMER, makeEntry, lastSite, nextDue, isDue, makeICS, describeSchedule } from '/workspace/coach-app/inject.js';
-import { makeBackup, parseBackup, restoreInto } from '/workspace/coach-app/backup.js';
+import { DISCLAIMER, makeEntry, lastSite, nextDue, isDue, makeICS, describeSchedule } from '../inject.js';
+import { makeBackup, parseBackup, restoreInto } from '../backup.js';
 import fs from 'node:fs';
 let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
 const e = makeEntry({ med: 'Other', custom: ' My med ', dose: ' 2.5 ', unit: 'mcg', at: '2026-10-13T09:00:00', site: 'Thigh left', effects: ['Nausea'], notes: ' ok ' });
@@ -18,6 +18,6 @@ ok(DISCLAIMER === "Log only. Follow your prescriber's instructions. This app doe
 const src = { injections: [e], injectSchedule: wk }, dst = {};
 restoreInto(k => dst[k] ?? null, (k, v) => { dst[k] = v; }, parseBackup(JSON.stringify(makeBackup(k => src[k] ?? null))).backup);
 ok(dst.injections?.[0]?.dose === '2.5' && dst.injectSchedule?.weekday === 2, 'injections + schedule in backup/restore');
-const code = fs.readFileSync('/workspace/coach-app/inject.js', 'utf8');
+const code = fs.readFileSync('../inject.js', 'utf8');
 ok(!/parseFloat|Number\(dose|\* ?dose|dose ?\*|reconstitut|bac water|units per/i.test(code), 'no dose maths/reconstitution in inject.js');
 console.log(fail ? `${fail} FAILED` : 'ALL INJECTION TESTS PASSED'); process.exitCode = fail ? 1 : 0;

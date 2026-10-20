@@ -1,10 +1,10 @@
 // Unit tests: progress maths, backup/restore round-trip, GLP-1 builder protein target, offers parsing (saved fixtures).
 import fs from 'node:fs';
-import { summary, trend, milestones, bmi, stLb, chartSVG } from '/workspace/coach-app/progress.js';
-import { makeBackup, parseBackup, restoreInto, backupDue } from '/workspace/coach-app/backup.js';
-import { buildGlp1Plan, fitPortion, GLP1_RECIPES, packPrice } from '/workspace/coach-app/glp1.js';
-import { parseAldi, parseLidl, enrich, offersFor, isHighProtein, parseGrams, nutritionFor } from '/workspace/coach-app/offers.js';
-import { robotsAllows } from '/workspace/coach-app/tools/fetch-offers-lib.mjs';
+import { summary, trend, milestones, bmi, stLb, chartSVG } from '../progress.js';
+import { makeBackup, parseBackup, restoreInto, backupDue } from '../backup.js';
+import { buildGlp1Plan, fitPortion, GLP1_RECIPES, packPrice } from '../glp1.js';
+import { parseAldi, parseLidl, enrich, offersFor, isHighProtein, parseGrams, nutritionFor } from '../offers.js';
+import { robotsAllows } from '../tools/fetch-offers-lib.mjs';
 let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
 const D = n => new Date(Date.UTC(2026, 8, 1) + n * 864e5).toISOString();
 const w = [{ date: D(0), kg: 100 }, { date: D(10), kg: 97 }, { date: D(23), kg: 95.5 }, { date: D(30), kg: 94 }, { date: D(37), kg: 92.5 }];
@@ -30,7 +30,7 @@ ok(dst.weights.length === 6 && dst.settings.goalKg === 80 && dst.sessions.length
 ok(parseBackup('nope').error && parseBackup('{"app":"other"}').error && parseBackup({ app: 'reta-coach', version: 99, data: {} }).error, 'bad backups rejected');
 ok(backupDue(null) && !backupDue(new Date().toISOString()) && backupDue(new Date(Date.now() - 15 * 864e5).toISOString()) && !backupDue(null, Date.now(), false), 'backup reminder every 2 weeks, only with data');
 // GLP-1 builder
-const prices = JSON.parse(fs.readFileSync('/workspace/coach-app/tests/fixtures/prices.json', 'utf8'));
+const prices = JSON.parse(fs.readFileSync('../tests/fixtures/prices.json', 'utf8'));
 for (const store of ['aldi', 'lidl', 'asda', 'mix']) for (const protein of [25, 30, 35, 40]) for (const meals of [2, 3, 4]) {
   const p = buildGlp1Plan({ store, protein, meals, days: 4, prices });
   const bad = p.plan.filter(x => x.protein < x.target - 3 || x.protein > x.target + 12);
@@ -45,12 +45,12 @@ ok(lidlChicken.offer && lidlChicken.per === 0.003, 'live offer preferred when ch
 const pref = buildGlp1Plan({ store: 'aldi', meals: 3, prefer: ['salmon'] }); ok(pref.plan.some(x => x.recipe.core === 'salmon'), 'Use-in-meal-plan item is preferred');
 ok(JSON.stringify(f).match(/dose|dosing|mg\b/i) === null || /not medical or dosing|Ask your prescriber/.test(JSON.stringify(f)), 'no dosing advice in builder output');
 // offers parsing (saved fixtures)
-const aldi = enrich(parseAldi(fs.readFileSync('/workspace/coach-app/tests/fixtures/aldi-weekly.html', 'utf8')));
+const aldi = enrich(parseAldi(fs.readFileSync('../tests/fixtures/aldi-weekly.html', 'utf8')));
 ok(aldi.length >= 10, `Aldi weekly parsed (${aldi.length})`);
 const mince = aldi.find(o => /Beef and Pork Mince XXL/.test(o.name));
 ok(mince && mince.price === 4.99 && mince.was === 5.69 && mince.perKg === 4.99 && /Save 12%/.test(mince.promo) && /aldi\.co\.uk\/product\//.test(mince.url), 'Aldi tile: price, was, per kg, promo, URL');
-const six = parseAldi(fs.readFileSync('/workspace/coach-app/tests/fixtures/aldi-super-6.html', 'utf8')); ok(six.find(o => o.name === 'Carrots')?.price === 0.49, 'Aldi Super Six: Carrots 49p');
-const lidl = enrich(parseLidl(fs.readFileSync('/workspace/coach-app/tests/fixtures/lidl-pick.html', 'utf8')));
+const six = parseAldi(fs.readFileSync('../tests/fixtures/aldi-super-6.html', 'utf8')); ok(six.find(o => o.name === 'Carrots')?.price === 0.49, 'Aldi Super Six: Carrots 49p');
+const lidl = enrich(parseLidl(fs.readFileSync('../tests/fixtures/lidl-pick.html', 'utf8')));
 const salmon = lidl.find(o => /Salmon/.test(o.name));
 ok(lidl.length >= 10 && salmon && salmon.price === 8.99 && salmon.perKg === 13.62 && salmon.from && salmon.to && salmon.protein === 20, 'Lidl: price, per kg, valid dates, protein');
 ok(lidl.find(o => o.name === 'Pomegranate')?.was === 1.29, 'Lidl Plus price with regular (was) price');

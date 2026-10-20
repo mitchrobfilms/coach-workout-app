@@ -1,5 +1,5 @@
-import { milestonesFor, newAwards, drawCertificate, encouragement } from '/workspace/coach-app/certs.js';
-import { makeBackup, parseBackup, restoreInto } from '/workspace/coach-app/backup.js';
+import { milestonesFor, newAwards, drawCertificate, encouragement } from '../certs.js';
+import { makeBackup, parseBackup, restoreInto } from '../backup.js';
 let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
 const ids = (s, c, g) => milestonesFor(s, c, g).map(m => m.id);
 ok(ids(100, 99.5).length === 0, 'nothing below 2 lb');
