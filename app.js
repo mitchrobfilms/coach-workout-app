@@ -1341,7 +1341,6 @@ function storeStatusText() {
 const priceUI = { q: '', cat: 'All' };
 function renderPrices() {
   if (!$('priceList')) return;
-  $('pricesStatus').textContent = storeStatusText();
   const a = fullData?.stores?.aldi, items = a?.items || [];
   $('fullStatus').textContent = items.length ? `${items.length} Aldi products. Live prices update daily at 00:30. Last checked: ${fmtUK(a.checked)}. Lidl only shows prices online for offers (see above).` : 'Price list couldn\'t load yet.';
   const cats = ['All', ...new Set(items.map(i => i.cat))];

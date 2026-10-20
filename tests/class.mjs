@@ -1,5 +1,6 @@
 import { chromium, webkit, devices } from 'playwright-core';
 const URL = process.argv[2] || 'http://localhost:8765/?speed=10';
+const cornerTap = async sel => { const bb = await p.$eval(sel, e => { const r = e.getBoundingClientRect(); return { w: r.width, h: r.height }; }); await p.click(sel, { position: { x: bb.w - 12, y: bb.h - 12 } }); };
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream', '--autoplay-policy=no-user-gesture-required'] });
 const ctx = await b.newContext({ ...devices['Pixel 5'], permissions: ['camera', 'microphone'] });
@@ -18,6 +19,7 @@ ok(await p.evaluate(() => document.documentElement.dataset.trainer === 'f'), 'fe
 await p.fill('#obWeightForm input', '13st 4lb'); await p.click('#obWeightForm button[type=submit]'); await p.waitForTimeout(200);
 ok((await p.textContent('#toast')).includes('saved'), 'onboarding weigh-in saved: ' + await p.textContent('#toast'));
 await p.screenshot({ path: 'c-onboard.png', fullPage: true });
+await p.waitForTimeout(600); if (await p.$eval('#celebrate', e => !e.hidden)) await p.click('#celebClose');
 await p.click('#obDone');
 await p.click('#startBtn');
 await p.waitForFunction(() => (window.__kova.frames || 0) > 5, null, { timeout: 90000 }); await p.waitForTimeout(1200);
@@ -28,10 +30,10 @@ const geo = await p.evaluate(() => { const r = id => document.getElementById(id)
 ok(Math.abs(geo.trainerH / geo.stage - 0.6) < 0.03 && geo.youTop > geo.stage * 0.58, `portrait: trainer top ~60% (${Math.round(100 * geo.trainerH / geo.stage)}%), you below`);
 ok((await p.textContent('#cueLine')).includes('Step back'), 'step-back cue with no person');
 await p.screenshot({ path: 'c-portrait.png' });
-await p.click('#youView'); await p.waitForTimeout(500);
+{ const bb = await p.$eval('#youView', e => { const r = e.getBoundingClientRect(); return { w: r.width, h: r.height }; }); await p.click('#youView', { position: { x: bb.w - 12, y: bb.h - 12 } }); } await p.waitForTimeout(500);
 ok(await p.evaluate(() => document.getElementById('youView').classList.contains('big') && window.__kova.layout.swapped), 'tap small view swaps');
 await p.screenshot({ path: 'c-portrait-swapped.png' });
-await p.click('#trainerView'); await p.waitForTimeout(400);
+await cornerTap('#trainerView'); await p.waitForTimeout(400);
 ok(await p.evaluate(() => !window.__kova.layout.swapped), 'tap again swaps back');
 // landscape
 await p.setViewportSize({ width: 851, height: 393 }); await p.waitForTimeout(500);
