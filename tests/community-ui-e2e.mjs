@@ -1,0 +1,60 @@
+// Community UI e2e on a real browser against live Supabase (local or live site). Screenshots → shots/glp1life/community-*.png. Always cleans up.
+import { chromium } from 'playwright-core';
+import { SB_URL, SB_KEY } from '../cloud.js';
+import { sql, cleanupTestData } from './cleanup.mjs';
+const URL = (process.argv[2] || 'http://localhost:8765/') + '?cloudauth=1', OUT = '/workspace/shots/glp1life';
+let fails = 0; const ok = (c, m) => { console.log((c ? 'ok   ' : 'FAIL ') + m); if (!c) fails++; };
+const PW = 'Test-' + Math.random().toString(36).slice(2) + '!9', s = Date.now(), E = `glp1life.test.cmu${s}@example.com`;
+const signup = async e => (await fetch(SB_URL + '/auth/v1/signup', { method: 'POST', headers: { apikey: SB_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ email: e, password: PW }) })).json();
+const rpc = tok => async (f, b = {}) => { const r = await fetch(`${SB_URL}/rest/v1/rpc/${f}`, { method: 'POST', headers: { apikey: SB_KEY, authorization: 'Bearer ' + tok, 'content-type': 'application/json' }, body: JSON.stringify(b) }); const t = await r.text(); if (!r.ok) throw new Error(t); return t ? JSON.parse(t) : null; };
+process.on('uncaughtException', async e => { console.error(e); await cleanupTestData({ quiet: true }); process.exit(1); });
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' });
+try {
+  // Seed a friendly feed from another member
+  const o = await signup(`glp1life.test.cmo${s}@example.com`), O = rpc(o.access_token);
+  await O('community_join', { p_name: 'Jo from Leeds' });
+  const g = (await fetch(`${SB_URL}/rest/v1/community_groups?select=id,slug`, { headers: { apikey: SB_KEY, authorization: 'Bearer ' + o.access_token } }).then(r => r.json()));
+  await O('community_post', { p_body: "Month 2 on my prescribed dose. Appetite is so much smaller and I've got more energy for walks. Down 9 lb! 🎉" });
+  await O('community_post', { p_body: 'Batch-cooked chilli for the week\nBrown mince, add everything, simmer 40 min. Freezes well.', p_kind: 'recipe', p_recipe: { title: 'Lean beef & bean chilli (4 portions)', ingredients: ['500 g 5% beef mince', '2 tins chopped tomatoes', '1 tin kidney beans', '1 onion, 1 pepper', 'Chilli powder & cumin'], aldi: 4.6, lidl: 4.45 } });
+  await O('community_post', { p_body: 'Gentle walk group meets on the app challenge, who is in? 🚶‍♀️', p_group: g.find(x => x.slug === 'beginners')?.id });
+  const ctx = await b.newContext({ viewport: { width: 393, height: 851 }, deviceScaleFactor: 2 }), p = await ctx.newPage();
+  p.on('dialog', d => d.accept(d.type() === 'prompt' ? 'test report' : undefined)); p.on('pageerror', e => { console.log('pageerror', e.message); fails++; });
+  await p.goto(URL, { waitUntil: 'load' }); await p.waitForTimeout(1200);
+  await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', E); await p.fill('#regSecret', PW); await p.click('#regBtn'); await p.waitForLoadState('load'); await p.waitForTimeout(2500);
+  if (await p.isVisible('#obSkip')) await p.click('#obSkip');
+  await p.evaluate(() => window.__kova.switchTab('community')); await p.waitForSelector('#cmJoin', { timeout: 15000 });
+  ok(/No questions or advice on mixing, reconstituting or dosing medication or peptides\. No buying, selling or sourcing medication\./.test(await p.textContent('#communityRoot')), 'rule text in header');
+  await p.screenshot({ path: `${OUT}/community-guidelines.png`, fullPage: true });
+  await p.fill('#cmName', 'Sia'); await p.click('#cmJoin'); ok(await p.isVisible('#cmJoinErr'), 'must tick agreement');
+  await p.check('#cmAgree'); await p.click('#cmJoin'); await p.waitForSelector('#cmForm', { timeout: 10000 }); await p.waitForTimeout(1500);
+  ok(/Posting as Sia/.test(await p.textContent('#communityRoot')) && !(await p.textContent('#communityRoot')).includes('@'), 'display name shown, no emails');
+  await p.fill('#cmText', 'Anyone know how much bac water to mix with a 10mg vial?'); await p.click('#cmSend'); await p.waitForSelector('#cmRuleMsg:not([hidden])');
+  ok(/prescriber/i.test(await p.textContent('#cmRuleMsg')), 'blocked post shows friendly rule message');
+  await p.screenshot({ path: `${OUT}/community-blocked.png` }); await p.click('#cmRuleOk');
+  await p.fill('#cmText', "First week on my prescribed 2.5mg. Bit queasy but cravings are way down 💜"); await p.click('#cmSend'); await p.waitForTimeout(2500);
+  ok(await p.isVisible('.cmpost .cmdose'), 'dose banner on dose-related thread');
+  await p.click('.cmpost [data-react="❤️"]'); await p.waitForTimeout(1500);
+  await p.fill('.cmpost:nth-of-type(1) .cmcform input', 'Welcome!'); await p.click('.cmpost:nth-of-type(1) .cmcform button'); await p.waitForTimeout(2000);
+  ok(await p.locator('.cmc').count() >= 1, 'comment shown');
+  await p.screenshot({ path: `${OUT}/community-feed.png`, fullPage: true });
+  await p.click('[data-cmv="groups"]'); await p.waitForTimeout(600); const gn = await p.textContent('#cmBody');
+  ok(['Beginners', 'Sciatica & Recovery', 'Meal Prep on a Budget', 'Mums on GLP-1'].every(x => gn.includes(x)), 'four groups');
+  await p.screenshot({ path: `${OUT}/community-groups.png`, fullPage: true });
+  await p.click('[data-cmv="challenges"]'); await p.waitForSelector('[data-join]', { timeout: 10000 }); await p.click('[data-join]'); await p.waitForSelector('.cmboard', { timeout: 10000 });
+  ok(true, 'joined challenge, leaderboard visible'); await p.screenshot({ path: `${OUT}/community-challenges.png`, fullPage: true });
+  await p.click('[data-cmv="recipes"]'); await p.waitForTimeout(2500); ok(/Aldi £4\.60/.test(await p.textContent('#cmBody')), 'recipe swap with Aldi/Lidl cost');
+  await p.screenshot({ path: `${OUT}/community-recipes.png`, fullPage: true });
+  await p.click('[data-cmv="buddy"]'); await p.waitForTimeout(1500); await p.fill('#cmBuddyName', 'Jo from Leeds'); await p.click('#cmBuddyF button'); await p.waitForTimeout(2000);
+  const inc = (await O('community_buddies_list'))[0]; await O('community_buddy_answer', { p_id: inc.id, p_accept: true }); await O('community_checkin', { p_buddy: inc.id, p_body: 'Did my 15 min walk ✅', p_mood: '😀' });
+  await p.click('[data-cmv="feed"]'); await p.waitForTimeout(800); await p.click('[data-cmv="buddy"]'); await p.waitForTimeout(2000);
+  ok(/Did my 15 min walk/.test(await p.textContent('#cmBody')), 'buddy check-in visible'); await p.screenshot({ path: `${OUT}/community-buddy.png`, fullPage: true });
+  // admin queue
+  const ad = await signup(`glp1life.test.cma${s}@example.com`); await sql(`insert into public.admins (user_id) values ('${ad.user.id}')`);
+  await O('community_post', { p_body: 'I take 15 units on Mondays' });
+  const a = await ctx.newPage(); await a.goto(URL.replace('?cloudauth=1', '') + 'admin/', { waitUntil: 'networkidle' }); await a.fill('#le', `glp1life.test.cma${s}@example.com`); await a.fill('#lp', PW); await a.click('#lf button');
+  await a.waitForSelector('#app:not([hidden])', { timeout: 10000 }); await a.click('[data-v="mod"]'); await a.waitForTimeout(2500);
+  ok(/15 units/.test(await a.textContent('#modHeld')) && /bac water/.test(await a.textContent('#modBlocked')), 'admin sees held + blocked');
+  await a.setViewportSize({ width: 1100, height: 1000 }); await a.screenshot({ path: `${OUT}/community-admin.png`, fullPage: true });
+  await a.click('#modHeld [data-ma="approve"]'); await a.waitForTimeout(2000); ok(!/15 units/.test(await a.textContent('#modHeld')), 'admin approved held post');
+} catch (e) { console.error(e); fails++; } finally { await b.close(); await cleanupTestData(); }
+console.log(fails ? `${fails} FAILED` : 'ALL PASS'); process.exit(fails ? 1 : 0);

@@ -7,7 +7,7 @@ const URL = process.argv[2] || 'http://localhost:8765/', OUT = '/workspace/shots
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true });
 let fail = 0; const ok = (c, m) => { if (!c) { console.log('FAIL', m); fail++; } };
 const DEV = [[320, 640], [360, 800], [384, 832], [393, 851], [412, 915], [480, 960], [673, 841], [884, 1104], [768, 1024], [1024, 1366]];
-const TABS = ['workout', 'progress', 'prep', 'classes', 'trainers', 'prices', 'settings', 'membership'];
+const TABS = ['workout', 'progress', 'prep', 'classes', 'trainers', 'prices', 'settings', 'member', 'community'];
 async function page(w, h, zoom = 1, nav = 24) {
   const ctx = await b.newContext({ ...devices['Pixel 5'], viewport: { width: Math.round(w / zoom), height: Math.round(h / zoom) }, deviceScaleFactor: zoom, locale: 'en-GB' }); const p = await ctx.newPage();
   await p.addInitScript(([z, n]) => { document.addEventListener('DOMContentLoaded', () => { const s = document.createElement('style'); s.textContent = `:root{--sat-fb:${Math.round(32 / z)}px;--sab-fb:${Math.round(n / z)}px}`; document.head.append(s); }); }, [zoom, nav]);
@@ -21,7 +21,7 @@ async function page(w, h, zoom = 1, nav = 24) {
 const audit = p => p.evaluate(() => {
   const W = innerWidth, bad = [], vis = e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && e.offsetParent !== null && getComputedStyle(e).visibility !== 'hidden'; };
   if (document.documentElement.scrollWidth > W + 1) bad.push(`overflow ${document.documentElement.scrollWidth}>${W}`);
-  const t = [...document.querySelectorAll('.tab.active a, .tab.active button, .tab.active .linkcard, .tab.active .trtags li')].filter(vis).filter(e => !e.closest('.catscroll') && !(e.closest('details:not([open])') && !e.closest('summary')));
+  const t = [...document.querySelectorAll('.tab.active a, .tab.active button, .tab.active .linkcard, .tab.active .trtags li')].filter(vis).filter(e => !e.closest('.catscroll, .vchips, .cmtabs') && !(e.closest('details:not([open])') && !e.closest('summary')));
   for (const e of t) { const r = e.getBoundingClientRect(); if (r.right > W + 1 || r.left < -1) bad.push(`clipped ${e.id || e.className} "${e.textContent.trim().slice(0, 25)}"`); }
   for (let i = 0; i < t.length; i++) for (let j = i + 1; j < t.length; j++) { if (t[i].contains(t[j]) || t[j].contains(t[i])) continue; const a = t[i].getBoundingClientRect(), c = t[j].getBoundingClientRect(); if (Math.min(a.right, c.right) - Math.max(a.left, c.left) > 4 && Math.min(a.bottom, c.bottom) - Math.max(a.top, c.top) > 4) bad.push(`overlap "${t[i].textContent.trim().slice(0, 18)}" / "${t[j].textContent.trim().slice(0, 18)}"`); }
   return [...new Set(bad)].slice(0, 6);

@@ -6,7 +6,7 @@
   <form id="lf"><label>Email<input id="le" type="email" autocomplete="username" required></label><label>Password<input id="lp" type="password" autocomplete="current-password" required></label><p class="err" id="lerr" hidden></p><button class="primary">Sign in</button></form></section>
 <section id="denied" class="card narrow" hidden><h1>Not an admin</h1><p>You're signed in as <b id="who"></b>, but this account isn't an admin.</p></section>
 <section id="app" hidden>
-  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button></nav>
+  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button><button data-v="mod">Community <span id="modCount"></span></button></nav>
   <div id="v-trainers" class="grid">
     <div><div class="row between"><h2>Trainers</h2><button class="primary" id="new">+ Add trainer</button></div><p class="muted small">Drag ↑ ↓ to reorder. Hidden trainers don't show in the app.</p><ul id="list" class="list"></ul></div>
     <div class="card" id="editor"><h2 id="etitle">Add trainer</h2>
@@ -36,6 +36,10 @@
     <p class="small muted">£2 per active monthly client + £20 per yearly client whose start/renewal falls in the month. <b>No payment processing yet</b> — invoice trainers yourself and mark paid here (Stripe later).</p>
     <div class="row"><label>Month <input id="cmonth" type="month"></label><button id="csv">Export CSV</button></div>
     <table class="ctable"><thead><tr><th>Trainer</th><th>Monthly</th><th>Yearly</th><th>Yearly due</th><th>Owed</th><th>Yearly renewals</th><th>Invoice</th></tr></thead><tbody id="cbody"></tbody><tfoot><tr><th>Total</th><th id="tm"></th><th id="ty"></th><th id="tyd"></th><th id="towed"></th><th></th><th></th></tr></tfoot></table></div>
+  <div id="v-mod" hidden><h2>Community moderation</h2><p class="muted small">Held posts wait here until you approve them. Blocked attempts (mixing, selling, dosing advice) are logged here. Members with 3 blocked attempts in 30 days are suspended automatically until you review them.</p>
+    <h3>Held for review</h3><ul id="modHeld" class="list"></ul><h3>Reports</h3><ul id="modReports" class="list"></ul><h3>Suspended / banned members</h3><ul id="modUsers" class="list"></ul>
+    <h3>Groups</h3><ul id="modGroups" class="list"></ul><form id="modGroupF" class="row"><input id="modGName" placeholder="New group name" required><input id="modGDesc" placeholder="Description"><button class="primary">+ Add group</button></form>
+    <h3>Blocked attempts (latest 50)</h3><ul id="modBlocked" class="list small"></ul></div>
   <div id="v-classes" hidden><h2>Classes library</h2><p class="muted">The classes library is <code>library.json</code> in the GitHub repo (it updates the app automatically). Edit it on GitHub: <a href="https://github.com/mitchrobfilms/coach-workout-app/edit/main/library.json" target="_blank" rel="noopener">open library.json ↗</a></p><div id="classes"></div></div>
 </section><footer class="small muted" style="margin:30px 0;text-align:center">GLP1 Life admin · support <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a></footer></main><div id="toast" hidden></div>
 <script type="module" src="admin.js?v=2"></script></body></html>

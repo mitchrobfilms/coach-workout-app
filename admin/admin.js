@@ -42,7 +42,7 @@ $('f').onsubmit = async e => { e.preventDefault(); const err = m => { $('ferr').
     toast('✅ Saved'); await load(); fill();
   } catch (x) { err(x.message); } };
 $('del').onclick = async () => { if (!confirm('Delete this trainer?')) return; await api(`/rest/v1/trainers?id=eq.${$('id').value}`, { method: 'DELETE' }); await load(); fill(); toast('Deleted'); };
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); $('v-trainers').hidden = b.dataset.v !== 'trainers'; $('v-classes').hidden = b.dataset.v !== 'classes'; $('v-promos').hidden = b.dataset.v !== 'promos'; $('v-comm').hidden = b.dataset.v !== 'comm'; if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); });
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); $('v-trainers').hidden = b.dataset.v !== 'trainers'; $('v-classes').hidden = b.dataset.v !== 'classes'; $('v-mod').hidden = b.dataset.v !== 'mod'; if (b.dataset.v === 'mod') loadMod(); $('v-promos').hidden = b.dataset.v !== 'promos'; $('v-comm').hidden = b.dataset.v !== 'comm'; if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); });
 async function loadClasses() { try { const l = await (await fetch('../library.json?v=' + Date.now())).json(); $('classes').innerHTML = `<p>${l.classes.length} classes in the library:</p><ul>${l.classes.map(c => `<li><b>${esc(c.title)}</b> <span class="muted">${esc(c.category)} · ${Math.round(c.duration / 60)} min</span></li>`).join('')}</ul>`; } catch { $('classes').textContent = 'Could not load library.json'; } }
 let promos = [], usage = [], selPromo = null;
 async function loadPromos() {
@@ -75,3 +75,21 @@ $('cmonth').onchange = loadComm;
 $('csv').onclick = () => { const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`, rows = [['Month', 'Trainer', 'Monthly clients', 'Yearly clients', 'Yearly due this month', 'Owed GBP', 'Yearly renewals', 'Paid at'], ...comm.map(c => [monthStart().slice(0, 7), c.name, c.monthly, c.yearly, c.yearly_due, (c.owed_pence / 100).toFixed(2), c.renewals || '', c.paid_at || ''])];
   const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([rows.map(r => r.map(q).join(',')).join('\n')], { type: 'text/csv' })); a.download = `glp1life-commission-${monthStart().slice(0, 7)}.csv`; a.click(); };
 start();
+
+/* ---------- Community moderation ---------- */
+const rpc = (f, b = {}) => api(`/rest/v1/rpc/${f}`, { method: 'POST', body: JSON.stringify(b) });
+const when = t => new Date(t).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+async function loadMod() {
+  let q; try { q = await rpc('community_mod_queue'); } catch (e) { return toast(e.message); }
+  $('modCount').textContent = (q.held.length + q.reports.length) ? `(${q.held.length + q.reports.length})` : '';
+  const item = (x, btns) => `<li class="card"><p><b>${esc(x.author || 'unknown')}</b> <small class="muted">${when(x.at)}${x.reason ? ' · ' + esc(x.reason) : ''}</small></p><p>${esc(x.body || x.excerpt || '')}</p><div class="row">${btns}</div></li>`;
+  const B = (k, id, a, label) => `<button data-mk="${k}" data-mid="${id}" data-ma="${a}">${label}</button>`;
+  $('modHeld').innerHTML = q.held.map(x => item(x, B(x.kind, x.id, 'approve', '✓ Approve') + B(x.kind, x.id, 'hide', 'Hide') + B(x.kind, x.id, 'delete', '🗑 Delete') + B('user', x.user_id, 'ban', '⛔ Ban author'))).join('') || '<li class="muted">Nothing held.</li>';
+  $('modReports').innerHTML = q.reports.map(x => item(x, (x.post_id ? B('post', x.post_id, 'hide', 'Hide post') + B('post', x.post_id, 'delete', '🗑 Delete post') : B('comment', x.comment_id, 'delete', '🗑 Delete comment')) + B('report', x.id, 'dismiss', 'Dismiss') + (x.user_id ? B('user', x.user_id, 'ban', '⛔ Ban author') : ''))).join('') || '<li class="muted">No open reports.</li>';
+  $('modUsers').innerHTML = q.suspended.map(u => `<li class="card row between"><span><b>${esc(u.name)}</b> · ${esc(u.status)} · ${u.strikes} strikes</span><span>${B('user', u.user_id, 'restore', 'Restore')}${u.status !== 'banned' ? B('user', u.user_id, 'ban', '⛔ Ban') : ''}</span></li>`).join('') || '<li class="muted">None.</li>';
+  $('modGroups').innerHTML = q.groups.map(g => `<li>${esc(g.name)} <small class="muted">${esc(g.description || '')}</small></li>`).join('');
+  $('modBlocked').innerHTML = q.blocked.map(x => `<li><b>${esc(x.author || '?')}</b> <small class="muted">${when(x.at)} · ${esc(x.kind)} · ${esc(x.reason)}</small><br>${esc(x.excerpt)}</li>`).join('') || '<li class="muted">None.</li>';
+  document.querySelectorAll('[data-mk]').forEach(b => b.onclick = async () => { if (['delete', 'ban'].includes(b.dataset.ma) && !confirm(`${b.dataset.ma} — are you sure?`)) return;
+    try { await rpc('community_mod', { p_kind: b.dataset.mk, p_id: b.dataset.mid, p_action: b.dataset.ma }); toast('Done'); loadMod(); } catch (e) { toast(e.message); } });
+}
+$('modGroupF').onsubmit = async e => { e.preventDefault(); try { await rpc('community_add_group', { p_name: $('modGName').value, p_desc: $('modGDesc').value }); $('modGroupF').reset(); toast('Group added'); loadMod(); } catch (x) { toast(x.message); } };

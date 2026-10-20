@@ -1785,7 +1785,8 @@ renderCompare = function () {
 };
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
-switchTab = function (t) { _switchTab(t); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes'].includes(t)); };
+(window.__kova ||= {}).switchTab = t => switchTab(t);
+switchTab = function (t) { _switchTab(t); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes'].includes(t)); };
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites();
 setTimeout(renderHome, 1500);
@@ -1895,3 +1896,12 @@ async function openStepsSheet() {
     close(); await syncSteps(false); };
 }
 syncSteps(true); addEventListener('visibilitychange', () => { if (!document.hidden) syncSteps(true); });
+
+/* ---------- Community ---------- */
+import { makeCommunity } from './community.js';
+const weekDays = () => { const out = []; const d = new Date(); const dow = (d.getDay() + 6) % 7; for (let i = 0; i <= dow; i++) { const x = new Date(d); x.setDate(d.getDate() - dow + i); out.push(localDay(x)); } return out; };
+const community = makeCommunity({ rpc: rpcF, toast: (m, ms) => toast(m, ms), root: $('communityRoot'), sbUrl: TR_URL, sbKey: TR_KEY,
+  token: () => JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null')?.access_token || '', uid: () => cloud.user?.id,
+  certificates: () => store.get('certificates', []),
+  stats: () => { const days = weekDays(), daily = store.get('daily', {}), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, ses = new Set(store.get('sessions', []).map(s => String(s.date || s.at || '').slice(0, 10)));
+    return { hydrationDays: days.filter(d => waterMl(daily[d]) >= goal).length, activeDays: days.filter(d => ses.has(d)).length }; } });
