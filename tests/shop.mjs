@@ -24,7 +24,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   ok((await p.textContent('#shopList')).includes('Cottage cheese'), 'basics category added to list');
   await p.reload(); await p.click('.tabs button[data-tab=shop]');
   ok(/^1\//.test(await p.textContent('#shopCount')) && (await p.textContent('#shopList')).includes('Cottage cheese'), 'list + ticks persist after reload');
-  await p.screenshot({ path: `shop-${name}.png`, fullPage: true });
+  await p.screenshot({ path: `shop-${name}.png`, fullPage: false });
   // per-account
   await p.click('.tabs button[data-tab=settings]'); await p.click('#logoutBtn'); await p.waitForTimeout(600); await p.click('#toRegister'); await reg('Sam', 's@example.com');
   await p.click('.tabs button[data-tab=shop]'); ok((await p.textContent('#shopList')).includes('Your list is empty'), 'second account has its own empty list');

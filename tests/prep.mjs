@@ -13,7 +13,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   for (const m of ['breakfast', 'lunch', 'dinner']) { const n = await p.$$eval(`#prep-${m} .recipe`, r => r.length); ok(n >= 4, `${m}: ${n} recipes`); }
   ok(await p.$$eval('#prepStorePick .chip', c => c.map(x => x.textContent).join(',')) === 'Lidl,Aldi,Asda,Any supermarket', 'store picker Lidl/Aldi/Asda/Any');
   await p.click('[data-pstore=asda]'); ok(/value packs/.test(await p.textContent('#prepStoreNotes')), 'Asda notes shown');
-  ok(!/£|\$|€/.test(await p.textContent('#tab-prep')), 'no prices');
+  ok(!/£|\$|€/.test(await p.textContent('#prepSections')), 'no prices in batch-cook recipes (GLP-1 builder shows prices separately)');
   const card = await p.textContent('#recipe-p-chickenrice');
   ok(/600 g \/ 1.3 lb/.test(card) && /1 day only/.test(card) && /3 days/.test(card) && /retatrutide/.test(card) && /kcal/.test(card) && /protein/.test(card), 'card: metric+imperial, rice 1 day, chicken 3 days, GLP-1, kcal/protein');
   await p.click('#prepDays [data-days="3"]'); ok(/3 days \+ 1 to freeze/.test(await p.textContent('#recipe-p-chilli')), '3-day prep portions');
@@ -29,7 +29,7 @@ for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']
   let bad = 0; for (let k = 0; k < 6; k++) { await p.click('#buildWeekBtn'); await p.waitForTimeout(50); if (/chicken|\begg/i.test(await p.textContent('#prepWeek'))) bad++; }
   ok(!bad && !(await p.$('#recipe-p-chickenrice')), 'dislikes (chicken, eggs) never picked or listed');
   await p.click('[data-pstore=lidl]'); await p.evaluate(() => { scrollTo(0, 0); document.getElementById('toast').hidden = true; });
-  await p.screenshot({ path: `prep-${name}.png`, fullPage: false }); await p.screenshot({ path: `prep-${name}-full.png`, fullPage: true });
+  await p.screenshot({ path: `prep-${name}.png`, fullPage: false });
   // voice
   await p.click('.tabs button[data-tab=workout]');
   await p.evaluate(() => window.__kova.handleHeard(['hey reta what should I prep'])); await p.waitForTimeout(300);

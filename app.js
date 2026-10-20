@@ -1,4 +1,8 @@
 import { getAuth } from './auth.js';
+import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, restoreInto, backupDue, BACKUP_KEYS } from './backup.js';
+import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
+import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE } from './glp1.js';
+import { offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
@@ -17,10 +21,18 @@ const qs = new URLSearchParams(location.search);
 const SPEED = Math.max(1, +qs.get('speed') || 1); // test hook: ?speed=30 runs timers 30x faster
 const $ = id => document.getElementById(id);
 const auth = getAuth(), user = auth.currentUser(), PREFIX = auth.dataPrefix(user); // per-account data
+// Saved twice: localStorage (fast, sync) + an IndexedDB mirror. If Chrome drops localStorage, we restore from IndexedDB on launch.
+var wpReady = false;
 const store = {
   get: (k, d) => { try { return JSON.parse(localStorage.getItem(PREFIX + k)) ?? d; } catch { return d; } },
-  set: (k, v) => localStorage.setItem(PREFIX + k, JSON.stringify(v)),
+  set: (k, v) => { const j = JSON.stringify(v); try { localStorage.setItem(PREFIX + k, j); } catch {} idbSet(PREFIX + k, j); },
 };
+let restoredFromIdb = 0;
+{ const lsKeys = Object.keys(localStorage).filter(k => k.startsWith(PREFIX));
+  const mirror = await Promise.race([idbAll(PREFIX), new Promise(r => setTimeout(() => r({}), 1500))]);
+  for (const [k, v] of Object.entries(mirror)) if (localStorage.getItem(k) == null) { try { localStorage.setItem(k, v); restoredFromIdb++; } catch {} }
+  for (const k of lsKeys) if (!(k in mirror)) idbSet(k, localStorage.getItem(k)); }
+requestPersist().then(p => { window.__kova && (window.__kova.persisted = p); });
 const settings = Object.assign({ name: user?.name || 'Mitchell', trainer: 'm', onboarded: false, speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
 
 /* ---------- workout definition (bodyweight + household items only) ---------- */
@@ -559,8 +571,7 @@ function renderProgress() {
   $('sessionList').innerHTML = s.length ? s.slice().reverse().map(x => `<li><span>${d(x.date)}${x.completed ? '' : ' <small class="muted">(ended early)</small>'}</span><span>${Object.values(x.totals).reduce((a, b) => a + b, 0)} reps · ${x.minutes} min</span></li>`).join('') : '<li class="muted">No workouts yet. Your first one is waiting!</li>';
   const f = foodHist();
   $('foodList').innerHTML = Object.keys(f).length ? Object.keys(f).sort().reverse().map(k => `<li><span>${d(k + 'T12:00')}</span><span>${f[k].score}/10</span></li>`).join('') : '<li class="muted">No check-ins yet.</li>';
-  const w = store.get('weights', []);
-  $('weightList').innerHTML = w.length ? w.slice().reverse().map((x, i, a) => { const p = a[i + 1]; const dd = p ? (x.kg - p.kg).toFixed(1) : null; return `<li><span>${d(x.date)}</span><span>${fmtWeight(x.kg, settings.weightUnit || 'kg')}${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd} kg)</small>` : ''}</span></li>`; }).join('') : '<li class="muted">No weigh-ins yet (optional).</li>';
+  if (wpReady) renderWeightProgress();
 }
 renderProgress();
 
@@ -569,7 +580,7 @@ settings.voiceMode ||= 'recorded';
 const S = { setVoiceMode: 'voiceMode', setFussy: 'fussy', setCountry: 'country', setName: 'name', setSpeech: 'speech', setBeeps: 'beeps', setLlm: 'llm', setLlmUrl: 'llmUrl', setLlmModel: 'llmModel', setLlmKey: 'llmKey' };
 for (const [id, k] of Object.entries(S)) { const el = $(id); if (el.type === 'checkbox') el.checked = !!settings[k]; else el.value = settings[k] || (k === 'country' ? 'auto' : ''); }
 $('saveSettings').onclick = () => { for (const [id, k] of Object.entries(S)) { const el = $(id); settings[k] = el.type === 'checkbox' ? el.checked : el.value.trim(); } settings.name ||= 'Mitchell'; settings.country ||= 'auto'; store.set('settings', settings); greetText(); renderFoodProfile(); toast('Saved'); };
-$('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); location.reload(); } };
+$('clearData').onclick = () => { if (confirm('Delete all workouts, food check-ins, weigh-ins and settings on this phone?')) { Object.keys(localStorage).filter(k => k.startsWith('kova.')).forEach(k => localStorage.removeItem(k)); idbClear('kova.').then(() => location.reload()); } };
 function greetText() { const h = new Date().getHours(); $('startGreeting').textContent = `${h < 12 ? 'Morning' : h < 18 ? 'Afternoon' : 'Evening'}, ${settings.name}! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.`; }
 greetText();
 
@@ -1222,3 +1233,150 @@ function openDrive(id) {
 }
 $('driveClose').onclick = () => { $('driveModal').hidden = true; $('driveFrame').src = 'about:blank'; };
 window.__kova.startClass = startClass; window.__kova.classFeed = (lm, w, t) => classFeed(lm, w, t ?? performance.now()); window.__kova.classNext = () => classNext(); window.__kova.renderClasses = renderClasses; window.__kova.loadLibrary = loadLibrary;
+
+/* ---------- weight-loss progress (progress.js) ---------- */
+wpReady = true;
+const unitW = () => settings.weightUnit || 'kg';
+const fmtLoss = kg => { const a = Math.abs(kg); return unitW() === 'kg' ? `${a.toFixed(1)} kg` : unitW() === 'lb' ? `${(a / 0.45359237).toFixed(1)} lb` : stLb(a).text; };
+const signed = v => v == null ? '–' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmtLoss(v)}`;
+let editingW = null;
+function renderWeightProgress() {
+  const w = store.get('weights', []), sum = progressSummary(w, { goalKg: settings.goalKg, heightCm: settings.heightCm }), d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: '2-digit' });
+  if (!sum) {
+    $('progSummary').innerHTML = '<div class="card"><p>Log your first weigh-in below to start your progress chart. Weigh at the same time of day, ideally once a week.</p></div>';
+    $('homeProgress').innerHTML = `<div class="row between"><h3>📉 Your progress</h3></div><p class="small muted">No weigh-ins yet. Add one to track your weight loss.</p><button type="button" class="primary" data-gotab="progress">Add a weigh-in</button>`;
+  } else {
+    const t = v => `<span class="${v == null ? '' : v < 0 ? 'good' : v > 0 ? 'up' : ''}">${signed(v)}</span>`;
+    $('progSummary').innerHTML = `<div class="statgrid">
+      <div class="stat2"><small>Start</small><b>${fmtWeight(sum.start, unitW())}</b></div>
+      <div class="stat2"><small>Now</small><b>${fmtWeight(sum.current, unitW())}</b></div>
+      <div class="stat2 hl"><small>Total lost</small><b>${sum.lost > 0 ? fmtLoss(sum.lost) : sum.lost < 0 ? '+' + fmtLoss(sum.lost) : '0'}</b><small>${sum.lost > 0 ? `${sum.lost.toFixed(1)} kg · ${stLb(sum.lost).text}` : ''}</small></div>
+      <div class="stat2 hl"><small>% lost</small><b>${Math.max(0, sum.pct).toFixed(1)}%</b></div>
+      <div class="stat2"><small>Last 7 days</small><b>${t(sum.trend7)}</b></div>
+      <div class="stat2"><small>Last 30 days</small><b>${t(sum.trend30)}</b></div>
+      ${sum.bmi ? `<div class="stat2 wide"><small>BMI</small><b>${sum.bmi}</b><small>${bmiBand(sum.bmi)}</small></div>` : ''}</div>
+      ${sum.goal ? `<div class="card goalcard"><div class="row between"><b>Goal ${fmtWeight(sum.goal.kg, unitW())}</b><span>${sum.goal.pct}%</span></div><div class="bar"><i style="width:${sum.goal.pct}%"></i></div><p class="small muted">${sum.goal.toGo > 0 ? `${fmtLoss(sum.goal.toGo)} to go` : '🎉 Goal reached!'}</p></div>` : '<p class="small muted">Set a goal weight below to see a progress bar.</p>'}`;
+    $('homeProgress').innerHTML = `<div class="row between"><h3>📉 Your progress</h3><button type="button" class="small" data-gotab="progress">See all</button></div>
+      <div class="statgrid three"><div class="stat2"><small>Now</small><b>${fmtWeight(sum.current, unitW())}</b></div><div class="stat2 hl"><small>Lost</small><b>${sum.lost > 0 ? fmtLoss(sum.lost) : '0'}</b></div><div class="stat2"><small>% lost</small><b>${Math.max(0, sum.pct).toFixed(1)}%</b></div></div>
+      ${w.length > 1 ? chartSVG(w, { goalKg: settings.goalKg, unit: unitW() === 'st' ? 'st' : unitW() === 'lb' ? 'lb' : 'kg', height: 120 }) : ''}
+      ${sum.goal ? `<div class="bar"><i style="width:${sum.goal.pct}%"></i></div><p class="small muted">${sum.goal.pct}% of the way to your goal</p>` : ''}`;
+  }
+  $('progChart').innerHTML = w.length > 1 ? chartSVG(w, { goalKg: settings.goalKg, unit: unitW() === 'st' ? 'st' : unitW() === 'lb' ? 'lb' : 'kg' }) : '<p class="small muted">Your chart appears after 2 weigh-ins.</p>';
+  $('milestoneList').innerHTML = sum ? sum.milestones.slice(0, 10).map(m => `<li class="${m.done ? 'done' : ''}">${m.done ? '🏅' : '⬜'} ${m.label}${m.done ? '' : ` <small class="muted">(${fmtLoss(Math.max(0, m.need - sum.lost))} to go)</small>`}</li>`).join('') : '<li class="muted">Milestones at 5%, 10%, every 5 kg and every stone.</li>';
+  const sorted = sortEntries(w).reverse();
+  $('weightList').innerHTML = sorted.length ? sorted.map((x, i) => { const p = sorted[i + 1], dd = p ? x.kg - p.kg : null;
+    if (editingW === x.date) return `<li class="editing"><form class="wedit" data-date="${esc(x.date)}"><input name="v" type="text" inputmode="decimal" value="${esc(fmtWeight(x.kg, unitW()).replace(' kg', ''))}" aria-label="Weight"><input name="d" type="date" value="${x.date.slice(0, 10)}" aria-label="Date"><button class="primary">Save</button><button type="button" data-wcancel>Cancel</button></form></li>`;
+    return `<li><span>${d(x.date)}<br><b>${fmtWeight(x.kg, unitW())}</b>${dd !== null ? ` <small class="muted">(${dd > 0 ? '+' : ''}${dd.toFixed(1)} kg)</small>` : ''}</span><span class="wbtns"><button type="button" data-wedit="${esc(x.date)}">Edit</button><button type="button" class="danger" data-wdel="${esc(x.date)}">Delete</button></span></li>`; }).join('') : '<li class="muted">No weigh-ins yet.</li>';
+  $('goalInput').value ||= settings.goalKg ? fmtWeight(settings.goalKg, unitW()).replace(' kg', '') : ''; $('heightInput').value ||= settings.heightCm || '';
+  document.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => { switchTab(b.dataset.gotab); scrollTo(0, 0); });
+  renderBackupStatus();
+}
+$('weightList').addEventListener('click', e => {
+  const ed = e.target.closest('[data-wedit]'), del = e.target.closest('[data-wdel]'), cancel = e.target.closest('[data-wcancel]');
+  if (ed) { editingW = ed.dataset.wedit; renderWeightProgress(); $('weightList').querySelector('.wedit input')?.focus(); }
+  if (cancel) { editingW = null; renderWeightProgress(); }
+  if (del) { if (!confirm('Delete this weigh-in?')) return; store.set('weights', store.get('weights', []).filter(x => x.date !== del.dataset.wdel)); toast('Weigh-in deleted'); renderWeightProgress(); }
+});
+$('weightList').addEventListener('submit', e => {
+  e.preventDefault(); const f = e.target, r = parseWeightText(f.v.value, unitW()); if (!r.kg) return toast(r.error);
+  const w = store.get('weights', []), it = w.find(x => x.date === f.dataset.date); if (!it) return;
+  it.kg = r.kg; if (f.d.value && f.d.value !== it.date.slice(0, 10)) it.date = new Date(f.d.value + 'T' + (it.date.slice(11) || '08:00:00.000Z')).toISOString();
+  store.set('weights', w); editingW = null; toast('✅ Weigh-in updated'); renderWeightProgress();
+});
+$('saveGoal').onclick = () => {
+  const g = $('goalInput').value.trim(), h = $('heightInput').value.trim(); let err = '';
+  if (g) { const r = parseWeightText(g, unitW()); if (r.kg) settings.goalKg = r.kg; else err = r.error; } else delete settings.goalKg;
+  if (h) { const cm = parseFloat(h.replace(',', '.')); if (cm >= 100 && cm <= 250) settings.heightCm = cm; else err ||= 'Height should be in cm, e.g. 178.'; } else delete settings.heightCm;
+  $('goalError').hidden = !err; $('goalError').textContent = err; store.set('settings', settings); if (!err) toast('Goal saved'); renderWeightProgress();
+};
+/* ---------- backup / restore ---------- */
+const hasData = () => store.get('weights', []).length + store.get('sessions', []).length + Object.keys(store.get('food', {})).length > 0;
+function renderBackupStatus() {
+  const last = store.get('backupAt', null), p = window.__kova?.persisted;
+  $('saveStatus').innerHTML = `✅ Saved on this phone${p === true ? ' · 🔒 Chrome has agreed to keep it (persistent storage)' : ''}${restoredFromIdb ? ` · ♻️ ${restoredFromIdb} item(s) restored from the backup copy` : ''}`;
+  $('lastBackup').textContent = last ? `Last backup: ${new Date(last).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}` : 'No backup file yet.';
+  const due = backupDue(last, Date.now(), hasData()) && Date.now() - (store.get('backupNudgeAt', 0)) > 864e5;
+  $('backupNudge').hidden = !due;
+  $('backupNudge').innerHTML = due ? `💾 <b>Time for a backup?</b> It's been ${last ? 'over 2 weeks' : 'a while'}. Keep a copy of your weigh-ins safe in Drive or WhatsApp.<div class="row"><button type="button" class="primary" id="nudgeBackup">Back up now</button><button type="button" id="nudgeLater">Later</button></div>` : '';
+  if (due) { $('nudgeBackup').onclick = () => doBackup(); $('nudgeLater').onclick = () => { store.set('backupNudgeAt', Date.now()); renderBackupStatus(); }; }
+}
+async function doBackup() {
+  const b = makeBackup(k => store.get(k, null), { account: user ? { name: user.name } : null }), text = JSON.stringify(b, null, 1);
+  const name = `reta-coach-backup-${new Date().toISOString().slice(0, 10)}.json`, file = new File([text], name, { type: 'application/json' });
+  let shared = false;
+  try { if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file], title: 'Reta Coach backup', text: 'My Reta Coach backup. Keep this file safe.' }); shared = true; } } catch (e) { if (e?.name === 'AbortError') return; }
+  if (!shared) { const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+  store.set('backupAt', new Date().toISOString()); window.__kova.lastBackupText = text; toast(shared ? '💾 Backup shared' : '💾 Backup downloaded'); renderBackupStatus();
+}
+$('backupBtn').onclick = doBackup;
+$('restoreBtn').onclick = () => $('restoreFile').click();
+$('restoreFile').onchange = async e => {
+  const f = e.target.files?.[0]; if (!f) return; const r = parseBackup(await f.text()); e.target.value = '';
+  if (r.error) return toast(r.error);
+  if (!confirm(`Restore backup from ${new Date(r.backup.created).toLocaleDateString('en-GB')}? Weigh-ins are merged; other data is replaced.`)) return;
+  restoreInto(k => store.get(k, null), (k, v) => store.set(k, v), r.backup); toast('✅ Backup restored'); setTimeout(() => location.reload(), 800);
+};
+renderWeightProgress();
+
+/* ---------- GLP-1 meal prep builder + live offers ---------- */
+let offersData = null, pricesData = null;
+const glp = Object.assign({ store: 'aldi', days: 3, meals: 3, protein: 30, fussy: !!settings.fussy, gentle: false, veg: false, prefer: [], plan: null }, store.get('glp1', {}));
+const saveGlp = () => store.set('glp1', glp);
+async function loadOffers() {
+  for (const [f, set] of [['data/offers.json', v => offersData = v], ['data/prices.json', v => pricesData = v]]) {
+    try { const r = await fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { const j = await r.json(); set(j); localStorage.setItem('reta.' + f, JSON.stringify(j)); continue; } } catch {}
+    try { set(JSON.parse(localStorage.getItem('reta.' + f) || 'null')); } catch {}
+  }
+  renderOffers(); if (glp.plan) renderGlpPlan();
+}
+const offerUI = { store: 'all', hp: true };
+function storeStatusText() {
+  if (!offersData) return 'Offers couldn\'t load. Check your connection. The meal builder uses typical prices instead.';
+  return Object.entries(offersData.stores).map(([k, s]) => s.status === 'live' ? `${STORE_NAMES[k]}: live offers, checked ${fmtChecked(s.checked)}` : s.status === 'stale' ? `${STORE_NAMES[k]}: last list from ${fmtChecked(s.checked)} (today's check failed)` : `${STORE_NAMES[k]}: no live offers (${(s.note || 'not available').replace(/\.$/, '')}). Typical prices from ${fmtChecked(pricesData?.curatedChecked)} used instead`).join('. ') + '. Prices may vary in store and by region.';
+}
+function renderOffers() {
+  $('offerStore').innerHTML = [['all', 'All'], ['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda']].map(([k, n]) => `<button type="button" class="chip ${offerUI.store === k ? 'on' : ''}" data-ostore="${k}">${n}</button>`).join('');
+  $('offerHp').checked = offerUI.hp; $('offerStatus').textContent = storeStatusText();
+  const list = offersFor(offersData, { store: offerUI.store, highProtein: offerUI.hp });
+  const asdaNote = offerUI.store === 'asda' && offersData?.stores?.asda?.status !== 'live' ? `<p class="small">Asda's website blocks automated price checks, so we can't show live Asda offers. The meal builder uses typical Asda prices (checked ${fmtChecked(pricesData?.curatedChecked)}). <a href="https://groceries.asda.com/special-offers" target="_blank" rel="noopener">Open Asda's offers ↗</a></p>` : '';
+  $('offerList').innerHTML = asdaNote + (list.length ? list.slice(0, 60).map(o => { const key = STAPLES.find(s => s.match.test(o.name) && !(s.exclude && s.exclude.test(o.name)))?.key;
+    return `<div class="offer"><div class="otop"><span class="ostore ${o.store}">${STORE_NAMES[o.store]}</span><b>${esc(o.name)}</b></div>
+    <div class="oprice"><b>${fmtGBP(o.price)}</b>${o.was ? ` <del>${fmtGBP(o.was)}</del>` : ''}${o.perKg ? ` <small>${fmtGBP(o.perKg)}/kg</small>` : ''}${o.size ? ` <small>· ${esc(o.size)}</small>` : ''}</div>
+    <div class="small">${o.protein != null ? `<span class="pbadge ${isHighProtein(o) ? 'hp' : ''}">${o.protein} g protein /100 g</span>` : '<span class="muted">Protein: check label</span>'} ${o.promo ? `<span class="muted">· ${esc(o.promo)}</span>` : ''}${o.to ? ` <span class="muted">· until ${fmtChecked(o.to)}</span>` : ''}</div>
+    <div class="row"><button type="button" class="primary" data-useoffer='${esc(JSON.stringify({ key, name: o.name, store: o.store, size: o.size }))}'>＋ Use in meal plan</button><a class="btnlink" href="${esc(o.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; }).join('') : (asdaNote ? '' : '<p class="small muted">No matching offers right now.</p>'));
+  $('offerStore').querySelectorAll('[data-ostore]').forEach(b => b.onclick = () => { offerUI.store = b.dataset.ostore; renderOffers(); });
+  $('offerList').querySelectorAll('[data-useoffer]').forEach(b => b.onclick = () => { const x = JSON.parse(b.dataset.useoffer);
+    if (x.key) { glp.prefer = [...new Set([x.key, ...glp.prefer])].slice(0, 5); if (glp.store !== 'mix' && glp.store !== x.store) glp.store = 'mix'; saveGlp(); buildGlp(); toast(`✅ Plan rebuilt around ${x.name}`); $('glpCard').scrollIntoView({ behavior: 'smooth' }); }
+    else { if (!shop.extra.some(y => shopKey(y.item) === shopKey(x.name))) shop.extra.push({ item: `${x.name} (${STORE_NAMES[x.store]} offer)`, aisle: 'Proteins', pack: x.size }); saveShop(); renderShop(); toast('🛒 Added to your shopping list'); } });
+}
+$('offerHp').onchange = e => { offerUI.hp = e.target.checked; renderOffers(); };
+function renderGlpForm() {
+  $('glpStore').innerHTML = [['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda'], ['mix', 'Mix (cheapest)']].map(([k, n]) => `<button type="button" class="chip ${glp.store === k ? 'on' : ''}" data-gstore="${k}">${n}</button>`).join('');
+  $('glpDays').value = glp.days; $('glpMeals').value = glp.meals; $('glpProt').value = glp.protein; $('glpProtVal').textContent = `${glp.protein} g`;
+  $('glpFussy').checked = glp.fussy; $('glpGentle').checked = glp.gentle; $('glpVeg').checked = glp.veg;
+  $('glpStore').querySelectorAll('[data-gstore]').forEach(b => b.onclick = () => { glp.store = b.dataset.gstore; saveGlp(); renderGlpForm(); if (glp.plan) buildGlp(); });
+}
+for (const [id, k, num] of [['glpDays', 'days', 1], ['glpMeals', 'meals', 1], ['glpProt', 'protein', 1], ['glpFussy', 'fussy'], ['glpGentle', 'gentle'], ['glpVeg', 'veg']]) $(id).addEventListener(num ? 'input' : 'change', e => { glp[k] = num ? +e.target.value : e.target.checked; $('glpProtVal').textContent = `${glp.protein} g`; saveGlp(); });
+function buildGlp() {
+  // "Use in meal plan": treat preferred items as if on offer so recipes using them rank first.
+  glp.plan = buildGlp1Plan({ ...glp, prices: pricesData, prefer: glp.prefer }); saveGlp(); renderGlpPlan();
+}
+function renderGlpPlan() {
+  const p = glp.plan; if (!p) return $('glpPlan').innerHTML = '';
+  const SL = { breakfast: '🌅 Breakfast', lunch: '🥗 Lunch', dinner: '🍲 Dinner', snack: '🍎 Snack' };
+  const hit = p.plan.every(x => x.protein >= x.target - 3);
+  $('glpPlan').innerHTML = `<div class="planhead"><b>${p.days}-day plan · ${STORE_NAMES[p.store] || 'Mix of stores'}</b><span>${hit ? '✅' : '⚠️'} ~${p.protein} g protein a meal</span></div>
+    ${p.plan.map(x => `<div class="glpmeal"><div class="row between"><b>${SL[x.slot]}</b><small>${x.portions} portion${x.portions > 1 ? 's' : ''}</small></div><h4>${esc(x.recipe.name)}</h4>
+      <div class="tags"><span class="pb">${x.protein} g protein</span><span>${x.kcal} kcal</span><span>${fmtGBP(x.costPerPortion)} a portion</span>${x.onOffer ? '<span class="v">Uses offers</span>' : ''}${x.recipe.gentle ? '<span>Gentle</span>' : ''}</div>
+      <p class="small"><b>Per portion:</b> ${x.lines.map(l => `${esc(l.name.replace(/\s*\(.*\)$/, ''))} ${l.g} g`).join(', ')}</p>
+      <details><summary class="small">Method</summary><ol class="small">${x.recipe.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol><p class="small muted">Fridge up to ${x.recipe.fridgeDays} days; freeze extra portions. Reheat once until steaming hot.</p></details></div>`).join('')}
+    <h3>🛒 Shopping list · total ${fmtGBP(p.total)}</h3>
+    ${Object.entries(p.shop).map(([st, items]) => `<div class="aisle">${STORE_NAMES[st]}</div><ul class="shoplines">${items.map(i => `<li><span>${i.packs} × ${esc(i.name)}${i.offer ? ' <span class="pbadge hp">Offer</span>' : ''}<br><small class="muted">You need about ${i.need}${i.unit}</small></span><span><b>${fmtGBP(i.cost)}</b>${i.was ? `<br><del class="small">${fmtGBP(i.was * i.packs)}</del>` : ''}</span></li>`).join('')}</ul>`).join('')}
+    <p class="small muted">${storeStatusText()}</p>
+    <button type="button" id="glpToShop">＋ Add all to my shopping list</button>
+    <details class="tips" open><summary><b>💡 GLP-1 eating tips</b></summary><ul class="small">${p.tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>`;
+  $('glpToShop').onclick = () => { for (const [st, items] of Object.entries(p.shop)) for (const i of items) { const item = `${i.name} (${STORE_NAMES[st]})`; if (!shop.extra.some(y => shopKey(y.item) === shopKey(item))) shop.extra.push({ item, aisle: STAPLE[i.key]?.core ? 'Proteins' : 'Tins & cupboard', pack: `${i.packs} × ${fmtGBP(i.price)}` }); } saveShop(); renderShop(); toast('🛒 Added to your shopping list'); };
+}
+$('glpBuild').onclick = () => { buildGlp(); toast('✨ GLP-1 plan built'); };
+renderGlpForm(); renderGlpPlan(); loadOffers();
+window.__kova.glp = glp; window.__kova.buildGlp = buildGlp;

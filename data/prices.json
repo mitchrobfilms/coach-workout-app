@@ -1,0 +1,412 @@
+{
+ "updated": "2026-10-20T07:05:08.372Z",
+ "curatedChecked": "2026-10-20",
+ "note": "Typical shelf prices (estimates) unless marked as a live offer. Prices vary by store and region.",
+ "items": [
+  {
+   "key": "chicken",
+   "name": "Chicken breast fillets",
+   "pack": 1000,
+   "protein": 24,
+   "prices": {
+    "aldi": 5.49,
+    "lidl": 5.49,
+    "asda": 5.97
+   },
+   "offers": {
+    "lidl": {
+     "name": "XXL British Chicken Breast Fillet",
+     "price": 14.79,
+     "was": null,
+     "size": "2.5kg",
+     "grams": 2500,
+     "url": "https://www.lidl.co.uk/p/xxl-british-chicken-breast-fillet/p10056491",
+     "promo": "PICK OF THE WEEK"
+    }
+   }
+  },
+  {
+   "key": "turkeymince",
+   "name": "Turkey breast mince (2% fat)",
+   "pack": 500,
+   "protein": 23,
+   "prices": {
+    "aldi": 3.19,
+    "lidl": 3.29,
+    "asda": 3.5
+   },
+   "offers": {}
+  },
+  {
+   "key": "beefmince",
+   "name": "5% fat beef mince",
+   "pack": 500,
+   "protein": 21,
+   "prices": {
+    "aldi": 3.49,
+    "lidl": 3.49,
+    "asda": 3.68
+   },
+   "offers": {}
+  },
+  {
+   "key": "porkmince",
+   "name": "5% fat pork mince",
+   "pack": 1000,
+   "protein": 21,
+   "prices": {
+    "aldi": 3.89,
+    "lidl": 3.99,
+    "asda": 4.25
+   },
+   "offers": {
+    "aldi": {
+     "name": "XXL 5% Fat Pork Mince",
+     "price": 3.29,
+     "was": null,
+     "size": "1 kg",
+     "grams": 1000,
+     "url": "https://www.aldi.co.uk/product/ashfields-xxl-5-fat-pork-mince-000000000000723124",
+     "promo": "While Stock Lasts"
+    }
+   }
+  },
+  {
+   "key": "salmon",
+   "name": "Salmon fillets",
+   "pack": 480,
+   "protein": 20,
+   "prices": {
+    "aldi": 4.99,
+    "lidl": 5.29,
+    "asda": 5.5
+   },
+   "offers": {
+    "lidl": {
+     "name": "LIGHTHOUSE BAY 6 Salmon Fillets",
+     "price": 8.99,
+     "was": null,
+     "size": "6 x 110g",
+     "grams": 660,
+     "url": "https://www.lidl.co.uk/p/lighthouse-bay-6-salmon-fillets/p10056241",
+     "promo": "PICK OF THE WEEK"
+    }
+   }
+  },
+  {
+   "key": "cod",
+   "name": "White fish fillets (cod/basa)",
+   "pack": 400,
+   "protein": 18,
+   "prices": {
+    "aldi": 3.29,
+    "lidl": 3.29,
+    "asda": 3.75
+   },
+   "offers": {}
+  },
+  {
+   "key": "prawns",
+   "name": "King prawns (frozen)",
+   "pack": 300,
+   "protein": 18,
+   "prices": {
+    "aldi": 3.29,
+    "lidl": 3.49,
+    "asda": 3.75
+   },
+   "offers": {
+    "lidl": {
+     "name": "DELUXE XXL Raw Jumbo King Prawns",
+     "price": 4.99,
+     "was": null,
+     "size": "320g",
+     "grams": 320,
+     "url": "https://www.lidl.co.uk/p/deluxe-xxl-raw-jumbo-king-prawns/p10056245",
+     "promo": "PICK OF THE WEEK"
+    }
+   }
+  },
+  {
+   "key": "tuna",
+   "name": "Tuna chunks in spring water (tins)",
+   "pack": 448,
+   "protein": 25,
+   "prices": {
+    "aldi": 3.29,
+    "lidl": 3.29,
+    "asda": 3.6
+   },
+   "offers": {}
+  },
+  {
+   "key": "eggs",
+   "name": "Eggs (15)",
+   "pack": 825,
+   "protein": 13,
+   "prices": {
+    "aldi": 2.99,
+    "lidl": 2.99,
+    "asda": 3.2
+   },
+   "offers": {}
+  },
+  {
+   "key": "skyr",
+   "name": "Skyr / high-protein yoghurt",
+   "pack": 450,
+   "protein": 11,
+   "prices": {
+    "aldi": 1.39,
+    "lidl": 1.39,
+    "asda": 1.65
+   },
+   "offers": {}
+  },
+  {
+   "key": "greek",
+   "name": "Greek-style yoghurt 0% fat",
+   "pack": 1000,
+   "protein": 10,
+   "prices": {
+    "aldi": 2.49,
+    "lidl": 2.49,
+    "asda": 2.75
+   },
+   "offers": {}
+  },
+  {
+   "key": "cottage",
+   "name": "Cottage cheese (reduced fat)",
+   "pack": 300,
+   "protein": 11,
+   "prices": {
+    "aldi": 0.99,
+    "lidl": 0.99,
+    "asda": 1.1
+   },
+   "offers": {}
+  },
+  {
+   "key": "tofu",
+   "name": "Firm tofu",
+   "pack": 280,
+   "protein": 13,
+   "prices": {
+    "aldi": 1.49,
+    "lidl": 1.59,
+    "asda": 1.75
+   },
+   "offers": {}
+  },
+  {
+   "key": "lentils",
+   "name": "Red lentils (dry)",
+   "pack": 500,
+   "protein": 24,
+   "prices": {
+    "aldi": 1.15,
+    "lidl": 1.15,
+    "asda": 1.3
+   },
+   "offers": {}
+  },
+  {
+   "key": "chickpeas",
+   "name": "Chickpeas (tin)",
+   "pack": 240,
+   "protein": 7,
+   "prices": {
+    "aldi": 0.45,
+    "lidl": 0.45,
+    "asda": 0.55
+   },
+   "offers": {}
+  },
+  {
+   "key": "oats",
+   "name": "Porridge oats",
+   "pack": 1000,
+   "protein": 11,
+   "prices": {
+    "aldi": 0.89,
+    "lidl": 0.89,
+    "asda": 0.95
+   },
+   "offers": {}
+  },
+  {
+   "key": "rice",
+   "name": "Microwave brown rice pouches",
+   "pack": 1000,
+   "protein": 3,
+   "prices": {
+    "aldi": 2.4,
+    "lidl": 2.4,
+    "asda": 3
+   },
+   "offers": {}
+  },
+  {
+   "key": "potatoes",
+   "name": "Potatoes",
+   "pack": 2000,
+   "protein": 2,
+   "prices": {
+    "aldi": 1.15,
+    "lidl": 1.15,
+    "asda": 1.3
+   },
+   "offers": {
+    "lidl": {
+     "name": "Sweet Potatoes",
+     "price": 0.89,
+     "was": null,
+     "size": "1 kg",
+     "grams": 1000,
+     "url": "https://www.lidl.co.uk/p/sweet-potatoes/p11029936",
+     "promo": "Lidl Plus price · Save 25%"
+    }
+   }
+  },
+  {
+   "key": "wraps",
+   "name": "Wholemeal wraps (8)",
+   "pack": 496,
+   "protein": 9,
+   "prices": {
+    "aldi": 1.09,
+    "lidl": 1.09,
+    "asda": 1.25
+   },
+   "offers": {}
+  },
+  {
+   "key": "frozenveg",
+   "name": "Frozen mixed veg / broccoli",
+   "pack": 1000,
+   "protein": 3,
+   "prices": {
+    "aldi": 1.05,
+    "lidl": 1.05,
+    "asda": 1.2
+   },
+   "offers": {}
+  },
+  {
+   "key": "spinach",
+   "name": "Spinach",
+   "pack": 200,
+   "protein": 3,
+   "prices": {
+    "aldi": 0.99,
+    "lidl": 0.99,
+    "asda": 1.1
+   },
+   "offers": {}
+  },
+  {
+   "key": "peppers",
+   "name": "Peppers (3 pack)",
+   "pack": 450,
+   "protein": 1,
+   "prices": {
+    "aldi": 1.19,
+    "lidl": 1.19,
+    "asda": 1.35
+   },
+   "offers": {}
+  },
+  {
+   "key": "carrots",
+   "name": "Carrots",
+   "pack": 1000,
+   "protein": 1,
+   "prices": {
+    "aldi": 0.49,
+    "lidl": 0.49,
+    "asda": 0.6
+   },
+   "offers": {
+    "aldi": {
+     "name": "Carrots",
+     "price": 0.49,
+     "was": 0.69,
+     "size": "1 kg",
+     "grams": 1000,
+     "url": "https://www.aldi.co.uk/product/nature-s-pick-carrots-000000000000339791",
+     "promo": "Save 28%"
+    },
+    "lidl": {
+     "name": "Carrots",
+     "price": 0.49,
+     "was": 0.69,
+     "size": "1kg",
+     "grams": 1000,
+     "url": "https://www.lidl.co.uk/p/carrots/p10056238",
+     "promo": "Lidl Plus price · SAVE 28%"
+    }
+   }
+  },
+  {
+   "key": "tomatoes",
+   "name": "Chopped tomatoes (tin)",
+   "pack": 400,
+   "protein": 1,
+   "prices": {
+    "aldi": 0.35,
+    "lidl": 0.35,
+    "asda": 0.4
+   },
+   "offers": {}
+  },
+  {
+   "key": "berries",
+   "name": "Frozen mixed berries",
+   "pack": 500,
+   "protein": 1,
+   "prices": {
+    "aldi": 1.99,
+    "lidl": 1.99,
+    "asda": 2.25
+   },
+   "offers": {}
+  },
+  {
+   "key": "banana",
+   "name": "Bananas (5)",
+   "pack": 600,
+   "protein": 1,
+   "prices": {
+    "aldi": 0.75,
+    "lidl": 0.75,
+    "asda": 0.82
+   },
+   "offers": {}
+  },
+  {
+   "key": "milk",
+   "name": "Semi-skimmed milk (2 pints)",
+   "pack": 1136,
+   "protein": 3.5,
+   "prices": {
+    "aldi": 1.25,
+    "lidl": 1.25,
+    "asda": 1.3
+   },
+   "offers": {}
+  },
+  {
+   "key": "cheese",
+   "name": "Reduced-fat cheddar",
+   "pack": 350,
+   "protein": 28,
+   "prices": {
+    "aldi": 2.49,
+    "lidl": 2.49,
+    "asda": 2.8
+   },
+   "offers": {}
+  }
+ ]
+}

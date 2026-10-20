@@ -4,7 +4,7 @@ let fail = 0;
 for (const [name, type, dev] of [['chrome-android', chromium, devices['Pixel 5']], ['webkit-iphone', webkit, devices['iPhone 13']]]) {
   const b = await type.launch(type === chromium ? { executablePath: '/usr/bin/google-chrome', headless: true } : { headless: true });
   const ctx = await b.newContext({ ...dev, locale: 'en-GB' }); const p = await ctx.newPage();
-  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  const errs = []; p.on('pageerror', e => { if (!/due to access control checks/.test(e.message)) errs.push(e.message); }); // WebKit reports HEAD probes cancelled by the test's own reload as page errors
   await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload();
   if (await p.$('#authScreen:not([hidden])')) { await p.fill('#regName', 'Test'); await p.fill('#regEmail', 't@example.com'); await p.fill('#regSecret', '1234'); await p.click('#regBtn'); await p.waitForSelector('#onboard:not([hidden])', { timeout: 15000 }); await p.click('#obSkip'); }
   await p.click('.tabs button[data-tab=progress]');

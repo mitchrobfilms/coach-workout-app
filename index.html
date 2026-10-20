@@ -63,6 +63,8 @@
     <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
+    <div class="card homeprog" id="homeProgress"></div>
+    <div class="card note" id="backupNudge" hidden></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
     <div class="card note"><b>Set-up:</b> Prop your phone about 2m / 6ft away so your whole body is in view. You'll use a wall, a sturdy chair and a towel or carpet. That's it.</div>
@@ -155,6 +157,26 @@
 
 <!-- MEAL PREP TAB -->
 <section id="tab-prep" class="tab">
+  <div class="shophead"><h2>💉 GLP-1 meal prep builder</h2><p class="small muted">For people on GLP-1 medicines (e.g. retatrutide, semaglutide, tirzepatide) or anyone who wants high-protein, small-portion meals. General healthy-eating guidance only, not medical or dosing advice.</p></div>
+  <div class="card" id="glpCard">
+    <div class="field"><b>Store</b><div class="chips" id="glpStore"></div></div>
+    <div class="grid2">
+      <label>Days<select id="glpDays"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>7</option></select></label>
+      <label>Meals a day<select id="glpMeals"><option value="2">2</option><option value="3" selected>3</option><option value="4">3 + snack</option></select></label>
+    </div>
+    <label>Protein per meal: <b id="glpProtVal">30 g</b><input type="range" id="glpProt" min="20" max="45" step="5" value="30"></label>
+    <label class="check"><input type="checkbox" id="glpFussy"> Fussy eater (simple, familiar food)</label>
+    <label class="check"><input type="checkbox" id="glpGentle"> Feeling queasy: gentle, low-fat options</label>
+    <label class="check"><input type="checkbox" id="glpVeg"> Vegetarian</label>
+    <button type="button" class="primary big" id="glpBuild">✨ Build my GLP-1 plan</button>
+    <div id="glpPlan"></div>
+  </div>
+  <div class="card" id="offersCard"><h3>🏷️ This week's offers</h3>
+    <div class="chips" id="offerStore"></div>
+    <label class="check"><input type="checkbox" id="offerHp" checked> High protein only (10 g+ per 100 g)</label>
+    <p class="small muted" id="offerStatus"></p>
+    <div id="offerList"></div></div>
+  <h2 class="sep">More batch-cook ideas</h2>
   <div class="shophead"><h2>🍱 Meal prep</h2><p class="small muted">Batch-cook once, eat well for 3–4 days. Pick a store, then tap Build my week and your shopping list fills itself.</p></div>
   <div class="card"><div class="row between"><b>Store</b><div class="chips" id="prepStorePick"></div></div><ul class="small" id="prepStoreNotes"></ul>
     <div class="row between"><b>Prep for</b><div class="seg" id="prepDays"><button type="button" data-days="3">3 days</button><button type="button" data-days="4">4 days</button></div></div>
@@ -177,9 +199,9 @@
 
 <!-- PROGRESS TAB -->
 <section id="tab-progress" class="tab">
-  <h2>Workouts</h2><ul class="list" id="sessionList"></ul>
-  <h2>Food check-ins</h2><ul class="list" id="foodList"></ul>
-  <h2>Weigh-ins</h2>
+  <h2>📉 Weight-loss progress</h2>
+  <div id="progSummary"></div>
+  <div class="card"><h3>Log a weigh-in</h3>
   <form id="weightForm" class="weightform" novalidate autocomplete="off">
     <label for="weightInput" class="small muted">Today's weight (optional). E.g. 85, 85.5, 190 lb or 13st 4lb</label>
     <input id="weightInput" name="weight" type="text" inputmode="decimal" enterkeyhint="done" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="e.g. 85.5">
@@ -187,7 +209,24 @@
     <p id="weightError" class="error" role="alert" hidden></p>
     <button type="submit" id="weightBtn" class="primary big">Save weigh-in</button>
   </form>
-  <ul class="list" id="weightList"></ul>
+  </div>
+  <div class="card" id="progChartCard"><h3>Your weight over time</h3><div id="progChart"></div></div>
+  <div class="card"><h3>Goal and height</h3>
+    <div class="grid2"><label>Goal weight<input id="goalInput" type="text" inputmode="decimal" placeholder="e.g. 80 or 12st 7lb"></label><label>Height (cm)<input id="heightInput" type="text" inputmode="decimal" placeholder="e.g. 178"></label></div>
+    <p id="goalError" class="error" role="alert" hidden></p>
+    <button type="button" id="saveGoal" class="primary">Save goal and height</button>
+    <p class="small muted">BMI is a rough guide only and doesn't account for muscle, age or ethnicity.</p></div>
+  <div class="card"><h3>🏅 Milestones</h3><ul class="milestones" id="milestoneList"></ul></div>
+  <div class="card"><h3>All weigh-ins</h3><p class="small muted">Tap Edit to fix a typo, or Delete to remove an entry.</p><ul class="list wlist" id="weightList"></ul></div>
+  <div class="card backupcard" id="backupCard"><h3>💾 Keep your data safe</h3>
+    <p class="small" id="saveStatus"></p>
+    <p class="small muted">Your data is saved on this phone (twice: in the browser's storage and a backup copy). It is <b>not</b> uploaded anywhere. If you clear Chrome's site data or uninstall Chrome, it can be lost, so tap Back up every couple of weeks and keep the file in Google Drive, WhatsApp or email.</p>
+    <button type="button" id="backupBtn" class="primary big">⬇️ Back up my data</button>
+    <button type="button" id="restoreBtn" class="big">⬆️ Restore from backup</button>
+    <input type="file" id="restoreFile" accept="application/json,.json" hidden>
+    <p class="small muted" id="lastBackup"></p></div>
+  <h2>Workouts</h2><ul class="list" id="sessionList"></ul>
+  <h2>Food check-ins</h2><ul class="list" id="foodList"></ul>
 </section>
 
 <!-- SETTINGS TAB -->

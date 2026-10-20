@@ -249,3 +249,51 @@ details summary{cursor:pointer}
 /* talking-to-camera clip shown over the move demo while Reta gives the class welcome / cool-down speech */
 .view.trainer .talkvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease;pointer-events:none;z-index:2}
 .view.trainer .talkvid.on{opacity:1}
+/* ===== Bigger, easier phone UI (v16) ===== */
+html,body{font-size:18px;line-height:1.5}
+main{padding-left:14px;padding-right:14px}
+h2{font-size:1.45rem;margin:22px 0 10px}h3{font-size:1.2rem;margin:6px 0 10px}h4{font-size:1.1rem}
+.small{font-size:.92rem}
+button{min-height:48px;padding:12px 18px;font-size:1rem;border-radius:16px}
+button.big{min-height:60px;font-size:1.2rem;padding:18px}
+input,select,textarea{min-height:48px;font-size:1.05rem}
+input[type=checkbox]{min-height:0;width:24px;height:24px;flex:none}
+input[type=range]{width:100%;min-height:40px;accent-color:var(--teal)}
+label{display:block;margin:10px 0}
+.check{font-size:1rem;align-items:center;min-height:48px}
+.card{padding:18px;border-radius:20px;margin:14px 0}
+.chip{min-height:48px;padding:10px 16px;font-size:1rem}
+.tabs button{min-height:68px;padding:6px 0;font-size:1.6rem;gap:2px;min-width:0}
+.tabs button span{font-size:.72rem;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
+.list li{padding:14px 4px;font-size:1.02rem}
+.seg button{min-height:48px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid2 label{margin:4px 0}.grid2 input,.grid2 select{width:100%}
+.field{margin:6px 0 12px}.field .chips{margin-top:8px}
+/* progress */
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}.statgrid.three{grid-template-columns:repeat(3,1fr)}
+.stat2{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;min-width:0}
+.stat2 small{color:var(--mut);font-size:.85rem}.stat2 b{font-size:1.45rem;line-height:1.2;overflow-wrap:anywhere}.stat2.hl b{color:var(--teal)}.stat2.wide{grid-column:1/-1}
+.stat2 .good{color:var(--teal)}.stat2 .up{color:var(--warn)}
+.bar{height:14px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal2),var(--teal));border-radius:999px}
+.wchart{width:100%;height:auto;display:block}.wchart .line{fill:none;stroke:var(--teal);stroke-width:3;stroke-linejoin:round}.wchart .dot{fill:var(--teal)}
+.wchart .grid line{stroke:rgba(255,255,255,.12)}.wchart text{fill:var(--mut);font-size:11px}.wchart .goal{stroke:var(--warn);stroke-dasharray:6 5;stroke-width:2}.wchart .goaltxt{fill:var(--warn)}
+.milestones{list-style:none;padding:0;margin:0}.milestones li{padding:10px 0;border-bottom:1px solid var(--line);font-size:1.02rem}.milestones li.done{color:var(--teal);font-weight:700}
+.wlist li{align-items:center;gap:8px}.wbtns{display:flex;gap:6px}.wbtns button{min-height:48px;padding:8px 12px}
+.wedit{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}.wedit input{width:100%}
+.homeprog h3{margin:0}.homeprog .wchart{margin-top:6px}
+.backupcard .big{width:100%;margin-top:10px}
+#backupNudge .row{gap:8px;margin-top:10px}#backupNudge button{flex:1}
+/* GLP-1 builder + offers */
+.planhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:16px 0 6px;font-size:1.05rem}
+.glpmeal{border-top:1px solid var(--line);padding:12px 0}.glpmeal h4{margin:4px 0 6px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}.tags span{background:rgba(255,255,255,.07);border-radius:999px;padding:4px 10px;font-size:.88rem}.tags .pb{background:rgba(22,212,192,.18);color:var(--teal);font-weight:700}.tags .v{color:#a6f0a6}
+.shoplines{list-style:none;padding:0;margin:0 0 10px}.shoplines li{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}.shoplines li span:last-child{text-align:right;white-space:nowrap}
+.offer{border:1px solid var(--line);border-radius:16px;padding:12px;margin:10px 0;background:rgba(255,255,255,.02)}
+.otop{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.ostore{font-size:.78rem;font-weight:800;border-radius:6px;padding:2px 8px;color:#fff}.ostore.aldi{background:#00205b}.ostore.lidl{background:#0050aa}.ostore.asda{background:#3a8f2b}
+.oprice{font-size:1.3rem;margin:4px 0}.oprice del{color:var(--mut);font-size:1rem}.oprice small{color:var(--mut);font-size:.88rem}
+.pbadge{display:inline-block;border-radius:999px;padding:2px 8px;background:rgba(255,255,255,.08);font-size:.85rem}.pbadge.hp{background:rgba(22,212,192,.2);color:var(--teal);font-weight:700}
+.offer .row{gap:8px;margin-top:8px}.offer .row button{flex:1}.btnlink{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 16px;border:1px solid var(--line);border-radius:16px;color:var(--txt);text-decoration:none}
+.tips ul{padding-left:20px}
+h2.sep{margin-top:30px}
+@media (max-width:380px){.tabs button span{font-size:.66rem}.statgrid.three .stat2 b{font-size:1.15rem}}
