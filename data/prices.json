@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-20T12:32:41.953Z",
+ "updated": "2026-10-20T12:48:24.748Z",
  "curatedChecked": "2026-10-20",
  "note": "Typical shelf prices (estimates) unless marked as a live offer. Prices vary by store and region.",
  "items": [
@@ -9,7 +9,7 @@
    "pack": 1000,
    "protein": 24,
    "prices": {
-    "aldi": 5.49,
+    "aldi": 4.25,
     "lidl": 5.49,
     "asda": 5.97
    },
@@ -23,6 +23,15 @@
      "url": "https://www.lidl.co.uk/p/xxl-british-chicken-breast-fillet/p10056491",
      "promo": "PICK OF THE WEEK"
     }
+   },
+   "full": {
+    "aldi": {
+     "name": "Chicken Breast Fillets",
+     "price": 4.25,
+     "size": "1 kg",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-chicken-breast-fillets-000000000000365448",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
    }
   },
   {
@@ -31,11 +40,20 @@
    "pack": 500,
    "protein": 23,
    "prices": {
-    "aldi": 3.19,
+    "aldi": 2.99,
     "lidl": 3.29,
     "asda": 3.5
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "British Turkey Mince 7% Fat",
+     "price": 2.99,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/ashfields-british-turkey-mince-7-fat-000000000000386144",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "beefmince",
@@ -43,11 +61,20 @@
    "pack": 500,
    "protein": 21,
    "prices": {
-    "aldi": 3.49,
+    "aldi": 3.19,
     "lidl": 3.49,
     "asda": 3.68
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Beef Mince 25% Fat",
+     "price": 3.19,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-beef-mince-25-fat-000000000000576030",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "porkmince",
@@ -55,7 +82,7 @@
    "pack": 1000,
    "protein": 21,
    "prices": {
-    "aldi": 3.89,
+    "aldi": 3.29,
     "lidl": 3.99,
     "asda": 4.25
    },
@@ -69,6 +96,15 @@
      "url": "https://www.aldi.co.uk/product/ashfields-xxl-5-fat-pork-mince-000000000000723124",
      "promo": "While Stock Lasts"
     }
+   },
+   "full": {
+    "aldi": {
+     "name": "XXL 5% Fat Pork Mince",
+     "price": 3.29,
+     "size": "1 kg",
+     "url": "https://www.aldi.co.uk/product/ashfields-xxl-5-fat-pork-mince-000000000000723124",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
    }
   },
   {
@@ -77,7 +113,7 @@
    "pack": 480,
    "protein": 20,
    "prices": {
-    "aldi": 4.99,
+    "aldi": 6.85,
     "lidl": 5.29,
     "asda": 5.5
    },
@@ -91,6 +127,15 @@
      "url": "https://www.lidl.co.uk/p/lighthouse-bay-6-salmon-fillets/p10056241",
      "promo": "PICK OF THE WEEK"
     }
+   },
+   "full": {
+    "aldi": {
+     "name": "Boneless Salmon Fillets 4 Pack",
+     "price": 6.85,
+     "size": "480 g",
+     "url": "https://www.aldi.co.uk/product/the-fishmonger-boneless-salmon-fillets-4-pack-000000000000525810",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
    }
   },
   {
@@ -99,11 +144,20 @@
    "pack": 400,
    "protein": 18,
    "prices": {
-    "aldi": 3.29,
+    "aldi": 1.88,
     "lidl": 3.29,
     "asda": 3.75
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Skinless & Boneless Basa Fillets",
+     "price": 1.79,
+     "size": "380 g",
+     "url": "https://www.aldi.co.uk/product/the-fishmonger-skinless-boneless-basa-fillets-000000000000273392",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "prawns",
@@ -111,7 +165,7 @@
    "pack": 300,
    "protein": 18,
    "prices": {
-    "aldi": 3.29,
+    "aldi": 2.14,
     "lidl": 3.49,
     "asda": 3.75
    },
@@ -125,6 +179,15 @@
      "url": "https://www.lidl.co.uk/p/deluxe-xxl-raw-jumbo-king-prawns/p10056245",
      "promo": "PICK OF THE WEEK"
     }
+   },
+   "full": {
+    "aldi": {
+     "name": "Prawn & White Wine Salmon Wellington",
+     "price": 4.99,
+     "size": "700 g",
+     "url": "https://www.aldi.co.uk/product/specially-selected-prawn-white-wine-salmon-wellington-000000000365932002",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
    }
   },
   {
@@ -133,11 +196,20 @@
    "pack": 448,
    "protein": 25,
    "prices": {
-    "aldi": 3.29,
+    "aldi": 1.82,
     "lidl": 3.29,
     "asda": 3.6
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Tuna Chunks In Brine",
+     "price": 0.59,
+     "size": "145 g",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-tuna-chunks-in-brine-000000000000227713",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "eggs",
@@ -145,11 +217,20 @@
    "pack": 825,
    "protein": 13,
    "prices": {
-    "aldi": 2.99,
+    "aldi": 1.82,
     "lidl": 2.99,
     "asda": 3.2
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Ready-to-Heat Egg Fried Rice",
+     "price": 0.55,
+     "size": "250 g",
+     "url": "https://www.aldi.co.uk/product/worldwide-foods-ready-to-heat-egg-fried-rice-000000000000653709",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "skyr",
@@ -169,11 +250,20 @@
    "pack": 1000,
    "protein": 10,
    "prices": {
-    "aldi": 2.49,
+    "aldi": 1.1,
     "lidl": 2.49,
     "asda": 2.75
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Fat Free Natural Yogurt",
+     "price": 0.55,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-fat-free-natural-yogurt-000000000000416735",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "cottage",
@@ -193,11 +283,20 @@
    "pack": 280,
    "protein": 13,
    "prices": {
-    "aldi": 1.49,
+    "aldi": 1.33,
     "lidl": 1.59,
     "asda": 1.75
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Organic Super Firm Tofu",
+     "price": 0.95,
+     "size": "200 g",
+     "url": "https://www.aldi.co.uk/product/plant-menu-organic-super-firm-tofu-000000000513086001",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "lentils",
@@ -205,11 +304,20 @@
    "pack": 500,
    "protein": 24,
    "prices": {
-    "aldi": 1.15,
+    "aldi": 0.89,
     "lidl": 1.15,
     "asda": 1.3
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Red Lentils",
+     "price": 0.89,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/worldwide-foods-red-lentils-000000000000336258",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "chickpeas",
@@ -217,11 +325,20 @@
    "pack": 240,
    "protein": 7,
    "prices": {
-    "aldi": 0.45,
+    "aldi": 2.1,
     "lidl": 0.45,
     "asda": 0.55
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Harissa, Red Pepper and Chickpea Burgers",
+     "price": 1.99,
+     "size": "227 g",
+     "url": "https://www.aldi.co.uk/product/specially-selected-harissa-red-pepper-and-chickpea-burgers-000000000639389002",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "oats",
@@ -229,11 +346,20 @@
    "pack": 1000,
    "protein": 11,
    "prices": {
-    "aldi": 0.89,
+    "aldi": 0.85,
     "lidl": 0.89,
     "asda": 0.95
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Porridge Oats",
+     "price": 0.85,
+     "size": "1 kg",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-porridge-oats-000000000000337387",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "rice",
@@ -241,11 +367,20 @@
    "pack": 1000,
    "protein": 3,
    "prices": {
-    "aldi": 2.4,
+    "aldi": 1.25,
     "lidl": 2.4,
     "asda": 3
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Easy Cook Long Grain Rice",
+     "price": 1.25,
+     "size": "1 kg",
+     "url": "https://www.aldi.co.uk/product/worldwide-foods-easy-cook-long-grain-rice-000000000000459326",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "potatoes",
@@ -253,7 +388,7 @@
    "pack": 2000,
    "protein": 2,
    "prices": {
-    "aldi": 1.15,
+    "aldi": 1.98,
     "lidl": 1.15,
     "asda": 1.3
    },
@@ -266,6 +401,15 @@
      "grams": 1000,
      "url": "https://www.lidl.co.uk/p/sweet-potatoes/p11029936",
      "promo": "Lidl Plus price · Save 25%"
+    }
+   },
+   "full": {
+    "aldi": {
+     "name": "British Baby Potatoes",
+     "price": 0.99,
+     "size": "1 kg",
+     "url": "https://www.aldi.co.uk/product/nature-s-pick-british-baby-potatoes-000000000000339748",
+     "checked": "2026-10-20T12:48:56.521Z"
     }
    }
   },
@@ -287,11 +431,20 @@
    "pack": 1000,
    "protein": 3,
    "prices": {
-    "aldi": 1.05,
+    "aldi": 2.64,
     "lidl": 1.05,
     "asda": 1.2
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Carrot, Broccoli & Sweetcorn Steam Bags 4 Pack",
+     "price": 1.69,
+     "size": "640 g",
+     "url": "https://www.aldi.co.uk/product/four-seasons-carrot-broccoli-sweetcorn-steam-bags-4-pack-000000000365332001",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "spinach",
@@ -299,11 +452,20 @@
    "pack": 200,
    "protein": 3,
    "prices": {
-    "aldi": 0.99,
+    "aldi": 0.91,
     "lidl": 0.99,
     "asda": 1.1
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Baby Spinach",
+     "price": 1.09,
+     "size": "240 g",
+     "url": "https://www.aldi.co.uk/product/nature-s-pick-baby-spinach-000000000000339750",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "peppers",
@@ -311,11 +473,20 @@
    "pack": 450,
    "protein": 1,
    "prices": {
-    "aldi": 1.19,
+    "aldi": 0.8,
     "lidl": 1.19,
     "asda": 1.35
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Frozen Chopped Mix Pepper",
+     "price": 0.89,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/ready-set-cook-frozen-chopped-mix-pepper-000000000367190004",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "carrots",
@@ -323,7 +494,7 @@
    "pack": 1000,
    "protein": 1,
    "prices": {
-    "aldi": 0.49,
+    "aldi": 1.57,
     "lidl": 0.49,
     "asda": 0.6
    },
@@ -346,6 +517,15 @@
      "url": "https://www.lidl.co.uk/p/carrots/p10056238",
      "promo": "Lidl Plus price · SAVE 28%"
     }
+   },
+   "full": {
+    "aldi": {
+     "name": "Sliced Carrots in Water",
+     "price": 0.47,
+     "size": "300 g",
+     "url": "https://www.aldi.co.uk/product/four-seasons-sliced-carrots-in-water-000000000000335759",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
    }
   },
   {
@@ -354,11 +534,20 @@
    "pack": 400,
    "protein": 1,
    "prices": {
-    "aldi": 0.35,
+    "aldi": 0.43,
     "lidl": 0.35,
     "asda": 0.4
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Chopped Tomatoes in Tomato Juice",
+     "price": 0.43,
+     "size": "400 g",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-chopped-tomatoes-in-tomato-juice-000000000000278702",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "berries",
@@ -366,11 +555,20 @@
    "pack": 500,
    "protein": 1,
    "prices": {
-    "aldi": 1.99,
+    "aldi": 0.48,
     "lidl": 1.99,
     "asda": 2.25
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Strawberry Flavoured Milk",
+     "price": 0.95,
+     "size": "1 l",
+     "url": "https://www.aldi.co.uk/product/cowbelle-strawberry-flavoured-milk-000000000755310001",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "banana",
@@ -378,11 +576,20 @@
    "pack": 600,
    "protein": 1,
    "prices": {
-    "aldi": 0.75,
+    "aldi": 0.57,
     "lidl": 0.75,
     "asda": 0.82
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Banana Flavoured Milk",
+     "price": 0.95,
+     "size": "1 l",
+     "url": "https://www.aldi.co.uk/product/cowbelle-banana-flavoured-milk-000000000755310002",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "milk",
@@ -390,11 +597,20 @@
    "pack": 1136,
    "protein": 3.5,
    "prices": {
-    "aldi": 1.25,
+    "aldi": 0.74,
     "lidl": 1.25,
     "asda": 1.3
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Semi Skimmed UHT Milk",
+     "price": 0.65,
+     "size": "1 l",
+     "url": "https://www.aldi.co.uk/product/everyday-essentials-semi-skimmed-uht-milk-000000000000534181",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   },
   {
    "key": "cheese",
@@ -402,11 +618,20 @@
    "pack": 350,
    "protein": 28,
    "prices": {
-    "aldi": 2.49,
+    "aldi": 1.51,
     "lidl": 2.49,
     "asda": 2.8
    },
-   "offers": {}
+   "offers": {},
+   "full": {
+    "aldi": {
+     "name": "Lighter Spreadable Butter",
+     "price": 2.15,
+     "size": "500 g",
+     "url": "https://www.aldi.co.uk/product/nordpak-lighter-spreadable-butter-000000000000423842",
+     "checked": "2026-10-20T12:48:56.521Z"
+    }
+   }
   }
  ]
 }
