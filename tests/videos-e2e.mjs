@@ -1,0 +1,31 @@
+// Video class library: list + categories, archive.org player with CC BY-ND credit + Cast button, official YouTube embed,
+// non-embeddable videos open on YouTube, Home "Ideas for you". Also checks every library entry is reachable.
+import { chromium, devices } from 'playwright-core';
+import fs from 'fs';
+const URL = process.argv[2] || 'http://localhost:8765/', OUT = '/workspace/shots/glp1life';
+let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
+const lib = JSON.parse(fs.readFileSync(new globalThis.URL('../library-videos.json', import.meta.url)));
+for (const v of lib.videos.filter(v => v.source === 'archive')) { const r = await fetch(v.src, { method: 'HEAD', redirect: 'follow' }); ok(r.ok && /video\/mp4/.test(r.headers.get('content-type') || ''), `archive mp4 reachable: ${v.id} (${r.status})`); }
+for (const v of lib.videos.filter(v => v.source === 'youtube' && v.embeddable)) { const r = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(v.page)}&format=json`); ok(r.ok, `YouTube embeddable: ${v.youtubeId} ${v.title.slice(0, 40)}`); }
+ok(lib.videos.filter(v => v.source === 'archive').every(v => v.credit === 'Dr Melissa West, Yoga With Melissa, CC BY-ND 4.0'), 'every archive video carries the CC BY-ND 4.0 credit');
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' }); const ctx = await b.newContext({ ...devices['Pixel 5'] }); const p = await ctx.newPage();
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(400);
+await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', 'v@example.com'); await p.fill('#regSecret', 'password123'); await p.press('#regSecret', 'Enter'); await p.waitForTimeout(700);
+await p.evaluate(() => { const k = Object.keys(localStorage).find(k => k.endsWith('.settings')); const s = JSON.parse(localStorage[k] || '{}'); s.onboarded = true; localStorage[k] = JSON.stringify(s); }); await p.reload(); await p.waitForTimeout(1500);
+ok(await p.$$eval('#videoIdeas [data-video]', l => l.length) === 3, 'Home "Ideas for you" shows 3 video classes');
+await p.evaluate(() => document.querySelector('.dock [data-tab="classes"]').click()); await p.waitForTimeout(500);
+ok(await p.$$eval('#videoLib [data-video], #videoLib [data-vext]', l => l.length) === lib.videos.length, `library lists ${lib.videos.length} videos`);
+await p.click('#videoLib [data-vcat="recovery"]'); await p.waitForTimeout(200); const rec = await p.$$eval('#videoLib [data-video], #videoLib [data-vext]', l => l.length); ok(rec >= 5, `Recovery, back & sciatica filter (${rec})`);
+await p.$eval('#videoLib', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/videos-library.png` });
+await p.click('#videoLib [data-vcat="all"]'); await p.click('#videoLib [data-video^="ywm-741"]'); await p.waitForTimeout(800);
+const a = await p.evaluate(() => ({ src: document.querySelector('#videoPlayer')?.src, credit: document.querySelector('.vcredit')?.textContent, cast: !!document.querySelector('#videoCast'), dock: getComputedStyle(document.querySelector('#dock')).display }));
+ok(/archive\.org\/download\/741-hd\/.+\.mp4$/.test(a.src), 'archive class plays from archive.org (unedited file)'); ok(/Dr Melissa West, Yoga With Melissa, CC BY-ND 4.0/.test(a.credit), 'credit shown'); ok(a.cast, 'Cast button'); ok(a.dock === 'none', 'nav hidden under player sheet');
+await p.screenshot({ path: `${OUT}/videos-player-archive.png` }); await p.click('#videoClose');
+await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); await p.waitForTimeout(800);
+ok(/^https:\/\/www\.youtube-nocookie\.com\/embed\/Z9C38koJNTc/.test(await p.$eval('#videoModal iframe', e => e.src)), 'YouTube via official embed player');
+await p.screenshot({ path: `${OUT}/videos-player-youtube.png` }); await p.click('#videoClose');
+const [pop] = await Promise.all([ctx.waitForEvent('page', { timeout: 5000 }).catch(() => null), p.click('#videoLib [data-vext="yt-44HquH6QyXc"]')]);
+if (pop) await pop.waitForURL(/youtube/, { timeout: 8000 }).catch(() => {}); console.log('POP', pop?.url()); ok(pop && /youtube\.com\/watch\?v=44HquH6QyXc/.test(pop.url()), 'NHS Fitness Studio (embedding disabled by owner) opens on YouTube');
+ok(!errs.length, 'no page errors ' + errs.join('|'));
+await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL VIDEO LIBRARY TESTS PASSED'); process.exit(fail ? 1 : 0);

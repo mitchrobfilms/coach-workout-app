@@ -12,6 +12,7 @@ import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
+import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas } from './videos.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -1853,9 +1854,21 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 
+/* ---------- Video class library (archive.org CC BY-ND + official YouTube embeds) ---------- */
+let sessionCastSrc = null;
+function videoCast(videoEl, btn, v) {
+  setCastSource(() => ({ src: v.src, title: v.title, subtitle: v.credit }));
+  const upd = s => { btn.classList.toggle('on', !!s.connected); btn.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
+  initCast(upd); btn.onclick = async () => { const r = await castClick(videoEl); if (r === 'nocast') toast('Google Cast isn\'t available here. Use Chrome on Android or a computer, on the same Wi-Fi as your Chromecast / Google TV.'); else castFollow(); };
+}
+const vClose = new MutationObserver(() => { const m = $('videoModal'); if (m?.hidden && sessionCastSrc) setCastSource(sessionCastSrc); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
+function renderVideoIdeas() { const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3); el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>🎬 Ideas for you</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="classes">All video classes ›</button>` : ''; el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab)); }
+loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); renderVideoIdeas(); window.__kova.videosReady = true; });
+
 /* ---------- TV: Google Cast ---------- */
 { const v = $('trainerVid'), b = $('castBtn');
-  setCastSource(() => { const m = window.__kova?.classMedia, src = v.getAttribute('src') || m?.src; return src ? { src, title: m?.step || 'Workout', subtitle: $('trainerName')?.textContent || 'GLP1 Life' } : null; });
+  setCastSource(sessionCastSrc = () => { const m = window.__kova?.classMedia, src = v.getAttribute('src') || m?.src; return src ? { src, title: m?.step || 'Workout', subtitle: $('trainerName')?.textContent || 'GLP1 Life' } : null; });
   new MutationObserver(() => castFollow()).observe(v, { attributes: true, attributeFilter: ['src'] });
   const upd = s => { b.classList.toggle('on', !!s.connected); b.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
   // Load the Cast SDK only once a workout/class screen opens (keeps the rest of the app light).
