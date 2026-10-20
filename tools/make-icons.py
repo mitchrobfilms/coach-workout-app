@@ -14,10 +14,15 @@ def compose(px, leaf_frac=.6, bg=True, mono=False):
     im = gradient(px) if bg else Image.new('RGBA', (px, px), (0, 0, 0, 0))
     s = int(px * leaf_frac); lf = svg(MONO if mono else LEAF, s); im.alpha_composite(lf, ((px - s) // 2, (px - s) // 2)); return im
 # PWA: maskable (safe zone) + any
+def _f(): pass
 for px in (192, 512):
     compose(px).save(f'icon-{px}.png'); compose(px).save(f'icons/maskable-{px}.png')
-    a = compose(px, .64); m = Image.new('L', (px, px), 0); ImageDraw.Draw(m).rounded_rectangle([0, 0, px - 1, px - 1], radius=px // 5, fill=255); a.putalpha(m); a.save(f'icons/any-{px}.png')
-compose(180).convert('RGB').save('icons/apple-touch-icon.png')
+def circ(px, lf=.62, ss=4):
+    a = compose(px * ss, lf); m = Image.new('L', (px * ss, px * ss), 0); ImageDraw.Draw(m).ellipse([0, 0, px * ss - 1, px * ss - 1], fill=255); a.putalpha(m); return a.resize((px, px), Image.LANCZOS)
+at = Image.new('RGBA', (180, 180), (247, 244, 251, 255)); at.alpha_composite(circ(164), (8, 8)); at.convert('RGB').save('icons/apple-touch-icon.png')
+for px in (192, 512): circ(px, .62).save(f'icons/any-{px}.png')
+for px in (32, 64): circ(px, .66).save(f'icons/favicon-{px}.png')
+circ(64, .66).save('favicon.ico', sizes=[(16, 16), (32, 32), (48, 48), (64, 64)])
 # Android adaptive layers at 108dp per density
 for name, dp in {'mdpi': 1, 'hdpi': 1.5, 'xhdpi': 2, 'xxhdpi': 3, 'xxxhdpi': 4}.items():
     c = int(108 * dp)
@@ -26,8 +31,7 @@ for name, dp in {'mdpi': 1, 'hdpi': 1.5, 'xhdpi': 2, 'xxhdpi': 3, 'xxxhdpi': 4}.
     compose(c, .6, bg=False).save(f'icons/android/mipmap-{name}/ic_launcher_foreground.png')
     compose(c, .6, bg=False, mono=True).save(f'icons/android/mipmap-{name}/ic_launcher_monochrome.png')
     L = int(48 * dp); full = compose(c, .6).resize((L, L), Image.LANCZOS)  # legacy (pre-Android 8) square + round
-    full.save(f'icons/android/mipmap-{name}/ic_launcher.png')
-    r = full.copy(); mk = Image.new('L', (L, L), 0); ImageDraw.Draw(mk).ellipse([0, 0, L - 1, L - 1], fill=255); r.putalpha(mk); r.save(f'icons/android/mipmap-{name}/ic_launcher_round.png')
+    r = circ(L, .6); r.save(f'icons/android/mipmap-{name}/ic_launcher.png'); r.save(f'icons/android/mipmap-{name}/ic_launcher_round.png')
 # preview grid: full-bleed, circle, squircle, rounded square, teardrop, themed mono
 P = 220; base = compose(P * 2, .6).resize((P, P), Image.LANCZOS); mono = compose(P * 2, .6, bg=False, mono=True).resize((P, P), Image.LANCZOS)
 def mask(kind):
