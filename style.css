@@ -326,3 +326,11 @@ input[type=datetime-local],input[type=time],input[type=date]{color-scheme:dark;b
 
 #priceSearch{color:#0b1116;background:#fff;caret-color:#0b1116;font-size:1rem}#priceSearch::placeholder{color:#5b6670}
 .overlay.celebrate{z-index:200}
+
+#priceSearch,.searchbox{color:#0b1116;background:#fff;caret-color:#0b1116;font-size:1rem;width:100%;min-height:50px;border-radius:12px;padding:10px 14px;border:2px solid var(--teal)}.searchbox::placeholder{color:#5b6670}
+.chips .chip.on,.chip[aria-pressed=true]{background:var(--teal);color:#032623;border-color:var(--teal);font-weight:700}
+.catscroll{flex-wrap:nowrap;overflow-x:auto;padding:8px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch}.catscroll .chip{flex:0 0 auto;width:auto;margin:0}
+.storeline{font-weight:600;color:var(--teal);margin:4px 0}.empty{padding:14px;border:1px dashed var(--line);border-radius:12px;color:var(--mut)}
+.hometiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}.hometile{display:flex;flex-direction:column;align-items:center;gap:6px;min-height:84px;justify-content:center;font-size:1.1rem}.hometile .ostore{font-size:1.1rem;padding:4px 10px}
+.tabs{overflow-x:auto;scrollbar-width:none}.tabs button{flex:0 0 auto;min-width:64px}
+.cmp{padding:10px 0;border-bottom:1px solid var(--line)}.cmprow{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}.cmpcell{display:flex;flex-direction:column;align-items:center;padding:8px 4px;border:1px solid var(--line);border-radius:10px;gap:2px}.cmpcell.best{border-color:var(--teal);background:rgba(22,212,192,.14)}.cmpcell small{color:var(--mut);font-size:.75rem}

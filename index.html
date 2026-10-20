@@ -8,7 +8,7 @@
 <title>Reta Coach</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="avatar.jpg">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 </head>
 <body>
 <header class="topbar">
@@ -63,7 +63,7 @@
     <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
-    <button type="button" class="primary big hometile" data-gotab="prices">🏷️ Offers &amp; Prices<br><small>Aldi &amp; Lidl live, updated 00:30 nightly</small></button>
+    <div class="hometiles"><button type="button" class="hometile" data-gotab="aldi"><span class="ostore aldi">Aldi</span><small>Offers &amp; prices</small></button><button type="button" class="hometile" data-gotab="lidl"><span class="ostore lidl">Lidl</span><small>Offers</small></button><button type="button" class="hometile" data-gotab="prices"><b>💷</b><small>Compare prices</small></button></div>
     <div class="card homeprog" id="homeProgress"></div>
     <div class="card note" id="backupNudge" hidden></div>
     <div class="card injnext" id="injNext" hidden></div>
@@ -173,7 +173,7 @@
     <button type="button" class="primary big" id="glpBuild">✨ Build my GLP-1 plan</button>
     <div id="glpPlan"></div>
   </div>
-  <button type="button" class="big" data-gotab="prices">🏷️ See Aldi &amp; Lidl offers and prices</button>
+  <div class="row"><button type="button" class="big" data-gotab="aldi">Aldi offers &amp; prices</button><button type="button" class="big" data-gotab="lidl">Lidl offers</button></div>
   <h2 class="sep">More batch-cook ideas</h2>
   <div class="shophead"><h2>🍱 Meal prep</h2><p class="small muted">Batch-cook once, eat well for 3–4 days. Pick a store, then tap Build my week and your shopping list fills itself.</p></div>
   <div class="card"><b class="steplabel">Choose your store</b><div class="chips storechips" id="prepStorePick"></div><ul class="small" id="prepStoreNotes"></ul>
@@ -184,20 +184,29 @@
   <div id="prepSections"></div>
 </section>
 
-<!-- OFFERS & PRICES TAB -->
+<!-- ALDI TAB -->
+<section id="tab-aldi" class="tab">
+  <div class="shophead"><h2><span class="ostore aldi">Aldi</span> Aldi</h2><p class="storeline" id="aldiStatus"></p></div>
+  <div class="card"><h3>🏷️ Aldi offers</h3><label class="check"><input type="checkbox" id="aldiHp" checked> High protein only (10 g+ per 100 g)</label><p class="small muted" id="aldiOfferCount"></p><div id="aldiOffers"></div></div>
+  <div class="card" id="aldiPricesCard"><h3>💷 Aldi price list</h3>
+    <p class="small muted" id="aldiFullStatus"></p>
+    <input type="search" id="aldiSearch" class="searchbox" placeholder="Search e.g. chicken, eggs, oats" autocomplete="off" enterkeyhint="search">
+    <div class="chips catscroll" id="aldiCats"></div>
+    <p class="small" id="aldiPriceCount"></p>
+    <div id="aldiPriceList"></div></div>
+</section>
+<!-- LIDL TAB -->
+<section id="tab-lidl" class="tab">
+  <div class="shophead"><h2><span class="ostore lidl">Lidl</span> Lidl</h2><p class="storeline" id="lidlStatus"></p></div>
+  <div class="card"><h3>🏷️ Lidl offers</h3><label class="check"><input type="checkbox" id="lidlHp" checked> High protein only (10 g+ per 100 g)</label><p class="small muted" id="lidlOfferCount"></p><div id="lidlOffers"></div>
+  <p class="small muted">Lidl only shows prices online for its offers, so there's no full Lidl price list.</p></div>
+</section>
+<!-- PRICES TAB -->
 <section id="tab-prices" class="tab">
-  <div class="shophead"><h2>🏷️ Offers &amp; Prices</h2></div>
-  <div class="card" id="offersCard"><h3>🏷️ This week's offers</h3>
-    <div class="chips" id="offerStore"></div>
-    <label class="check"><input type="checkbox" id="offerHp" checked> High protein only (10 g+ per 100 g)</label>
-    <p class="small muted" id="offerStatus"></p>
-    <div id="offerList"></div></div>
-  <div class="card" id="fullPricesCard"><h3>💷 Aldi price list</h3>
-    <input type="search" id="priceSearch" placeholder="Search e.g. chicken, eggs, oats" autocomplete="off" enterkeyhint="search">
-    <div class="chips" id="priceCats"></div>
-    <p class="small muted" id="fullStatus"></p>
-    <div id="priceList"></div></div>
-  <div class="card" id="asdaCard"><h3>Asda</h3><p class="small muted">Typical price</p><div id="asdaList"></div></div>
+  <div class="shophead"><h2>💷 Prices</h2><p class="storeline" id="cmpStatus"></p></div>
+  <div class="card"><input type="search" id="cmpSearch" class="searchbox" placeholder="Compare e.g. chicken, eggs, rice" autocomplete="off" enterkeyhint="search">
+  <p class="small muted">Cheapest per pack is highlighted. Prices vary by store and region.</p>
+  <div id="cmpList"></div><div id="cmpMore"></div></div>
 </section>
 
 <!-- SHOP TAB -->
@@ -300,7 +309,9 @@
   <button data-tab="classes">🎬<span>Classes</span></button>
   <button data-tab="prep">🍱<span>Prep</span></button>
   <button data-tab="shop">🛒<span>Shop</span></button>
-  <button data-tab="prices">🏷️<span>Prices</span></button>
+  <button data-tab="aldi">🟦<span>Aldi</span></button>
+  <button data-tab="lidl">🟨<span>Lidl</span></button>
+  <button data-tab="prices">💷<span>Prices</span></button>
   <button data-tab="progress">📈<span>Progress</span></button>
   <button data-tab="settings">⚙️<span>Settings</span></button>
 </nav>
@@ -309,6 +320,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=22"></script>
+<script type="module" src="app.js?v=23"></script>
 </body>
 </html>

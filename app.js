@@ -493,7 +493,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses(); if (t === 'prices') renderPrices();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses(); if (t === 'prices' || t === 'aldi' || t === 'lidl') renderPrices();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
 
@@ -743,7 +743,7 @@ function showUpdateToast(worker) {
   el.onclick = () => { el.textContent = 'Updating…'; worker.postMessage({ type: 'SKIP_WAITING' }); setTimeout(() => location.reload(), 1500); };
 }
 window.__kova.showUpdateToast = showUpdateToast;
-if ('serviceWorker' in navigator && location.protocol === 'https:') {
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (!reloading && window.__kova.updateReady) { reloading = true; location.reload(); } });
   navigator.serviceWorker.register('sw.js').then(reg => {
@@ -1330,47 +1330,66 @@ async function loadOffers() {
     try { const r = await fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { const j = await r.json(); set(j); localStorage.setItem('reta.' + f, JSON.stringify(j)); continue; } } catch {}
     try { set(JSON.parse(localStorage.getItem('reta.' + f) || 'null')); } catch {}
   }
-  renderOffers(); renderPrices(); if (glp.plan) renderGlpPlan();
+  renderPrices(); if (glp.plan) renderGlpPlan();
 }
-const offerUI = { store: 'all', hp: true };
+const offerUI = { aldi: true, lidl: true };
 const fmtUK = iso => iso ? new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK' : '?';
-function storeStatusText() {
-  if (!offersData) return 'Offers couldn\'t load. Check your connection. The meal builder uses typical prices instead.';
-  return ['aldi', 'lidl'].filter(k => offersData.stores[k]).map(k => `${STORE_NAMES[k]}: live offers update daily at 00:30. Last checked: ${fmtUK(offersData.stores[k].checked)}`).join('. ') + '. Asda: typical prices. Prices may vary in store and by region.';
+const storeLine = k => { const s = offersData?.stores?.[k]; return s ? `Live offers update daily at 00:30. Last checked: ${fmtUK(s.checked)}${s.status === 'stale' ? ' (latest check failed, showing last list)' : ''}.` : 'Offers couldn\'t load. Check your connection and reopen this page.'; };
+function storeStatusText() { return ['aldi', 'lidl'].map(k => `${STORE_NAMES[k]}: ${storeLine(k)}`).join(' ') + ' Asda: typical prices.'; }
+const offerCard = o => { const key = STAPLES.find(s => s.match.test(o.name) && !(s.exclude && s.exclude.test(o.name)))?.key;
+  return `<div class="offer"><div class="otop"><span class="ostore ${o.store}">${STORE_NAMES[o.store]}</span><b>${esc(o.name)}</b></div>
+  <div class="oprice"><b>${fmtGBP(o.price)}</b>${o.was ? ` <del>${fmtGBP(o.was)}</del>` : ''}${o.perKg ? ` <small>${fmtGBP(o.perKg)}/kg</small>` : ''}${o.size ? ` <small>· ${esc(o.size)}</small>` : ''}</div>
+  <div class="small">${o.protein != null ? `<span class="pbadge ${isHighProtein(o) ? 'hp' : ''}">${o.protein} g protein /100 g</span>` : '<span class="muted">Protein: check label</span>'} ${o.promo ? `<span class="muted">· ${esc(o.promo)}</span>` : ''}${o.to ? ` <span class="muted">· until ${fmtChecked(o.to)}</span>` : ''}</div>
+  <div class="row"><button type="button" class="primary" data-useoffer='${esc(JSON.stringify({ key, name: o.name, store: o.store, size: o.size }))}'>＋ Use in meal plan</button><a class="btnlink" href="${esc(o.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; };
+function bindUseOffer(root) { root.querySelectorAll('[data-useoffer]').forEach(b => b.onclick = () => { const x = JSON.parse(b.dataset.useoffer);
+  if (x.key) { glp.prefer = [...new Set([x.key, ...glp.prefer])].slice(0, 5); if (glp.store !== 'mix' && glp.store !== x.store) glp.store = 'mix'; saveGlp(); buildGlp(); toast(`✅ Plan rebuilt around ${x.name}`); switchTab('prep'); $('glpCard').scrollIntoView({ behavior: 'smooth' }); }
+  else { if (!shop.extra.some(y => shopKey(y.item) === shopKey(x.name))) shop.extra.push({ item: `${x.name} (${STORE_NAMES[x.store]} offer)`, aisle: 'Proteins', pack: x.size }); saveShop(); renderShop(); toast('🛒 Added to your shopping list'); } }); }
+function renderStoreOffers(k) {
+  const el = $(k + 'Offers'); if (!el) return;
+  $(k + 'Status').textContent = storeLine(k); $(k + 'Hp').checked = offerUI[k];
+  const list = offersData ? offersFor(offersData, { store: k, highProtein: offerUI[k] }) : [];
+  $(k + 'OfferCount').textContent = offersData ? `${list.length} offer${list.length === 1 ? '' : 's'}${offerUI[k] ? ' (high protein)' : ''}` : '';
+  el.innerHTML = list.length ? list.slice(0, 80).map(offerCard).join('') : `<p class="empty">${offersData ? (offerUI[k] ? 'No high-protein offers right now. Untick "High protein only" to see all.' : 'No offers right now.') : 'Offers couldn\'t load.'}</p>`;
+  bindUseOffer(el);
 }
+for (const k of ['aldi', 'lidl']) $(k + 'Hp').onchange = e => { offerUI[k] = e.target.checked; renderStoreOffers(k); };
+function renderOffers() { renderStoreOffers('aldi'); renderStoreOffers('lidl'); }
 const priceUI = { q: '', cat: 'All' };
-function renderPrices() {
-  if (!$('priceList')) return;
+const histLine = i => i.last?.p != null ? (i.price < i.last.p ? `<span class="pbadge hp">⬇ was ${fmtGBP(i.last.p)} on ${fmtChecked(i.last.d)}</span>` : `<span class="muted">⬆ was ${fmtGBP(i.last.p)} on ${fmtChecked(i.last.d)}</span>`) : `<span class="muted">Last price ${fmtGBP(i.price)}, unchanged since ${fmtChecked(i.history?.[0]?.d)}</span>`;
+const priceRow = i => `<div class="offer"><div class="otop"><span class="ostore aldi">Aldi</span><b>${esc(i.name)}</b></div><div class="oprice"><b>${fmtGBP(i.price)}</b>${i.was ? ` <del>${fmtGBP(i.was)}</del>` : ''}${i.perKg ? ` <small>${fmtGBP(i.perKg)}/kg</small>` : ''}${i.size ? ` <small>· ${esc(i.size)}</small>` : ''}</div>
+  <div class="small">${i.protein != null ? `<span class="pbadge ${i.protein >= 10 ? 'hp' : ''}">${i.protein} g protein /100 g</span> ` : ''}${histLine(i)}</div><div class="row"><a class="btnlink" href="${esc(i.url)}" target="_blank" rel="noopener">View on Aldi ↗</a></div></div>`;
+function renderAldiPrices(scroll) {
+  const el = $('aldiPriceList'); if (!el) return;
   const a = fullData?.stores?.aldi, items = a?.items || [];
-  $('fullStatus').textContent = items.length ? `${items.length} Aldi products. Live prices update daily at 00:30. Last checked: ${fmtUK(a.checked)}. Lidl only shows prices online for offers (see above).` : 'Price list couldn\'t load yet.';
+  $('aldiFullStatus').textContent = items.length ? `${items.length} Aldi products. Prices update daily at 00:30. Last checked: ${fmtUK(a.checked)}.` : 'Price list couldn\'t load. Check your connection and reopen this page.';
   const cats = ['All', ...new Set(items.map(i => i.cat))];
-  $('priceCats').innerHTML = cats.map(c => `<button type="button" class="chip ${priceUI.cat === c ? 'on' : ''}" data-pcat="${esc(c)}">${esc(c)}</button>`).join('');
+  $('aldiCats').innerHTML = cats.map(c => `<button type="button" class="chip ${priceUI.cat === c ? 'on' : ''}" aria-pressed="${priceUI.cat === c}" data-pcat="${esc(c)}">${esc(c)}</button>`).join('');
   const q = priceUI.q.trim().toLowerCase();
   const list = items.filter(i => (priceUI.cat === 'All' || i.cat === priceUI.cat) && (!q || `${i.name} ${i.brand || ''}`.toLowerCase().includes(q)));
-  $('priceList').innerHTML = list.slice(0, 80).map(i => { const prevP = i.last?.p; const ch = prevP != null ? (i.price < prevP ? `<span class="pbadge hp">⬇ was ${fmtGBP(prevP)} (${fmtChecked(i.last.d)})</span>` : `<span class="muted">⬆ was ${fmtGBP(prevP)} (${fmtChecked(i.last.d)})</span>`) : `<span class="muted">Last price: ${fmtGBP(i.price)} (no change since ${fmtChecked(i.history?.[0]?.d)})</span>`;
-    return `<div class="offer"><div class="otop"><span class="ostore aldi">Aldi</span><b>${esc(i.name)}</b></div><div class="oprice"><b>${fmtGBP(i.price)}</b>${i.was ? ` <del>${fmtGBP(i.was)}</del>` : ''}${i.perKg ? ` <small>${fmtGBP(i.perKg)}/kg</small>` : ''}${i.size ? ` <small>· ${esc(i.size)}</small>` : ''}</div>
-    <div class="small">${i.protein != null ? `<span class="pbadge ${i.protein >= 10 ? 'hp' : ''}">${i.protein} g protein /100 g</span> ` : ''}${ch}</div><div class="row"><a class="btnlink" href="${esc(i.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; }).join('') + (list.length > 80 ? `<p class="small muted">Showing 80 of ${list.length}. Search to narrow down.</p>` : list.length ? '' : '<p class="small muted">No matches.</p>');
-  $('asdaList').innerHTML = (pricesData?.items || []).filter(i => i.prices?.asda).map(i => `<div class="row between small"><span>${esc(i.name)}</span><b>${fmtGBP(i.prices.asda)}</b></div>`).join('');
-  $('priceCats').querySelectorAll('[data-pcat]').forEach(b => b.onclick = () => { priceUI.cat = b.dataset.pcat; renderPrices(); });
+  $('aldiPriceCount').textContent = items.length ? `${list.length} result${list.length === 1 ? '' : 's'}${priceUI.cat !== 'All' ? ` in ${priceUI.cat}` : ''}${q ? ` for "${priceUI.q.trim()}"` : ''}` : '';
+  el.innerHTML = list.length ? list.slice(0, 60).map(priceRow).join('') + (list.length > 60 ? `<p class="small muted">Showing 60 of ${list.length}. Search or pick a category to narrow down.</p>` : '') : (items.length ? `<p class="empty">No matches.${priceUI.cat !== 'All' ? ' <button type="button" class="linkbtn" data-pcat="All">Search all categories</button>' : ''}</p>` : '');
+  document.querySelectorAll('#aldiCats [data-pcat], #aldiPriceList [data-pcat]').forEach(b => b.onclick = () => { priceUI.cat = b.dataset.pcat; renderAldiPrices(true); });
+  if (scroll) $('aldiPriceCount').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-$('priceSearch') && ($('priceSearch').oninput = e => { priceUI.q = e.target.value; renderPrices(); });
-document.querySelectorAll('[data-gotab="prices"]').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab('prices'); scrollTo(0, 0); });
-function renderOffers() {
-  $('offerStore').innerHTML = [['all', 'All'], ['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda']].map(([k, n]) => `<button type="button" class="chip ${offerUI.store === k ? 'on' : ''}" data-ostore="${k}">${n}</button>`).join('');
-  $('offerHp').checked = offerUI.hp; $('offerStatus').textContent = storeStatusText();
-  const list = offersFor(offersData, { store: offerUI.store, highProtein: offerUI.hp });
-  const asdaNote = offerUI.store === 'asda' && offersData?.stores?.asda?.status !== 'live' ? `<p class="small muted">Typical price · <a href="https://groceries.asda.com/special-offers" target="_blank" rel="noopener">Asda offers ↗</a></p>` : '';
-  $('offerList').innerHTML = asdaNote + (list.length ? list.slice(0, 60).map(o => { const key = STAPLES.find(s => s.match.test(o.name) && !(s.exclude && s.exclude.test(o.name)))?.key;
-    return `<div class="offer"><div class="otop"><span class="ostore ${o.store}">${STORE_NAMES[o.store]}</span><b>${esc(o.name)}</b></div>
-    <div class="oprice"><b>${fmtGBP(o.price)}</b>${o.was ? ` <del>${fmtGBP(o.was)}</del>` : ''}${o.perKg ? ` <small>${fmtGBP(o.perKg)}/kg</small>` : ''}${o.size ? ` <small>· ${esc(o.size)}</small>` : ''}</div>
-    <div class="small">${o.protein != null ? `<span class="pbadge ${isHighProtein(o) ? 'hp' : ''}">${o.protein} g protein /100 g</span>` : '<span class="muted">Protein: check label</span>'} ${o.promo ? `<span class="muted">· ${esc(o.promo)}</span>` : ''}${o.to ? ` <span class="muted">· until ${fmtChecked(o.to)}</span>` : ''}</div>
-    <div class="row"><button type="button" class="primary" data-useoffer='${esc(JSON.stringify({ key, name: o.name, store: o.store, size: o.size }))}'>＋ Use in meal plan</button><a class="btnlink" href="${esc(o.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; }).join('') : (asdaNote ? '' : '<p class="small muted">No matching offers right now.</p>'));
-  $('offerStore').querySelectorAll('[data-ostore]').forEach(b => b.onclick = () => { offerUI.store = b.dataset.ostore; renderOffers(); });
-  $('offerList').querySelectorAll('[data-useoffer]').forEach(b => b.onclick = () => { const x = JSON.parse(b.dataset.useoffer);
-    if (x.key) { glp.prefer = [...new Set([x.key, ...glp.prefer])].slice(0, 5); if (glp.store !== 'mix' && glp.store !== x.store) glp.store = 'mix'; saveGlp(); buildGlp(); toast(`✅ Plan rebuilt around ${x.name}`); switchTab('prep'); $('glpCard').scrollIntoView({ behavior: 'smooth' }); }
-    else { if (!shop.extra.some(y => shopKey(y.item) === shopKey(x.name))) shop.extra.push({ item: `${x.name} (${STORE_NAMES[x.store]} offer)`, aisle: 'Proteins', pack: x.size }); saveShop(); renderShop(); toast('🛒 Added to your shopping list'); } });
+$('aldiSearch').oninput = e => { priceUI.q = e.target.value; renderAldiPrices(); };
+const cmpUI = { q: '' };
+function renderCompare() {
+  const el = $('cmpList'); if (!el) return;
+  const q = cmpUI.q.trim().toLowerCase(), items = pricesData?.items || [];
+  $('cmpStatus').textContent = `Aldi and Lidl update daily at 00:30 (last checked ${fmtUK(offersData?.stores?.aldi?.checked)}). Asda: typical price.`;
+  const rows = items.filter(i => !q || i.name.toLowerCase().includes(q) || i.key.includes(q));
+  el.innerHTML = rows.length ? rows.map(i => { const pr = { aldi: i.offers?.aldi?.price != null && i.offers.aldi.grams ? i.offers.aldi.price / i.offers.aldi.grams * i.pack : i.prices.aldi, lidl: i.offers?.lidl?.price != null && i.offers.lidl.grams ? i.offers.lidl.price / i.offers.lidl.grams * i.pack : i.prices.lidl, asda: i.prices.asda };
+    const min = Math.min(...Object.values(pr).filter(v => v != null));
+    const tag = { aldi: i.full?.aldi ? 'live' : (i.offers?.aldi ? 'offer' : 'typical'), lidl: i.offers?.lidl ? 'offer' : 'typical', asda: 'Typical price' };
+    return `<div class="cmp"><b>${esc(i.name)}</b> <small class="muted">per ${i.pack >= 1000 ? i.pack / 1000 + ' kg' : i.pack + ' g'}</small><div class="cmprow">${['aldi', 'lidl', 'asda'].map(k => pr[k] == null ? '' : `<div class="cmpcell ${pr[k] === min ? 'best' : ''}"><span class="ostore ${k}">${STORE_NAMES[k]}</span><b>${fmtGBP(Math.round(pr[k] * 100) / 100)}</b><small>${tag[k]}</small></div>`).join('')}</div></div>`; }).join('') : '<p class="empty">No matching staples.</p>';
+  const ql = q.length > 1 ? (fullData?.stores?.aldi?.items || []).filter(i => i.name.toLowerCase().includes(q)).slice(0, 10) : [];
+  const lo = q.length > 1 ? (offersData?.stores?.lidl?.items || []).filter(i => i.name.toLowerCase().includes(q)).slice(0, 10) : [];
+  $('cmpMore').innerHTML = q.length > 1 ? `<h3>Aldi shelf prices for "${esc(cmpUI.q.trim())}"</h3>${ql.length ? ql.map(priceRow).join('') : '<p class="empty">None found.</p>'}<h3>Lidl offers for "${esc(cmpUI.q.trim())}"</h3>${lo.length ? lo.map(offerCard).join('') : '<p class="empty">None on offer right now.</p>'}` : '';
+  bindUseOffer($('cmpMore'));
 }
-$('offerHp').onchange = e => { offerUI.hp = e.target.checked; renderOffers(); };
+$('cmpSearch').oninput = e => { cmpUI.q = e.target.value; renderCompare(); };
+function renderPrices() { renderOffers(); renderAldiPrices(); renderCompare(); }
+document.querySelectorAll('[data-gotab]').forEach(b => { if (['aldi', 'lidl', 'prices'].includes(b.dataset.gotab)) b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.gotab); scrollTo(0, 0); }; });
 function renderGlpForm() {
   $('glpStore').innerHTML = [['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda'], ['mix', 'Cheapest mix']].map(([k, n]) => `<button type="button" class="chip storechip ${glp.store === k ? 'on' : ''}" data-gstore="${k}" aria-pressed="${glp.store === k}">${glp.store === k ? '✓ ' : ''}${n}</button>`).join('');
   $('glpDays').value = glp.days; $('glpMeals').value = glp.meals; $('glpProt').value = glp.protein; $('glpProtVal').textContent = `${glp.protein} g`;
