@@ -54,11 +54,15 @@ ok(plan && plan.total > 0 && Object.keys(plan.shop).length, `shopping list with 
 o = await overflow(); ok(!o, `no overflow on prep ${o ? JSON.stringify(o) : ''}`);
 await p.$eval('#glpCard', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/meal-builder.png`, fullPage: false });
 await p.$eval('#glpPlan h3', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/meal-builder-shopping.png`, fullPage: false });
-// offers
+// offers (own Offers & Prices tab)
+await p.click('.tabs button[data-tab=prices]'); await p.waitForTimeout(400);
+ok(/00:30/.test(await p.textContent('#offerStatus')) && /Last checked/.test(await p.textContent('#offerStatus')), 'offers show 00:30 and last checked');
+await p.fill('#priceSearch', 'chicken'); await p.waitForTimeout(200); { const n = await p.$$eval('#priceList .offer', l => l.length); ok(n > 0, `price search finds chicken (${n})`); } await p.fill('#priceSearch', '');
+ok((await p.$$eval('#asdaList .row', l => l.length)) > 0, 'Asda typical prices listed');
 const offers = await p.$$eval('#offerList .offer', l => l.length); ok(offers > 0, `offers listed (${offers})`);
-ok(/Asda/.test(await p.textContent('#offerStatus')), 'offer status explains each store');
+ok(!/403|block/i.test(await p.textContent('#offerStatus')), 'no block notice in status');
 await p.waitForTimeout(2600); await p.$eval('#offersCard', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/offers.png`, fullPage: false });
-await p.click('#offerStore [data-ostore=asda]'); ok(/blocks automated/.test(await p.textContent('#offerList')), 'Asda fallback explained');
+await p.click('#offerStore [data-ostore=asda]'); { const t = await p.textContent('#offerList'); ok(/Typical price/.test(t) && !/403|block/i.test(t), 'Asda typical label, no block notice'); };
 await p.click('#offerStore [data-ostore=all]'); await p.click('#offerList [data-useoffer]'); await p.waitForTimeout(300);
 // certificates
 await p.click('.tabs button[data-tab=progress]'); await p.click('#weightForm .seg button[data-unit=kg]'); await p.fill('#weightInput', '90'); await p.click('#weightBtn'); await p.waitForTimeout(800);

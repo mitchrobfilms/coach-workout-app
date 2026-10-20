@@ -493,7 +493,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('active', b.dataset.tab === t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses(); if (t === 'prices') renderPrices();
 }
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab(b.dataset.tab); });
 
@@ -1322,15 +1322,15 @@ $('restoreFile').onchange = async e => {
 renderWeightProgress();
 
 /* ---------- GLP-1 meal prep builder + live offers ---------- */
-let offersData = null, pricesData = null;
+let offersData = null, pricesData = null, fullData = null;
 const glp = Object.assign({ store: 'aldi', days: 3, meals: 3, protein: 30, fussy: !!settings.fussy, gentle: false, veg: false, prefer: [], plan: null }, store.get('glp1', {}));
 const saveGlp = () => store.set('glp1', glp);
 async function loadOffers() {
-  for (const [f, set] of [['data/offers.json', v => offersData = v], ['data/prices.json', v => pricesData = v]]) {
+  for (const [f, set] of [['data/offers.json', v => offersData = v], ['data/prices.json', v => pricesData = v], ['data/full-prices.json', v => fullData = v]]) {
     try { const r = await fetch(`${f}?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok) { const j = await r.json(); set(j); localStorage.setItem('reta.' + f, JSON.stringify(j)); continue; } } catch {}
     try { set(JSON.parse(localStorage.getItem('reta.' + f) || 'null')); } catch {}
   }
-  renderOffers(); if (glp.plan) renderGlpPlan();
+  renderOffers(); renderPrices(); if (glp.plan) renderGlpPlan();
 }
 const offerUI = { store: 'all', hp: true };
 const fmtUK = iso => iso ? new Date(iso).toLocaleString('en-GB', { timeZone: 'Europe/London', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) + ' UK' : '?';
@@ -1338,6 +1338,24 @@ function storeStatusText() {
   if (!offersData) return 'Offers couldn\'t load. Check your connection. The meal builder uses typical prices instead.';
   return ['aldi', 'lidl'].filter(k => offersData.stores[k]).map(k => `${STORE_NAMES[k]}: live offers update daily at 00:30. Last checked: ${fmtUK(offersData.stores[k].checked)}`).join('. ') + '. Asda: typical prices. Prices may vary in store and by region.';
 }
+const priceUI = { q: '', cat: 'All' };
+function renderPrices() {
+  if (!$('priceList')) return;
+  $('pricesStatus').textContent = storeStatusText();
+  const a = fullData?.stores?.aldi, items = a?.items || [];
+  $('fullStatus').textContent = items.length ? `${items.length} Aldi products. Live prices update daily at 00:30. Last checked: ${fmtUK(a.checked)}. Lidl only shows prices online for offers (see above).` : 'Price list couldn\'t load yet.';
+  const cats = ['All', ...new Set(items.map(i => i.cat))];
+  $('priceCats').innerHTML = cats.map(c => `<button type="button" class="chip ${priceUI.cat === c ? 'on' : ''}" data-pcat="${esc(c)}">${esc(c)}</button>`).join('');
+  const q = priceUI.q.trim().toLowerCase();
+  const list = items.filter(i => (priceUI.cat === 'All' || i.cat === priceUI.cat) && (!q || `${i.name} ${i.brand || ''}`.toLowerCase().includes(q)));
+  $('priceList').innerHTML = list.slice(0, 80).map(i => { const prevP = i.last?.p; const ch = prevP != null ? (i.price < prevP ? `<span class="pbadge hp">⬇ was ${fmtGBP(prevP)} (${fmtChecked(i.last.d)})</span>` : `<span class="muted">⬆ was ${fmtGBP(prevP)} (${fmtChecked(i.last.d)})</span>`) : `<span class="muted">Last price: ${fmtGBP(i.price)} (no change since ${fmtChecked(i.history?.[0]?.d)})</span>`;
+    return `<div class="offer"><div class="otop"><span class="ostore aldi">Aldi</span><b>${esc(i.name)}</b></div><div class="oprice"><b>${fmtGBP(i.price)}</b>${i.was ? ` <del>${fmtGBP(i.was)}</del>` : ''}${i.perKg ? ` <small>${fmtGBP(i.perKg)}/kg</small>` : ''}${i.size ? ` <small>· ${esc(i.size)}</small>` : ''}</div>
+    <div class="small">${i.protein != null ? `<span class="pbadge ${i.protein >= 10 ? 'hp' : ''}">${i.protein} g protein /100 g</span> ` : ''}${ch}</div><div class="row"><a class="btnlink" href="${esc(i.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; }).join('') + (list.length > 80 ? `<p class="small muted">Showing 80 of ${list.length}. Search to narrow down.</p>` : list.length ? '' : '<p class="small muted">No matches.</p>');
+  $('asdaList').innerHTML = (pricesData?.items || []).filter(i => i.prices?.asda).map(i => `<div class="row between small"><span>${esc(i.name)}</span><b>${fmtGBP(i.prices.asda)}</b></div>`).join('');
+  $('priceCats').querySelectorAll('[data-pcat]').forEach(b => b.onclick = () => { priceUI.cat = b.dataset.pcat; renderPrices(); });
+}
+$('priceSearch') && ($('priceSearch').oninput = e => { priceUI.q = e.target.value; renderPrices(); });
+document.querySelectorAll('[data-gotab="prices"]').forEach(b => b.onclick = () => { if (sess) return toast('Finish or end the workout first'); switchTab('prices'); scrollTo(0, 0); });
 function renderOffers() {
   $('offerStore').innerHTML = [['all', 'All'], ['aldi', 'Aldi'], ['lidl', 'Lidl'], ['asda', 'Asda']].map(([k, n]) => `<button type="button" class="chip ${offerUI.store === k ? 'on' : ''}" data-ostore="${k}">${n}</button>`).join('');
   $('offerHp').checked = offerUI.hp; $('offerStatus').textContent = storeStatusText();
@@ -1350,7 +1368,7 @@ function renderOffers() {
     <div class="row"><button type="button" class="primary" data-useoffer='${esc(JSON.stringify({ key, name: o.name, store: o.store, size: o.size }))}'>＋ Use in meal plan</button><a class="btnlink" href="${esc(o.url)}" target="_blank" rel="noopener">View ↗</a></div></div>`; }).join('') : (asdaNote ? '' : '<p class="small muted">No matching offers right now.</p>'));
   $('offerStore').querySelectorAll('[data-ostore]').forEach(b => b.onclick = () => { offerUI.store = b.dataset.ostore; renderOffers(); });
   $('offerList').querySelectorAll('[data-useoffer]').forEach(b => b.onclick = () => { const x = JSON.parse(b.dataset.useoffer);
-    if (x.key) { glp.prefer = [...new Set([x.key, ...glp.prefer])].slice(0, 5); if (glp.store !== 'mix' && glp.store !== x.store) glp.store = 'mix'; saveGlp(); buildGlp(); toast(`✅ Plan rebuilt around ${x.name}`); $('glpCard').scrollIntoView({ behavior: 'smooth' }); }
+    if (x.key) { glp.prefer = [...new Set([x.key, ...glp.prefer])].slice(0, 5); if (glp.store !== 'mix' && glp.store !== x.store) glp.store = 'mix'; saveGlp(); buildGlp(); toast(`✅ Plan rebuilt around ${x.name}`); switchTab('prep'); $('glpCard').scrollIntoView({ behavior: 'smooth' }); }
     else { if (!shop.extra.some(y => shopKey(y.item) === shopKey(x.name))) shop.extra.push({ item: `${x.name} (${STORE_NAMES[x.store]} offer)`, aisle: 'Proteins', pack: x.size }); saveShop(); renderShop(); toast('🛒 Added to your shopping list'); } });
 }
 $('offerHp').onchange = e => { offerUI.hp = e.target.checked; renderOffers(); };

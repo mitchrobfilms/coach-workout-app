@@ -8,7 +8,7 @@
 <title>Reta Coach</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="avatar.jpg">
-<link rel="stylesheet" href="style.css?v=20">
+<link rel="stylesheet" href="style.css?v=21">
 </head>
 <body>
 <header class="topbar">
@@ -63,6 +63,7 @@
     <div class="hero"><img src="hero.jpg" alt="Reta demonstrating a wall push-up"><div class="hero-fade"></div>
       <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <div class="card coachline"><img class="trainer-avatar" src="avatar.jpg" alt=""><p id="startGreeting">Hi! I'm Reta. I'll watch your form through the camera, count your reps and cheer you on.</p></div>
+    <button type="button" class="primary big hometile" data-gotab="prices">🏷️ Offers &amp; Prices<br><small>Aldi &amp; Lidl live, updated 00:30 nightly</small></button>
     <div class="card homeprog" id="homeProgress"></div>
     <div class="card note" id="backupNudge" hidden></div>
     <div class="card injnext" id="injNext" hidden></div>
@@ -172,11 +173,7 @@
     <button type="button" class="primary big" id="glpBuild">✨ Build my GLP-1 plan</button>
     <div id="glpPlan"></div>
   </div>
-  <div class="card" id="offersCard"><h3>🏷️ This week's offers</h3>
-    <div class="chips" id="offerStore"></div>
-    <label class="check"><input type="checkbox" id="offerHp" checked> High protein only (10 g+ per 100 g)</label>
-    <p class="small muted" id="offerStatus"></p>
-    <div id="offerList"></div></div>
+  <button type="button" class="big" data-gotab="prices">🏷️ See Aldi &amp; Lidl offers and prices</button>
   <h2 class="sep">More batch-cook ideas</h2>
   <div class="shophead"><h2>🍱 Meal prep</h2><p class="small muted">Batch-cook once, eat well for 3–4 days. Pick a store, then tap Build my week and your shopping list fills itself.</p></div>
   <div class="card"><b class="steplabel">Choose your store</b><div class="chips storechips" id="prepStorePick"></div><ul class="small" id="prepStoreNotes"></ul>
@@ -185,6 +182,22 @@
     <div id="prepWeek"></div></div>
   <details class="card"><summary><b>🧊 Storage and food safety</b></summary><ul class="small" id="prepSafety"></ul></details>
   <div id="prepSections"></div>
+</section>
+
+<!-- OFFERS & PRICES TAB -->
+<section id="tab-prices" class="tab">
+  <div class="shophead"><h2>🏷️ Offers &amp; Prices</h2><p class="small muted" id="pricesStatus"></p></div>
+  <div class="card" id="offersCard"><h3>🏷️ This week's offers</h3>
+    <div class="chips" id="offerStore"></div>
+    <label class="check"><input type="checkbox" id="offerHp" checked> High protein only (10 g+ per 100 g)</label>
+    <p class="small muted" id="offerStatus"></p>
+    <div id="offerList"></div></div>
+  <div class="card" id="fullPricesCard"><h3>💷 Aldi price list</h3>
+    <input type="search" id="priceSearch" placeholder="Search e.g. chicken, eggs, oats" autocomplete="off" enterkeyhint="search">
+    <div class="chips" id="priceCats"></div>
+    <p class="small muted" id="fullStatus"></p>
+    <div id="priceList"></div></div>
+  <div class="card" id="asdaCard"><h3>Asda</h3><p class="small muted">Typical price</p><div id="asdaList"></div></div>
 </section>
 
 <!-- SHOP TAB -->
@@ -287,6 +300,7 @@
   <button data-tab="classes">🎬<span>Classes</span></button>
   <button data-tab="prep">🍱<span>Prep</span></button>
   <button data-tab="shop">🛒<span>Shop</span></button>
+  <button data-tab="prices">🏷️<span>Prices</span></button>
   <button data-tab="progress">📈<span>Progress</span></button>
   <button data-tab="settings">⚙️<span>Settings</span></button>
 </nav>
@@ -295,6 +309,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="app.js?v=20"></script>
+<script type="module" src="app.js?v=21"></script>
 </body>
 </html>
