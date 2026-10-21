@@ -10,10 +10,10 @@ export async function loadVideos() {
 }
 export const videoById = id => LIB?.videos?.find(v => v.id === id);
 export function videoCard(v) {
-  return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
+  return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
-const ORDER = ['yoga', 'pilates', 'walking', 'cardio', 'dance', 'boxing', 'chair', 'stretch', 'recovery'];
-const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small>${v.mins} min · ${esc(v.level || 'Beginner')}</small></button>`;
+const ORDER = ['walking', 'chair', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
+const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
 // Netflix-style rows per category; "See all" opens that category as a grid.
 export function renderVideoLib(el, { filter = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
@@ -41,7 +41,7 @@ function moveTimer(m, moves, title, done, { skipLabel = 'Skip to class' } = {}) 
 }
 export function openVideo(v, opts = {}) {
   if (!v) return;
-  if (opts.warm === false || v.cat === 'recovery') return playVideo(v, opts);
+  if (opts.warm === false || v.cat === 'recovery' || v.cat === 'breathing') return playVideo(v, opts);
   let m = document.getElementById('videoModal');
   if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
   const moves = WARM[v.cat] || WARM.def;
