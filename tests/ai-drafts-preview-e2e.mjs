@@ -19,7 +19,7 @@ try {
   const txt = await a.textContent('#aiDraftList'); ok((txt.match(/Approved by Mitchell 2026-10-21, published/g) || []).length === 2 && !/Awaiting safety review/.test(txt), 'both drafts "Approved by Mitchell 2026-10-21, published"'); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
   const frames = await a.$$('#aiDraftList iframe'); ok(frames.length === 2, `2 Bunny embeds (${frames.length})`);
   const f = await frames[0].contentFrame(); await f.waitForSelector('video', { timeout: 20000 });
-  await f.evaluate(() => { const v = document.querySelector('video'); v.muted = true; return v.play(); }).catch(e => console.log('play()', e.message));
+  await f.evaluate(() => { document.querySelector('video').muted = true; }); await f.click('.plyr__control--overlaid, [data-plyr=play]', { timeout: 15000 }).catch(e => console.log('play click', e.message)); // preload=false: plyr/hls.js loads on play
   await a.waitForTimeout(9000);
   const st = await f.evaluate(() => { const v = document.querySelector('video'); return { t: v.currentTime, paused: v.paused, w: v.videoWidth, rs: v.readyState }; });
   ok(st.t > 3 && !st.paused && st.w > 0, `embed playing (t=${st.t.toFixed(1)}s, ${st.w}px, readyState ${st.rs})`);
