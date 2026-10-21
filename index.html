@@ -361,7 +361,7 @@
   <label class="small">Instructor voice <select id="setVoiceMode"><option value="recorded">Recorded (realistic)</option><option value="phone">Phone voice</option></select></label></div>
   <label class="check"><input type="checkbox" id="setBeeps" checked> Beeps</label>
   <h3>Food profile</h3>
-  <label>Country for ready-meal ideas <select id="setCountry"><option value="auto">Auto-detect</option><option value="UK">United Kingdom</option><option value="IE">Ireland</option><option value="US">United States</option><option value="CA">Canada</option><option value="AU">Australia</option><option value="OTHER">Other / not listed</option></select></label>
+  <select id="setCountry" hidden aria-hidden="true"><option value="UK">UK</option></select>
   <label class="check"><input type="checkbox" id="setFussy"> Fussy eater mode (simple, familiar meals)</label>
   <p class="small muted">Tap a food once for 👍 like, twice for 🚫 won't eat, three times to clear. Every suggestion skips foods you won't eat.</p>
   <div class="chips" id="foodPicker"></div>

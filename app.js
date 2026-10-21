@@ -568,11 +568,11 @@ async function analyseFood({ speak = true } = {}) {
 }
 $('analyseBtn').onclick = () => { unlockAudio(); analyseFood(); };
 
-const country = () => settings.country && settings.country !== 'auto' ? settings.country : detectCountry();
+const country = () => 'UK'; // GLP1 Life is UK-only
 function foodOpts() { return { glp1: settings.glp1, fussy: settings.fussy, likes: settings.likes, dislikes: settings.dislikes, country: country() }; }
 function renderFoodProfile() {
   const c = country(), rm = READY_MEALS[c];
-  $('readyCountry').textContent = `(${COUNTRIES[c]})`; $('readyStores').textContent = rm.stores + ' Availability varies, so check labels.';
+  $('readyCountry').textContent = ''; $('readyStores').textContent = rm.stores + ' Availability varies, so check labels.';
   $('readyTypes').innerHTML = filterByDislikes(rm.types, settings.dislikes).map(x => `<li>${x}</li>`).join('');
   $('labelGuide').innerHTML = LABEL_GUIDE.map(x => `<li>${x}</li>`).join('');
   $('fussyCard').hidden = !settings.fussy; $('fussyList').innerHTML = fussyIdeas(settings, 6).map(x => `<li>${x}</li>`).join('');
