@@ -23,6 +23,9 @@ export function makeCloud(store, prefix, { certBlob } = {}) {
   const tomb = c => store.get('cloud.tomb.' + c, []);
   return {
     get user() { return ses?.user || null; },
+    // fresh access token for direct calls (Edge Functions, Storage); null when signed out
+    async token() { if (!ses) return null; if (ses.expires_at * 1000 < Date.now() + 60e3) await refresh(); return ses.access_token; },
+    api,
     async signUp(email, password, name) { const j = await api('/auth/v1/signup', { method: 'POST', auth: false, body: { email, password, data: { name } } }); if (!j.access_token) throw new Error('Check your email to confirm, then sign in.'); keep(j); return ses.user; },
     async signIn(email, password) { keep(await api('/auth/v1/token?grant_type=password', { method: 'POST', auth: false, body: { email, password } })); return ses.user; },
     async signOut() { try { await api('/auth/v1/logout', { method: 'POST' }); } catch {} save(null); },
@@ -51,9 +54,13 @@ export function makeCloud(store, prefix, { certBlob } = {}) {
       const [s] = await api('/rest/v1/settings?select=data'); if (s?.data) for (const [k, v] of Object.entries(s.data)) if (fresh || settings[k] == null || settings[k] === '') settings[k] = v;
       return n;
     },
-    async exportAll() { const out = { exported: new Date().toISOString(), email: ses?.user?.email }; for (const t of ['profiles', 'settings', ...Object.keys(LIST), ...Object.keys(DOCS)]) out[t] = await api(`/rest/v1/${t}?select=*`); return out; },
+    async exportAll() { const out = { exported: new Date().toISOString(), email: ses?.user?.email }; for (const t of ['profiles', 'settings', ...Object.keys(LIST), ...Object.keys(DOCS), 'food_diary']) out[t] = await api(`/rest/v1/${t}?select=*`);
+      // food photos: private links valid for 7 days so the export can open/download them
+      try { const l = await this.foodPhotos(); out.food_photos = l.length ? (await api('/storage/v1/object/sign/food-photos', { method: 'POST', body: { expiresIn: 7 * 86400, paths: l } })).map(x => ({ path: x.path, url: x.signedURL ? SB_URL + '/storage/v1' + x.signedURL : null, link_expires_in_days: 7 })) : []; } catch (e) { out.food_photos_error = e.message; }
+      return out; },
+    async foodPhotos() { if (!ses) return []; const l = await api('/storage/v1/object/list/food-photos', { method: 'POST', body: { prefix: ses.user.id + '/', limit: 1000 } }); return (l || []).filter(o => o.id).map(o => `${ses.user.id}/${o.name}`); },
     async certImages() { if (!ses) return []; return api('/storage/v1/object/list/certificates', { method: 'POST', body: { prefix: ses.user.id + '/', limit: 1000 } }); },
     async certImage(id) { const r = await fetch(`${SB_URL}/storage/v1/object/authenticated/certificates/${ses.user.id}/${encodeURIComponent(id)}.png`, { headers: { apikey: SB_KEY, authorization: 'Bearer ' + ses.access_token } }); return r.ok ? r.blob() : null; },
-    async deleteAll() { try { const l = await this.certImages(); if (l.length) await api('/storage/v1/object/certificates', { method: 'DELETE', body: { prefixes: l.map(o => `${ses.user.id}/${o.name}`) } }); } catch {} await api('/rest/v1/rpc/delete_my_account', { method: 'POST', body: {} }); save(null); store.set('cloud.certImgs', []); },
+    async deleteAll() { try { const f = await this.foodPhotos(); if (f.length) await api('/storage/v1/object/food-photos', { method: 'DELETE', body: { prefixes: f } }); } catch {} try { const l = await this.certImages(); if (l.length) await api('/storage/v1/object/certificates', { method: 'DELETE', body: { prefixes: l.map(o => `${ses.user.id}/${o.name}`) } }); } catch {} await api('/rest/v1/rpc/delete_my_account', { method: 'POST', body: {} }); save(null); store.set('cloud.certImgs', []); },
   };
 }

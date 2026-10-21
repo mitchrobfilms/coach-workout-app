@@ -1,6 +1,6 @@
 import { chromium, devices } from 'playwright-core';
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' });
-const TABS = ['workout', 'progress', 'prep', 'classes', 'workouts', 'trainers', 'prices', 'aldi', 'lidl', 'settings', 'community'];
+const TABS = ['workout', 'diary', 'progress', 'prep', 'classes', 'workouts', 'trainers', 'prices', 'aldi', 'lidl', 'settings', 'community'];
 let bad = 0;
 for (const [w, h] of [[320, 640], [360, 800], [412, 915], [480, 1000], [768, 1024]]) {
   const ctx = await b.newContext({ ...devices['Pixel 5'], viewport: { width: w, height: h } }); const p = await ctx.newPage();

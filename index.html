@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=42">
+<link rel="stylesheet" href="style.css?v=43">
 </head>
 <body>
 <header class="topbar">
@@ -68,6 +68,7 @@
       <h2 class="greet" id="greet">Good morning</h2><p class="small muted greetsub">You're doing great! Keep going 💜</p>
       <div class="card wcard" id="wCard"></div>
       <div class="grid2 minis"><div class="card mini water" id="waterCard"></div><button type="button" class="card mini" id="stepsCard"></button></div>
+      <button type="button" class="card foodtoday" id="foodTodayCard" data-goto="diary"></button>
       <div class="card nextinj" id="nextInjCard"></div>
       <div class="card" id="weekCard"><h3>This week</h3><div class="weekchecks" id="weekChecks"></div></div>
       <div class="features" id="features"></div>
@@ -146,8 +147,11 @@
   </div>
 </section>
 
+<!-- FOOD PHOTO DIARY -->
+<section id="tab-diary" class="tab"><div id="photoDiaryRoot"></div></section>
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
+  <button type="button" class="linkcard fdcta" data-goto="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Food photo diary</b><small>Snap a meal for an instant calorie and protein estimate</small></span></button>
   <button class="primary big shopcta" data-goshop>🛒 What to buy this week: recipes and shopping lists</button>
   <div class="card"><p>What did you eat today? Just jot it down, no need to weigh anything.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
@@ -396,6 +400,7 @@
   <div class="lgrid">
     <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
     <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
+    <button type="button" data-tab="diary"><i>📸</i><span>Photo diary</span></button>
     <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
     <button type="button" data-tab="classes"><i>🎓</i><span>GLP1 Life Course</span></button><button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
     <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
@@ -412,6 +417,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=42"></script><script type="module" src="app.js?v=42"></script>
+<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=43"></script>
 </body>
 </html>

@@ -37,7 +37,9 @@ const store = {
   set: (k, v) => { const j = JSON.stringify(v); try { localStorage.setItem(PREFIX + k, j); } catch {} idbSet(PREFIX + k, j); },
 };
 import { makeCloud } from './cloud.js';
-const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) }); let cloudTimer = null, cloudPulling = false;
+import { makeFoodDiary } from './fooddiary.js';
+const cloud = makeCloud(store, PREFIX, { certBlob: c => certBlob(c) });
+const foodDiary = makeFoodDiary({ cloud, store, toast: (...a) => toast(...a), onChange: () => renderFoodToday() }); let cloudTimer = null, cloudPulling = false;
 { const set0 = store.set; store.set = (k, v) => { if (cloud.user && !String(k).startsWith('cloud.')) { if (k === 'certificates') store.set('cloud.certImgs', store.get('cloud.certImgs', [])); if (!cloudPulling && ['weights', 'injections', 'certificates'].includes(k)) cloud.noteDelete(k, store.get(k, []), v); clearTimeout(cloudTimer); cloudTimer = setTimeout(() => cloudPush(), 4000); } set0(k, v); }; }
 // Continuous auto-backup: every change is pushed ~4 s later; also when the app is hidden/closed and when back online.
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden' && cloud.user && cloudTimer) { clearTimeout(cloudTimer); cloudTimer = null; cloudPush(); } });
@@ -1683,6 +1685,7 @@ function renderHome() {
     const bump = delta => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; const v = addWater(x, delta); store.set('daily', d); renderHome(); toast(delta > 0 ? `💧 +500 ml · ${litres(v)} L today` : `↩️ Removed 500 ml · ${litres(v)} L today`); };
     $('waterPlus').onclick = () => bump(STEP_ML); $('waterMinus').onclick = () => bump(-STEP_ML); }
   $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · ${t.stepsSrc ? 'from ' + t.stepsSrc : 'tap to sync or add'}</small></span>`;
+  renderFoodToday();
   $('stepsCard').onclick = () => openStepsSheet(); window._manualSteps = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
   $('nextInjCard').innerHTML = `<div class="row between"><div><h3>💉 Next injection</h3><p style="margin:0"><b>${esc(last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged')}</b>${last?.dose ? `<br>${esc(last.dose)} ${esc(last.unit || '')} <small class="muted">(your last logged dose)</small>` : ''}</p>
@@ -1691,7 +1694,7 @@ function renderHome() {
   $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
   const wGoal = waterGoal(settings), waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
-  const mealDays = Object.keys(store.get('food', {})).filter(d => d >= ws).length, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
+  const mealDays = new Set([...Object.keys(store.get('food', {})), ...Object.keys(store.get('cloud.foodDays', {}))].filter(d => d >= ws)).size, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
   const lessons = Object.values(store.get('course', { done: {} }).done || {}).filter(inWeek).length;
   const checks = [['💉', 'Injection logged', injN ? `${injN} this week` : 'Not yet', injN > 0, 'progress', 'injCard'], ['⚖️', 'Weighed in', weighN ? `${weighN} this week` : 'Not yet', weighN > 0, 'progress', 'progSummary'],
     ['💧', 'Water goal days', `${waterDays}/7 days at ${litres(wGoal)} L`, waterDays >= 5, 'workout', 'waterCard'], ['🍽️', 'Meals logged', `${mealDays}/7 days`, mealDays >= 5, 'food'], ['🎓', 'Course lesson', lessons ? `${lessons} done this week` : 'Try one this week', lessons > 0, 'classes']];
@@ -1700,6 +1703,11 @@ function renderHome() {
   const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP1 Life Classes', 'classes'], ['🎬', 'Workouts', 'workouts'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
   $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
   $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
+}
+// Home tile: today's food from the photo diary (estimates)
+function renderFoodToday() {
+  const el = $('foodTodayCard'); if (!el) return; const t = store.get('cloud.foodDays', {})[todayKey()], goal = 90, pct = t ? Math.min(100, Math.round(t.protein_g / goal * 100)) : 0;
+  el.innerHTML = `<div class="ftrow"><i>🍽️</i><span class="ftmain"><small>Today's food <em>estimate</em></small><b>${t ? `${t.kcal.toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein` : 'No meals logged yet'}</b><small>${t ? `${t.n} meal${t.n === 1 ? '' : 's'} · protein guide ~${goal} g a day` : 'Snap a meal for an instant estimate'}</small></span><span class="ftcta">📸</span></div>${t ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
 }
 const sortInjL = l => l.slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 // Track: segment tabs + body site map
@@ -1800,10 +1808,10 @@ renderCompare = function () {
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
 (window.__kova ||= {}).switchTab = t => switchTab(t);
-switchTab = function (t) { _switchTab(t); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes', 'workouts'].includes(t)); document.querySelectorAll('#dock [data-tab=workouts]').forEach(b => b.classList.toggle('active', t === 'workouts' || t === 'classes')); };
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes', 'workouts'].includes(t)); document.querySelectorAll('#dock [data-tab=workouts]').forEach(b => b.classList.toggle('active', t === 'workouts' || t === 'classes')); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
-renderHome(); renderSupport(); renderMyPlan(); renderBodySites();
+renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);
 setTimeout(renderHome, 1500);
 
 /* ---------- Cloud sync UI ---------- */

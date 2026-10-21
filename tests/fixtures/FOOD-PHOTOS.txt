@@ -1,0 +1,5 @@
+Food photo test fixtures (resized), from Wikimedia Commons (CC licences, see each file page):
+- food-fish.jpg: File:Fish_and_chips_blackpool.jpg
+- food-full.jpg: File:Full_English_breakfast.jpg
+- food-spaghetti.jpg: File:Spaghetti_bolognese_(hozinja).jpg
+- food-notfood.jpg: the app hero.jpg (not food)

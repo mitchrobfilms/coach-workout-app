@@ -13,6 +13,7 @@ export async function cleanupTestData({ quiet = false } = {}) {
     ['codes', `delete from public.promo_codes where trainer_id in ${T} or (trainer_id is null and code ~ '^[A-Z]{3}PT-[A-Z0-9]{4}$' and not exists (select 1 from public.promo_redemptions r where r.code_id = promo_codes.id))`],
     ['trainers', `delete from public.trainers where id in ${T}`],
     ['community', `select set_config('storage.allow_delete_query','true',true); delete from storage.objects where bucket_id='community' and split_part(name,'/',1) in (select id::text from auth.users where email like 'glp1life.test.%@example.com'); delete from public.community_groups where name like 'Test Group %'; delete from public.community_modlog where user_id in (select id from auth.users where email like 'glp1life.test.%@example.com')`],
+    ['foodphotos', `select set_config('storage.allow_delete_query','true',true); delete from storage.objects where bucket_id='food-photos' and split_part(name,'/',1) in (select id::text from auth.users where email like 'glp1life.test.%@example.com')`],
     ['admins', `delete from public.admins where user_id in (select id from auth.users where email like 'glp1life.test.%@example.com')`],
     ['users', `delete from auth.users where email like 'glp1life.test.%@example.com'`]];
   for (const [n, q] of steps) { try { await sql(q); } catch (e) { if (!quiet) console.warn('cleanup', n, e.message); } }
