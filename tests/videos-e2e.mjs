@@ -1,49 +1,45 @@
-// Video class library: list + categories, archive.org player with CC BY-ND credit + Cast button, official YouTube embed,
-// non-embeddable videos open on YouTube, Home "Ideas for you". Also checks every library entry is reachable.
+// Video class library: member list is empty (all third-party videos removed 2026-10-21) until Coach Ava (AI-generated
+// instructor) classes pass human safety review. Checks the Fitness tab's "coming soon" state, course banner, no empty tiles,
+// Home "Ideas" hidden, and that the player/Cast code still works when a video is added (injected via a routed library).
 import { chromium, devices } from 'playwright-core';
 import fs from 'fs';
 const URL = process.argv[2] || 'http://localhost:8765/', OUT = '/workspace/shots/glp1life';
 let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
 const lib = JSON.parse(fs.readFileSync(new globalThis.URL('../library-videos.json', import.meta.url)));
-for (const v of lib.videos.filter(v => v.source === 'archive')) { const r = await fetch(v.src, { method: 'HEAD', redirect: 'follow' }).catch(() => fetch(v.src, { method: 'HEAD', redirect: 'follow' })); ok(r.ok && /video\/mp4/.test(r.headers.get('content-type') || ''), `archive mp4 reachable: ${v.id} (${r.status})`); }
-for (const v of lib.videos.filter(v => v.source === 'youtube' && v.embeddable)) { const r = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(v.page)}&format=json`); ok(r.ok, `YouTube embeddable: ${v.youtubeId} ${v.title.slice(0, 40)}`); }
-ok(lib.videos.filter(v => v.source === 'archive').every(v => v.credit === 'Dr Melissa West, Yoga With Melissa, CC BY-ND 4.0'), 'every archive video carries the CC BY-ND 4.0 credit');
-const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' }); const ctx = await b.newContext({ ...devices['Pixel 5'] }); const p = await ctx.newPage();
+ok(Array.isArray(lib.videos) && lib.videos.length === 0, 'library-videos.json has no member videos');
+ok(!JSON.stringify(lib.videos).match(/youtube|archive\.org|Melissa/i), 'no YouTube / archive.org / Melissa entries left');
+const drafts = JSON.parse(fs.readFileSync(new globalThis.URL('../admin/ai-class-drafts.json', import.meta.url)));
+const draftIds = JSON.stringify(drafts).match(/ai-[a-z0-9-]+/g) || [];
+ok(!lib.videos.some(v => draftIds.includes(v.id)), 'admin AI drafts are not in the member library');
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' }); const ctx = await b.newContext({ ...devices['Pixel 5'], serviceWorkers: 'block' }); const p = await ctx.newPage();
 const errs = []; p.on('pageerror', e => errs.push(e.message));
 await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(1500);
 await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', 'v@example.com'); await p.fill('#regSecret', 'password123'); await p.press('#regSecret', 'Enter'); await p.waitForTimeout(700);
 await p.evaluate(() => { const k = Object.keys(localStorage).find(k => k.endsWith('.settings')); const s = JSON.parse(localStorage[k] || '{}'); s.onboarded = true; localStorage[k] = JSON.stringify(s); }); await p.reload(); await p.waitForTimeout(1500);
-ok(await p.$$eval('#videoIdeas [data-video]', l => l.length) === 3, 'Home "Ideas for you" shows 3 video classes');
+ok(await p.$eval('#videoIdeas', e => e.hidden && !e.querySelector('[data-video]')), 'Home "Ideas for you" hidden (no videos)');
 await p.evaluate(() => window.__kova.switchTab('workouts')); await p.waitForTimeout(500);
-ok(await p.$$eval('#videoLib .vtile', l => l.length) === 15, 'Workouts shows 15 category tiles');
-ok(await p.$eval('#videoLib .vtile', e => /Warm-up/.test(e.textContent)), 'Warm-up tile first');
 ok(await p.$eval('#dock [data-tab=workouts]', e => /Fitness/.test(e.textContent)), 'Fitness tab in bottom nav');
-const tot = await p.$$eval('#videoLib .vtcount', l => l.reduce((a, e) => a + parseInt(e.textContent), 0)); ok(tot === lib.videos.length, `tiles count ${tot} = ${lib.videos.length} videos`);
-await p.click('#videoLib [data-vcat="recovery"]'); await p.waitForTimeout(200); const rec = await p.$$eval('#videoLib [data-video], #videoLib [data-vext]', l => l.length); ok(rec >= 5, `Recovery, back & sciatica filter (${rec})`);
-await p.$eval('#videoLib', e => e.scrollIntoView()); await p.screenshot({ path: `${OUT}/videos-library.png` });
-await p.click('#vBack'); await p.click('#videoLib [data-vcat="pilates"]'); await p.click('#videoLib [data-video^="ywm-741"]'); await p.waitForTimeout(800); ok(!(await p.$('#wStart')) && !(await p.$('#videoCool')), 'class plays straight away (no warm-up/cool-down steps)');
-const a = await p.evaluate(() => ({ src: document.querySelector('#videoPlayer')?.src, credit: document.querySelector('.vcredit')?.textContent, cast: !!document.querySelector('#videoCast'), dock: getComputedStyle(document.querySelector('#dock')).display }));
-ok(/archive\.org\/download\/741-hd\/.+\.mp4$/.test(a.src), 'archive class plays from archive.org (unedited file)'); ok(/Dr Melissa West, Yoga With Melissa, CC BY-ND 4.0/.test(a.credit), 'credit shown'); ok(a.cast, 'Cast button'); ok(a.dock === 'none', 'nav hidden under player sheet');
-await p.screenshot({ path: `${OUT}/videos-player-archive.png` }); await p.click('#videoClose');
-await p.click('#vBack').catch(() => {}); await p.click('#videoLib [data-vcat="recovery"]'); await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); if (await p.$('#wSkip')) await p.click('#wSkip'); await p.waitForTimeout(300); await p.waitForTimeout(800);
-ok(/^https:\/\/www\.youtube-nocookie\.com\/embed\/Z9C38koJNTc/.test(await p.$eval('#videoModal iframe', e => e.src)), 'YouTube via official embed player');
-await p.screenshot({ path: `${OUT}/videos-player-youtube.png` }); await p.click('#videoClose');
-ok(!(await p.$('#videoLib [data-vext]')), 'no "opens on YouTube" cards (non-embeddable videos dropped)');
-ok(lib.videos.every(v => v.embeddable), 'library only has in-app playable videos');
-await p.evaluate(() => window.__kova.switchTab('classes')); await p.waitForTimeout(300); ok(await p.$$eval('#courseRoot .cmod', l => l.length) === 7, 'course has 7 modules');
+ok(await p.$eval('#fitCourse', e => !!e.offsetParent && /GLP1 Life Course/.test(e.textContent)), 'course banner visible on Fitness');
+ok(await p.$$eval('#videoLib .vtile', l => l.length) === 0, 'no empty category tiles (Warm-up/Cool-down etc. hidden)');
+ok(await p.$eval('#vSoon', e => !!e.offsetParent && /New Coach Ava classes coming soon/.test(e.textContent)), '"New Coach Ava classes coming soon" shown');
+ok(!(await p.$('#videoLib [data-video]')), 'no video cards');
+await p.screenshot({ path: `${OUT}/videos-coming-soon.png` });
+await p.click('#fitCourse'); await p.waitForTimeout(300); ok(await p.$$eval('#courseRoot .cmod', l => l.length) === 7, 'course banner opens the course (7 modules)');
 await p.click('#courseRoot .cmod summary'); await p.click('#courseRoot [data-lesson]'); await p.waitForTimeout(200); ok(/prescriber/.test(await p.textContent('#lessonModal')), 'lesson reminds: follow prescriber + leaflet'); await p.waitForTimeout(400); ok(await p.$eval('#lessonModal .rsheet', e => getComputedStyle(e).opacity === '1' && e.getBoundingClientRect().top > -5), 'lesson sheet actually visible (opacity 1, on screen)');
-await p.screenshot({ path: `${OUT}/course-lesson.png` }); await p.click('#lessonDone'); await p.waitForTimeout(200); ok(/1 of/.test(await p.textContent('#courseRoot .coursehead')), 'lesson tick saved');
-await p.screenshot({ path: `${OUT}/course.png` });
+await p.click('#lessonDone'); await p.waitForTimeout(200); ok(/1 of/.test(await p.textContent('#courseRoot .coursehead')), 'lesson tick saved');
 ok(!(await p.$eval('#tab-classes', e => [...e.querySelectorAll('h2')].some(h => h.offsetParent && /30-minute/.test(h.textContent)))), '30-minute workouts section gone');
-await p.evaluate(() => window.__kova.switchTab('workouts')); await p.waitForTimeout(300);
-await p.click('#vBack').catch(() => {}); await p.click('#videoLib [data-vcat="recovery"]'); await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); if (await p.$('#wSkip')) await p.click('#wSkip'); await p.waitForTimeout(300); await p.waitForTimeout(500);
-ok(!(await p.$('#videoModal a[href*="youtube"]')), 'no outbound YouTube links in player sheet'); ok(await p.$eval('#videoCast', e => e.hidden), 'web: Cast button hidden where it cannot cast YouTube');
-await p.click('#videoClose');
-// simulate the Android app (native system cast panel)
+// Player + Cast kept for future classes: route a one-video library (local mp4) and check tile -> grid -> player.
+const fake = { ...lib, videos: [{ id: 'test-ava', title: 'Test class', cat: 'chair', mins: 10, level: 'Beginner', source: 'archive', src: URL.replace(/\?.*/, '') + 'media/squats.mp4', page: URL, poster: URL.replace(/\?.*/, '') + 'media/squats.jpg', credit: 'GLP1 Life test', licenceUrl: URL, embeddable: true }] };
+await p.route('**/library-videos.json*', r => r.fulfill({ contentType: 'application/json', body: JSON.stringify(fake) }));
+await p.reload(); await p.waitForFunction(() => window.__kova?.videosReady); await p.evaluate(() => window.__kova.switchTab('workouts')); await p.waitForTimeout(400);
+ok(await p.$$eval('#videoLib .vtile', l => l.length) === 1 && !(await p.$('#vSoon')), 'with a video: 1 tile, no coming-soon card');
+await p.click('#videoLib [data-vcat="chair"]'); await p.click('#videoLib [data-video="test-ava"]'); await p.waitForTimeout(600);
+ok(/media\/squats\.mp4$/.test(await p.$eval('#videoPlayer', e => e.src)), 'player opens in-app <video>');
+ok(!!(await p.$('#videoCast')), 'Cast button present in player');
 await p.evaluate(() => { window.__castOpened = 0; window.Capacitor = { isNativePlatform: () => true, Plugins: { ApkUpdater: { openCastSettings: async () => { window.__castOpened++; return {}; } } } }; });
-await p.click('#vBack').catch(() => {}); await p.click('#videoLib [data-vcat="recovery"]'); await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); if (await p.$('#wSkip')) await p.click('#wSkip'); await p.waitForTimeout(300); await p.waitForTimeout(500);
-ok(!(await p.$eval('#videoCast', e => e.hidden)), 'APK: Cast to TV button shown for YouTube'); await p.click('#videoCast'); await p.waitForTimeout(300);
-ok(await p.evaluate(() => window.__castOpened) === 1, 'APK: opens Android Cast panel'); await p.screenshot({ path: `${OUT}/videos-cast-apk.png` }); await p.click('#videoClose');
-await p.evaluate(() => delete window.Capacitor);
+await p.click('#videoClose'); await p.click('#videoLib [data-video="test-ava"]'); await p.waitForTimeout(400);
+ok(!(await p.$eval('#videoCast', e => e.hidden)), 'APK: Cast to TV button shown'); await p.click('#videoCast'); await p.waitForTimeout(300);
+ok(await p.evaluate(() => window.__castOpened) === 1, 'APK: opens Android Cast panel'); await p.click('#videoClose');
+await p.evaluate(() => delete window.Capacitor); await p.unroute('**/library-videos.json*');
 ok(!errs.length, 'no page errors ' + errs.join('|'));
 await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL VIDEO LIBRARY TESTS PASSED'); process.exit(fail ? 1 : 0);

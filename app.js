@@ -1878,7 +1878,7 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 
-/* ---------- Video class library (archive.org CC BY-ND + official YouTube embeds) ---------- */
+/* ---------- Video class library (library-videos.json; member list empty until Coach Ava classes pass safety review) ---------- */
 let sessionCastSrc = null;
 function castMsg(r) {
   if (r === 'system') toast('📺 Pick your TV from the list, then come back to GLP1 Life and press play. Your phone screen shows on the TV.');

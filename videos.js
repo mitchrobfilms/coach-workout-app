@@ -1,6 +1,7 @@
 // Video class library (library-videos.json, fetched fresh each launch so the list updates without an app release).
-// Archive.org (Yoga With Melissa, CC BY-ND 4.0) plays unedited in a <video> and is Google-Cast-able;
-// YouTube plays only in the official embed player (youtube-nocookie) - its own Cast button casts it. No download/re-host.
+// The member list is currently empty (third-party videos removed 2026-10-21); GLP1 Life Coach Ava classes are added here after
+// human safety review. Player/Cast code is kept: <video> sources (e.g. Bunny Stream / archive) are Google-Cast-able;
+// YouTube would play only in the official embed player (youtube-nocookie). No download/re-host.
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let LIB = null;
 export async function loadVideos() {
@@ -14,10 +15,12 @@ export function videoCard(v) {
 }
 const ORDER = ['warmup', 'cooldown', 'walking', 'chair', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
 const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.chair ? ' · 🪑 Chair-friendly' : v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
+const COMING_SOON = `<div class="card vsoon" id="vSoon"><span class="vsicon" aria-hidden="true">🎬</span><h3>New Coach Ava classes coming soon</h3><p>We're filming brand-new GLP1 Life follow-along classes, from gentle seated sessions to easy walks. They'll appear here as soon as they're ready.</p><p class="small muted">In the meantime, keep moving with a gentle walk and check out the GLP1 Life Course above.</p></div>`;
 // Netflix-style rows per category; "See all" opens that category as a grid.
 export function renderVideoLib(el, { filter = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
-  const cats = LIB.categories, vids = LIB.videos.filter(v => v.embeddable);
+  const cats = LIB.categories || {}, vids = (LIB.videos || []).filter(v => v.embeddable);
+  if (!vids.length) { el.innerHTML = COMING_SOON; return; }
   const keys = [...ORDER.filter(k => cats[k]), ...Object.keys(cats).filter(k => !ORDER.includes(k))];
   if (filter) {
     const list = vids.filter(v => v.cat === filter);
