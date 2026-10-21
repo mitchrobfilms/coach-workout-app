@@ -8,8 +8,8 @@ for (const [w, h] of [[320, 640], [360, 800], [412, 915], [480, 1000], [768, 102
   await p.click('#wCreate'); await p.fill('#regName', 'Mitchell Robinson'); await p.fill('#regEmail', 'g@example.com'); await p.fill('#regSecret', 'password123'); await p.press('#regSecret', 'Enter'); await p.waitForTimeout(1200);
   if (await p.isVisible('#obSkip')) await p.click('#obSkip'); await p.waitForTimeout(500);
   for (const t of TABS) {
-    await p.evaluate(t => window.__kova.switchTab(t), t); await p.waitForTimeout(250);
-    const r = await p.evaluate(() => { const over = document.documentElement.scrollWidth > innerWidth + 1; scrollTo(0, 1e7); return new Promise(res => setTimeout(() => { const d = document.querySelector('.dock').getBoundingClientRect(); const tab = document.querySelector('.tab.active'); const els = [...tab.querySelectorAll('*')].filter(e => e.offsetParent && !e.children.length && e.getBoundingClientRect().height); const last = Math.max(...els.map(e => e.getBoundingClientRect().bottom)); res({ over, under: last > d.top + 1, last: Math.round(last), dock: Math.round(d.top) }); }, 200)); });
+    await p.evaluate(t => window.__kova.switchTab(t), t); await p.waitForTimeout(t === 'trainers' || t === 'community' ? 2500 : 250);
+    const r = await p.evaluate(() => { const over = document.documentElement.scrollWidth > innerWidth + 1; scrollTo(0, 1e7); return new Promise(res => setTimeout(() => { scrollTo(0, 1e7); const d = document.querySelector('.dock').getBoundingClientRect(); const tab = document.querySelector('.tab.active'); const els = [...tab.querySelectorAll('*')].filter(e => e.offsetParent && !e.children.length && e.getBoundingClientRect().height); const last = Math.max(...els.map(e => e.getBoundingClientRect().bottom)); res({ over, under: last > d.top + 1, last: Math.round(last), dock: Math.round(d.top) }); }, 200)); });
     if (r.over || r.under) { bad++; console.log('ISSUE', w + 'x' + h, t, JSON.stringify(r)); }
   }
   await p.screenshot({ path: `/workspace/shots/glp1life/grid-${w}x${h}-community.png` }); await ctx.close();
