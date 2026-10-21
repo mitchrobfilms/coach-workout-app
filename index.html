@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=40">
+<link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
 <header class="topbar">
@@ -73,6 +73,7 @@
       <div class="features" id="features"></div>
     </div>
     <p id="startGreeting" class="small muted" hidden></p>
+    <button type="button" class="coursebanner homecourse" data-goto="classes"><span class="cbicon">🎓</span><span><b>GLP1 Life Course</b><small>7 modules · 20 lessons</small><em>Continue learning ›</em></span></button>
     <button type="button" class="fitcard homefit" data-goto="workouts">🎬 Workouts<small>Warm-ups, walking, chair, yoga &amp; more</small></button>
     <div class="card videoideas" id="videoIdeas" hidden></div>
     <div class="card homeprog" id="homeProgress"></div>
@@ -162,7 +163,8 @@
 <!-- WORKOUTS TAB -->
 <section id="tab-workouts" class="tab">
   <h2 class="pagehead">Fitness</h2>
-  <div class="fitcards"><button type="button" class="fitcard" data-goto="workouts">🎬 Workouts<small>Coached video classes</small></button><button type="button" class="fitcard alt" data-goto="classes">🎓 GLP1 Life Course<small>Lessons &amp; certificate</small></button></div>
+  <button type="button" class="coursebanner" data-goto="classes" id="fitCourse"><span class="cbicon">🎓</span><span><b>GLP1 Life Course</b><small>7 modules · 20 lessons · certificate</small><em>Open the course ›</em></span></button>
+  <h3 class="fithead">🎬 Workouts</h3>
   <p class="small muted">Instructor-led classes, played inside the app from their creators. Start with a warm-up and finish with a cool-down.</p>
   <div id="videoLib"></div>
 </section>
@@ -410,6 +412,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=40"></script><script type="module" src="app.js?v=40"></script>
+<script type="module" src="native.js?v=41"></script><script type="module" src="app.js?v=41"></script>
 </body>
 </html>
