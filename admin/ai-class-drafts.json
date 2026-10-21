@@ -23,9 +23,9 @@
    "status": "Awaiting safety review",
    "published": false,
    "thumb": "ai-drafts/ai-walk-15.jpg",
-   "video": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/playlist.m3u8",
-   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 720p MP4 78.2 MB. Hosted on Bunny Stream (admin preview only).",
-   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/captions/en.vtt",
+   "video": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/playlist.m3u8",
+   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 198.5 MB. Hosted on Bunny Stream (admin preview only).",
+   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
     {
@@ -208,19 +208,23 @@
    "build": {
     "noLoop": true,
     "branded": true,
-    "sizeMB": 78.2,
-    "file": "class-creator/out/ai-walk-15-noloop.mp4"
+    "sizeMB": 198.5,
+    "file": "class-creator/out/ai-walk-15-noloop.mp4",
+    "resolution": "1920x1080",
+    "labelAutoPlaced": true
    },
    "bunny": {
     "libraryId": 786067,
-    "guid": "29a85889-c988-45e4-8298-c1eece64ce3e",
+    "guid": "67ddaa1e-c96b-44bb-bf99-467c3c10c445",
     "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
-    "hls": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/playlist.m3u8",
-    "embed": "https://iframe.mediadelivery.net/embed/786067/29a85889-c988-45e4-8298-c1eece64ce3e",
+    "hls": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/playlist.m3u8",
+    "embed": "https://iframe.mediadelivery.net/embed/786067/67ddaa1e-c96b-44bb-bf99-467c3c10c445",
     "captions": [
      "en"
     ],
-    "encoded": true
+    "encoded": true,
+    "maxResolution": "1080p",
+    "supersededGuid": "29a85889-c988-45e4-8298-c1eece64ce3e"
    }
   },
   {
@@ -238,9 +242,9 @@
    "status": "Awaiting safety review",
    "published": false,
    "thumb": "ai-drafts/ai-seated-10.jpg",
-   "video": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/playlist.m3u8",
-   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 720p MP4 41.7 MB. Heel raises dropped (AI clips failed review). Hosted on Bunny Stream (admin preview only).",
-   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/captions/en.vtt",
+   "video": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/playlist.m3u8",
+   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 1080p (upscaled from 720p AI clips) MP4 106.5 MB. Heel raises dropped (AI clips failed review). Hosted on Bunny Stream (admin preview only).",
+   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
     {
@@ -391,19 +395,23 @@
    "build": {
     "noLoop": true,
     "branded": true,
-    "sizeMB": 41.7,
-    "file": "class-creator/out/ai-seated-10-branded.mp4"
+    "sizeMB": 106.5,
+    "file": "class-creator/out/ai-seated-10-branded.mp4",
+    "resolution": "1920x1080",
+    "labelAutoPlaced": true
    },
    "bunny": {
     "libraryId": 786067,
-    "guid": "f6a01003-62fa-4a2f-aa7a-626030219857",
+    "guid": "39c7e26d-3e2e-4c21-a611-92b840da3713",
     "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
-    "hls": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/playlist.m3u8",
-    "embed": "https://iframe.mediadelivery.net/embed/786067/f6a01003-62fa-4a2f-aa7a-626030219857",
+    "hls": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/playlist.m3u8",
+    "embed": "https://iframe.mediadelivery.net/embed/786067/39c7e26d-3e2e-4c21-a611-92b840da3713",
     "captions": [
      "en"
     ],
-    "encoded": true
+    "encoded": true,
+    "maxResolution": "1080p",
+    "supersededGuid": "f6a01003-62fa-4a2f-aa7a-626030219857"
    }
   }
  ]
