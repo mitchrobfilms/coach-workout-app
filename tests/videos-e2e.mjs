@@ -18,6 +18,8 @@ const errs = []; p.on('pageerror', e => errs.push(e.message));
 await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(1500);
 await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', 'v@example.com'); await p.fill('#regSecret', 'password123'); await p.press('#regSecret', 'Enter'); await p.waitForTimeout(700);
 await p.evaluate(() => { const k = Object.keys(localStorage).find(k => k.endsWith('.settings')); const s = JSON.parse(localStorage[k] || '{}'); s.onboarded = true; localStorage[k] = JSON.stringify(s); }); await p.reload(); await p.waitForFunction(() => window.__kova?.videosReady);
+// live site uses cloud sign-up (no real accounts made by tests): reveal the app shell behind the auth screen, as tests/live-course.mjs does
+if (await p.evaluate(() => !!document.querySelector('#authScreen:not([hidden])'))) { console.log('note: live cloud auth, revealing app shell'); await p.evaluate(() => { document.body.classList.remove('authScreen'); document.querySelectorAll('.overlay:not([hidden]), #authWrap, #welcome').forEach(e => e.hidden = true); }); await p.waitForTimeout(400); }
 await p.evaluate(() => window.__kova.switchTab('workouts')); await p.waitForTimeout(600);
 ok(await p.$eval('#dock [data-tab=workouts]', e => /Fitness/.test(e.textContent)), 'Fitness tab in bottom nav');
 ok(await p.$eval('#fitCourse', e => !!e.offsetParent && /GLP1 Life Course/.test(e.textContent)), 'course banner visible on Fitness');

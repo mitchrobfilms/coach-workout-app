@@ -80,7 +80,7 @@ function playVideo(v, { onCastSource, onComplete } = {}) {
     : v.source === 'youtube'
     ? `<iframe class="vplayer" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtubeId)}?rel=0&modestbranding=1&playsinline=1&fs=1&iv_load_policy=3&origin=${encodeURIComponent(location.origin)}" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`
     : `<video class="vplayer" id="videoPlayer" src="${esc(v.src)}" poster="${esc(v.poster)}" controls playsinline preload="metadata"></video>`;
-  m.innerHTML = `<div class="rsheet vsheet"><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button>${player}
+  m.innerHTML = `<div class="rsheet vsheet${bunny ? ' vb' : ''}">${bunny ? '<div class="vbar"><span class="small muted">GLP1 Life class</span><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button></div>' : '<button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button>'}${player}
     <div class="vbody"><h2>${esc(v.title)}</h2><p class="small muted">${v.mins} min · ${esc(v.level || 'Beginner')} · ${esc(LIB?.categories?.[v.cat] || '')}</p>
     ${bunny ? avaInfo(v) : ''}
     <p class="small vcredit"${bunny ? ' hidden' : ''}>${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
@@ -103,7 +103,7 @@ function avaInfo(v) {
 }
 // Completion: Bunny's embed speaks player.js over postMessage ("ready", "timeupdate", "ended"); 90 % watched or "ended" = done.
 function trackBunny(m, v, onComplete) {
-  const fr = m.querySelector('#videoFrame'), btn = m.querySelector('#videoDoneBtn'); let done = false;
+  const fr = m.querySelector('#videoFrame'), btn = m.querySelector('#videoDoneBtn'); let done = false; if (window.__kova) window.__kova.videoTime = 0;
   const finish = how => { if (done) return; done = true; onComplete?.(v, how); if (btn) { btn.textContent = '✓ Completed · well done!'; btn.disabled = true; } };
   if (btn) btn.onclick = () => finish('manual');
   const send = (method, value) => fr?.contentWindow?.postMessage(JSON.stringify({ context: 'player.js', version: '0.0.11', method, value, listener: value }), '*');
