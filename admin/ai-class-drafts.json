@@ -24,7 +24,7 @@
    "published": false,
    "thumb": "ai-drafts/ai-walk-15.jpg",
    "video": null,
-   "videoNote": "MP4 not hosted yet (walk 96 MB, seated 46 MB; above Supabase free 50 MB/file for the walk). Recommend Bunny Stream.",
+   "videoNote": "v1 used looped 8 s clips (rejected). Rebuilding as no-loop chained + branded \u2013 in progress. Not hosted yet.",
    "subtitles": null,
    "trackCompletion": true,
    "timeline": [
@@ -196,7 +196,13 @@
      "modification": "",
      "next": "Finish"
     }
-   ]
+   ],
+   "build": {
+    "noLoop": false,
+    "branded": false,
+    "sizeMB": null,
+    "inProgress": true
+   }
   },
   {
    "id": "ai-seated-10",
@@ -214,7 +220,7 @@
    "published": false,
    "thumb": "ai-drafts/ai-seated-10.jpg",
    "video": null,
-   "videoNote": "MP4 not hosted yet (walk 96 MB, seated 46 MB; above Supabase free 50 MB/file for the walk). Recommend Bunny Stream.",
+   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 720p MP4 41.7 MB (fits Supabase 50 MB/file, Bunny Stream recommended). Heel raises dropped (AI clips failed review). Not hosted yet.",
    "subtitles": null,
    "trackCompletion": true,
    "timeline": [
@@ -354,7 +360,13 @@
      "modification": "",
      "next": "Finish"
     }
-   ]
+   ],
+   "build": {
+    "noLoop": true,
+    "branded": true,
+    "sizeMB": 41.7,
+    "file": "class-creator/out/ai-seated-10-branded.mp4"
+   }
   }
  ]
 }
