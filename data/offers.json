@@ -1,10 +1,10 @@
 {
- "updated": "2026-10-20T17:19:56.738Z",
+ "updated": "2026-10-21T00:52:00.268Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-10-20T17:19:56.738Z",
+   "checked": "2026-10-21T00:52:00.268Z",
    "note": "",
    "items": [
     {
@@ -88,7 +88,7 @@
      "size": "400 g",
      "price": 0.69,
      "was": 0.99,
-     "perKg": null,
+     "perKg": 1.73,
      "promo": "Save 30%",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-british-shallots-400g-000000000340677001",
      "from": null,
@@ -106,7 +106,7 @@
      "size": "400 g",
      "price": 0.69,
      "was": 0.99,
-     "perKg": null,
+     "perKg": 1.73,
      "promo": "Save 30%",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-british-echalion-shallots-400g-000000000340677002",
      "from": null,
@@ -471,7 +471,7 @@
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-10-20T17:19:56.738Z",
+   "checked": "2026-10-21T00:52:00.268Z",
    "note": "",
    "items": [
     {
@@ -5688,7 +5688,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-10-20T17:19:56.738Z",
+   "checked": "2026-10-21T00:52:00.268Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
