@@ -12,6 +12,7 @@ import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
 import { findWake, nextDelay } from './voice.js';
 import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
+import { renderCourse, drawCourseCert } from './course.js';
 import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas } from './videos.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
@@ -521,7 +522,7 @@ $('endFoodBtn').onclick = () => switchTab('food');
 function switchTab(t) {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.id === 'tab-' + t));
   document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); moveDockInd(); document.querySelectorAll('#launcher [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t && !b.dataset.lscroll)); $('orbBtn').classList.toggle('active', !['workout', 'classes', 'food', 'progress'].includes(t));
-  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') renderClasses(); if (t === 'prices' || t === 'aldi' || t === 'lidl') renderPrices();
+  if (t === 'progress') renderProgress(); if (t === 'food') renderFoodStats(); if (t === 'shop') renderShop(); if (t === 'prep') renderPrep(); if (t === 'classes') { renderClasses(); renderCourseUI(); } if (t === 'prices' || t === 'aldi' || t === 'lidl') renderPrices();
 }
 const buzz = () => { try { navigator.vibrate?.(12); } catch {} };
 function moveDockInd() { const on = document.querySelector('#dock [data-tab].active'), ind = $('dockInd'); if (!ind) return; if (!on) { ind.style.opacity = 0; return; } const d = $('dock').getBoundingClientRect(), r = on.getBoundingClientRect(); ind.style.opacity = 1; ind.style.width = r.width + 'px'; ind.style.transform = `translateX(${r.left - d.left}px)`; }
@@ -1692,7 +1693,7 @@ function renderHome() {
   const checks = [['inject', 'Inject', l.some(e => inWeek(e.at))], ['weigh', 'Weigh', w.some(x => inWeek(x.date))], ['water', 'Water', water || !!wk.water], ['meals', 'Meals', !!glp.plan || !!wk.meals], ['mindset', 'Mindset', !!wk.mindset]];
   $('weekChecks').innerHTML = checks.map(([k, n, d]) => `<button type="button" class="wck ${d ? 'done' : ''}" data-wck="${k}" aria-pressed="${d}"><i>${d ? '✓' : ''}</i>${n}</button>`).join('');
   $('weekChecks').querySelectorAll('[data-wck]').forEach(b => b.onclick = () => { const k = b.dataset.wck; if (k === 'inject') return switchTab('progress'); if (k === 'weigh') return switchTab('progress'); const all = store.get('weekChecks', {}), x = all[ws] ||= {}; x[k] = !x[k]; store.set('weekChecks', all); renderHome(); });
-  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP1 Life Classes', 'classes'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
+  const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP1 Life Classes', 'classes'], ['🎬', 'Workouts', 'workouts'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
   $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
   $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
 }
@@ -1922,3 +1923,15 @@ const community = makeCommunity({ rpc: rpcF, toast: (m, ms) => toast(m, ms), roo
   certificates: () => store.get('certificates', []),
   stats: () => { const days = weekDays(), daily = store.get('daily', {}), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, ses = new Set(store.get('sessions', []).map(s => String(s.date || s.at || '').slice(0, 10)));
     return { hydrationDays: days.filter(d => waterMl(daily[d]) >= goal).length, activeDays: days.filter(d => ses.has(d)).length }; } });
+
+/* ---------- GLP1 Life Classes: GLP-1 weight-loss course ---------- */
+function renderCourseUI() {
+  if (!$('courseRoot')) return;
+  renderCourse($('courseRoot'), { store, name: settings.name, onCert: async st => {
+    const c = document.createElement('canvas'); c.width = 1080; c.height = 1350; drawCourseCert(c.getContext('2d'), { name: settings.name, date: st.completedAt || new Date().toISOString() });
+    const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+    try { const f = await import('./files.js'); await f.saveBlob(blob, 'GLP1-Life-course-certificate.png', { title: 'GLP1 Life course certificate' }); toast('🏅 Certificate saved'); } catch { toast('Could not save the certificate, please try again.'); }
+  } });
+}
+renderCourseUI();
+document.addEventListener('click', e => { const b = e.target.closest('[data-gotab2]'); if (b && !b.closest('#trainerList')) { switchTab(b.dataset.gotab2); scrollTo(0, 0); } });

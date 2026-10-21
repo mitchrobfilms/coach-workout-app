@@ -16,7 +16,7 @@ for (const apk of [false, true]) {
   await p.waitForTimeout(500); await p.$eval('#updCard', e => e.scrollIntoView({ block: 'center' }));
   await p.click('#updCheck'); await p.waitForTimeout(1200);
   const t = await p.textContent('#updInfo'); console.log(t);
-  ok(apk ? /Installed: v1\.0\.6.*v1\.0\.7 available/.test(t) : /web v37/.test(t), `${apk ? 'APK' : 'web'}: Check for updates row shows version`);
+  ok(apk ? /Installed: v1\.0\.6.*v1\.0\.7 available/.test(t) : /web v38/.test(t), `${apk ? 'APK' : 'web'}: Check for updates row shows version`);
   await p.screenshot({ path: `${OUT}/settings-updates-${apk ? 'apk' : 'web'}.png` });
   if (!apk) { await p.evaluate(() => document.querySelector('.dock [data-tab="classes"]').click()); await p.waitForTimeout(800); await p.screenshot({ path: `${OUT}/classes-no-30min.png`, fullPage: true }); }
   ok(!errs.length, 'no page errors ' + errs.join('|')); await ctx.close();

@@ -12,12 +12,22 @@ export const videoById = id => LIB?.videos?.find(v => v.id === id);
 export function videoCard(v) {
   return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
-export function renderVideoLib(el, { filter = 'all', q = '' } = {}) {
+const ORDER = ['yoga', 'pilates', 'walking', 'cardio', 'dance', 'boxing', 'chair', 'stretch', 'recovery'];
+const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small>${v.mins} min · ${esc(v.level || 'Beginner')}</small></button>`;
+// Netflix-style rows per category; "See all" opens that category as a grid.
+export function renderVideoLib(el, { filter = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
-  const cats = LIB.categories, vids = LIB.videos.filter(v => v.embeddable && (filter === 'all' || v.cat === filter) && (!q || (v.title + ' ' + v.credit).toLowerCase().includes(q.toLowerCase())));
-  el.innerHTML = `<div class="chips vchips">${[['all', 'All'], ...Object.entries(cats)].map(([k, n]) => `<button type="button" class="chip ${k === filter ? 'like' : ''}" data-vcat="${k}">${esc(n)}</button>`).join('')}</div>
-    <div class="vgrid">${vids.map(videoCard).join('') || '<p class="small muted">No videos match.</p>'}</div>`;
-  el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => renderVideoLib(el, { filter: b.dataset.vcat, q }));
+  const cats = LIB.categories, vids = LIB.videos.filter(v => v.embeddable);
+  const keys = [...ORDER.filter(k => cats[k]), ...Object.keys(cats).filter(k => !ORDER.includes(k))];
+  if (filter) {
+    const list = vids.filter(v => v.cat === filter);
+    el.innerHTML = `<div class="vrowhead"><button type="button" class="chip" id="vBack">← All workouts</button></div><h3>${esc(cats[filter])} <span class="small muted">${list.length}</span></h3><div class="vgrid2">${list.map(mini).join('')}</div>`;
+    el.querySelector('#vBack').onclick = () => { renderVideoLib(el); el.scrollIntoView({ block: 'start' }); };
+    return;
+  }
+  el.innerHTML = keys.map(k => { const list = vids.filter(v => v.cat === k); if (!list.length) return '';
+    return `<section class="vrow" data-vrow="${k}"><div class="vrowhead"><h3>${esc(cats[k])} <span class="small muted">${list.length}</span></h3><button type="button" class="linkbtn" data-vcat="${k}">See all ›</button></div><div class="vscroll">${list.map(mini).join('')}</div></section>`; }).join('');
+  el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => { renderVideoLib(el, { filter: b.dataset.vcat }); el.scrollIntoView({ block: 'start' }); });
 }
 // Player sheet
 export function openVideo(v, { onCastSource } = {}) {

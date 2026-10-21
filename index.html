@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=37">
+<link rel="stylesheet" href="style.css?v=38">
 </head>
 <body>
 <header class="topbar">
@@ -158,13 +158,19 @@
   <p class="small muted">General healthy-eating tips, not medical advice. Aim for a gentle calorie deficit; never crash or very-low-calorie diets. Speak to your GP or a dietitian for personal advice.</p>
 </section>
 
+<!-- WORKOUTS TAB -->
+<section id="tab-workouts" class="tab">
+  <h2 class="pagehead">Workouts</h2>
+  <p class="small muted">Beginner, no-equipment follow-along videos, played inside the app unedited from their creators.</p>
+  <div id="videoLib"></div>
+</section>
 <!-- CLASSES TAB -->
 <section id="tab-classes" class="tab">
   <h2 class="pagehead">GLP1 Life Classes</h2>
   <div id="supportCards"></div>
-  <h2 class="sep">🎬 Video classes</h2>
-  <p class="small muted">Beginner, no-equipment follow-along videos: yoga, Pilates, walking, low-impact cardio, boxing, dance, chair-based, stretching, and back &amp; sciatica care. Played unedited from their creators.</p>
-  <div id="videoLib"></div>
+  <p class="small muted">A step-by-step course for your GLP-1 weight-loss journey. Tick off lessons as you go; your progress saves to your account.</p>
+  <div id="courseRoot"></div>
+  <button type="button" class="linkcard" data-gotab2="workouts"><span class="lcicon" aria-hidden="true">🎬</span><span class="lctext"><b>Workouts</b><small>Follow-along video classes: yoga, walking, chair-based, back &amp; sciatica and more</small></span></button>
   <div id="legacyClasses" hidden aria-hidden="true">
   <h2 class="sep">GLP1 Life Classes</h2>
   <div class="shophead"><h2>🎬 GLP1 Life Classes</h2><p class="small muted">Follow-along classes. Beginner-friendly, low impact, no equipment. Follow along at your own pace.</p></div>
@@ -386,7 +392,7 @@
     <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
     <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
     <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
-    <button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
+    <button type="button" data-tab="workouts"><i>🎬</i><span>Workouts</span></button><button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
     <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
     <button type="button" data-tab="member"><i>⭐</i><span>Membership</span></button>
     <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
@@ -401,6 +407,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=37"></script><script type="module" src="app.js?v=37"></script>
+<script type="module" src="native.js?v=38"></script><script type="module" src="app.js?v=38"></script>
 </body>
 </html>

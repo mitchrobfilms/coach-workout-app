@@ -555,3 +555,18 @@ button.danger:active{background:#b42318!important}
 #legacyWorkout,#legacyClasses{display:none!important}
 .trempty{text-align:center;padding:24px 18px;opacity:1!important;color:var(--ink,#2a1740)!important}.trempty h3,.trempty p{color:var(--ink,#2a1740)!important;opacity:1!important;margin:8px 0}.trempty button{margin-top:10px}
 #trainerAdmin[hidden]{display:none!important}
+/* Workouts rows */
+.vrow{margin:14px 0 6px}.vrowhead{display:flex;justify-content:space-between;align-items:center;margin:0 2px 6px}.vrowhead h3{margin:0;font-size:1.02rem}
+.linkbtn{background:none;border:0;color:var(--purple,#5b2a86);font-weight:700;padding:6px 4px;min-height:0}
+.vscroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 8px;scrollbar-width:none}.vscroll::-webkit-scrollbar{display:none}
+.vmini{flex:0 0 46%;max-width:180px;scroll-snap-align:start;display:flex;flex-direction:column;gap:4px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:6px;margin:0;min-width:0}
+.vmini .vthumb{display:block;position:relative;aspect-ratio:16/9;border-radius:10px;background-size:cover;background-position:center}
+.vmini b{font-size:.84rem;line-height:1.2;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.vmini small{color:var(--mut);font-size:.74rem}
+.vgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.vgrid2 .vmini{max-width:none}
+/* Course */
+.coursehead .cbar{height:10px;border-radius:99px;background:var(--lav,#eee6f6);overflow:hidden;margin:6px 0 10px}.coursehead .cbar i{display:block;height:100%;background:var(--green,#2fa36b)}
+.cmod summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none}.cmod summary::-webkit-details-marker{display:none}.cmi{font-size:1.4rem}.cmod summary b{flex:1}
+.cmc{font-size:.8rem;padding:2px 8px;border-radius:99px;background:var(--lav,#eee6f6)}.cmc.ok{background:var(--green,#2fa36b);color:#fff}
+.clesson{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 4px;margin:0}
+.ctick{width:24px;height:24px;flex:none;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem}.ctick.on{background:var(--green,#2fa36b);border-color:var(--green,#2fa36b);color:#fff}
+.lsheet{padding:20px 18px calc(20px + var(--sab))}.lsheet h2{margin:4px 0 10px}

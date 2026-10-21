@@ -3,7 +3,7 @@
 export const SB_URL = 'https://paxukvgdavcolzkvcapo.supabase.co', SB_KEY = 'sb_publishable_UXJgDeGI2ELqWfrNYBrtWg_oC6wV9rr';
 const LIST = { weights: ['weights', x => x.date], injections: ['injections', x => x.id || x.at], certificates: ['certificates', x => x.id || x.key || x.at] };
 // Everything the app stores per account: list collections get one row per item; the rest are whole documents.
-const DOCS = { meal_plans: ['glp1', 'myPlan', 'shop', 'cookProgress'], check_ins: ['daily', 'weekChecks', 'food', 'sessions', 'classes', 'classSeen', 'injectSchedule', 'injNotified', 'backupAt'] };
+const DOCS = { meal_plans: ['glp1', 'myPlan', 'shop', 'cookProgress'], check_ins: ['daily', 'weekChecks', 'food', 'sessions', 'classes', 'classSeen', 'injectSchedule', 'injNotified', 'backupAt', 'course'] };
 export const SYNCED_KEYS = ['weights', 'injections', 'certificates', ...Object.values(DOCS).flat(), 'settings'];
 const isEmpty = v => v == null || (Array.isArray(v) ? !v.length : typeof v === 'object' && !Object.keys(v).length);
 const SKIP_SETTINGS = ['llmKey', 'llmUrl']; // never upload secrets
