@@ -210,6 +210,11 @@
     "branded": true,
     "sizeMB": 78.2,
     "file": "class-creator/out/ai-walk-15-noloop.mp4"
+   },
+   "bunny": {
+    "libraryId": 786067,
+    "guid": null,
+    "cdnHost": "vz-e201ca15-f9a.b-cdn.net"
    }
   },
   {
@@ -382,6 +387,11 @@
     "branded": true,
     "sizeMB": 41.7,
     "file": "class-creator/out/ai-seated-10-branded.mp4"
+   },
+   "bunny": {
+    "libraryId": 786067,
+    "guid": null,
+    "cdnHost": "vz-e201ca15-f9a.b-cdn.net"
    }
   }
  ]
