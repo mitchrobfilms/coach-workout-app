@@ -1,7 +1,7 @@
 import { getAuth } from './auth.js';
 import { idbSet, idbAll, idbClear, requestPersist, makeBackup, parseBackup, restoreInto, backupDue, BACKUP_KEYS } from './backup.js';
 import { summary as progressSummary, chartSVG, stLb, bmiBand, sortEntries } from './progress.js';
-import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
+import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, SITE_LABEL, EFFECTS, makeEntry, lastSite, nextDue, isDue, describeSchedule, makeICS, sortInj } from './inject.js';
 import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
 import { newAwards, drawCertificate, awardsFromHistory, redateCerts } from './certs.js';
 import { saveBlob, shareBlob } from './files.js';
@@ -1531,7 +1531,7 @@ const injDT = iso => new Date(iso).toLocaleString('en-GB', { weekday: 'short', d
 const localInput = d => { const p = n => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
 $('injDisclaimer').textContent = '⚠️ ' + INJ_DISCLAIMER;
 $('injMed').innerHTML = MEDS.map(m => `<option>${m}</option>`).join(''); $('injUnit').innerHTML = UNITS.map(u => `<option>${u}</option>`).join('');
-$('injSite').innerHTML = '<option value="">Choose site</option>' + SITES.map(x => `<option>${x}</option>`).join('');
+$('injSite').innerHTML = '<option value="">Choose site</option>' + SITES.map(x => `<option value="${x}">${SITE_LABEL(x)}</option>`).join('');
 $('injEffects').innerHTML = EFFECTS.map(x => `<label class="check"><input type="checkbox" value="${x}"> ${x}</label>`).join('');
 $('injMed').onchange = () => { $('injCustomWrap').hidden = $('injMed').value !== 'Other'; };
 function injResetForm() {
@@ -1710,8 +1710,8 @@ function renderBodySites() {
   const z = (s, path) => `<path d="${path}" fill="${n(s) ? `rgba(91,42,134,${Math.min(.85, .25 + n(s) * .15)})` : 'rgba(46,157,91,.12)'}" stroke="#5b2a86" stroke-width="1"><title>${s}: ${n(s)}</title></path>`;
   const body = '<path d="M50 8a10 10 0 1 1 0 20a10 10 0 1 1 0-20M34 32h32l8 40-8 4-4-26v40l4 50h-12l-4-46-4 46H34l4-50V50l-4 26-8-4z" fill="#f3eefa" stroke="#bfb2d3"/>';
   const fig = (title, inner) => `<div><svg viewBox="0 0 100 160">${body}${inner}</svg><small>${title}</small></div>`;
-  $('bodyFig').innerHTML = `<div class="bodyfig">${fig('Stomach', z('Abdomen left', 'M51 56h12v18H51z') + z('Abdomen right', 'M37 56h12v18H37z'))}${fig('Arms', z('Arm right', 'M27 44l6-6 2 22-6 4z') + z('Arm left', 'M73 44l-6-6-2 22 6 4z'))}${fig('Thighs', z('Thigh right', 'M38 92h10v24H38z') + z('Thigh left', 'M52 92h10v24H52z'))}</div>
-    <p class="small muted">${l.length ? `Last site: <b>${esc(sortInjL(l).at(-1).site || 'not recorded')}</b>. Shaded = logged in the last 8 weeks.` : 'No injections logged in the last 8 weeks.'}</p>`;
+  $('bodyFig').innerHTML = `<div class="bodyfig">${fig('Tummy', z('Abdomen left', 'M51 56h12v18H51z') + z('Abdomen right', 'M37 56h12v18H37z'))}${fig('Thighs', z('Thigh right', 'M38 92h10v24H38z') + z('Thigh left', 'M52 92h10v24H52z'))}</div>
+    <p class="small muted">${l.length ? `Last site: <b>${esc(SITE_LABEL(sortInjL(l).at(-1).site) || 'not recorded')}</b>. Shaded = logged in the last 8 weeks.` : 'No injections logged in the last 8 weeks.'}</p>`;
 }
 // Classes & support
 const SUPPORT = [

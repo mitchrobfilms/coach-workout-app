@@ -2,7 +2,9 @@
 export const DISCLAIMER = 'Log only. Follow your prescriber\'s instructions. This app does not give dosing advice.';
 export const MEDS = ['Retatrutide', 'Semaglutide', 'Tirzepatide', 'Liraglutide', 'Other'];
 export const UNITS = ['mg', 'mcg', 'mL'];
-export const SITES = ['Abdomen left', 'Abdomen right', 'Thigh left', 'Thigh right', 'Arm left', 'Arm right'];
+// Main self-injection sites shown in the log (stored values kept stable for old entries).
+export const SITES = ['Abdomen left', 'Abdomen right', 'Thigh left', 'Thigh right'];
+export const SITE_LABEL = s => ({ 'Abdomen left': 'Tummy left', 'Abdomen right': 'Tummy right' })[s] || s;
 export const EFFECTS = ['Nausea', 'Low appetite', 'Fatigue', 'Injection-site reaction', 'Other'];
 const DAY = 864e5, WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 export const sortInj = l => (l || []).slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
