@@ -620,3 +620,8 @@ button.danger:active{background:#b42318!important}
 .fdtips{background:var(--lav);border-radius:14px;padding:10px 12px;margin:10px 0}.fdtips ul{margin:6px 0 0;padding-left:20px}
 .fdact{display:grid;grid-template-columns:2fr 1fr;gap:8px;margin-top:10px}.fdact .danger{grid-column:1/-1}
 .vsoon{text-align:center;padding:26px 18px;background:linear-gradient(160deg,#f6effd,#eaf7f1);border:1px solid #e4d6f5}.vsoon .vsicon{font-size:2.6rem;display:block;line-height:1;margin-bottom:6px}.vsoon h3{margin:4px 0 8px;color:#4a1f73}.vsoon p{margin:6px auto;max-width:34em}
+
+.vmini .vthumb .vdone,.vcard .vthumb .vdone{position:absolute;left:6px;top:6px;z-index:1;background:#2e9d5b;color:#fff;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:999px}
+.avainfo .avaby{display:flex;gap:10px;align-items:flex-start;margin:4px 0 8px}.avainfo .avaby img{width:52px;height:52px;border-radius:50%;object-fit:cover;flex:0 0 auto}
+.aibadge{display:inline-block;font-size:.68rem;font-weight:600;color:#5b2a86;background:#efe4fb;border-radius:999px;padding:1px 8px;vertical-align:middle}
+.avaex summary{cursor:pointer;font-weight:600;margin:6px 0}.avaex ol{padding-left:20px;margin:4px 0 10px}.avaex li{margin:4px 0}

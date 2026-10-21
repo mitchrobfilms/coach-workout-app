@@ -13,7 +13,7 @@ import { findWake, nextDelay } from './voice.js';
 import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { renderCourse, drawCourseCert } from './course.js';
-import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas } from './videos.js';
+import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup } from './videos.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -630,7 +630,7 @@ bindWeightForm($('weightForm'));
 function renderProgress() {
   const d = iso => new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
   const s = store.get('sessions', []);
-  $('sessionList').innerHTML = s.length ? s.slice().reverse().map(x => `<li><span>${d(x.date)}${x.completed ? '' : ' <small class="muted">(ended early)</small>'}</span><span>${Object.values(x.totals).reduce((a, b) => a + b, 0)} reps · ${x.minutes} min</span></li>`).join('') : '<li class="muted">No workouts yet. Your first one is waiting!</li>';
+  $('sessionList').innerHTML = s.length ? s.slice().reverse().map(x => `<li><span>${d(x.date)}${x.completed ? '' : ' <small class="muted">(ended early)</small>'}</span><span>${x.video ? '🎬 ' + String(x.title || 'Video class').replace(/[&<>"]/g, '') : Object.values(x.totals).reduce((a, b) => a + b, 0) + ' reps'} · ${x.minutes} min</span></li>`).join('') : '<li class="muted">No workouts yet. Your first one is waiting!</li>';
   const f = foodHist();
   $('foodList').innerHTML = Object.keys(f).length ? Object.keys(f).sort().reverse().map(k => `<li><span>${d(k + 'T12:00')}</span><span>${f[k].score}/10</span></li>`).join('') : '<li class="muted">No check-ins yet.</li>';
   if (wpReady) renderWeightProgress();
@@ -1880,6 +1880,14 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
 
 /* ---------- Video class library (library-videos.json; member list empty until Coach Ava classes pass safety review) ---------- */
 let sessionCastSrc = null;
+// Completed video classes: kept per class (✓ on cards) and logged as a workout session (Progress, weekly counts, community stats).
+setDoneLookup(id => !!store.get('videosDone', {})[id]);
+function videoCompleted(v, how) {
+  const d = store.get('videosDone', {}); d[v.id] = { at: new Date().toISOString(), how, n: (d[v.id]?.n || 0) + 1 }; store.set('videosDone', d);
+  const h = store.get('sessions', []); h.push({ date: new Date().toISOString(), totals: {}, minutes: v.mins, completed: true, video: v.id, title: v.title }); store.set('sessions', h);
+  toast(`🎉 ${v.title} completed. Great work!`); renderProgress?.();
+  document.querySelectorAll(`[data-video="${v.id}"] .vthumb`).forEach(t => t.querySelector('.vdone') || t.insertAdjacentHTML('beforeend', '<span class="vdone">✓ Done</span>'));
+}
 function castMsg(r) {
   if (r === 'system') toast('📺 Pick your TV from the list, then come back to GLP1 Life and press play. Your phone screen shows on the TV.');
   else if (r === 'nocast') toast('Casting isn\'t available on this device. On a phone, use Android\'s Quick Settings ➜ Cast / Screen cast with your TV on the same Wi-Fi.');
@@ -1887,13 +1895,13 @@ function castMsg(r) {
 function videoCast(videoEl, btn, v) {
   if (!btn) return;
   if (v.source === 'archive') setCastSource(() => ({ src: v.src, title: v.title, subtitle: v.credit }));
-  // YouTube videos: the TV receiver can't play YouTube links, so on the web we leave it to the YouTube player's own Cast icon;
+  // YouTube + Bunny videos: the TV receiver can't play YouTube links or Bunny HLS (Bunny 403s requests without a referrer), so on the web we leave it to the YouTube player's own Cast icon;
   // in the Android app the button mirrors the phone to the TV (plays everything).
-  const upd = s => { btn.hidden = !(s.mode === 'system' || (s.mode === 'sdk' && v.source === 'archive')); btn.classList.toggle('on', !!s.connected); btn.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast to TV'; };
+  const upd = s => { btn.hidden = !(s.mode === 'system' || (s.mode === 'sdk' && v.source === 'archive')); /* Bunny/YouTube: web Cast hidden (Bunny HLS 403s on the TV receiver); APK mirrors the screen */ btn.classList.toggle('on', !!s.connected); btn.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast to TV'; };
   initCast(upd); btn.onclick = async () => castMsg(await castClick(videoEl));
 }
 const vClose = new MutationObserver(() => { const m = $('videoModal'); if (m?.hidden && sessionCastSrc) setCastSource(sessionCastSrc); });
-document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
+document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast, onComplete: videoCompleted }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
 function renderVideoIdeas() { const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3); el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>🎬 Ideas for you</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="classes">All video classes ›</button>` : ''; el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab)); }
 loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); renderVideoIdeas(); window.__kova.videosReady = true; });
 

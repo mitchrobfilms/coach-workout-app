@@ -1,12 +1,12 @@
 {
  "version": 2,
  "updated": "2026-10-21",
- "note": "Member workout videos. Emptied 2026-10-21: all third-party videos (YouTube coached classes and Yoga With Melissa) removed; new GLP1 Life Coach Ava (AI-generated instructor) classes will be added here only after human safety review. Entry shape: {id,title,cat,mins,level,source:'archive'|'youtube'|'stream',src|youtubeId,poster,credit,embeddable:true}.",
+ "note": "Member workout videos. 2026-10-21: third-party videos removed; GLP1 Life Coach Ava (AI-generated instructor) classes are added only after human safety review (first two approved by Mitchell 2026-10-21). Entry shape: {id,title,cat,mins,level,source:'bunny'|'archive'|'youtube',bunnyLibrary+bunnyId|src|youtubeId,poster,credit,embeddable:true}.",
  "categories": {
   "warmup": "Warm-up",
   "cooldown": "Cool-down",
   "walking": "Walking",
-  "chair": "Chair & seated",
+  "chair": "Chair-based",
   "cardio": "Low-impact cardio",
   "strength": "Beginner strength",
   "band": "Resistance band",
@@ -19,5 +19,225 @@
   "recovery": "Recovery & sciatica",
   "breathing": "Breathing"
  },
- "videos": []
+ "videos": [
+  {
+   "id": "ai-walk-15",
+   "title": "Beginner Indoor Walk",
+   "cat": "walking",
+   "mins": 15,
+   "level": "Beginner",
+   "intensity": "Low",
+   "equipment": "None",
+   "chair": false,
+   "source": "bunny",
+   "bunnyLibrary": 786067,
+   "bunnyId": "67ddaa1e-c96b-44bb-bf99-467c3c10c445",
+   "hls": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/playlist.m3u8",
+   "captions": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/captions/en.vtt",
+   "poster": "media/ava/ai-walk-15.jpg",
+   "channel": "Coach Ava",
+   "instructor": "coach-ava",
+   "aiGenerated": true,
+   "credit": "GLP1 Life · Coach Ava (AI-generated instructor)",
+   "access": "free",
+   "description": "A gentle 15-minute walk at home, led step by step. No equipment and no jumping. Go at your own pace.",
+   "exercises": [
+    {
+     "name": "Warm-up: Gentle March",
+     "start": 22,
+     "end": 82,
+     "type": "warmup",
+     "easier": "Keep your feet low, or hold a chair back for balance."
+    },
+    {
+     "name": "Warm-up: March + Arm Swings",
+     "start": 82,
+     "end": 142,
+     "type": "warmup",
+     "easier": "Keep the arms low if your shoulders feel stiff."
+    },
+    {
+     "name": "March on the Spot",
+     "start": 142,
+     "end": 202,
+     "type": "exercise",
+     "easier": "Slow it down any time, small steps still count."
+    },
+    {
+     "name": "Side Steps",
+     "start": 222,
+     "end": 282,
+     "type": "exercise",
+     "easier": "Make the steps smaller, or tap the foot out instead of stepping."
+    },
+    {
+     "name": "Knee Lifts",
+     "start": 302,
+     "end": 362,
+     "type": "exercise",
+     "easier": "Lift the knee only as high as feels comfortable, or hold a chair."
+    },
+    {
+     "name": "Step Touch",
+     "start": 382,
+     "end": 442,
+     "type": "exercise",
+     "easier": "Keep it slow and small."
+    },
+    {
+     "name": "March + Arm Swings",
+     "start": 461,
+     "end": 521,
+     "type": "exercise",
+     "easier": "Keep the arms at chest height."
+    },
+    {
+     "name": "March on the Spot (Round 2)",
+     "start": 540,
+     "end": 600,
+     "type": "exercise",
+     "easier": "Easy pace is fine."
+    },
+    {
+     "name": "Side Steps (Round 2)",
+     "start": 619,
+     "end": 679,
+     "type": "exercise",
+     "easier": "Small steps."
+    },
+    {
+     "name": "Step Touch (Round 2)",
+     "start": 698,
+     "end": 758,
+     "type": "exercise",
+     "easier": "Slow it right down if you need to."
+    },
+    {
+     "name": "Knee Lifts (Round 2)",
+     "start": 777,
+     "end": 837,
+     "type": "exercise",
+     "easier": "Marching is a great alternative."
+    },
+    {
+     "name": "Cool-down: Breathe + Shoulder Rolls",
+     "start": 856,
+     "end": 900,
+     "type": "cooldown",
+     "easier": ""
+    }
+   ],
+   "approved": "Approved by Mitchell 2026-10-21",
+   "embeddable": true
+  },
+  {
+   "id": "ai-seated-10",
+   "title": "Seated Chair Workout",
+   "cat": "chair",
+   "mins": 10,
+   "level": "Beginner",
+   "intensity": "Low",
+   "equipment": "Sturdy chair without wheels",
+   "chair": true,
+   "source": "bunny",
+   "bunnyLibrary": 786067,
+   "bunnyId": "39c7e26d-3e2e-4c21-a611-92b840da3713",
+   "hls": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/playlist.m3u8",
+   "captions": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/captions/en.vtt",
+   "poster": "media/ava/ai-seated-10.jpg",
+   "channel": "Coach Ava",
+   "instructor": "coach-ava",
+   "aiGenerated": true,
+   "credit": "GLP1 Life · Coach Ava (AI-generated instructor)",
+   "access": "free",
+   "description": "A gentle 10-minute workout done fully seated. Great for low-energy days, joint pain or getting started.",
+   "exercises": [
+    {
+     "name": "Warm-up: Seated March",
+     "start": 20,
+     "end": 65,
+     "type": "warmup",
+     "easier": "Just lift the heels if lifting the foot is too much."
+    },
+    {
+     "name": "Warm-up: Arm Raises",
+     "start": 65,
+     "end": 110,
+     "type": "warmup",
+     "easier": "Raise to shoulder height only."
+    },
+    {
+     "name": "Seated March",
+     "start": 110,
+     "end": 155,
+     "type": "exercise",
+     "easier": "Slow it down and keep the arms still if you prefer."
+    },
+    {
+     "name": "Arm Raises",
+     "start": 174,
+     "end": 219,
+     "type": "exercise",
+     "easier": "One arm at a time."
+    },
+    {
+     "name": "Torso Twists",
+     "start": 238,
+     "end": 283,
+     "type": "exercise",
+     "easier": "Make the twist smaller. Skip if you have back pain."
+    },
+    {
+     "name": "Seated Leg Extensions",
+     "start": 302,
+     "end": 347,
+     "type": "exercise",
+     "easier": "Only straighten part way."
+    },
+    {
+     "name": "Seated March (Faster)",
+     "start": 366,
+     "end": 411,
+     "type": "exercise",
+     "easier": "Stay at your own pace."
+    },
+    {
+     "name": "Torso Twists (Round 2)",
+     "start": 430,
+     "end": 475,
+     "type": "exercise",
+     "easier": "Smaller twist."
+    },
+    {
+     "name": "Leg Extensions (Round 2)",
+     "start": 493,
+     "end": 538,
+     "type": "exercise",
+     "easier": "Part way is perfect."
+    },
+    {
+     "name": "Cool-down: Breathe + Shoulder Rolls",
+     "start": 556,
+     "end": 600,
+     "type": "cooldown",
+     "easier": ""
+    }
+   ],
+   "approved": "Approved by Mitchell 2026-10-21",
+   "embeddable": true
+  }
+ ],
+ "instructors": {
+  "coach-ava": {
+   "name": "Coach Ava",
+   "label": "AI-generated instructor",
+   "photo": "media/ava/coach-ava.jpg",
+   "bio": "Coach Ava is an AI-generated guide created by GLP1 Life. She isn't a real person and has no fitness qualifications. Every class she leads was checked by a person before it was published.",
+   "specialities": [
+    "Beginner walking",
+    "Chair-based exercise",
+    "Low-impact movement"
+   ]
+  }
+ }
 }

@@ -1,5 +1,5 @@
 // Admin-only AI class drafts: throwaway admin signs in to the LIVE admin page, opens "AI class drafts",
-// checks both drafts are unpublished/awaiting review, plays the Bunny Stream embed and screenshots it. Cleans up after.
+// checks both drafts show "Approved by Mitchell 2026-10-21, published" and are in library-videos.json (approved 2026-10-21), plays the Bunny Stream embed and screenshots it. Cleans up after.
 //   node tests/ai-drafts-preview-e2e.mjs [https://glp1life.co.uk/] [outdir]   (needs SUPABASE_ACCESS_TOKEN)
 import { cleanupTestData, sql } from './cleanup.mjs';
 import { chromium } from 'playwright-core';
@@ -7,16 +7,16 @@ import { SB_URL, SB_KEY } from '../cloud.js';
 const URL = process.argv[2] || 'https://glp1life.co.uk/', OUT = process.argv[3] || '/tmp';
 let fail = 0; const ok = (c, m) => { if (!c) fail++; console.log(c ? 'ok  ' : 'FAIL', m); };
 const s = Date.now(), AD = `glp1life.test.admin${s}@example.com`, PW = 'Test-' + s;
-const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--autoplay-policy=no-user-gesture-required'] });
+const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true, args: ['--autoplay-policy=no-user-gesture-required', '--disable-http2'] });
 try {
   const ad = await (await fetch(SB_URL + '/auth/v1/signup', { method: 'POST', headers: { apikey: SB_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ email: AD, password: PW }) })).json();
   ok(ad.access_token, 'throwaway admin user'); await sql(`insert into public.admins(user_id) values ('${ad.user.id}')`);
-  const lib = await (await fetch(URL + 'library.json?' + s)).text(); ok(!/ai-(walk|seated)/.test(lib), 'AI drafts NOT in member library.json');
+  const lib = await (await fetch(URL + 'library-videos.json?' + s)).json(); ok(['ai-walk-15', 'ai-seated-10'].every(id => lib.videos.some(v => v.id === id && v.source === 'bunny')), 'approved classes are in member library-videos.json');
   const a = await (await b.newContext({ viewport: { width: 1280, height: 1000 } })).newPage(); a.on('pageerror', e => console.log('ADMIN ERR', e.message));
   await a.goto(URL + 'admin/?t=' + s, { waitUntil: 'networkidle' }); await a.fill('#le', AD); await a.fill('#lp', PW); await a.click('#lf button');
   await a.waitForSelector('#app:not([hidden])', { timeout: 15000 }); ok(true, 'admin signed in');
   await a.click('.tabs button[data-v="aidrafts"]'); await a.waitForSelector('#aiDraftList iframe', { timeout: 15000 });
-  const txt = await a.textContent('#aiDraftList'); ok((txt.match(/Awaiting safety review/g) || []).length === 2, 'both drafts "Awaiting safety review"'); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
+  const txt = await a.textContent('#aiDraftList'); ok((txt.match(/Approved by Mitchell 2026-10-21, published/g) || []).length === 2 && !/Awaiting safety review/.test(txt), 'both drafts "Approved by Mitchell 2026-10-21, published"'); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
   const frames = await a.$$('#aiDraftList iframe'); ok(frames.length === 2, `2 Bunny embeds (${frames.length})`);
   const f = await frames[0].contentFrame(); await f.waitForSelector('video', { timeout: 20000 });
   await f.evaluate(() => { const v = document.querySelector('video'); v.muted = true; return v.play(); }).catch(e => console.log('play()', e.message));

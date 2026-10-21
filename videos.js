@@ -10,11 +10,13 @@ export async function loadVideos() {
   return LIB;
 }
 export const videoById = id => LIB?.videos?.find(v => v.id === id);
+let isDone = () => false; export const setDoneLookup = f => { isDone = f; };
+const fmtT = x => `${Math.floor(x / 60)}:${String(Math.round(x % 60)).padStart(2, '0')}`;
 export function videoCard(v) {
   return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
 const ORDER = ['warmup', 'cooldown', 'walking', 'chair', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
-const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.chair ? ' · 🪑 Chair-friendly' : v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
+const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span>${isDone(v.id) ? '<span class="vdone">✓ Done</span>' : ''}</span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.chair ? ' · 🪑 Chair-friendly' : v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
 const COMING_SOON = `<div class="card vsoon" id="vSoon"><span class="vsicon" aria-hidden="true">🎬</span><h3>New Coach Ava classes coming soon</h3><p>We're creating brand-new GLP1 Life follow-along classes with Coach Ava, our AI-generated instructor, from gentle seated sessions to easy walks. Each one is checked by a person before it appears here.</p><p class="small muted">In the meantime, keep moving with a gentle walk and check out the GLP1 Life Course above.</p></div>`;
 // Netflix-style rows per category; "See all" opens that category as a grid.
 export function renderVideoLib(el, { filter = '' } = {}) {
@@ -68,23 +70,52 @@ export function coolDown() {
   m.querySelector('#videoClose').onclick = close;
   moveTimer(m, COOL, '🧘 Cool-down', () => { m.querySelector('.wbody').innerHTML = '<h2>🎉 Well done!</h2><p>Have a drink of water.</p><button type="button" class="primary" id="wDone">Done</button>'; m.querySelector('#wDone').onclick = close; }, { skipLabel: 'Finish' });
 }
-function playVideo(v, { onCastSource } = {}) {
+function playVideo(v, { onCastSource, onComplete } = {}) {
   if (!v.embeddable) return 'unavailable'; // never leave the app for YouTube
   let m = document.getElementById('videoModal');
   if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
-  const player = v.source === 'youtube'
+  const bunny = v.source === 'bunny';
+  const player = bunny
+    ? `<iframe class="vplayer vbunny" id="videoFrame" src="https://iframe.mediadelivery.net/embed/${encodeURIComponent(v.bunnyLibrary)}/${encodeURIComponent(v.bunnyId)}?autoplay=true&preload=true&responsive=true" title="${esc(v.title)}" loading="eager" allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+    : v.source === 'youtube'
     ? `<iframe class="vplayer" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtubeId)}?rel=0&modestbranding=1&playsinline=1&fs=1&iv_load_policy=3&origin=${encodeURIComponent(location.origin)}" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`
     : `<video class="vplayer" id="videoPlayer" src="${esc(v.src)}" poster="${esc(v.poster)}" controls playsinline preload="metadata"></video>`;
   m.innerHTML = `<div class="rsheet vsheet"><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button>${player}
     <div class="vbody"><h2>${esc(v.title)}</h2><p class="small muted">${v.mins} min · ${esc(v.level || 'Beginner')} · ${esc(LIB?.categories?.[v.cat] || '')}</p>
-    <p class="small vcredit">${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
+    ${bunny ? avaInfo(v) : ''}
+    <p class="small vcredit"${bunny ? ' hidden' : ''}>${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
     <div class="row">${v.source === 'archive' ? '<button type="button" id="videoCast" class="primary">📺 Cast</button>' : '<button type="button" id="videoCast" class="primary" hidden>📺 Cast</button>'}</div>
     <p class="small muted">Go at your own pace and stop if anything hurts or you feel dizzy. Check with your GP before starting new exercise.</p></div></div>`;
   m.hidden = false; document.body.classList.add('modal-open');
   const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
   m.querySelector('#videoClose').onclick = close; m.onclick = e => { if (e.target === m) close(); };
   onCastSource?.(m.querySelector('#videoPlayer'), m.querySelector('#videoCast'), v);
+  if (bunny) trackBunny(m, v, onComplete);
   return 'opened';
+}
+// Coach Ava class info (AI label lives here, never over the video) + exercise list.
+function avaInfo(v) {
+  const ins = LIB?.instructors?.[v.instructor] || {};
+  return `<div class="avainfo"><p class="avaby"><img src="${esc(ins.photo || v.poster)}" alt=""><span><b>${esc(ins.name || v.channel)}</b> <span class="aibadge">${esc(ins.label || 'AI-generated instructor')}</span><br><small class="muted">${esc(ins.bio || '')}</small></span></p>
+    <p>${esc(v.description || '')}</p><p class="small"><b>Equipment:</b> ${esc(v.equipment || 'None')} · <b>Intensity:</b> ${esc(v.intensity || 'Low')}</p>
+    <details class="avaex"><summary>What's in this class (${(v.exercises || []).length} parts)</summary><ol>${(v.exercises || []).map(x => `<li><b>${esc(x.name)}</b> <small class="muted">${fmtT(x.start)}–${fmtT(x.end)}</small>${x.easier ? `<br><small>Easier: ${esc(x.easier)}</small>` : ''}</li>`).join('')}</ol></details>
+    <div class="row"><button type="button" id="videoDoneBtn">${isDone(v.id) ? '✓ Completed · do it again any time' : '✓ Mark as done'}</button></div></div>`;
+}
+// Completion: Bunny's embed speaks player.js over postMessage ("ready", "timeupdate", "ended"); 90 % watched or "ended" = done.
+function trackBunny(m, v, onComplete) {
+  const fr = m.querySelector('#videoFrame'), btn = m.querySelector('#videoDoneBtn'); let done = false;
+  const finish = how => { if (done) return; done = true; onComplete?.(v, how); if (btn) { btn.textContent = '✓ Completed · well done!'; btn.disabled = true; } };
+  if (btn) btn.onclick = () => finish('manual');
+  const send = (method, value) => fr?.contentWindow?.postMessage(JSON.stringify({ context: 'player.js', version: '0.0.11', method, value, listener: value }), '*');
+  const onMsg = e => {
+    if (!m.isConnected || m.hidden) return removeEventListener('message', onMsg);
+    if (e.source !== fr?.contentWindow) return; let d = e.data; try { if (typeof d === 'string') d = JSON.parse(d); } catch { return; }
+    if (d?.context !== 'player.js') return;
+    if (d.event === 'ready') { window.__kova && (window.__kova.videoPjs = 'ready'); send('addEventListener', 'timeupdate'); send('addEventListener', 'ended'); }
+    else if (d.event === 'ended') finish('ended');
+    else if (d.event === 'timeupdate' && d.value?.duration > 0) { window.__kova && (window.__kova.videoTime = d.value.seconds); if (d.value.seconds / d.value.duration >= 0.9) finish('watched'); }
+  };
+  addEventListener('message', onMsg);
 }
 export function pickIdeas(n = 3, seed = new Date().toDateString()) {
   const vs = (LIB?.videos || []).filter(v => v.embeddable); if (!vs.length) return [];

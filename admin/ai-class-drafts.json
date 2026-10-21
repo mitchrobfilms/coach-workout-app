@@ -1,5 +1,5 @@
 {
- "note": "ADMIN-ONLY DRAFTS. Not in library.json, never shown to members. Status must stay 'Awaiting safety review' until a qualified human reviewer signs off.",
+ "note": "AI class drafts. Classes are added to the member library only after human safety review. ai-walk-15 and ai-seated-10: approved by Mitchell 2026-10-21, published.",
  "instructor": {
   "id": "coach-ava",
   "name": "Coach Ava",
@@ -20,11 +20,11 @@
    "instructor": "coach-ava",
    "aiGenerated": true,
    "access": "premium",
-   "status": "Awaiting safety review",
-   "published": false,
+   "status": "Approved by Mitchell 2026-10-21, published",
+   "published": true,
    "thumb": "ai-drafts/ai-walk-15.jpg",
    "video": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/playlist.m3u8",
-   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 198.5 MB. Hosted on Bunny Stream (admin preview only).",
+   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 198.5 MB. Hosted on Bunny Stream; published to members (library-videos.json).",
    "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/67ddaa1e-c96b-44bb-bf99-467c3c10c445/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
@@ -223,8 +223,7 @@
      "en"
     ],
     "encoded": true,
-    "maxResolution": "1080p",
-    "supersededGuid": "29a85889-c988-45e4-8298-c1eece64ce3e"
+    "maxResolution": "1080p"
    }
   },
   {
@@ -239,11 +238,11 @@
    "instructor": "coach-ava",
    "aiGenerated": true,
    "access": "free",
-   "status": "Awaiting safety review",
-   "published": false,
+   "status": "Approved by Mitchell 2026-10-21, published",
+   "published": true,
    "thumb": "ai-drafts/ai-seated-10.jpg",
    "video": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/playlist.m3u8",
-   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 1080p (upscaled from 720p AI clips) MP4 106.5 MB. Heel raises dropped (AI clips failed review). Hosted on Bunny Stream (admin preview only).",
+   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 1080p (upscaled from 720p AI clips) MP4 106.5 MB. Heel raises dropped (AI clips failed review). Hosted on Bunny Stream; published to members (library-videos.json).",
    "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
@@ -410,8 +409,7 @@
      "en"
     ],
     "encoded": true,
-    "maxResolution": "1080p",
-    "supersededGuid": "f6a01003-62fa-4a2f-aa7a-626030219857"
+    "maxResolution": "1080p"
    }
   }
  ]
