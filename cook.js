@@ -52,4 +52,7 @@ export const GUIDES = {
 export const HOB = { low: 'Low heat (gentle simmer)', medium: 'Medium heat', 'medium-high': 'Medium-high heat', high: 'High heat (boil)' };
 export const fmtTimer = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 export function stepText(st) { return [st.oven ? `🔥 Oven ${ovenText(st.oven)}` : '', st.hob ? `🍳 ${HOB[st.hob]}` : ''].filter(Boolean).join(' · '); }
-export function guideFor(id) { const g = GUIDES[id]; if (!g) return null; return { ...g, total: g.prep + g.cook, ovenText: g.oven ? ovenText(g.oven) : null, safe: SAFE[g.protein], reheat: REHEAT }; }
+// Dishes eaten cold: never show reheating advice for these.
+export const COLD_IDS = ['p-oats', 'p-yogpots', 'p-greeksalad', 'p-eggs', 'p-hummus', 'p-cottage', 'g-skyrpot', 'g-oats', 'g-tunapot', 'g-cottage', 'g-eggs'];
+export const COLD = 'Eat cold. Keep in the fridge and eat within 2–3 days.';
+export function guideFor(id) { const g = GUIDES[id]; if (!g) return null; return { ...g, total: g.prep + g.cook, ovenText: g.oven ? ovenText(g.oven) : null, safe: SAFE[g.protein], reheat: COLD_IDS.includes(id) ? COLD : REHEAT, cold: COLD_IDS.includes(id) }; }

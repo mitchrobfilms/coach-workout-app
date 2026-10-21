@@ -570,3 +570,13 @@ button.danger:active{background:#b42318!important}
 .clesson{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 4px;margin:0}
 .ctick{width:24px;height:24px;flex:none;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem}.ctick.on{background:var(--green,#2fa36b);border-color:var(--green,#2fa36b);color:#fff}
 .lsheet{padding:20px 18px calc(20px + var(--sab))}.lsheet h2{margin:4px 0 10px}
+/* Home tidy */
+.minis{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px;align-items:stretch}
+.mini.water{grid-column:auto!important}.minis>.mini{min-height:150px;height:100%;box-sizing:border-box;margin:0}
+.mini.water .wbtns2{display:flex;gap:6px}.mini.water .wbtns2 button{flex:1;min-width:0;padding:8px 4px;margin:0;font-size:.85rem}
+#stepsCard{flex-direction:column;align-items:flex-start;justify-content:space-between}
+.goalprompt{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.goalprompt button{margin:0;white-space:nowrap}
+.weekchecks{display:flex!important;flex-direction:column;gap:0}
+.wrowck{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:10px 2px;margin:0}.wrowck:first-child{border-top:0}
+.wrowck .wi{font-size:1.3rem}.wrowck .wt{flex:1;display:flex;flex-direction:column}.wrowck small{color:var(--mut)}
+.wrowck .wtick{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--lav);color:var(--mut);font-weight:900}.wrowck.done .wtick{background:var(--green);color:#fff}

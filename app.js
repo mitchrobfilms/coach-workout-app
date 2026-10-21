@@ -947,7 +947,7 @@ function prepCard(r) {
     <div class="tags">${r.veg ? '<span class="v">Vegetarian</span>' : ''}${r.fussy ? '<span class="f">Fussy-friendly</span>' : ''}<span>${portions}</span><span>≈${r.kcal} kcal</span><span>≈${r.protein}g protein</span><span>per portion</span><span>${r.mins} min</span></div>
     <button type="button" class="addweek ${on ? 'on' : ''}" data-week="${r.id}">${on ? '✓ On shopping list (tap to remove)' : '＋ Add to shopping list'}</button>
     <b class="small">Shopping list (whole batch)</b>${r.ing.map(g => { const q = fmtQty(g.q); return tickRow(shopKey(g.item), g.item, `<span class="qty">${esc(q.metric)}${q.imperial ? ` / ${esc(q.imperial)}` : ''}</span>${g.pack ? ` · Pack: ${esc(g.pack)}` : ''}`); }).join('')}
-    <div class="storebox">🧊 <b>Fridge:</b> ${esc(r.store.fridge)} · <b>Freezer:</b> ${esc(r.store.freezer)}<br>🔥 <b>Reheat:</b> ${esc(r.store.reheat)}</div>
+    <div class="storebox">🧊 <b>Fridge:</b> ${esc(r.store.fridge)} · <b>Freezer:</b> ${esc(r.store.freezer)}<br>${/^Eat cold/.test(r.store.reheat) ? "❄️ <b>Serve:</b> " : "🔥 <b>Reheat:</b> "}${esc(r.store.reheat)}</div>
     <div class="glp1">💊 <b>GLP-1 / retatrutide-friendly:</b> ${esc(r.glp1)}</div>
     ${guideHTML(r)}</div>`;
 }
@@ -1623,7 +1623,7 @@ function guideHTML(r) {
     <div class="gtimes"><span>⏱️ Prep ${g.prep} min</span><span>🔥 Cook ${g.cook} min</span><span>Total ${g.total} min</span></div>
     ${g.ovenText ? `<p class="oven">🔥 <b>Oven:</b> ${g.ovenText}</p>` : ''}
     <ol class="gsteps">${g.steps.map(st => `<li>${esc(st.t)}${stepText(st) ? `<br><small class="muted">${esc(stepText(st))}</small>` : ''}${st.timer ? ` <small class="tchip">⏲️ ${fmtTimer(st.timer)}</small>` : ''}</li>`).join('')}</ol>
-    <p class="safe">🌡️ <b>Safe to eat:</b> ${esc(g.safe)}<br>♨️ ${esc(g.reheat)}</p>
+    <p class="safe">🌡️ <b>Safe to eat:</b> ${esc(g.safe)}<br>${g.cold ? "❄️" : "♨️"} ${esc(g.reheat)}</p>
     <p class="small muted">${esc(THERMO_TIP)}</p>
     <details><summary class="small"><b>🧊 Meal prep safety</b></summary><ul class="small">${COOK_SAFETY.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
     <details><summary class="small"><b>💊 GLP-1-friendly cooking</b></summary><ul class="small">${GLP1_NOTES.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>
@@ -1675,7 +1675,8 @@ function renderHome() {
   const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
   $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>
     <div class="ringrow">${ringSVG(pct)}<div class="down"><b>${lbsDown} lbs</b><span>down</span><p class="small muted">${w.length ? `Since ${new Date(w[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}</p></div></div>`;
-  $('wCard').onclick = () => switchTab('progress');
+  if (!goal) $('wCard').insertAdjacentHTML('beforeend', `<div class="goalprompt"><span class="small">Set a goal weight to see your progress ring.</span><button type="button" class="primary" id="setGoalBtn">Set goal</button></div>`);
+  $('wCard').onclick = e => { if (e.target.closest('#setGoalBtn')) { e.stopPropagation(); switchTab('settings'); setTimeout(() => { const g = $('goalInput'); g?.scrollIntoView({ block: 'center' }); g?.focus(); }, 80); return; } switchTab('progress'); };
   const day = store.get('daily', {}), t = day[todayKey()] || {};
   { const ml = waterMl(t), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, pct = Math.min(100, Math.round(ml / goal * 100));
     $('waterCard').innerHTML = `<div class="wtop"><i>💧</i><span><small>Hydration</small><b id="waterL">${litres(ml)} / ${litres(goal)} L</b><small id="waterImp">${imperial(ml)}</small></span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="wbtns2"><button type="button" id="waterMinus" aria-label="Remove 500 ml" ${ml ? '' : 'disabled'}>−500 ml</button><button type="button" class="primary" id="waterPlus" aria-label="Add 500 ml">+500 ml</button></div>`;
@@ -1689,10 +1690,13 @@ function renderHome() {
     <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
   $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
-  const water = Object.entries(store.get('daily', {})).some(([d, v]) => d >= ws && waterMl(v) >= 1500);
-  const checks = [['inject', 'Inject', l.some(e => inWeek(e.at))], ['weigh', 'Weigh', w.some(x => inWeek(x.date))], ['water', 'Water', water || !!wk.water], ['meals', 'Meals', !!glp.plan || !!wk.meals], ['mindset', 'Mindset', !!wk.mindset]];
-  $('weekChecks').innerHTML = checks.map(([k, n, d]) => `<button type="button" class="wck ${d ? 'done' : ''}" data-wck="${k}" aria-pressed="${d}"><i>${d ? '✓' : ''}</i>${n}</button>`).join('');
-  $('weekChecks').querySelectorAll('[data-wck]').forEach(b => b.onclick = () => { const k = b.dataset.wck; if (k === 'inject') return switchTab('progress'); if (k === 'weigh') return switchTab('progress'); const all = store.get('weekChecks', {}), x = all[ws] ||= {}; x[k] = !x[k]; store.set('weekChecks', all); renderHome(); });
+  const wGoal = settings.waterGoalMl || DEFAULT_GOAL_ML, waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
+  const mealDays = Object.keys(store.get('food', {})).filter(d => d >= ws).length, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
+  const lessons = Object.values(store.get('course', { done: {} }).done || {}).filter(inWeek).length;
+  const checks = [['💉', 'Injection logged', injN ? `${injN} this week` : 'Not yet', injN > 0, 'progress', 'injCard'], ['⚖️', 'Weighed in', weighN ? `${weighN} this week` : 'Not yet', weighN > 0, 'progress', 'progSummary'],
+    ['💧', 'Water goal days', `${waterDays}/7 days at ${litres(wGoal)} L`, waterDays >= 5, 'workout', 'waterCard'], ['🍽️', 'Meals logged', `${mealDays}/7 days`, mealDays >= 5, 'food'], ['🎓', 'Course lesson', lessons ? `${lessons} done this week` : 'Try one this week', lessons > 0, 'classes']];
+  $('weekChecks').innerHTML = checks.map(([i, n, sub, d, t, sc], k) => `<button type="button" class="wrowck ${d ? 'done' : ''}" data-wk="${k}"><span class="wi">${i}</span><span class="wt"><b>${n}</b><small>${esc(sub)}</small></span><span class="wtick">${d ? '✓' : '›'}</span></button>`).join('');
+  $('weekChecks').querySelectorAll('[data-wk]').forEach(b => b.onclick = () => { const [, , , , t, sc] = checks[+b.dataset.wk]; switchTab(t); setTimeout(() => sc ? $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }) : scrollTo(0, 0), 60); });
   const F = [['💉', 'Injection Tracker', 'progress', 'injCard'], ['⚖️', 'Weigh In Tracker', 'progress', 'progSummary'], ['🎓', 'GLP1 Life Classes', 'classes'], ['🎬', 'Workouts', 'workouts'], ['🍱', 'Meal Plan Builder', 'prep'], ['📖', 'Recipes with Instructions', 'prep', 'prepSections'], ['⏱️', 'Cooking Time', 'prep', 'prepSections'], ['🛒', 'Compare Prices', 'prices'], ['🏷️', 'Search Offers & Save', 'aldi'], ['📈', 'Track Progress & Insights', 'progress'], ['👥', 'Support Community', 'classes', 'supportCards'], ['🏋️', 'Personal Trainers', 'trainers']];
   $('features').innerHTML = F.map(([i, n, t, sc]) => `<button type="button" class="feat" data-ftab="${t}" ${sc ? `data-fsc="${sc}"` : ''}><i>${i}</i>${n}</button>`).join('');
   $('features').querySelectorAll('[data-ftab]').forEach(b => b.onclick = () => { if (sess) return; switchTab(b.dataset.ftab); const sc = b.dataset.fsc; sc ? setTimeout(() => $(sc)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60) : scrollTo(0, 0); });
