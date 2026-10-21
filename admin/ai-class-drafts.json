@@ -23,9 +23,9 @@
    "status": "Awaiting safety review",
    "published": false,
    "thumb": "ai-drafts/ai-walk-15.jpg",
-   "video": null,
-   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 720p MP4 78.2 MB (over Supabase free 50 MB/file \u2013 use Bunny Stream). Not hosted yet.",
-   "subtitles": null,
+   "video": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/playlist.m3u8",
+   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 720p MP4 78.2 MB. Hosted on Bunny Stream (admin preview only).",
+   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
     {
@@ -213,8 +213,14 @@
    },
    "bunny": {
     "libraryId": 786067,
-    "guid": null,
-    "cdnHost": "vz-e201ca15-f9a.b-cdn.net"
+    "guid": "29a85889-c988-45e4-8298-c1eece64ce3e",
+    "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
+    "hls": "https://vz-e201ca15-f9a.b-cdn.net/29a85889-c988-45e4-8298-c1eece64ce3e/playlist.m3u8",
+    "embed": "https://iframe.mediadelivery.net/embed/786067/29a85889-c988-45e4-8298-c1eece64ce3e",
+    "captions": [
+     "en"
+    ],
+    "encoded": true
    }
   },
   {
@@ -232,9 +238,9 @@
    "status": "Awaiting safety review",
    "published": false,
    "thumb": "ai-drafts/ai-seated-10.jpg",
-   "video": null,
-   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 720p MP4 41.7 MB (fits Supabase 50 MB/file, Bunny Stream recommended). Heel raises dropped (AI clips failed review). Not hosted yet.",
-   "subtitles": null,
+   "video": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/playlist.m3u8",
+   "videoNote": "v2 no-loop + branded (21 Oct): 30 unique chained AI clips, no repeated footage; 10:00 exact; 720p MP4 41.7 MB. Heel raises dropped (AI clips failed review). Hosted on Bunny Stream (admin preview only).",
+   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [
     {
@@ -390,8 +396,14 @@
    },
    "bunny": {
     "libraryId": 786067,
-    "guid": null,
-    "cdnHost": "vz-e201ca15-f9a.b-cdn.net"
+    "guid": "f6a01003-62fa-4a2f-aa7a-626030219857",
+    "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
+    "hls": "https://vz-e201ca15-f9a.b-cdn.net/f6a01003-62fa-4a2f-aa7a-626030219857/playlist.m3u8",
+    "embed": "https://iframe.mediadelivery.net/embed/786067/f6a01003-62fa-4a2f-aa7a-626030219857",
+    "captions": [
+     "en"
+    ],
+    "encoded": true
    }
   }
  ]
