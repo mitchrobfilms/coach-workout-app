@@ -44,7 +44,7 @@ export async function checkUpdate({ force = false } = {}) {
   } catch { return null; }
 }
 // Settings > App updates row (works in the app and on the web)
-export const WEB_VERSION = 'web v36';
+export const WEB_VERSION = 'web v37';
 async function updRow(manual) {
   const info = document.getElementById('updInfo'), btn = document.getElementById('updCheck'); if (!info) return;
   if (!native) {

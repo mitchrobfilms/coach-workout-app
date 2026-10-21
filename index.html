@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=36">
+<link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
 <header class="topbar">
@@ -71,20 +71,21 @@
       <div class="card nextinj" id="nextInjCard"></div>
       <div class="card" id="weekCard"><h3>This week</h3><div class="weekchecks" id="weekChecks"></div></div>
       <div class="features" id="features"></div>
-      <h2 class="sep">Today's workout</h2>
     </div>
-    <div class="hero"><img src="hero.jpg" alt="Person doing a wall push-up"><div class="hero-fade"></div>
-      <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <p id="startGreeting" class="small muted" hidden></p>
     <div class="card videoideas" id="videoIdeas" hidden></div>
     <div class="card homeprog" id="homeProgress"></div>
     <div id="backupNudge" hidden aria-hidden="true"></div>
     <div class="card injnext" id="injNext" hidden></div>
+    <div id="legacyWorkout" hidden aria-hidden="true">
+    <div class="hero"><img src="hero.jpg" alt="Person doing a wall push-up"><div class="hero-fade"></div>
+      <div class="hero-text"><span class="badge">Equipment: none needed</span><h1>Week 1 · Day 1</h1><p>About 18 min · low impact · beginner</p></div></div>
     <ul class="plan" id="planList"></ul>
     <div class="card note"><b>Safety:</b> Check with your GP if you have health conditions. Stop if anything hurts.</div>
     <div class="card note"><b>Set-up:</b> Prop your phone about 2m / 6ft away so your whole body is in view. You'll use a wall, a sturdy chair and a towel or carpet. That's it.</div>
     <div class="card note small">🔒 Camera video is processed on your phone and never uploaded.</div>
     <button id="startBtn" class="primary big">Start workout</button>
+    </div>
   </div>
 
   <div id="screen-session" class="screen">
@@ -400,6 +401,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=36"></script><script type="module" src="app.js?v=36"></script>
+<script type="module" src="native.js?v=37"></script><script type="module" src="app.js?v=37"></script>
 </body>
 </html>

@@ -552,3 +552,4 @@ body{padding-bottom:calc(96px + var(--sab))!important}
 .tab,section.tab{scroll-margin-top:calc(70px + var(--sat))}
 button.danger,#cloudDelete{background:#d92d20!important;border:1px solid #b42318!important;color:#fff!important;opacity:1!important;font-weight:700}
 button.danger:active{background:#b42318!important}
+#legacyWorkout,#legacyClasses{display:none!important}
