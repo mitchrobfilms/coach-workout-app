@@ -30,8 +30,38 @@ export function renderVideoLib(el, { filter = '' } = {}) {
   el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => { renderVideoLib(el, { filter: b.dataset.vcat }); el.scrollIntoView({ block: 'start' }); });
 }
 // Player sheet
-export function openVideo(v, { onCastSource } = {}) {
+const WARM = { chair: ['Seated marching', 'Arm circles', 'Shoulder rolls', 'Seated side reaches', 'Ankle circles'], def: ['March on the spot', 'Arm circles', 'Shoulder rolls', 'Hip circles', 'Side steps'] };
+const COOL = ['Slow march, slowing down', 'Calf stretch (each side)', 'Chest opener', 'Side stretch (each side)', 'Deep breaths'];
+// Optional warm-up before a class (30 s per move, then auto-continues); cool-down card after.
+function moveTimer(m, moves, title, done, { skipLabel = 'Skip to class' } = {}) {
+  let i = 0, left = 30, t = null;
+  const draw = () => { m.querySelector('.wbody').innerHTML = `<h2>${title}</h2><p class="wmove"><b>${esc(moves[i])}</b></p><p class="wclock">${left}s</p><p class="small muted">Move ${i + 1} of ${moves.length} · go gently</p><div class="row"><button type="button" id="wSkip">${skipLabel}</button></div>`; m.querySelector('#wSkip').onclick = () => { clearInterval(t); done(); }; };
+  t = setInterval(() => { if (!m.isConnected || m.hidden) return clearInterval(t); if (--left <= 0) { i++; left = 30; if (i >= moves.length) { clearInterval(t); return done(); } navigator.vibrate?.(40); } draw(); }, 1000);
+  draw();
+}
+export function openVideo(v, opts = {}) {
   if (!v) return;
+  if (opts.warm === false || v.cat === 'recovery') return playVideo(v, opts);
+  let m = document.getElementById('videoModal');
+  if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
+  const moves = WARM[v.cat] || WARM.def;
+  m.innerHTML = `<div class="rsheet vsheet warm"><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button><div class="wbody"><h2>🔥 Warm up first?</h2><p>A 2½-minute warm-up before <b>${esc(v.title)}</b>:</p><ul>${moves.map(x => `<li>${esc(x)} · 30s</li>`).join('')}</ul>
+    <div class="row"><button type="button" class="primary" id="wStart">Start warm-up</button><button type="button" id="wSkip">Skip to class</button></div></div></div>`;
+  m.hidden = false; document.body.classList.add('modal-open');
+  const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
+  m.querySelector('#videoClose').onclick = close; m.onclick = e => { if (e.target === m) close(); };
+  const go = () => playVideo(v, opts);
+  m.querySelector('#wSkip').onclick = go; m.querySelector('#wStart').onclick = () => moveTimer(m, moves, '🔥 Warm-up', go);
+  return 'warmup';
+}
+export function coolDown() {
+  const m = document.getElementById('videoModal'); if (!m) return;
+  m.innerHTML = `<div class="rsheet vsheet warm"><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button><div class="wbody"></div></div>`;
+  const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
+  m.querySelector('#videoClose').onclick = close;
+  moveTimer(m, COOL, '🧘 Cool-down', () => { m.querySelector('.wbody').innerHTML = '<h2>🎉 Well done!</h2><p>Have a drink of water.</p><button type="button" class="primary" id="wDone">Done</button>'; m.querySelector('#wDone').onclick = close; }, { skipLabel: 'Finish' });
+}
+function playVideo(v, { onCastSource } = {}) {
   if (!v.embeddable) return 'unavailable'; // never leave the app for YouTube
   let m = document.getElementById('videoModal');
   if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
@@ -42,10 +72,12 @@ export function openVideo(v, { onCastSource } = {}) {
     <div class="vbody"><h2>${esc(v.title)}</h2><p class="small muted">${v.mins} min · ${esc(v.level || 'Beginner')} · ${esc(LIB?.categories?.[v.cat] || '')}</p>
     <p class="small vcredit">${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
     <div class="row">${v.source === 'archive' ? '<button type="button" id="videoCast" class="primary">📺 Cast</button>' : '<button type="button" id="videoCast" class="primary" hidden>📺 Cast</button>'}</div>
+    <div class="row"><button type="button" id="videoCool">🧘 Finished? Cool down</button></div>
     <p class="small muted">Go at your own pace and stop if anything hurts or you feel dizzy. Check with your GP before starting new exercise.</p></div></div>`;
   m.hidden = false; document.body.classList.add('modal-open');
   const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
   m.querySelector('#videoClose').onclick = close; m.onclick = e => { if (e.target === m) close(); };
+  m.querySelector('#videoCool').onclick = coolDown; m.querySelector('#videoPlayer')?.addEventListener('ended', coolDown);
   onCastSource?.(m.querySelector('#videoPlayer'), m.querySelector('#videoCast'), v);
   return 'opened';
 }
