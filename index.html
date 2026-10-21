@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=39">
+<link rel="stylesheet" href="style.css?v=40">
 </head>
 <body>
 <header class="topbar">
@@ -73,6 +73,7 @@
       <div class="features" id="features"></div>
     </div>
     <p id="startGreeting" class="small muted" hidden></p>
+    <button type="button" class="fitcard homefit" data-goto="workouts">🎬 Workouts<small>Warm-ups, walking, chair, yoga &amp; more</small></button>
     <div class="card videoideas" id="videoIdeas" hidden></div>
     <div class="card homeprog" id="homeProgress"></div>
     <div id="backupNudge" hidden aria-hidden="true"></div>
@@ -160,13 +161,15 @@
 
 <!-- WORKOUTS TAB -->
 <section id="tab-workouts" class="tab">
-  <h2 class="pagehead">Workouts</h2>
-  <p class="small muted">Beginner, no-equipment follow-along videos, played inside the app unedited from their creators.</p>
+  <h2 class="pagehead">Fitness</h2>
+  <div class="fitcards"><button type="button" class="fitcard" data-goto="workouts">🎬 Workouts<small>Coached video classes</small></button><button type="button" class="fitcard alt" data-goto="classes">🎓 GLP1 Life Course<small>Lessons &amp; certificate</small></button></div>
+  <p class="small muted">Instructor-led classes, played inside the app from their creators. Start with a warm-up and finish with a cool-down.</p>
   <div id="videoLib"></div>
 </section>
 <!-- CLASSES TAB -->
 <section id="tab-classes" class="tab">
   <h2 class="pagehead">GLP1 Life Classes</h2>
+  <div class="fitcards"><button type="button" class="fitcard" data-goto="workouts">🎬 Workouts<small>Coached video classes</small></button><button type="button" class="fitcard alt" data-goto="classes">🎓 Course<small>You're here</small></button></div>
   <div id="supportCards"></div>
   <p class="small muted">A step-by-step course for your GLP-1 weight-loss journey. Tick off lessons as you go; your progress saves to your account.</p>
   <div id="courseRoot"></div>
@@ -383,7 +386,7 @@
   <button type="button" data-tab="workout" class="active"><i><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></i><span>Home</span></button>
   <button type="button" data-tab="progress"><i><svg viewBox="0 0 24 24"><path d="M5 19C5 10 11 5 20 4c-1 9-6 15-15 15zM5 19l8-8"/></svg></i><span>Track</span></button>
   <button type="button" data-tab="prep"><i><svg viewBox="0 0 24 24"><path d="M6 3v8a2 2 0 0 0 4 0V3M8 11v10M16 3c-2 2-2 7 0 9v9M16 12h1V3"/></svg></i><span>Meals</span></button>
-  <button type="button" data-tab="classes"><i><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></i><span>Classes</span></button>
+  <button type="button" data-tab="workouts"><i><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M10 8l5 2.5-5 2.5z"/><path d="M8 21h8M12 17v4"/></svg></i><span>Fitness</span></button>
   <button type="button" class="orb" id="orbBtn" aria-label="More" aria-expanded="false" aria-controls="launcher"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="8" cy="12" r=".6"/><circle cx="12" cy="12" r=".6"/><circle cx="16" cy="12" r=".6"/></svg></i><span>More</span></button>
 </nav>
 <div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-label="All sections">
@@ -392,7 +395,7 @@
     <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
     <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
     <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
-    <button type="button" data-tab="workouts"><i>🎬</i><span>Workouts</span></button><button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
+    <button type="button" data-tab="classes"><i>🎓</i><span>GLP1 Life Course</span></button><button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
     <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
     <button type="button" data-tab="member"><i>⭐</i><span>Membership</span></button>
     <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
@@ -407,6 +410,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=39"></script><script type="module" src="app.js?v=39"></script>
+<script type="module" src="native.js?v=40"></script><script type="module" src="app.js?v=40"></script>
 </body>
 </html>

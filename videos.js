@@ -12,8 +12,8 @@ export const videoById = id => LIB?.videos?.find(v => v.id === id);
 export function videoCard(v) {
   return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
-const ORDER = ['walking', 'chair', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
-const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
+const ORDER = ['warmup', 'cooldown', 'walking', 'chair', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
+const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.chair ? ' · 🪑 Chair-friendly' : v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
 // Netflix-style rows per category; "See all" opens that category as a grid.
 export function renderVideoLib(el, { filter = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
@@ -25,8 +25,9 @@ export function renderVideoLib(el, { filter = '' } = {}) {
     el.querySelector('#vBack').onclick = () => { renderVideoLib(el); el.scrollIntoView({ block: 'start' }); };
     return;
   }
-  el.innerHTML = keys.map(k => { const list = vids.filter(v => v.cat === k); if (!list.length) return '';
-    return `<section class="vrow" data-vrow="${k}"><div class="vrowhead"><h3>${esc(cats[k])} <span class="small muted">${list.length}</span></h3><button type="button" class="linkbtn" data-vcat="${k}">See all ›</button></div><div class="vscroll">${list.map(mini).join('')}</div></section>`; }).join('');
+  // Netflix-style category tiles (image + name + count); tap opens that category's grid.
+  el.innerHTML = `<div class="vtiles">${keys.map(k => { const list = vids.filter(v => v.cat === k); if (!list.length) return '';
+    return `<button type="button" class="vtile" data-vcat="${k}"><img src="${esc(list.find(v => v.source === 'youtube')?.poster || list[0].poster)}" alt="" loading="lazy" decoding="async"><span class="vtname">${esc(cats[k])}</span><span class="vtcount">${list.length} ${list.length === 1 ? 'class' : 'classes'}</span></button>`; }).join('')}</div>`;
   el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => { renderVideoLib(el, { filter: b.dataset.vcat }); el.scrollIntoView({ block: 'start' }); });
 }
 // Player sheet
@@ -41,7 +42,10 @@ function moveTimer(m, moves, title, done, { skipLabel = 'Skip to class' } = {}) 
 }
 export function openVideo(v, opts = {}) {
   if (!v) return;
-  if (opts.warm === false || v.cat === 'recovery' || v.cat === 'breathing') return playVideo(v, opts);
+  return playVideo(v, opts); // classes play straight away; warm-up/cool-down are their own categories
+}
+// Dormant: old timed warm-up card (kept, not used).
+export function openWarmupCard(v, opts = {}) {
   let m = document.getElementById('videoModal');
   if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
   const moves = WARM[v.cat] || WARM.def;
@@ -72,12 +76,10 @@ function playVideo(v, { onCastSource } = {}) {
     <div class="vbody"><h2>${esc(v.title)}</h2><p class="small muted">${v.mins} min · ${esc(v.level || 'Beginner')} · ${esc(LIB?.categories?.[v.cat] || '')}</p>
     <p class="small vcredit">${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
     <div class="row">${v.source === 'archive' ? '<button type="button" id="videoCast" class="primary">📺 Cast</button>' : '<button type="button" id="videoCast" class="primary" hidden>📺 Cast</button>'}</div>
-    <div class="row"><button type="button" id="videoCool">🧘 Finished? Cool down</button></div>
     <p class="small muted">Go at your own pace and stop if anything hurts or you feel dizzy. Check with your GP before starting new exercise.</p></div></div>`;
   m.hidden = false; document.body.classList.add('modal-open');
   const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
   m.querySelector('#videoClose').onclick = close; m.onclick = e => { if (e.target === m) close(); };
-  m.querySelector('#videoCool').onclick = coolDown; m.querySelector('#videoPlayer')?.addEventListener('ended', coolDown);
   onCastSource?.(m.querySelector('#videoPlayer'), m.querySelector('#videoCast'), v);
   return 'opened';
 }
