@@ -49,7 +49,7 @@ function openLesson(k, ctx) {
   const [mid, lid] = k.split('/'), m = MODULES.find(x => x.id === mid), l = m?.lessons.find(x => x.id === lid); if (!l) return;
   let o = document.getElementById('lessonModal'); if (!o) { o = document.createElement('div'); o.id = 'lessonModal'; o.className = 'overlay recipe'; o.setAttribute('role', 'dialog'); o.setAttribute('aria-modal', 'true'); document.body.append(o); }
   const st = ctx.store.get('course', { done: {} });
-  o.innerHTML = `<div class="rsheet lsheet"><button type="button" class="rclose" id="lessonClose" aria-label="Close">✕</button><p class="small muted">${m.icon} ${esc(m.title)}</p><h2>${esc(l.title)}</h2>
+  o.innerHTML = `<div class="rsheet lessonsheet"><button type="button" class="rclose" id="lessonClose" aria-label="Close">✕</button><p class="small muted">${m.icon} ${esc(m.title)}</p><h2>${esc(l.title)}</h2>
     ${l.body.map(p => `<p>${esc(p)}</p>`).join('')}<div class="card note"><b>Remember:</b> ${esc(ALWAYS)}</div>
     <button type="button" class="primary big" id="lessonDone">${st.done[k] ? '✓ Completed' : 'Mark as complete'}</button></div>`;
   o.hidden = false; document.body.classList.add('modal-open');

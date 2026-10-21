@@ -31,7 +31,7 @@ await p.screenshot({ path: `${OUT}/videos-player-youtube.png` }); await p.click(
 ok(!(await p.$('#videoLib [data-vext]')), 'no "opens on YouTube" cards (non-embeddable videos dropped)');
 ok(lib.videos.every(v => v.embeddable), 'library only has in-app playable videos');
 await p.evaluate(() => window.__kova.switchTab('classes')); await p.waitForTimeout(300); ok(await p.$$eval('#courseRoot .cmod', l => l.length) === 7, 'course has 7 modules');
-await p.click('#courseRoot .cmod summary'); await p.click('#courseRoot [data-lesson]'); await p.waitForTimeout(200); ok(/prescriber/.test(await p.textContent('#lessonModal')), 'lesson reminds: follow prescriber + leaflet');
+await p.click('#courseRoot .cmod summary'); await p.click('#courseRoot [data-lesson]'); await p.waitForTimeout(200); ok(/prescriber/.test(await p.textContent('#lessonModal')), 'lesson reminds: follow prescriber + leaflet'); await p.waitForTimeout(400); ok(await p.$eval('#lessonModal .rsheet', e => getComputedStyle(e).opacity === '1' && e.getBoundingClientRect().top > -5), 'lesson sheet actually visible (opacity 1, on screen)');
 await p.screenshot({ path: `${OUT}/course-lesson.png` }); await p.click('#lessonDone'); await p.waitForTimeout(200); ok(/1 of/.test(await p.textContent('#courseRoot .coursehead')), 'lesson tick saved');
 await p.screenshot({ path: `${OUT}/course.png` });
 ok(!(await p.$eval('#tab-classes', e => [...e.querySelectorAll('h2')].some(h => h.offsetParent && /30-minute/.test(h.textContent)))), '30-minute workouts section gone');

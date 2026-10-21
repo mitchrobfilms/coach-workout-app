@@ -569,7 +569,7 @@ button.danger:active{background:#b42318!important}
 .cmc{font-size:.8rem;padding:2px 8px;border-radius:99px;background:var(--lav,#eee6f6)}.cmc.ok{background:var(--green,#2fa36b);color:#fff}
 .clesson{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 4px;margin:0}
 .ctick{width:24px;height:24px;flex:none;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.8rem}.ctick.on{background:var(--green,#2fa36b);border-color:var(--green,#2fa36b);color:#fff}
-.lsheet{padding:20px 18px calc(20px + var(--sab))}.lsheet h2{margin:4px 0 10px}
+.lessonsheet{padding:20px 18px calc(20px + var(--sab))}.lessonsheet h2{margin:4px 0 10px}
 /* Home tidy */
 .minis{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px;align-items:stretch}
 .mini.water{grid-column:auto!important}.minis>.mini{min-height:150px;height:100%;box-sizing:border-box;margin:0}

@@ -12,5 +12,5 @@ const card = await p.$('#tab-workouts [data-goto=classes]'); console.log('course
 if (card) await card.click(); await p.waitForTimeout(1500);
 const st = await p.evaluate(() => ({ tab: [...document.querySelectorAll('section.tab')].filter(s => s.offsetParent).map(s => s.id).join(), mods: document.querySelectorAll('#courseRoot .cmod').length, lessons: document.querySelectorAll('#courseRoot [data-lesson]').length, html: document.querySelector('#courseRoot')?.innerHTML.slice(0, 200) }));
 console.log(JSON.stringify(st)); await p.screenshot({ path: O + '-modules.png' });
-if (st.mods) { await p.click('#courseRoot .cmod summary'); await p.click('#courseRoot [data-lesson]'); await p.waitForTimeout(500); await p.screenshot({ path: O + '-lesson.png' }); console.log('lesson open:', await p.isVisible('#lessonModal')); await p.click('#lessonModal .rclose, #lessonModal [aria-label=Close]').catch(() => {}); }
+if (st.mods) { await p.click('#courseRoot .cmod summary'); await p.click('#courseRoot [data-lesson]'); await p.waitForTimeout(1500); await p.screenshot({ path: O + '-lesson.png' }); console.log('lesson open:', await p.isVisible('#lessonModal')); await p.click('#lessonModal .rclose, #lessonModal [aria-label=Close]').catch(() => {}); }
 console.log('errors:', errs.join(' | ') || 'none'); await b.close();
