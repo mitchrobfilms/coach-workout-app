@@ -580,3 +580,7 @@ button.danger:active{background:#b42318!important}
 .wrowck{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:10px 2px;margin:0}.wrowck:first-child{border-top:0}
 .wrowck .wi{font-size:1.3rem}.wrowck .wt{flex:1;display:flex;flex-direction:column}.wrowck small{color:var(--mut)}
 .wrowck .wtick{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--lav);color:var(--mut);font-weight:900}.wrowck.done .wtick{background:var(--green);color:#fff}
+.rcredit{font-size:11px;color:#6b6478;margin:14px 0 0;line-height:1.4}.rcredit a{color:inherit;text-decoration:underline}
+.smash{display:inline-block;font-size:.7rem;font-weight:800;color:#fff;background:var(--green,#2fa36b);border-radius:99px;padding:1px 7px;vertical-align:middle}
+.mini.water .wtop>i{font-size:1.3rem}.mini.water .wtop{align-items:flex-start}#waterL{font-size:1.1rem;white-space:nowrap}#waterL .smash{display:block;width:max-content;margin-top:3px}
+#stepsCard{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px}#stepsCard>span{display:flex;flex-direction:column}

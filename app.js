@@ -5,7 +5,7 @@ import { DISCLAIMER as INJ_DISCLAIMER, MEDS, UNITS, SITES, EFFECTS, makeEntry, l
 import { guideFor, stepText, SAFETY as COOK_SAFETY, BATCH_ORDER, GLP1_NOTES, THERMO_TIP, fmtTimer } from './cook.js';
 import { newAwards, drawCertificate, awardsFromHistory, redateCerts } from './certs.js';
 import { saveBlob, shareBlob } from './files.js';
-import { waterMl, migrateDaily, addWater, litres, imperial, STEP_ML, DEFAULT_GOAL_ML } from './hydration.js';
+import { waterMl, migrateDaily, addWater, litres, imperial, STEP_ML, DEFAULT_GOAL_ML, waterGoal, MIN_GOAL_ML, MAX_GOAL_ML } from './hydration.js';
 import { buildGlp1Plan, GLP1_TIPS, STAPLES, STAPLE, GLP1_RECIPES as GLP1_RECIPES_ALL, fitPortion } from './glp1.js';
 import { lidlWeek, lidlWeekOffers, fmtDay, offersFor, isHighProtein, STORE_NAMES, fmtGBP, fmtChecked, HIGH_PROTEIN } from './offers.js';
 import { makeAnalyser, CoachEngine, allVisible, LM } from './logic.js';
@@ -944,12 +944,12 @@ function prepCard(r) {
   const on = shop.recipes.includes(r.id), days = shop.prep.days;
   const portions = r.meal === 'snack' ? `Makes ${r.makes}` : r.makes > days ? `Makes ${r.makes}: ${days} days + ${r.makes - days} to freeze or share` : `Makes ${r.makes} portions (${days} days)`;
   return `<div class="recipe" id="recipe-${r.id}"><h4>${esc(r.name)}</h4>
-    <div class="tags">${r.veg ? '<span class="v">Vegetarian</span>' : ''}${r.fussy ? '<span class="f">Fussy-friendly</span>' : ''}<span>${portions}</span><span>≈${r.kcal} kcal</span><span>≈${r.protein}g protein</span><span>per portion</span><span>${r.mins} min</span></div>
+    <div class="tags">${r.veg ? '<span class="v">Vegetarian</span>' : ''}${r.fussy ? '<span class="f">Fussy-friendly</span>' : ''}<span>${portions}</span><span>≈${r.kcal} kcal</span><span>≈${r.protein}g protein</span>${r.fibre ? `<span>≈${r.fibre}g fibre</span>` : ''}<span>per portion</span><span>${r.mins} min</span></div>
     <button type="button" class="addweek ${on ? 'on' : ''}" data-week="${r.id}">${on ? '✓ On shopping list (tap to remove)' : '＋ Add to shopping list'}</button>
     <b class="small">Shopping list (whole batch)</b>${r.ing.map(g => { const q = fmtQty(g.q); return tickRow(shopKey(g.item), g.item, `<span class="qty">${esc(q.metric)}${q.imperial ? ` / ${esc(q.imperial)}` : ''}</span>${g.pack ? ` · Pack: ${esc(g.pack)}` : ''}`); }).join('')}
     <div class="storebox">🧊 <b>Fridge:</b> ${esc(r.store.fridge)} · <b>Freezer:</b> ${esc(r.store.freezer)}<br>${/^Eat cold/.test(r.store.reheat) ? "❄️ <b>Serve:</b> " : "🔥 <b>Reheat:</b> "}${esc(r.store.reheat)}</div>
-    <div class="glp1">💊 <b>GLP-1 / retatrutide-friendly:</b> ${esc(r.glp1)}</div>
-    ${guideHTML(r)}</div>`;
+    <div class="glp1">💊 <b>GLP-1 friendly:</b> ${esc(r.glp1)}</div>
+    ${guideHTML(r)}${r.credit ? `<p class="rcredit">${r.creditUrl ? `<a href="${esc(r.creditUrl)}" target="_blank" rel="noopener">${esc(r.credit)}</a>` : esc(r.credit)}</p>` : ''}</div>`;
 }
 function prepSummary() {
   const w = shop.prep.week, names = ['breakfast', 'lunch', 'dinner'].map(m => w[m] && prepById(w[m])).filter(Boolean);
@@ -1678,8 +1678,8 @@ function renderHome() {
   if (!goal) $('wCard').insertAdjacentHTML('beforeend', `<div class="goalprompt"><span class="small">Set a goal weight to see your progress ring.</span><button type="button" class="primary" id="setGoalBtn">Set goal</button></div>`);
   $('wCard').onclick = e => { if (e.target.closest('#setGoalBtn')) { e.stopPropagation(); switchTab('settings'); setTimeout(() => { const g = $('goalInput'); g?.scrollIntoView({ block: 'center' }); g?.focus(); }, 80); return; } switchTab('progress'); };
   const day = store.get('daily', {}), t = day[todayKey()] || {};
-  { const ml = waterMl(t), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, pct = Math.min(100, Math.round(ml / goal * 100));
-    $('waterCard').innerHTML = `<div class="wtop"><i>💧</i><span><small>Hydration</small><b id="waterL">${litres(ml)} / ${litres(goal)} L</b><small id="waterImp">${imperial(ml)}</small></span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="wbtns2"><button type="button" id="waterMinus" aria-label="Remove 500 ml" ${ml ? '' : 'disabled'}>−500 ml</button><button type="button" class="primary" id="waterPlus" aria-label="Add 500 ml">+500 ml</button></div>`;
+  { const ml = waterMl(t), goal = waterGoal(settings), pct = Math.min(100, Math.round(ml / goal * 100));
+    $('waterCard').innerHTML = `<div class="wtop"><i>💧</i><span><small>Hydration</small><b id="waterL">${litres(ml)} / ${litres(goal)} L${ml >= goal ? ' <span class="smash">✓ goal smashed</span>' : ''}</b><small id="waterImp">${imperial(ml)}</small></span></div><div class="bar"><i style="width:${pct}%"></i></div><div class="wbtns2"><button type="button" id="waterMinus" aria-label="Remove 500 ml" ${ml ? '' : 'disabled'}>−500 ml</button><button type="button" class="primary" id="waterPlus" aria-label="Add 500 ml">+500 ml</button></div>`;
     const bump = delta => { const d = store.get('daily', {}), x = d[todayKey()] ||= {}; const v = addWater(x, delta); store.set('daily', d); renderHome(); toast(delta > 0 ? `💧 +500 ml · ${litres(v)} L today` : `↩️ Removed 500 ml · ${litres(v)} L today`); };
     $('waterPlus').onclick = () => bump(STEP_ML); $('waterMinus').onclick = () => bump(-STEP_ML); }
   $('stepsCard').innerHTML = `<i>👣</i><span><small>Steps</small><b>${(t.steps || 0).toLocaleString('en-GB')}</b><small>of 10,000 · ${t.stepsSrc ? 'from ' + t.stepsSrc : 'tap to sync or add'}</small></span>`;
@@ -1690,7 +1690,7 @@ function renderHome() {
     <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
   $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
-  const wGoal = settings.waterGoalMl || DEFAULT_GOAL_ML, waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
+  const wGoal = waterGoal(settings), waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
   const mealDays = Object.keys(store.get('food', {})).filter(d => d >= ws).length, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
   const lessons = Object.values(store.get('course', { done: {} }).done || {}).filter(inWeek).length;
   const checks = [['💉', 'Injection logged', injN ? `${injN} this week` : 'Not yet', injN > 0, 'progress', 'injCard'], ['⚖️', 'Weighed in', weighN ? `${weighN} this week` : 'Not yet', weighN > 0, 'progress', 'progSummary'],
@@ -1925,7 +1925,7 @@ const weekDays = () => { const out = []; const d = new Date(); const dow = (d.ge
 const community = makeCommunity({ rpc: rpcF, toast: (m, ms) => toast(m, ms), root: $('communityRoot'), sbUrl: TR_URL, sbKey: TR_KEY,
   token: () => JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null')?.access_token || '', uid: () => cloud.user?.id,
   certificates: () => store.get('certificates', []),
-  stats: () => { const days = weekDays(), daily = store.get('daily', {}), goal = settings.waterGoalMl || DEFAULT_GOAL_ML, ses = new Set(store.get('sessions', []).map(s => String(s.date || s.at || '').slice(0, 10)));
+  stats: () => { const days = weekDays(), daily = store.get('daily', {}), goal = waterGoal(settings), ses = new Set(store.get('sessions', []).map(s => String(s.date || s.at || '').slice(0, 10)));
     return { hydrationDays: days.filter(d => waterMl(daily[d]) >= goal).length, activeDays: days.filter(d => ses.has(d)).length }; } });
 
 /* ---------- GLP1 Life Classes: GLP-1 weight-loss course ---------- */
@@ -1939,3 +1939,7 @@ function renderCourseUI() {
 }
 renderCourseUI();
 document.addEventListener('click', e => { const b = e.target.closest('[data-gotab2]'); if (b && !b.closest('#trainerList')) { switchTab(b.dataset.gotab2); scrollTo(0, 0); } });
+
+/* Water goal setting: 3 L minimum, 500 ml steps up to 5 L */
+{ const sel = document.getElementById('waterGoalSel'); if (sel) { for (let v = MIN_GOAL_ML; v <= MAX_GOAL_ML; v += STEP_ML) sel.add(new Option(`${(v / 1000).toFixed(1)} L a day`, v));
+  sel.value = String(waterGoal(settings)); sel.onchange = () => { settings.waterGoalMl = +sel.value; store.set('settings', settings); renderHome(); toast(`💧 Daily water goal: ${(sel.value / 1000).toFixed(1)} L`); }; } }

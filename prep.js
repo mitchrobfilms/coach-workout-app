@@ -9,6 +9,7 @@ export const SAFETY = [
   'Hot dishes: reheat only once, until steaming hot all the way through. Cold dishes (oats, yoghurt pots, salads, snack pots): eat cold. Defrost frozen portions in the fridge overnight.',
   'Label boxes with the date. If in doubt, throw it out.',
 ];
+import { GLP1_RECIPES } from './recipes-glp1.js';
 export const PREP_RECIPES = [
   /* ---------------- Breakfast ---------------- */
   { id: 'p-oats', meal: 'breakfast', name: 'Overnight oats jars', makes: 4, kcal: 380, protein: 22, mins: 10, veg: true, fussy: true,
@@ -89,8 +90,9 @@ export const PREP_RECIPES = [
     steps: ['Split cottage cheese into 3 pots, top with fruit.'],
     store: { fridge: 'Up to 2 days', freezer: 'No', reheat: 'Eat cold. Keep in the fridge and eat within 2–3 days.' },
     glp1: 'High protein in a small portion.' },
+  ...GLP1_RECIPES,
 ];
-export const MEAL_SECTIONS = [['breakfast', '🌅 Breakfast'], ['lunch', '🥗 Lunch'], ['dinner', '🍲 Dinner'], ['snack', '🍎 Snacks (optional)']];
+export const MEAL_SECTIONS = [['breakfast', '🌅 Breakfast'], ['lunch', '🥗 Lunch'], ['dinner', '🍲 Dinner'], ['snack', '🍎 Snacks (optional)'], ['batch', '📦 Batch prep']];
 // Store notes: helpful, store-level only. No prices, no product names.
 export const PREP_STORE_NOTES = {
   lidl: ['Discount layout with a smaller, rotating range: buy staples (oats, tins, frozen veg) and check the week\'s fresh offers for chicken or mince.', 'Big bags of frozen veg and berries make prep cheap and stop waste.', 'In-store bakery often has wholemeal rolls; the weekly non-food aisle sometimes has food boxes and storage tubs.'],
