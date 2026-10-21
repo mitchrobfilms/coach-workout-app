@@ -10,12 +10,11 @@ export async function loadVideos() {
 }
 export const videoById = id => LIB?.videos?.find(v => v.id === id);
 export function videoCard(v) {
-  if (!v.embeddable) return `<a class="vcard" href="${esc(v.page)}" target="_blank" rel="noopener" data-vext="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span><span class="vext">YouTube ↗</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)} · opens on YouTube</small></span></a>`;
-  return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span>${v.embeddable ? '' : '<span class="vext">YouTube ↗</span>'}</span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
+  return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb" style="background-image:url('${esc(v.poster)}')"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
 export function renderVideoLib(el, { filter = 'all', q = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
-  const cats = LIB.categories, vids = LIB.videos.filter(v => (filter === 'all' || v.cat === filter) && (!q || (v.title + ' ' + v.credit).toLowerCase().includes(q.toLowerCase())));
+  const cats = LIB.categories, vids = LIB.videos.filter(v => v.embeddable && (filter === 'all' || v.cat === filter) && (!q || (v.title + ' ' + v.credit).toLowerCase().includes(q.toLowerCase())));
   el.innerHTML = `<div class="chips vchips">${[['all', 'All'], ...Object.entries(cats)].map(([k, n]) => `<button type="button" class="chip ${k === filter ? 'like' : ''}" data-vcat="${k}">${esc(n)}</button>`).join('')}</div>
     <div class="vgrid">${vids.map(videoCard).join('') || '<p class="small muted">No videos match.</p>'}</div>`;
   el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => renderVideoLib(el, { filter: b.dataset.vcat, q }));
@@ -23,21 +22,21 @@ export function renderVideoLib(el, { filter = 'all', q = '' } = {}) {
 // Player sheet
 export function openVideo(v, { onCastSource } = {}) {
   if (!v) return;
-  if (!v.embeddable) { window.open(v.page, '_blank', 'noopener'); return 'external'; }
+  if (!v.embeddable) return 'unavailable'; // never leave the app for YouTube
   let m = document.getElementById('videoModal');
   if (!m) { m = document.createElement('div'); m.id = 'videoModal'; m.className = 'overlay recipe'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true'); document.body.append(m); }
   const player = v.source === 'youtube'
-    ? `<iframe class="vplayer" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtubeId)}?rel=0&modestbranding=1&playsinline=1" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`
+    ? `<iframe class="vplayer" src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.youtubeId)}?rel=0&modestbranding=1&playsinline=1&fs=1&iv_load_policy=3&origin=${encodeURIComponent(location.origin)}" title="${esc(v.title)}" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`
     : `<video class="vplayer" id="videoPlayer" src="${esc(v.src)}" poster="${esc(v.poster)}" controls playsinline preload="metadata"></video>`;
   m.innerHTML = `<div class="rsheet vsheet"><button type="button" class="rclose" id="videoClose" aria-label="Close">✕</button>${player}
     <div class="vbody"><h2>${esc(v.title)}</h2><p class="small muted">${v.mins} min · ${esc(v.level || 'Beginner')} · ${esc(LIB?.categories?.[v.cat] || '')}</p>
-    <p class="small vcredit">${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.channel || v.credit)}</a> on YouTube.`}</p>
-    <div class="row">${v.source === 'archive' ? '<button type="button" id="videoCast" class="primary">📺 Cast</button>' : '<p class="small muted">To watch on TV, tap the Cast icon in the YouTube player.</p>'}</div>
+    <p class="small vcredit">${v.source === 'archive' ? `Video: <a href="${esc(v.page)}" target="_blank" rel="noopener">${esc(v.credit)}</a> (<a href="${esc(v.licenceUrl)}" target="_blank" rel="noopener">licence</a>). Shown unedited.` : `Video by ${esc(v.channel || v.credit)}, played in the official YouTube player.`}</p>
+    <div class="row">${v.source === 'archive' ? '<button type="button" id="videoCast" class="primary">📺 Cast</button>' : '<button type="button" id="videoCast" class="primary" hidden>📺 Cast</button>'}</div>
     <p class="small muted">Go at your own pace and stop if anything hurts or you feel dizzy. Check with your GP before starting new exercise.</p></div></div>`;
   m.hidden = false; document.body.classList.add('modal-open');
   const close = () => { m.hidden = true; m.innerHTML = ''; document.body.classList.remove('modal-open'); };
   m.querySelector('#videoClose').onclick = close; m.onclick = e => { if (e.target === m) close(); };
-  if (v.source === 'archive') onCastSource?.(m.querySelector('#videoPlayer'), m.querySelector('#videoCast'), v);
+  onCastSource?.(m.querySelector('#videoPlayer'), m.querySelector('#videoCast'), v);
   return 'opened';
 }
 export function pickIdeas(n = 3, seed = new Date().toDateString()) {

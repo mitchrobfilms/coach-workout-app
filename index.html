@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=35">
+<link rel="stylesheet" href="style.css?v=36">
 </head>
 <body>
 <header class="topbar">
@@ -164,6 +164,7 @@
   <h2 class="sep">🎬 Video classes</h2>
   <p class="small muted">Beginner, no-equipment follow-along videos: yoga, Pilates, walking, low-impact cardio, boxing, dance, chair-based, stretching, and back &amp; sciatica care. Played unedited from their creators.</p>
   <div id="videoLib"></div>
+  <div id="legacyClasses" hidden aria-hidden="true">
   <h2 class="sep">GLP1 Life Classes: 30-minute workouts</h2>
   <div class="shophead"><h2>🎬 GLP1 Life Classes</h2><p class="small muted">Full 30-minute follow-along classes. Beginner-friendly, low impact, no equipment. Follow along at your own pace.</p></div>
   <div class="card rec" id="recCard"></div>
@@ -173,6 +174,7 @@
     <div id="classList"></div>
   <div class="card"><h3>Your classes</h3><ul class="list" id="classHist"></ul></div>
   <p class="small muted">Calories are rough estimates (MET values × your weight). Latin Dance Cardio is Zumba-style and not affiliated with Zumba®. Stop if anything hurts or you feel dizzy.</p>
+  </div>
 </section>
 <div class="overlay drivemodal" id="driveModal" hidden><div class="drivebox"><div class="row between"><b id="driveTitle">Full class</b><button type="button" id="driveClose">✕ Close</button></div><div class="drivewrap"><iframe id="driveFrame" title="Full class video" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div><p class="small muted">Tap play. Google Drive may ask you to tap twice to start.</p></div></div>
 
@@ -344,6 +346,7 @@
       <p class="error" id="cloudErr" role="alert" hidden></p><div class="row"><button type="submit" class="primary" id="cloudIn">Sign in</button><button type="button" id="cloudUp">Create cloud account</button></div></form>
     <div id="cloudOn" hidden><div class="row"><button type="button" class="primary" id="cloudSync">Sync now</button><button type="button" id="cloudOut">Sign out of cloud</button></div>
       <div class="row"><button type="button" id="cloudExport">⬇️ Download my data (GDPR export)</button><button type="button" class="danger" id="cloudDelete">Delete my cloud data</button></div></div>
+      <div class="card" id="updCard"><h3>App updates</h3><p class="small muted" id="updInfo">Checking version…</p><div class="row"><button type="button" id="updCheck">🔄 Check for updates</button></div></div>
     <p class="small muted">Private: only you can see your rows. Injection entries are your own log only; nothing is calculated.</p></div>
   <div class="flagtrainer"><h3>Trainer</h3><div class="trainers" id="trainerPickSettings"></div></div>
   <label>Your name <input id="setName" type="text"></label>
@@ -397,6 +400,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=35"></script><script type="module" src="app.js?v=35"></script>
+<script type="module" src="native.js?v=36"></script><script type="module" src="app.js?v=36"></script>
 </body>
 </html>

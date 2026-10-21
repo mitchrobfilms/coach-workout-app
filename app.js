@@ -798,6 +798,8 @@ micUI();
 function showUpdateToast(worker) {
   const el = $('updateToast'); if (!el || !worker) return;
   el.hidden = false; window.__kova.updateReady = true;
+  // Auto-apply web updates: activate the new version straight away (reload happens on controllerchange), unless a workout is running.
+  if (!document.querySelector('#screen-session.active')) { el.textContent = 'Updating GLP1 Life…'; worker.postMessage({ type: 'SKIP_WAITING' }); return; }
   el.onclick = () => { el.textContent = 'Updating…'; worker.postMessage({ type: 'SKIP_WAITING' }); setTimeout(() => location.reload(), 1500); };
 }
 window.__kova.showUpdateToast = showUpdateToast;
@@ -1857,10 +1859,17 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
 
 /* ---------- Video class library (archive.org CC BY-ND + official YouTube embeds) ---------- */
 let sessionCastSrc = null;
+function castMsg(r) {
+  if (r === 'system') toast('📺 Pick your TV from the list, then come back to GLP1 Life and press play. Your phone screen shows on the TV.');
+  else if (r === 'nocast') toast('Casting isn\'t available on this device. On a phone, use Android\'s Quick Settings ➜ Cast / Screen cast with your TV on the same Wi-Fi.');
+}
 function videoCast(videoEl, btn, v) {
-  setCastSource(() => ({ src: v.src, title: v.title, subtitle: v.credit }));
-  const upd = s => { btn.classList.toggle('on', !!s.connected); btn.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
-  initCast(upd); btn.onclick = async () => { const r = await castClick(videoEl); if (r === 'nocast') toast('Google Cast isn\'t available here. Use Chrome on Android or a computer, on the same Wi-Fi as your Chromecast / Google TV.'); else castFollow(); };
+  if (!btn) return;
+  if (v.source === 'archive') setCastSource(() => ({ src: v.src, title: v.title, subtitle: v.credit }));
+  // YouTube videos: the TV receiver can't play YouTube links, so on the web we leave it to the YouTube player's own Cast icon;
+  // in the Android app the button mirrors the phone to the TV (plays everything).
+  const upd = s => { btn.hidden = !(s.mode === 'system' || (s.mode === 'sdk' && v.source === 'archive')); btn.classList.toggle('on', !!s.connected); btn.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast to TV'; };
+  initCast(upd); btn.onclick = async () => castMsg(await castClick(videoEl));
 }
 const vClose = new MutationObserver(() => { const m = $('videoModal'); if (m?.hidden && sessionCastSrc) setCastSource(sessionCastSrc); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
@@ -1871,11 +1880,12 @@ loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); rend
 { const v = $('trainerVid'), b = $('castBtn');
   setCastSource(sessionCastSrc = () => { const m = window.__kova?.classMedia, src = v.getAttribute('src') || m?.src; return src ? { src, title: m?.step || 'Workout', subtitle: $('trainerName')?.textContent || 'GLP1 Life' } : null; });
   new MutationObserver(() => castFollow()).observe(v, { attributes: true, attributeFilter: ['src'] });
-  const upd = s => { b.classList.toggle('on', !!s.connected); b.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
+  const upd = s => { b.hidden = !s.cast; b.classList.toggle('on', !!s.connected); b.textContent = s.connected ? '📺 Casting · stop' : '📺 Cast'; };
+  b.hidden = true;
   // Load the Cast SDK only once a workout/class screen opens (keeps the rest of the app light).
   const ss = $('screen-session'), go = () => { if (ss.classList.contains('active') && !go.done) { go.done = true; initCast(upd); } };
   new MutationObserver(go).observe(ss, { attributes: true, attributeFilter: ['class'] }); go();
-  b.onclick = async () => { navigator.vibrate?.(10); const r = await castClick(v); if (r === 'nocast') toast('Google Cast isn\'t available here. Use Chrome on Android or a computer, on the same Wi-Fi as your Chromecast / Google TV.'); };
+  b.onclick = async () => { navigator.vibrate?.(10); castMsg(await castClick(v)); };
 }
 
 /* ---------- Steps: Health Connect (Android app) / manual ---------- */

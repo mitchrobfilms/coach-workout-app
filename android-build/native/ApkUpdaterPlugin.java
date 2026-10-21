@@ -23,6 +23,13 @@ public class ApkUpdaterPlugin extends Plugin {
         try { URL x = new URL(u); String h = x.getHost();
             return "https".equals(x.getProtocol()) && (h.equals("github.com") || h.equals("glp1life.co.uk") || h.endsWith(".githubusercontent.com")); } catch (Exception e) { return false; }
     }
+    // Phone -> TV: opens Android's own Cast / screen-mirroring panel (works for every video, incl. YouTube embeds).
+    @PluginMethod
+    public void openCastSettings(PluginCall call) {
+        String[] acts = { "android.settings.CAST_SETTINGS", "android.settings.WIFI_DISPLAY_SETTINGS", Settings.ACTION_DISPLAY_SETTINGS };
+        for (String a : acts) { try { Intent i = new Intent(a); i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); getContext().startActivity(i); JSObject r = new JSObject(); r.put("opened", a); call.resolve(r); return; } catch (Exception e) { } }
+        call.reject("No cast settings on this phone");
+    }
     @PluginMethod
     public void canInstall(PluginCall call) {
         JSObject r = new JSObject();

@@ -10,7 +10,7 @@ for (const v of lib.videos.filter(v => v.source === 'youtube' && v.embeddable)) 
 ok(lib.videos.filter(v => v.source === 'archive').every(v => v.credit === 'Dr Melissa West, Yoga With Melissa, CC BY-ND 4.0'), 'every archive video carries the CC BY-ND 4.0 credit');
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome' }); const ctx = await b.newContext({ ...devices['Pixel 5'] }); const p = await ctx.newPage();
 const errs = []; p.on('pageerror', e => errs.push(e.message));
-await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(400);
+await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(1500);
 await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', 'v@example.com'); await p.fill('#regSecret', 'password123'); await p.press('#regSecret', 'Enter'); await p.waitForTimeout(700);
 await p.evaluate(() => { const k = Object.keys(localStorage).find(k => k.endsWith('.settings')); const s = JSON.parse(localStorage[k] || '{}'); s.onboarded = true; localStorage[k] = JSON.stringify(s); }); await p.reload(); await p.waitForTimeout(1500);
 ok(await p.$$eval('#videoIdeas [data-video]', l => l.length) === 3, 'Home "Ideas for you" shows 3 video classes');
@@ -25,7 +25,17 @@ await p.screenshot({ path: `${OUT}/videos-player-archive.png` }); await p.click(
 await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); await p.waitForTimeout(800);
 ok(/^https:\/\/www\.youtube-nocookie\.com\/embed\/Z9C38koJNTc/.test(await p.$eval('#videoModal iframe', e => e.src)), 'YouTube via official embed player');
 await p.screenshot({ path: `${OUT}/videos-player-youtube.png` }); await p.click('#videoClose');
-const [pop] = await Promise.all([ctx.waitForEvent('page', { timeout: 5000 }).catch(() => null), p.click('#videoLib [data-vext="yt-44HquH6QyXc"]')]);
-if (pop) await pop.waitForURL(/youtube/, { timeout: 8000 }).catch(() => {}); console.log('POP', pop?.url()); ok(pop && /youtube\.com\/watch\?v=44HquH6QyXc/.test(pop.url()), 'NHS Fitness Studio (embedding disabled by owner) opens on YouTube');
+ok(!(await p.$('#videoLib [data-vext]')), 'no "opens on YouTube" cards (non-embeddable videos dropped)');
+ok(lib.videos.every(v => v.embeddable), 'library only has in-app playable videos');
+ok(!(await p.$eval('#tab-classes', e => [...e.querySelectorAll('h2')].some(h => h.offsetParent && /30-minute/.test(h.textContent)))), '30-minute workouts section gone');
+await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); await p.waitForTimeout(500);
+ok(!(await p.$('#videoModal a[href*="youtube"]')), 'no outbound YouTube links in player sheet'); ok(await p.$eval('#videoCast', e => e.hidden), 'web: Cast button hidden where it cannot cast YouTube');
+await p.click('#videoClose');
+// simulate the Android app (native system cast panel)
+await p.evaluate(() => { window.__castOpened = 0; window.Capacitor = { isNativePlatform: () => true, Plugins: { ApkUpdater: { openCastSettings: async () => { window.__castOpened++; return {}; } } } }; });
+await p.click('#videoLib [data-video="yt-Z9C38koJNTc"]'); await p.waitForTimeout(500);
+ok(!(await p.$eval('#videoCast', e => e.hidden)), 'APK: Cast to TV button shown for YouTube'); await p.click('#videoCast'); await p.waitForTimeout(300);
+ok(await p.evaluate(() => window.__castOpened) === 1, 'APK: opens Android Cast panel'); await p.screenshot({ path: `${OUT}/videos-cast-apk.png` }); await p.click('#videoClose');
+await p.evaluate(() => delete window.Capacitor);
 ok(!errs.length, 'no page errors ' + errs.join('|'));
 await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL VIDEO LIBRARY TESTS PASSED'); process.exit(fail ? 1 : 0);

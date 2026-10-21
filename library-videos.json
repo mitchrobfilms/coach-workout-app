@@ -11,7 +11,6 @@
   "dance": "Dance",
   "chair": "Chair-based",
   "stretch": "Stretching",
-  "strength": "Toning",
   "recovery": "Recovery, back & sciatica"
  },
  "videos": [
@@ -288,81 +287,6 @@
    "embeddable": true
   },
   {
-   "id": "yt-44HquH6QyXc",
-   "title": "Introduction to Pilates - Workout 1",
-   "cat": "pilates",
-   "mins": 31,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "44HquH6QyXc",
-   "page": "https://www.youtube.com/watch?v=44HquH6QyXc",
-   "poster": "https://i.ytimg.com/vi/44HquH6QyXc/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
-  },
-  {
-   "id": "yt-fGGC9WLsI3U",
-   "title": "Introduction to Pilates - Workout 2",
-   "cat": "pilates",
-   "mins": 31,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "fGGC9WLsI3U",
-   "page": "https://www.youtube.com/watch?v=fGGC9WLsI3U",
-   "poster": "https://i.ytimg.com/vi/fGGC9WLsI3U/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
-  },
-  {
-   "id": "yt-zVjKoDJT8pc",
-   "title": "Pilates for chronic back pain",
-   "cat": "recovery",
-   "mins": 29,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "zVjKoDJT8pc",
-   "page": "https://www.youtube.com/watch?v=zVjKoDJT8pc",
-   "poster": "https://i.ytimg.com/vi/zVjKoDJT8pc/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
-  },
-  {
-   "id": "yt-a44ayeoSfKM",
-   "title": "Aerobics for beginners - 45 minutes",
-   "cat": "cardio",
-   "mins": 45,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "a44ayeoSfKM",
-   "page": "https://www.youtube.com/watch?v=a44ayeoSfKM",
-   "poster": "https://i.ytimg.com/vi/a44ayeoSfKM/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
-  },
-  {
-   "id": "yt-oLu9kwDzBdg",
-   "title": "Basic warm-up - 5 minutes",
-   "cat": "stretch",
-   "mins": 8,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "oLu9kwDzBdg",
-   "page": "https://www.youtube.com/watch?v=oLu9kwDzBdg",
-   "poster": "https://i.ytimg.com/vi/oLu9kwDzBdg/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
-  },
-  {
    "id": "yt-VDf43fOTH1E",
    "title": "Back stretches",
    "cat": "recovery",
@@ -376,21 +300,6 @@
    "channel": "NHS",
    "embeddable": true,
    "castable": true
-  },
-  {
-   "id": "yt-KF6Z1udGnf4",
-   "title": "Wake-up workout - 45 minutes",
-   "cat": "cardio",
-   "mins": 48,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "KF6Z1udGnf4",
-   "page": "https://www.youtube.com/watch?v=KF6Z1udGnf4",
-   "poster": "https://i.ytimg.com/vi/KF6Z1udGnf4/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
   },
   {
    "id": "yt-Z9C38koJNTc",
@@ -661,21 +570,6 @@
    "channel": "CLEAR Trust",
    "embeddable": true,
    "castable": true
-  },
-  {
-   "id": "yt-8JZANbfvywI",
-   "title": "Toning your legs - 10 minutes",
-   "cat": "strength",
-   "mins": 12,
-   "level": "Beginner",
-   "source": "youtube",
-   "youtubeId": "8JZANbfvywI",
-   "page": "https://www.youtube.com/watch?v=8JZANbfvywI",
-   "poster": "https://i.ytimg.com/vi/8JZANbfvywI/hqdefault.jpg",
-   "credit": "NHS (NHS Fitness Studio)",
-   "channel": "NHS",
-   "embeddable": false,
-   "castable": false
   }
  ]
 }

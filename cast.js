@@ -5,11 +5,16 @@
 const RECEIVER = 'CC1AD845';
 let ctx = null, ready = false, lastSrc = '', onState = () => {};
 const abs = u => new URL(u, location.href).href;
-export const castState = () => ({ cast: ready, connected: !!ctx?.getCurrentSession() });
+// The Cast Web Sender SDK never becomes available inside the Android app's WebView, so the APK
+// uses Android's own Cast / screen-mirroring panel (native ApkUpdater.openCastSettings) instead.
+const nativeCast = () => !!(window.Capacitor?.isNativePlatform?.() && window.Capacitor?.Plugins?.ApkUpdater?.openCastSettings);
+export const castMode = () => nativeCast() ? 'system' : ready ? 'sdk' : 'none';
+export const castState = () => ({ cast: ready || nativeCast(), mode: castMode(), connected: !!ctx?.getCurrentSession() });
 export function initCast(cb = () => {}) {
-  onState = cb;
-  if (window.WebKitPlaybackTargetAvailabilityEvent) cb(castState());
+  onState = cb; cb(castState());
+  if (nativeCast() || /; wv\)/.test(navigator.userAgent)) return;
   if (!/Chrome|CriOS|Edg/.test(navigator.userAgent) || /\?.*tv=1/.test(location.search)) return;
+  if (window.cast?.framework && ctx) { onState(castState()); return; }
   window.__onGCastApiAvailable = ok => {
     if (!ok || !window.cast?.framework) return;
     ctx = cast.framework.CastContext.getInstance();
@@ -20,7 +25,8 @@ export function initCast(cb = () => {}) {
     });
     ready = true; onState(castState());
   };
-  const s = document.createElement('script'); s.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1'; s.async = true; document.head.appendChild(s);
+  if (document.getElementById('castSdk')) return;
+  const s = document.createElement('script'); s.id = 'castSdk'; s.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastFramework=1'; s.async = true; document.head.appendChild(s);
 }
 let getMedia = () => null;
 export function setCastSource(fn) { getMedia = fn; }
@@ -35,6 +41,7 @@ export async function follow() {
   try { await ses.loadMedia(req); } catch (e) { lastSrc = ''; console.warn('cast', e); }
 }
 export async function castClick(video) {
+  if (nativeCast()) { try { await window.Capacitor.Plugins.ApkUpdater.openCastSettings(); return 'system'; } catch { return 'nocast'; } }
   if (ctx) { if (ctx.getCurrentSession()) return ctx.endCurrentSession(true); try { await ctx.requestSession(); } catch {} return; }
   return 'nocast'; // Google Cast only (no AirPlay / TV-browser mode)
 }

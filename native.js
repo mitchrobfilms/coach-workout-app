@@ -40,7 +40,24 @@ export async function checkUpdate({ force = false } = {}) {
     const rel = await r.json(), code = codeFromTag(rel.tag_name);
     window.__kova && (window.__kova.apk = { have, latest: code });
     if (code > have && (force || localStorage.getItem('apkSkip') !== String(code))) banner(rel, code);
-    return { have, latest: code };
+    return { have, latest: code, version: info.version, rel };
   } catch { return null; }
 }
+// Settings > App updates row (works in the app and on the web)
+export const WEB_VERSION = 'web v36';
+async function updRow(manual) {
+  const info = document.getElementById('updInfo'), btn = document.getElementById('updCheck'); if (!info) return;
+  if (!native) {
+    info.textContent = `GLP1 Life ${WEB_VERSION}. Website updates install automatically.`;
+    if (manual) { btn.textContent = 'Checking…'; try { const reg = await navigator.serviceWorker?.getRegistration(); await reg?.update(); } catch {} btn.textContent = '🔄 Check for updates'; info.textContent = `GLP1 Life ${WEB_VERSION}. You're up to date (new versions load automatically).`; }
+    return;
+  }
+  if (manual) { btn.disabled = true; btn.textContent = 'Checking…'; }
+  const r = await checkUpdate({ force: manual });
+  btn.disabled = false; btn.textContent = '🔄 Check for updates';
+  if (!r) { info.textContent = "Couldn't check for updates right now. Check your internet and try again."; return; }
+  info.textContent = r.latest > r.have ? `Installed: v${r.version}. New version v1.0.${r.latest} available, tap Update in the banner.` : `Installed: v${r.version}. You're on the latest version.`;
+}
+function wireUpd() { const b = document.getElementById('updCheck'); if (b && !b.onclick) { b.onclick = () => updRow(true); updRow(false); } }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireUpd); else wireUpd();
 if (native) { insets(); statusBar(); setTimeout(checkUpdate, 2500); document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkUpdate()); }
