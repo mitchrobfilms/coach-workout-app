@@ -2,7 +2,7 @@
 //   node tests/food-photo-e2e.mjs [baseURL]     default: local server on :8813 (with ?cloudauth=1 so a real cloud test account is used)
 import { chromium } from 'playwright-core'; import { spawn } from 'node:child_process'; import { mkdirSync } from 'node:fs';
 import { cleanupTestData } from './cleanup.mjs';
-const O = '/workspace/shots/glp1life/food-photo'; mkdirSync('/workspace/shots/glp1life', { recursive: true });
+const O = '/workspace/shots/glp1life/food-photo' + (process.argv[2] ? '-live' : ''); mkdirSync('/workspace/shots/glp1life', { recursive: true });
 let srv = null, BASE = process.argv[2];
 if (!BASE) { srv = spawn('python3', ['-m', 'http.server', '8813', '--bind', '127.0.0.1'], { stdio: 'ignore', cwd: new URL('..', import.meta.url).pathname }); BASE = 'http://localhost:8813/'; await new Promise(r => setTimeout(r, 800)); }
 const URL0 = BASE + (BASE.includes('?') ? '&' : '?') + 'cloudauth=1';
@@ -26,7 +26,7 @@ try {
   await p.evaluate(() => document.querySelector('#dock [data-tab=workout]').click()); await p.waitForTimeout(400);
   await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (/fd/.test(k)) localStorage.removeItem(k); }); await p.reload(); await p.waitForTimeout(2500);
   await p.evaluate(() => document.querySelectorAll('.overlay:not([hidden])').forEach(e => e.hidden = true));
-  await p.click('#foodTodayCard'); await p.waitForSelector('#fdUpload', { state: 'attached', timeout: 15000 });
+  await p.click('#foodTodayCard'); await p.waitForSelector('#fdUpload', { state: 'attached', timeout: 30000 }).catch(async e => { await p.screenshot({ path: O + '-debug.png' }); console.log('DEBUG', await p.evaluate(() => [document.querySelector('section.tab.active')?.id, document.getElementById('photoDiaryRoot')?.innerText.slice(0, 300), document.querySelector('.overlay:not([hidden])')?.id].join(' | '))); throw e; });
   ok(/20 of 20/.test(await p.textContent('#fdLeft')), 'shows 20 of 20 checks left'); await p.screenshot({ path: O + '-2-diary-empty.png' });
   // non-food photo
   await p.setInputFiles('#fdUpload', 'tests/fixtures/food-notfood.jpg'); await p.waitForSelector('#fdSheet h3:has-text("couldn")', { timeout: 40000 });
