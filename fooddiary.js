@@ -60,7 +60,7 @@ export function makeFoodDiary({ cloud, store, toast, onChange = () => {} }) {
       <input type="file" id="fdCamera" accept="image/*" capture="environment" hidden><input type="file" id="fdUpload" accept="image/*" hidden>
       <p class="small muted" id="fdLeft">${s.remaining ?? s.limit} of ${s.limit} photo checks left today</p></div>
       <div id="fdList">${rows.length ? '' : `<div class="card empty"><p>No meals logged ${day === ukDay() ? 'yet today' : 'on this day'}.</p></div>`}</div>
-      <p class="small muted">Estimates only, not medical or nutritional advice. Photos are private to your account and analysed by Google's Gemini AI; they are not used to train it.</p>`;
+      <p class="small muted">Estimates only, not medical or nutritional advice. Your photo is sent to Google's Gemini AI to estimate what's on the plate. Google may use photos sent to Gemini to improve its services, so please avoid including people or personal details in your photos. We store your photo privately in your account and you can delete it any time.</p>`;
     const list = el.querySelector('#fdList');
     for (const r of rows) {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'fdrow'; b.dataset.id = r.id;
