@@ -24,172 +24,180 @@
    "published": false,
    "thumb": "ai-drafts/ai-walk-15.jpg",
    "video": null,
-   "videoNote": "v1 used looped 8 s clips (rejected). Rebuilding as no-loop chained + branded \u2013 in progress. Not hosted yet.",
+   "videoNote": "v2 no-loop + branded (21 Oct): 47 unique chained AI clips from one studio still, no repeated footage; 15:00 exact; 720p MP4 78.2 MB (over Supabase free 50 MB/file \u2013 use Bunny Stream). Not hosted yet.",
    "subtitles": null,
    "trackCompletion": true,
    "timeline": [
     {
      "start": 0,
-     "end": 60,
+     "end": 22,
+     "type": "intro",
+     "name": "Beginner Indoor Walk",
+     "modification": "",
+     "next": "Warm-up: Gentle March"
+    },
+    {
+     "start": 22,
+     "end": 82,
      "type": "warmup",
      "name": "Warm-up: Gentle March",
      "modification": "Keep your feet low, or hold a chair back for balance.",
      "next": "Warm-up: March + Arm Swings"
     },
     {
-     "start": 60,
-     "end": 120,
+     "start": 82,
+     "end": 142,
      "type": "warmup",
      "name": "Warm-up: March + Arm Swings",
      "modification": "Keep the arms low if your shoulders feel stiff.",
      "next": "March on the Spot"
     },
     {
-     "start": 120,
-     "end": 180,
+     "start": 142,
+     "end": 202,
      "type": "exercise",
      "name": "March on the Spot",
      "modification": "Slow it down any time, small steps still count.",
      "next": "Side Steps"
     },
     {
-     "start": 180,
-     "end": 195,
+     "start": 202,
+     "end": 222,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Side Steps"
     },
     {
-     "start": 195,
-     "end": 255,
+     "start": 222,
+     "end": 282,
      "type": "exercise",
      "name": "Side Steps",
      "modification": "Make the steps smaller, or tap the foot out instead of stepping.",
      "next": "Knee Lifts"
     },
     {
-     "start": 255,
-     "end": 270,
+     "start": 282,
+     "end": 302,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Knee Lifts"
     },
     {
-     "start": 270,
-     "end": 330,
+     "start": 302,
+     "end": 362,
      "type": "exercise",
      "name": "Knee Lifts",
      "modification": "Lift the knee only as high as feels comfortable, or hold a chair.",
      "next": "Step Touch"
     },
     {
-     "start": 330,
-     "end": 345,
+     "start": 362,
+     "end": 382,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Step Touch"
     },
     {
-     "start": 345,
-     "end": 405,
+     "start": 382,
+     "end": 442,
      "type": "exercise",
      "name": "Step Touch",
      "modification": "Keep it slow and small.",
      "next": "March + Arm Swings"
     },
     {
-     "start": 405,
-     "end": 420,
+     "start": 442,
+     "end": 461,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "March + Arm Swings"
     },
     {
-     "start": 420,
-     "end": 480,
+     "start": 461,
+     "end": 521,
      "type": "exercise",
      "name": "March + Arm Swings",
      "modification": "Keep the arms at chest height.",
      "next": "March on the Spot (Round 2)"
     },
     {
-     "start": 480,
-     "end": 495,
+     "start": 521,
+     "end": 540,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "March on the Spot (Round 2)"
     },
     {
-     "start": 495,
-     "end": 555,
+     "start": 540,
+     "end": 600,
      "type": "exercise",
      "name": "March on the Spot (Round 2)",
      "modification": "Easy pace is fine.",
      "next": "Side Steps (Round 2)"
     },
     {
-     "start": 555,
-     "end": 570,
+     "start": 600,
+     "end": 619,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Side Steps (Round 2)"
     },
     {
-     "start": 570,
-     "end": 630,
+     "start": 619,
+     "end": 679,
      "type": "exercise",
      "name": "Side Steps (Round 2)",
      "modification": "Small steps.",
      "next": "Step Touch (Round 2)"
     },
     {
-     "start": 630,
-     "end": 645,
+     "start": 679,
+     "end": 698,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Step Touch (Round 2)"
     },
     {
-     "start": 645,
-     "end": 705,
+     "start": 698,
+     "end": 758,
      "type": "exercise",
      "name": "Step Touch (Round 2)",
      "modification": "Slow it right down if you need to.",
      "next": "Knee Lifts (Round 2)"
     },
     {
-     "start": 705,
-     "end": 720,
+     "start": 758,
+     "end": 777,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Knee Lifts (Round 2)"
     },
     {
-     "start": 720,
-     "end": 780,
+     "start": 777,
+     "end": 837,
      "type": "exercise",
      "name": "Knee Lifts (Round 2)",
      "modification": "Marching is a great alternative.",
      "next": "Cool-down: Breathe + Shoulder Rolls"
     },
     {
-     "start": 780,
-     "end": 795,
+     "start": 837,
+     "end": 856,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Cool-down: Breathe + Shoulder Rolls"
     },
     {
-     "start": 795,
+     "start": 856,
      "end": 900,
      "type": "cooldown",
      "name": "Cool-down: Breathe + Shoulder Rolls",
@@ -198,10 +206,10 @@
     }
    ],
    "build": {
-    "noLoop": false,
-    "branded": false,
-    "sizeMB": null,
-    "inProgress": true
+    "noLoop": true,
+    "branded": true,
+    "sizeMB": 78.2,
+    "file": "class-creator/out/ai-walk-15-noloop.mp4"
    }
   },
   {
@@ -226,134 +234,142 @@
    "timeline": [
     {
      "start": 0,
-     "end": 45,
+     "end": 20,
+     "type": "intro",
+     "name": "Seated Chair Workout",
+     "modification": "",
+     "next": "Warm-up: Seated March"
+    },
+    {
+     "start": 20,
+     "end": 65,
      "type": "warmup",
      "name": "Warm-up: Seated March",
      "modification": "Just lift the heels if lifting the foot is too much.",
      "next": "Warm-up: Arm Raises"
     },
     {
-     "start": 45,
-     "end": 90,
+     "start": 65,
+     "end": 110,
      "type": "warmup",
      "name": "Warm-up: Arm Raises",
      "modification": "Raise to shoulder height only.",
      "next": "Seated March"
     },
     {
-     "start": 90,
-     "end": 135,
+     "start": 110,
+     "end": 155,
      "type": "exercise",
      "name": "Seated March",
      "modification": "Slow it down and keep the arms still if you prefer.",
      "next": "Arm Raises"
     },
     {
-     "start": 135,
-     "end": 150,
+     "start": 155,
+     "end": 174,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Arm Raises"
     },
     {
-     "start": 150,
-     "end": 195,
+     "start": 174,
+     "end": 219,
      "type": "exercise",
      "name": "Arm Raises",
      "modification": "One arm at a time.",
      "next": "Torso Twists"
     },
     {
-     "start": 195,
-     "end": 210,
+     "start": 219,
+     "end": 238,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Torso Twists"
     },
     {
-     "start": 210,
-     "end": 255,
+     "start": 238,
+     "end": 283,
      "type": "exercise",
      "name": "Torso Twists",
      "modification": "Make the twist smaller. Skip if you have back pain.",
      "next": "Seated Leg Extensions"
     },
     {
-     "start": 255,
-     "end": 270,
+     "start": 283,
+     "end": 302,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Seated Leg Extensions"
     },
     {
-     "start": 270,
-     "end": 315,
+     "start": 302,
+     "end": 347,
      "type": "exercise",
      "name": "Seated Leg Extensions",
      "modification": "Only straighten part way.",
      "next": "Seated March (Faster)"
     },
     {
-     "start": 315,
-     "end": 330,
+     "start": 347,
+     "end": 366,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Seated March (Faster)"
     },
     {
-     "start": 330,
-     "end": 375,
+     "start": 366,
+     "end": 411,
      "type": "exercise",
      "name": "Seated March (Faster)",
      "modification": "Stay at your own pace.",
      "next": "Torso Twists (Round 2)"
     },
     {
-     "start": 375,
-     "end": 390,
+     "start": 411,
+     "end": 430,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Torso Twists (Round 2)"
     },
     {
-     "start": 390,
-     "end": 435,
+     "start": 430,
+     "end": 475,
      "type": "exercise",
      "name": "Torso Twists (Round 2)",
      "modification": "Smaller twist.",
      "next": "Leg Extensions (Round 2)"
     },
     {
-     "start": 435,
-     "end": 450,
+     "start": 475,
+     "end": 493,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Leg Extensions (Round 2)"
     },
     {
-     "start": 450,
-     "end": 495,
+     "start": 493,
+     "end": 538,
      "type": "exercise",
      "name": "Leg Extensions (Round 2)",
      "modification": "Part way is perfect.",
      "next": "Cool-down: Breathe + Shoulder Rolls"
     },
     {
-     "start": 495,
-     "end": 510,
+     "start": 538,
+     "end": 556,
      "type": "rest",
      "name": "Rest",
      "modification": "",
      "next": "Cool-down: Breathe + Shoulder Rolls"
     },
     {
-     "start": 510,
+     "start": 556,
      "end": 600,
      "type": "cooldown",
      "name": "Cool-down: Breathe + Shoulder Rolls",
