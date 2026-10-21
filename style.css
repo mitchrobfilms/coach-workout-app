@@ -545,3 +545,10 @@ body.modal-open,body:has(.overlay:not([hidden])){overflow:hidden}
 .cmguide .check,.cmchal .check{display:flex;gap:.5rem;align-items:flex-start}
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .helplinks{display:flex;flex-direction:column;gap:.6rem;align-items:flex-start}.helplinks a{overflow-wrap:anywhere;padding:.2rem 0}
+/* v36: opaque header + nav, nothing scrolls underneath; clear danger button */
+.topbar{background:#fff!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.dock{background:#fff!important;backdrop-filter:none!important;max-width:none!important;left:0!important;right:0!important;width:100%!important;border-radius:0!important}
+body{padding-bottom:calc(96px + var(--sab))!important}
+.tab,section.tab{scroll-margin-top:calc(70px + var(--sat))}
+button.danger,#cloudDelete{background:#d92d20!important;border:1px solid #b42318!important;color:#fff!important;opacity:1!important;font-weight:700}
+button.danger:active{background:#b42318!important}

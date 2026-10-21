@@ -1659,10 +1659,17 @@ const KG_LB = 2.20462, stlb = kg => { const lb = Math.round(kg * KG_LB); return 
 const todayKey = () => new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
 function weekStartISO() { const d = new Date(todayKey() + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7)); return d.toISOString().slice(0, 10); }
 function ringSVG(pct) { const r = 50, c = 2 * Math.PI * r, p = Math.max(0, Math.min(100, pct)); return `<svg class="wring" viewBox="0 0 120 120" role="img" aria-label="${p}% to goal"><circle cx="60" cy="60" r="${r}" fill="none" stroke="#e6f5ec" stroke-width="12"/><circle cx="60" cy="60" r="${r}" fill="none" stroke="#2e9d5b" stroke-width="12" stroke-linecap="round" stroke-dasharray="${c * p / 100} ${c}" transform="rotate(-90 60 60)"/><text x="60" y="68" text-anchor="middle">${p}%</text></svg>`; }
+export function greetingFor(h) { return h >= 5 && h < 12 ? 'Good morning' : h >= 12 && h < 18 ? 'Good afternoon' : 'Good evening'; }
+function greeting() {
+  const h = +new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/London', hour: '2-digit', hourCycle: 'h23' }).format(new Date()) % 24;
+  const first = String(settings.name || '').trim().split(/\s+/)[0] || 'there';
+  return `${greetingFor(h)}, ${first} 🌿`;
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && $('greet')) $('greet').textContent = greeting(); });
+setInterval(() => { if ($('greet')) $('greet').textContent = greeting(); }, 5 * 60000);
 function renderHome() {
   if (!$('homeDash')) return;
-  const h = +new Date().toLocaleString('en-GB', { timeZone: 'Europe/London', hour: 'numeric', hour12: false });
-  $('greet').textContent = `${h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'}, ${settings.name || 'there'} 🌿`;
+  $('greet').textContent = greeting();
   const w = sortEntries(store.get('weights', [])), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
   const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
   $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>

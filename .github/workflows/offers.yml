@@ -1,8 +1,11 @@
 name: Daily store offers
 on:
   schedule:
-    - cron: '30 23 * * *'  # 00:30 UK during BST
-    - cron: '30 0 * * *'   # 00:30 UK during GMT
+    # GitHub often delays or drops scheduled runs, so several back-up slots; the gate runs it once per UK date.
+    - cron: '30 23 * * *'  # 00:30 UK (BST)
+    - cron: '30 0 * * *'   # 00:30 UK (GMT) / 01:30 BST
+    - cron: '30 1 * * *'
+    - cron: '30 2 * * *'
   workflow_dispatch:
 permissions:
   contents: write
@@ -12,12 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - name: Only run at 00:30 UK
+      - uses: actions/checkout@v4
+      - name: Only run 00:00-03:59 UK, once per UK date
         id: gate
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(TZ=Europe/London date +%H)" != "00" ]; then echo "run=false" >> $GITHUB_OUTPUT; else echo "run=true" >> $GITHUB_OUTPUT; fi
-      - uses: actions/checkout@v4
-        if: steps.gate.outputs.run == 'true'
+          H=$(TZ=Europe/London date +%H); TODAY=$(TZ=Europe/London date +%F)
+          LAST=$(node -e "const d=require('./data/offers.json').updated;console.log(d?new Date(d).toLocaleDateString('en-CA',{timeZone:'Europe/London'}):'')")
+          if [ "${{ github.event_name }}" = "schedule" ] && { [ "$H" -gt 3 ] || [ "$LAST" = "$TODAY" ]; }; then echo "run=false" >> $GITHUB_OUTPUT; echo "skip (hour $H, last $LAST)"; else echo "run=true" >> $GITHUB_OUTPUT; fi
       - uses: actions/setup-node@v4
         if: steps.gate.outputs.run == 'true'
         with: { node-version: 20 }
