@@ -553,3 +553,5 @@ body{padding-bottom:calc(96px + var(--sab))!important}
 button.danger,#cloudDelete{background:#d92d20!important;border:1px solid #b42318!important;color:#fff!important;opacity:1!important;font-weight:700}
 button.danger:active{background:#b42318!important}
 #legacyWorkout,#legacyClasses{display:none!important}
+.trempty{text-align:center;padding:24px 18px;opacity:1!important;color:var(--ink,#2a1740)!important}.trempty h3,.trempty p{color:var(--ink,#2a1740)!important;opacity:1!important;margin:8px 0}.trempty button{margin-top:10px}
+#trainerAdmin[hidden]{display:none!important}

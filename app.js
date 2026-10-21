@@ -996,7 +996,7 @@ function renderPrep() {
 $('buildWeekBtn').onclick = () => buildMyWeek();
 window.__kova.buildMyWeek = buildMyWeek;
 
-/* ================= CLASSES: full 30-minute follow-along classes ================= */
+/* ================= CLASSES: legacy follow-along classes (hidden) ================= */
 let music = null, classManifest = null, CLASSES = [];
 const classById = id => CLASSES.find(c => c.id === id);
 /* Online library: library.json is fetched network-first (cache-busted) on every launch and whenever the Classes tab is shown;
@@ -1833,7 +1833,7 @@ async function renderTrainers() {
     ${t.specialties?.length ? `<ul class="trtags" aria-label="Specialties">${t.specialties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
     ${t.glp1_support ? `<p class="small"><b>GLP-1 support:</b> ${esc(t.glp1_support)}</p>` : ''}
     <a class="wabtn" href="${waLink(t)}" target="_blank" rel="noopener">💬 Message on WhatsApp for prices</a></div>`).join('')
-    : `<div class="card empty trempty"><div style="font-size:2.4rem">🏋️‍♀️</div><h3>Trainers coming soon</h3><p class="small muted">We're adding GLP-1-friendly personal trainers. Check back soon, or keep going with the 30-minute classes in the meantime.</p><button type="button" class="primary" data-gotab2="classes">Browse classes</button></div>`;
+    : `<div class="card empty trempty"><div style="font-size:2.4rem">🏋️‍♀️</div><h3>Trainers coming soon</h3><p>We're adding GLP-1-friendly personal trainers. Check back soon, or keep going with GLP1 Life Classes in the meantime.</p><button type="button" class="primary" data-gotab2="classes">Browse classes</button></div>`;
   $('trainerList').querySelectorAll('[data-gotab2]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab2));
 }
 
