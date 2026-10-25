@@ -1,10 +1,10 @@
 {
- "updated": "2026-10-24T01:45:13.658Z",
+ "updated": "2026-10-25T01:21:16.753Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-10-24T01:45:13.658Z",
+   "checked": "2026-10-25T01:21:16.753Z",
    "note": "",
    "items": [
     {
@@ -51,9 +51,9 @@
      "brand": "NATURE'S PICK",
      "size": "1 kg",
      "price": 0.47,
-     "was": 0.59,
+     "was": null,
      "perKg": 0.47,
-     "promo": "Save 20%",
+     "promo": "Super Six",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-brown-onions-000000000000339777",
      "from": null,
      "to": null,
@@ -321,9 +321,9 @@
      "brand": "COSTELLORE",
      "size": "750 ml",
      "price": 4.69,
-     "was": 5.45,
+     "was": 5.25,
      "perKg": 6.25,
-     "promo": "Save 13%",
+     "promo": "Save 10%",
      "url": "https://www.aldi.co.uk/product/costellore-prosecco-doc-000000000000544080",
      "from": null,
      "to": null,
@@ -453,7 +453,7 @@
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-10-24T01:45:13.658Z",
+   "checked": "2026-10-25T01:21:16.753Z",
    "note": "",
    "items": [
     {
@@ -4619,7 +4619,7 @@
      "source": "Leaflet 29/10-04/11",
      "id": "11081844",
      "name": "Silvercrest Kitchen Tools Digital Air Fryer",
-     "brand": "Silvercrest Kitchen Tools",
+     "brand": "SILVERCREST KITCHEN TOOLS",
      "size": "",
      "price": 24.99,
      "was": null,
@@ -5418,7 +5418,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-10-24T01:45:13.658Z",
+   "checked": "2026-10-25T01:21:16.753Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
