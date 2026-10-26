@@ -100,7 +100,7 @@ export function makeFoodDiary({ cloud, store, toast, onChange = () => {} }) {
       <label class="fdnotelbl" for="fdNote">Your description${file ? ' (optional)' : ''}</label>
       <textarea id="fdNote" rows="3" maxlength="${NOTE_MAX}" placeholder="${NOTE_PH}"></textarea>
       <div class="fdact"><button type="button" class="primary" id="fdGo">Check meal</button><button type="button" id="fdCompCancel">Cancel</button></div>
-      <p class="small muted" id="fdCompLeft">Uses 1 of your ${esc(left())}.</p></div>`);
+      <p class="small muted" id="fdCompLeft">Uses 1 check · ${esc(left())}</p></div>`);
     let up = null, path = null, preview = null;
     if (file) up = (async () => {
       const blob = await compressImage(file); preview = URL.createObjectURL(blob); const im = o.querySelector('#fdCompImg'); if (im) im.src = preview;
