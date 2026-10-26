@@ -627,3 +627,14 @@ button.danger:active{background:#b42318!important}
 .avaex summary{cursor:pointer;font-weight:600;margin:6px 0}.avaex ol{padding-left:20px;margin:4px 0 10px}.avaex li{margin:4px 0}
 .overlay.recipe .rsheet.vsheet{max-height:calc(var(--vh, 100vh) - var(--sat, 0px) - var(--sab, 0px) - 40px)}
 .vsheet.vb .vbar{display:flex;align-items:center;justify-content:space-between;padding:6px 8px 6px 16px}.vsheet.vb .vbar .rclose{position:static;margin:0}
+/* Food diary: typed description (with or without a photo), re-check, sticky save bar */
+.fdbtns .fdtype{grid-column:1/-1;min-height:50px;border-radius:14px;font-weight:700;border:1px dashed var(--teal);background:var(--lav);color:var(--teal)}
+.fdcomp h3{margin:4px 0}.fdcomp .fdprev{max-height:32vh}
+.fdnotelbl{display:block;font-weight:700;font-size:.92rem;margin:10px 0 4px}
+.fdcomp textarea,.fdnote textarea{width:100%;box-sizing:border-box;min-height:74px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;resize:vertical;font-size:1rem}
+.fdnote{background:var(--lav);border-radius:14px;padding:4px 10px 10px;margin:10px 0}.fdnote .fdnotelbl{margin-top:6px}
+.fdrecheck{width:100%;min-height:46px;margin-top:6px;border-radius:12px;font-weight:700;background:var(--card);border:1px solid var(--teal);color:var(--teal)}
+.fdhint{display:block;margin-top:4px}.fdhint.warn{color:#8a5200;font-weight:600}
+.fdnoimg{display:flex;align-items:center;justify-content:center;height:100%;font-size:2.6rem}
+.fdtotp{font-weight:700;color:#1d6b3d}
+.fded .fdact{position:sticky;bottom:calc(-18px - var(--sab));background:var(--card);padding:10px 0 calc(8px + var(--sab));margin-bottom:calc(-18px - var(--sab));z-index:2;box-shadow:0 -8px 12px -10px rgba(0,0,0,.25)}

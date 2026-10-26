@@ -9,7 +9,9 @@ let fails = 0; const ok = (c, m) => { console.log((c ? 'PASS ' : 'FAIL ') + m); 
 const signUp = async tag => { const j = await (await fetch(SB_URL + '/auth/v1/signup', { method: 'POST', headers: { apikey: SB_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ email: `glp1life.test.food${tag}${Date.now()}@example.com`, password: PW }) })).json(); if (!j.access_token) throw new Error('signup ' + JSON.stringify(j).slice(0, 200)); return { tok: j.access_token, id: j.user.id }; };
 const H = u => ({ apikey: SB_KEY, authorization: 'Bearer ' + u.tok });
 const upload = async (u, path, file) => (await fetch(`${SB_URL}/storage/v1/object/food-photos/${path}`, { method: 'POST', headers: { ...H(u), 'content-type': 'image/jpeg' }, body: readFileSync(file) })).status;
-const analyse = async (u, path) => { const r = await fetch(FN, { method: 'POST', headers: { ...H(u), 'content-type': 'application/json' }, body: JSON.stringify({ path }) }); return { status: r.status, j: await r.json() }; };
+const post = async (u, body) => { const r = await fetch(FN, { method: 'POST', headers: { ...H(u), 'content-type': 'application/json' }, body: JSON.stringify(body) }); return { status: r.status, j: await r.json() }; };
+const analyse = (u, path) => post(u, { path });
+const prot = (j, re) => (j.items || []).filter(i => re.test(i.name)).reduce((a, i) => a + i.protein_g, 0);
 try {
   const A = await signUp('a'), B = await signUp('b');
   const st = await (await fetch(FN, { headers: H(A) })).json(); ok(st.ready === true && st.limit === 20 && st.remaining === 20, 'status: key works, 20/day ' + JSON.stringify(st));
@@ -28,12 +30,28 @@ try {
   const pN = `${A.id}/${crypto.randomUUID()}.jpg`; await upload(A, pN, 'tests/fixtures/food-notfood.jpg');
   const n = await analyse(A, pN); console.log('  not food ->', JSON.stringify(n.j));
   ok(n.status === 200 && n.j.is_food === false && n.j.message && n.j.remaining === 19, 'non-food photo rejected kindly and not counted');
+  // typed description: text-only, and photo + text (text is the main hint); both count towards the limit
+  ok((await post(A, {})).status === 400, 'no photo and no text -> 400');
+  const tx = await post(A, { text: 'chicken breast 150g, rice, broccoli' }); console.log('  text only ->', JSON.stringify(tx.j).slice(0, 600));
+  ok(tx.status === 200 && tx.j.is_food && tx.j.items.some(i => /chicken/i.test(i.name)) && tx.j.items.some(i => /rice/i.test(i.name)) && tx.j.items.some(i => /broccoli/i.test(i.name)), 'text-only meal analysed (chicken, rice, broccoli)');
+  const ck = tx.j.items?.find(i => /chicken/i.test(i.name)); ok(ck && Math.abs(ck.grams - 150) <= 5 && ck.protein_g >= 35 && ck.protein_g <= 55, 'text weight used exactly: chicken 150 g, ~46 g protein (' + ck?.grams + ' g, ' + ck?.protein_g + ' g protein)');
+  ok(tx.j.remaining === 18, 'text-only check counted (18 left)');
+  const tn = await post(A, { text: 'what is the weather tomorrow' }); ok(tn.status === 200 && tn.j.is_food === false && tn.j.remaining === 18, 'non-food text rejected kindly and not counted ' + JSON.stringify(tn.j).slice(0, 200));
+  const ph = await post(A, { path: pA, text: 'baked salmon fillet 200g and chips 150g' }); console.log('  photo + text ->', JSON.stringify(ph.j).slice(0, 600));
+  ok(ph.status === 200 && ph.j.is_food && prot(ph.j, /salmon/i) >= 30, 'photo + text: description wins (salmon, not battered fish) ' + prot(ph.j, /salmon/i) + ' g protein');
+  ok(ph.j.remaining === 17, 'photo + text check counted (17 left)');
+  ok((await post(B, { path: pA, text: 'chicken' })).status === 400, "B can't analyse A's photo even with text");
   // save to diary (RLS)
-  const row = { day: '2026-10-21', meal: 'dinner', photo_path: pA, items: a.j.items, kcal: a.j.totals.kcal, protein_g: a.j.totals.protein_g, carbs_g: a.j.totals.carbs_g, fat_g: a.j.totals.fat_g, fibre_g: a.j.totals.fibre_g, score: a.j.score, tips: a.j.tips };
+  const row = { day: '2026-10-21', meal: 'dinner', photo_path: pA, note: 'fish and chips', items: a.j.items, kcal: a.j.totals.kcal, protein_g: a.j.totals.protein_g, carbs_g: a.j.totals.carbs_g, fat_g: a.j.totals.fat_g, fibre_g: a.j.totals.fibre_g, score: a.j.score, tips: a.j.tips };
   ok((await fetch(SB_URL + '/rest/v1/food_diary', { method: 'POST', headers: { ...H(A), 'content-type': 'application/json' }, body: JSON.stringify(row) })).status === 201, 'A saves diary entry');
   ok((await fetch(SB_URL + '/rest/v1/food_diary', { method: 'POST', headers: { ...H(B), 'content-type': 'application/json' }, body: JSON.stringify(row) })).status >= 400, "B can't save an entry pointing at A's photo");
   ok((await (await fetch(SB_URL + '/rest/v1/food_diary?select=id', { headers: H(B) })).json()).length === 0, "B can't see A's diary");
   ok((await (await fetch(SB_URL + '/rest/v1/food_diary?select=id', { headers: H(A) })).json()).length === 1, 'A sees own diary');
+  const [saved] = await (await fetch(SB_URL + '/rest/v1/food_diary?select=id,note', { headers: H(A) })).json(); ok(saved?.note === 'fish and chips', 'description saved with the entry');
+  const fix = { items: [{ ...a.j.items[0], protein_g: 42.5 }], protein_g: 42.5, kcal: 500, note: 'cod 200g', edited: true };
+  ok((await fetch(SB_URL + `/rest/v1/food_diary?id=eq.${saved.id}`, { method: 'PATCH', headers: { ...H(A), 'content-type': 'application/json', prefer: 'return=minimal' }, body: JSON.stringify(fix) })).status === 204, 'manual correction saved (PATCH)');
+  const [back] = await (await fetch(SB_URL + `/rest/v1/food_diary?select=protein_g,note,items&id=eq.${saved.id}`, { headers: H(A) })).json();
+  ok(+back.protein_g === 42.5 && back.items[0].protein_g === 42.5 && back.note === 'cod 200g', 'corrected protein + description read back ' + JSON.stringify({ p: back.protein_g, n: back.note }));
   ok((await fetch(SB_URL + '/rest/v1/rpc/claim_food_photo', { method: 'POST', headers: { ...H(A), 'content-type': 'application/json' }, body: JSON.stringify({ p_user: A.id, p_limit: 999 }) })).status >= 400, "users can't call the quota function");
   // daily limit
   await sql(`update public.food_photo_usage set n = 20 where user_id = '${A.id}'`);

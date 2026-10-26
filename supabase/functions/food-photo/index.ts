@@ -1,8 +1,9 @@
 // Supabase Edge Function: food-photo
 // GET  -> { ready, limit, remaining }  (ready = the Gemini key works)
-// POST { path } -> analysis JSON for the user's own photo in the private "food-photos" bucket.
+// POST { path?, text? } -> analysis JSON for the user's own photo in the private "food-photos" bucket, guided by the
+//   member's typed description (text is the main hint). Text-only (no path) is analysed the same way. Both count towards the daily limit.
 // The Gemini key lives only in the GEMINI_API_KEY secret; it never reaches the browser.
-import { PROMPT, SCHEMA, sanitizeAnalysis, DAILY_LIMIT } from './photo-core.js';
+import { PROMPT, SCHEMA, sanitizeAnalysis, DAILY_LIMIT, hintPrompt, cleanNote, HINT_MAX } from './photo-core.js';
 
 const URL_ = Deno.env.get('SUPABASE_URL')!, ANON = Deno.env.get('SUPABASE_ANON_KEY')!, SERVICE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const KEY = Deno.env.get('GEMINI_API_KEY') || '';
@@ -23,13 +24,13 @@ async function keyWorks() {
 const rpc = (fn: string, body: unknown) => fetch(`${URL_}/rest/v1/rpc/${fn}`, { method: 'POST', headers: { apikey: SERVICE, authorization: `Bearer ${SERVICE}`, 'content-type': 'application/json' }, body: JSON.stringify(body) });
 const b64 = (buf: ArrayBuffer) => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode(...u.subarray(i, i + 0x8000)); return btoa(s); };
 
-async function gemini(img: string, mime: string) {
+async function gemini(img: string | null, mime: string, text: string) {
   let last = '';
   for (const model of MODELS) {
     const gen: Record<string, unknown> = { responseMimeType: 'application/json', responseJsonSchema: SCHEMA, temperature: 0.2, maxOutputTokens: 2048 };
     if (/gemini-3/.test(model)) gen.thinkingConfig = { thinkingLevel: 'low' };
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, { method: 'POST', headers: { 'x-goog-api-key': KEY, 'content-type': 'application/json' },
-      body: JSON.stringify({ contents: [{ role: 'user', parts: [{ inline_data: { mime_type: mime, data: img } }, { text: PROMPT }] }], generationConfig: gen }) });
+      body: JSON.stringify({ contents: [{ role: 'user', parts: [...(img ? [{ inline_data: { mime_type: mime, data: img } }] : []), { text: PROMPT }, ...(text ? [{ text: hintPrompt(text, !!img) }] : [])] }], generationConfig: gen }) });
     const j = await r.json().catch(() => null);
     if (!r.ok) { last = `${model}: ${r.status} ${j?.error?.status || ''}`; console.warn('gemini', last, j?.error?.message?.slice(0, 200)); continue; }
     const t = j?.candidates?.[0]?.content?.parts?.map((p: { text?: string }) => p.text || '').join('') || '';
@@ -50,25 +51,29 @@ Deno.serve(async req => {
   if (req.method !== 'POST') return res({ error: 'method' }, 405);
   if (!(await keyWorks())) return res({ error: 'unavailable', message: 'Photo analysis is coming soon.' }, 503);
   const body = await req.json().catch(() => ({}));
-  const path = String(body?.path || '');
-  if (!new RegExp(`^${u.id}/[\\w-]{8,64}\\.(jpg|webp)$`).test(path)) return res({ error: 'path', message: 'That photo could not be found.' }, 400);
-  // download with the USER's token so storage RLS proves ownership
-  const img = await fetch(`${URL_}/storage/v1/object/authenticated/food-photos/${path}`, { headers: { apikey: ANON, authorization: auth } });
-  if (!img.ok) return res({ error: 'path', message: 'That photo could not be found.' }, 404);
-  const buf = await img.arrayBuffer();
-  if (buf.byteLength > 800 * 1024) return res({ error: 'size', message: 'That photo is too large.' }, 413);
+  const path = String(body?.path || ''), text = cleanNote(body?.text, HINT_MAX);
+  if (!path && !text) return res({ error: 'empty', message: 'Add a photo or type what you ate.' }, 400);
+  let buf: ArrayBuffer | null = null;
+  if (path) {
+    if (!new RegExp(`^${u.id}/[\\w-]{8,64}\\.(jpg|webp)$`).test(path)) return res({ error: 'path', message: 'That photo could not be found.' }, 400);
+    // download with the USER's token so storage RLS proves ownership
+    const img = await fetch(`${URL_}/storage/v1/object/authenticated/food-photos/${path}`, { headers: { apikey: ANON, authorization: auth } });
+    if (!img.ok) return res({ error: 'path', message: 'That photo could not be found.' }, 404);
+    buf = await img.arrayBuffer();
+    if (buf.byteLength > 800 * 1024) return res({ error: 'size', message: 'That photo is too large.' }, 413);
+  }
   const left = await rpc('claim_food_photo', { p_user: u.id, p_limit: LIMIT }).then(r => r.json()).catch(() => null);
   if (typeof left !== 'number') return res({ error: 'server', message: 'Something went wrong. Please try again.' }, 500);
-  if (left < 0) return res({ error: 'limit', message: `You've used today's ${LIMIT} photo checks. You can still add meals by hand, and checks reset at midnight.`, remaining: 0 }, 429);
+  if (left < 0) return res({ error: 'limit', message: `You've used today's ${LIMIT} meal checks. You can still add meals by hand, and checks reset at midnight.`, remaining: 0 }, 429);
   try {
-    const g = await gemini(b64(buf), path.endsWith('.webp') ? 'image/webp' : 'image/jpeg');
+    const g = await gemini(buf ? b64(buf) : null, path.endsWith('.webp') ? 'image/webp' : 'image/jpeg', text);
     const a = sanitizeAnalysis(g.out);
-    if (!a.is_food) await rpc('refund_food_photo', { p_user: u.id }); // non-food photos don't use up the allowance
-    console.log(JSON.stringify({ ev: 'analysed', model: g.model, food: a.is_food, in: g.usage?.promptTokenCount, out: g.usage?.candidatesTokenCount, think: g.usage?.thoughtsTokenCount }));
+    if (!a.is_food) await rpc('refund_food_photo', { p_user: u.id }); // non-food photos/text don't use up the allowance
+    console.log(JSON.stringify({ ev: 'analysed', model: g.model, food: a.is_food, photo: !!buf, hint: text.length, in: g.usage?.promptTokenCount, out: g.usage?.candidatesTokenCount, think: g.usage?.thoughtsTokenCount }));
     return res({ ...a, model: g.model, remaining: a.is_food ? left : left + 1 });
   } catch (e) {
     await rpc('refund_food_photo', { p_user: u.id });
     console.error('analyse failed', String(e));
-    return res({ error: 'busy', message: 'The photo checker is busy. Please try again in a moment.' }, 502);
+    return res({ error: 'busy', message: 'The meal checker is busy. Please try again in a moment.' }, 502);
   }
 });

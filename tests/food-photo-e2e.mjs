@@ -27,12 +27,12 @@ try {
   await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (/fd/.test(k)) localStorage.removeItem(k); }); await p.reload(); await p.waitForTimeout(2500);
   await p.evaluate(() => document.querySelectorAll('.overlay:not([hidden])').forEach(e => e.hidden = true));
   await p.click('#foodTodayCard'); await p.waitForSelector('#fdUpload', { state: 'attached', timeout: 30000 }).catch(async e => { await p.screenshot({ path: O + '-debug.png' }); console.log('DEBUG', await p.evaluate(() => [document.querySelector('section.tab.active')?.id, document.getElementById('photoDiaryRoot')?.innerText.slice(0, 300), document.querySelector('.overlay:not([hidden])')?.id].join(' | '))); throw e; });
-  ok(/20 of 20/.test(await p.textContent('#fdLeft')), 'shows 20 of 20 checks left'); await p.screenshot({ path: O + '-2-diary-empty.png' });
+  ok(/20 of 20 meal checks/.test(await p.textContent('#fdLeft')), 'shows 20 of 20 checks left'); await p.screenshot({ path: O + '-2-diary-empty.png' });
   // non-food photo
-  await p.setInputFiles('#fdUpload', 'tests/fixtures/food-notfood.jpg'); await p.waitForSelector('#fdSheet h3:has-text("couldn")', { timeout: 40000 });
+  await p.setInputFiles('#fdUpload', 'tests/fixtures/food-notfood.jpg'); await p.click('#fdGo'); await p.waitForSelector('#fdSheet h3:has-text("couldn")', { timeout: 40000 });
   ok(true, 'non-food photo gets a kind message'); await p.screenshot({ path: O + '-3-not-food.png' }); await p.click('[data-fdclose]');
   // real meal photo -> editor
-  const t0 = Date.now(); await p.setInputFiles('#fdUpload', 'tests/fixtures/food-full.jpg');
+  const t0 = Date.now(); await p.setInputFiles('#fdUpload', 'tests/fixtures/food-full.jpg'); await p.waitForSelector('#fdGo'); await p.click('#fdGo');
   await p.waitForSelector('.fdwait .fdprev', { timeout: 15000 }); await p.screenshot({ path: O + '-4-checking.png' });
   await p.waitForSelector('#fdSave', { timeout: 60000 }); console.log('  analysis took', Date.now() - t0, 'ms');
   const items = await p.$$eval('.fditem .fdname', l => l.map(i => i.value)); console.log('  items:', items.join(', '));
