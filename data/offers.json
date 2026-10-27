@@ -1,10 +1,10 @@
 {
- "updated": "2026-10-26T01:25:22.861Z",
+ "updated": "2026-10-27T02:13:01.416Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-10-26T01:25:22.861Z",
+   "checked": "2026-10-27T02:13:01.416Z",
    "note": "",
    "items": [
     {
@@ -24,24 +24,6 @@
      "protein": null,
      "kcal100": null,
      "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Six",
-     "id": "000000000000304245",
-     "name": "Ripen at Home Mini Pears 5 Pack",
-     "brand": "NATURE'S PICK",
-     "size": "550 g",
-     "price": 0.49,
-     "was": null,
-     "perKg": 0.89,
-     "promo": "Super Six",
-     "url": "https://www.aldi.co.uk/product/nature-s-pick-ripen-at-home-mini-pears-5-pack-000000000000304245",
-     "from": null,
-     "to": null,
-     "protein": 1,
-     "kcal100": 55,
-     "tag": "fruit"
     },
     {
      "store": "aldi",
@@ -88,7 +70,7 @@
      "size": "550 g",
      "price": 0.49,
      "was": null,
-     "perKg": null,
+     "perKg": 0.89,
      "promo": "Super Six",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-mini-pears-550g-000000000000339880",
      "from": null,
@@ -124,7 +106,7 @@
      "size": "400 g",
      "price": 0.89,
      "was": 1.29,
-     "perKg": null,
+     "perKg": 2.23,
      "promo": "Save 31%",
      "url": "https://www.aldi.co.uk/product/nature-s-pick-british-closed-cup-mushrooms-000000000000340015",
      "from": null,
@@ -393,9 +375,9 @@
      "brand": "THE FISHMONGER",
      "size": "300 g",
      "price": 1.99,
-     "was": 2.49,
+     "was": null,
      "perKg": 6.63,
-     "promo": "Save 20% · While Stock Lasts",
+     "promo": "While Stock Lasts",
      "url": "https://www.aldi.co.uk/product/the-fishmonger-fish-chips-000000000000754085",
      "from": null,
      "to": null,
@@ -420,40 +402,22 @@
      "protein": 21,
      "kcal100": 140,
      "tag": "pork"
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000588327",
-     "name": "Thick Cut Rump Steaks",
-     "brand": "SPECIALLY SELECTED",
-     "size": "454 g",
-     "price": 8.79,
-     "was": null,
-     "perKg": 19.36,
-     "promo": "In Store Mon 02 Nov",
-     "url": "https://www.aldi.co.uk/product/specially-selected-thick-cut-rump-steaks-000000000000588327",
-     "from": null,
-     "to": null,
-     "protein": 22,
-     "kcal100": 150,
-     "tag": "beef"
     }
    ],
    "pages": [
     {
      "path": "/super-6",
-     "result": "19 items"
+     "result": "18 items"
     },
     {
      "path": "/super-weekly-offers",
-     "result": "17 items"
+     "result": "16 items"
     }
    ]
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-10-26T01:25:22.861Z",
+   "checked": "2026-10-27T02:13:01.416Z",
    "note": "",
    "items": [
     {
@@ -5544,7 +5508,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-10-26T01:25:22.861Z",
+   "checked": "2026-10-27T02:13:01.416Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
