@@ -1,10 +1,10 @@
 {
- "updated": "2026-10-27T02:13:01.416Z",
+ "updated": "2026-10-28T02:28:07.212Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-10-27T02:13:01.416Z",
+   "checked": "2026-10-28T02:28:07.212Z",
    "note": "",
    "items": [
     {
@@ -136,24 +136,6 @@
     {
      "store": "aldi",
      "source": "Super Six",
-     "id": "000000000000339891",
-     "name": "Munchkin Pumpkin",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "1 Each",
-     "price": 0.35,
-     "was": 0.39,
-     "perKg": null,
-     "promo": "Save 10%",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-munchkin-pumpkin-000000000000339891",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Six",
      "id": "000000000000365830",
      "name": "Milk Lollies Ice Creams",
      "brand": "GIANNI'S",
@@ -231,7 +213,7 @@
      "brand": "SPECIALLY SELECTED",
      "size": "4 Each",
      "price": 1.99,
-     "was": 2.09,
+     "was": null,
      "perKg": null,
      "promo": "Super Six",
      "url": "https://www.aldi.co.uk/product/specially-selected-all-butter-croissants-000000000000387544",
@@ -333,6 +315,24 @@
     },
     {
      "store": "aldi",
+     "source": "Super Six",
+     "id": "000000000000583142",
+     "name": "American Seeded Burger Buns",
+     "brand": "VILLAGE BAKERY",
+     "size": "6 Each",
+     "price": 0.75,
+     "was": 1.29,
+     "perKg": null,
+     "promo": "Save 41%",
+     "url": "https://www.aldi.co.uk/product/village-bakery-american-seeded-burger-buns-000000000000583142",
+     "from": null,
+     "to": null,
+     "protein": 14,
+     "kcal100": 250,
+     "tag": "processed"
+    },
+    {
+     "store": "aldi",
      "source": "Super Weekly Offers",
      "id": "000000000000387149",
      "name": "Beef and Pork Mince XXL",
@@ -402,6 +402,24 @@
      "protein": 21,
      "kcal100": 140,
      "tag": "pork"
+    },
+    {
+     "store": "aldi",
+     "source": "Super Weekly Offers",
+     "id": "000000000000588327",
+     "name": "Thick Cut Rump Steaks",
+     "brand": "SPECIALLY SELECTED",
+     "size": "454 g",
+     "price": 8.79,
+     "was": null,
+     "perKg": 19.36,
+     "promo": "In Store Mon 02 Nov",
+     "url": "https://www.aldi.co.uk/product/specially-selected-thick-cut-rump-steaks-000000000000588327",
+     "from": null,
+     "to": null,
+     "protein": 22,
+     "kcal100": 150,
+     "tag": "beef"
     }
    ],
    "pages": [
@@ -411,13 +429,13 @@
     },
     {
      "path": "/super-weekly-offers",
-     "result": "16 items"
+     "result": "17 items"
     }
    ]
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-10-27T02:13:01.416Z",
+   "checked": "2026-10-28T02:28:07.212Z",
    "note": "",
    "items": [
     {
@@ -4153,7 +4171,7 @@
      "name": "Brown Onions",
      "brand": "",
      "size": "",
-     "price": 0.69,
+     "price": 0.59,
      "was": null,
      "perKg": null,
      "promo": "Leaflet",
@@ -5508,7 +5526,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-10-27T02:13:01.416Z",
+   "checked": "2026-10-28T02:28:07.212Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
