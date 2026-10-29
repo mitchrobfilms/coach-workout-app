@@ -16,8 +16,10 @@ try {
   await a.goto(URL + 'admin/?t=' + s, { waitUntil: 'networkidle' }); await a.fill('#le', AD); await a.fill('#lp', PW); await a.click('#lf button');
   await a.waitForSelector('#app:not([hidden])', { timeout: 15000 }); ok(true, 'admin signed in');
   await a.click('.tabs button[data-v="aidrafts"]'); await a.waitForSelector('#aiDraftList iframe', { timeout: 15000 });
-  const txt = await a.textContent('#aiDraftList'); ok((txt.match(/Approved by Mitchell 2026-10-21, published/g) || []).length === 2 && !/Awaiting safety review/.test(txt), 'both drafts "Approved by Mitchell 2026-10-21, published"'); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
-  const frames = await a.$$('#aiDraftList iframe'); ok(frames.length === 2, `2 Bunny embeds (${frames.length})`);
+  const txt = await a.textContent('#aiDraftList'); const drafts = await (await fetch(URL + 'admin/ai-class-drafts.json?' + s)).json(), pend = drafts.classes.filter(c => !c.published);
+  ok((txt.match(/Approved by Mitchell 2026-10-21, published/g) || []).length === 2, 'the 2 approved classes show "Approved by Mitchell 2026-10-21, published"');
+  ok((txt.match(/Awaiting safety review/g) || []).length === pend.length && pend.every(c => !lib.videos.some(v => v.id === c.id)), `${pend.length} unreviewed draft(s) show "Awaiting safety review" and are not in the member library`); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
+  const frames = await a.$$('#aiDraftList iframe'); ok(frames.length === drafts.classes.filter(c => c.bunny?.guid).length, `${frames.length} Bunny embeds`);
   const f = await frames[0].contentFrame(); await f.waitForSelector('video', { timeout: 20000 });
   await f.evaluate(() => { document.querySelector('video').muted = true; }); await f.click('.plyr__control--overlaid, [data-plyr=play]', { timeout: 15000 }).catch(e => console.log('play click', e.message)); // preload=false: plyr/hls.js loads on play
   await a.waitForTimeout(9000);

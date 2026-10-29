@@ -12,7 +12,9 @@ ok(lib.videos.find(v => v.id === 'ai-seated-10')?.cat === 'chair' && lib.videos.
 ok(!JSON.stringify(lib.videos).match(/youtube|archive\.org|Melissa|supersededGuid/i), 'no third-party / superseded entries');
 ok(!/qualified (instructor|coach|trainer)|certified|registered/i.test(JSON.stringify(lib.instructors)) && /AI-generated instructor/.test(lib.instructors['coach-ava'].label), 'Coach Ava: AI label, never called qualified');
 const drafts = JSON.parse(fs.readFileSync(new globalThis.URL('../admin/ai-class-drafts.json', import.meta.url)));
-ok(drafts.classes.every(c => c.published && /Approved by Mitchell 2026-10-21, published/.test(c.status) && lib.videos.some(v => v.bunnyId === c.bunny.guid)), 'admin drafts marked approved + published, GUIDs match');
+ok(drafts.classes.filter(c => c.published).length === 2 && drafts.classes.filter(c => c.published).every(c => c.published && /Approved by Mitchell 2026-10-21, published/.test(c.status) && lib.videos.some(v => v.bunnyId === c.bunny.guid)), 'admin drafts marked approved + published, GUIDs match');
+const pending = drafts.classes.filter(c => !c.published);
+ok(pending.every(c => /Awaiting safety review/.test(c.status) && !lib.videos.some(v => v.id === c.id || (c.bunny && v.bunnyId === c.bunny.guid))), `unreviewed drafts (${pending.map(c => c.id).join(', ') || 'none'}) are "Awaiting safety review" and NOT in the member library`);
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--autoplay-policy=no-user-gesture-required', '--disable-http2'] /* box network coalesces assets.mediadelivery.net onto the iframe host's HTTP/2 connection -> 404s */ }); const ctx = await b.newContext({ ...devices['Pixel 5'], serviceWorkers: 'block' }); const p = await ctx.newPage();
 const errs = []; p.on('pageerror', e => errs.push(e.message));
 await p.goto(URL); await p.evaluate(() => localStorage.clear()); await p.reload(); await p.waitForTimeout(1500);

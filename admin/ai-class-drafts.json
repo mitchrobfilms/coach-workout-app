@@ -1,5 +1,5 @@
 {
- "note": "AI class drafts. Classes are added to the member library only after human safety review. ai-walk-15 and ai-seated-10: approved by Mitchell 2026-10-21, published.",
+ "note": "AI class drafts. Classes are added to the member library only after human safety review. ai-walk-15 and ai-seated-10: approved by Mitchell 2026-10-21, published. ai-fullbody-15: awaiting safety review (hidden draft, not in library-videos.json).",
  "instructor": {
   "id": "coach-ava",
   "name": "Coach Ava",
@@ -405,6 +405,264 @@
     "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
     "hls": "https://vz-e201ca15-f9a.b-cdn.net/39c7e26d-3e2e-4c21-a611-92b840da3713/playlist.m3u8",
     "embed": "https://iframe.mediadelivery.net/embed/786067/39c7e26d-3e2e-4c21-a611-92b840da3713",
+    "captions": [
+     "en"
+    ],
+    "encoded": true,
+    "maxResolution": "1080p"
+   }
+  },
+  {
+   "id": "ai-fullbody-15",
+   "title": "Full-Body Bodyweight",
+   "minutes": 15,
+   "difficulty": "Intermediate",
+   "category": "Full body",
+   "equipment": "None (a mat or carpet for floor moves)",
+   "intensity": "Moderate",
+   "description": "A 15-minute full-body bodyweight workout with no equipment: squats, lunges, push-ups, planks and core moves, with an easier option for every exercise. Warm up first with a separate warm-up.",
+   "instructor": "coach-ava",
+   "aiGenerated": true,
+   "access": "free",
+   "status": "Awaiting safety review",
+   "published": false,
+   "thumb": "ai-drafts/ai-fullbody-15.jpg",
+   "video": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/playlist.m3u8",
+   "videoNote": "Draft (29 Oct): 41 unique chained AI clips, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 183.3 MiB / 192.2 MB. Hosted on Bunny Stream; hidden draft, NOT in library-videos.json until Mitchell approves.",
+   "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/captions/en.vtt",
+   "trackCompletion": true,
+   "timeline": [
+    {
+     "start": 0,
+     "end": 28,
+     "type": "intro",
+     "name": "Full-Body Bodyweight",
+     "modification": "",
+     "next": "Bodyweight Squats"
+    },
+    {
+     "start": 28,
+     "end": 73,
+     "type": "exercise",
+     "name": "Bodyweight Squats",
+     "modification": "Only go halfway down, or hold a chair for balance.",
+     "next": "Knee Push-ups"
+    },
+    {
+     "start": 73,
+     "end": 94,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Knee Push-ups"
+    },
+    {
+     "start": 94,
+     "end": 139,
+     "type": "exercise",
+     "name": "Knee Push-ups",
+     "modification": "Do them against a wall instead.",
+     "next": "Reverse Lunges"
+    },
+    {
+     "start": 139,
+     "end": 160,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Reverse Lunges"
+    },
+    {
+     "start": 160,
+     "end": 205,
+     "type": "exercise",
+     "name": "Reverse Lunges",
+     "modification": "Make the step shorter and only dip a little, or hold a wall.",
+     "next": "Glute Bridges"
+    },
+    {
+     "start": 205,
+     "end": 226,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Glute Bridges"
+    },
+    {
+     "start": 226,
+     "end": 271,
+     "type": "exercise",
+     "name": "Glute Bridges",
+     "modification": "Lift only a little way, or pause at the top for a breath.",
+     "next": "Standing Knee Drives"
+    },
+    {
+     "start": 271,
+     "end": 292,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Standing Knee Drives"
+    },
+    {
+     "start": 292,
+     "end": 337,
+     "type": "exercise",
+     "name": "Standing Knee Drives",
+     "modification": "March instead, with lower knees.",
+     "next": "Forearm Plank"
+    },
+    {
+     "start": 337,
+     "end": 359,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Forearm Plank"
+    },
+    {
+     "start": 359,
+     "end": 404,
+     "type": "exercise",
+     "name": "Forearm Plank",
+     "modification": "Drop your knees to the floor, or hold for shorter bursts.",
+     "next": "Squat to Calf Raise"
+    },
+    {
+     "start": 404,
+     "end": 426,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Squat to Calf Raise"
+    },
+    {
+     "start": 426,
+     "end": 471,
+     "type": "exercise",
+     "name": "Squat to Calf Raise",
+     "modification": "Skip the calf raise, or keep a hand on the wall.",
+     "next": "Push-ups"
+    },
+    {
+     "start": 471,
+     "end": 493,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Push-ups"
+    },
+    {
+     "start": 493,
+     "end": 538,
+     "type": "exercise",
+     "name": "Push-ups",
+     "modification": "Knees down, or use the wall.",
+     "next": "Side Lunges"
+    },
+    {
+     "start": 538,
+     "end": 560,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Side Lunges"
+    },
+    {
+     "start": 560,
+     "end": 605,
+     "type": "exercise",
+     "name": "Side Lunges",
+     "modification": "Make the step smaller and only bend a little.",
+     "next": "Bird Dog"
+    },
+    {
+     "start": 605,
+     "end": 627,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Bird Dog"
+    },
+    {
+     "start": 627,
+     "end": 672,
+     "type": "exercise",
+     "name": "Bird Dog",
+     "modification": "Move just the arms, or just the legs.",
+     "next": "Standing Cross Crunches"
+    },
+    {
+     "start": 672,
+     "end": 693,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Standing Cross Crunches"
+    },
+    {
+     "start": 693,
+     "end": 738,
+     "type": "exercise",
+     "name": "Standing Cross Crunches",
+     "modification": "Lift the knee lower and go slower.",
+     "next": "Sumo Squats"
+    },
+    {
+     "start": 738,
+     "end": 759,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Sumo Squats"
+    },
+    {
+     "start": 759,
+     "end": 804,
+     "type": "exercise",
+     "name": "Sumo Squats",
+     "modification": "Narrow the stance and only go halfway.",
+     "next": "Low-Impact Skaters"
+    },
+    {
+     "start": 804,
+     "end": 825,
+     "type": "rest",
+     "name": "Rest",
+     "modification": "",
+     "next": "Low-Impact Skaters"
+    },
+    {
+     "start": 825,
+     "end": 870,
+     "type": "exercise",
+     "name": "Low-Impact Skaters",
+     "modification": "Make it a side step touch.",
+     "next": "Recover & Breathe"
+    },
+    {
+     "start": 870,
+     "end": 900,
+     "type": "cooldown",
+     "name": "Recover & Breathe",
+     "modification": "",
+     "next": "Finish"
+    }
+   ],
+   "build": {
+    "noLoop": true,
+    "branded": true,
+    "sizeMB": 192.2,
+    "file": "class-creator/out/ai-fullbody-15.mp4",
+    "resolution": "1920x1080",
+    "labelAutoPlaced": true
+   },
+   "bunny": {
+    "libraryId": 786067,
+    "guid": "72b49255-3a23-47de-9662-ab6381701565",
+    "cdnHost": "vz-e201ca15-f9a.b-cdn.net",
+    "hls": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/playlist.m3u8",
+    "embed": "https://iframe.mediadelivery.net/embed/786067/72b49255-3a23-47de-9662-ab6381701565",
     "captions": [
      "en"
     ],
