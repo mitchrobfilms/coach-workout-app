@@ -17,7 +17,7 @@ try {
   await a.waitForSelector('#app:not([hidden])', { timeout: 15000 }); ok(true, 'admin signed in');
   await a.click('.tabs button[data-v="aidrafts"]'); await a.waitForSelector('#aiDraftList iframe', { timeout: 15000 });
   const txt = await a.textContent('#aiDraftList'); const drafts = await (await fetch(URL + 'admin/ai-class-drafts.json?' + s)).json(), pend = drafts.classes.filter(c => !c.published);
-  ok((txt.match(/Approved by Mitchell 2026-10-21, published/g) || []).length === 2, 'the 2 approved classes show "Approved by Mitchell 2026-10-21, published"');
+  const pub = drafts.classes.filter(c => c.published); ok((txt.match(/Approved by Mitchell 2026-10-(21|29), published/g) || []).length === pub.length && pub.every(c => lib.videos.some(v => v.id === c.id)), `the ${pub.length} approved classes show "Approved by Mitchell …, published" and are in the member library`);
   ok((txt.match(/Awaiting safety review/g) || []).length === pend.length && pend.every(c => !lib.videos.some(v => v.id === c.id)), `${pend.length} unreviewed draft(s) show "Awaiting safety review" and are not in the member library`); ok(txt.includes('AI-generated instructor'), 'AI instructor label');
   const frames = await a.$$('#aiDraftList iframe'); ok(frames.length === drafts.classes.filter(c => c.bunny?.guid).length, `${frames.length} Bunny embeds`);
   const pi = pend.length ? frames.length - 1 : 0; // play the newest unreviewed draft (last card) if there is one

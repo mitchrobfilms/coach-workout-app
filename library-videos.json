@@ -1,12 +1,13 @@
 {
  "version": 2,
- "updated": "2026-10-21",
- "note": "Member workout videos. 2026-10-21: third-party videos removed; GLP1 Life Coach Ava (AI-generated instructor) classes are added only after human safety review (first two approved by Mitchell 2026-10-21). Entry shape: {id,title,cat,mins,level,source:'bunny'|'archive'|'youtube',bunnyLibrary+bunnyId|src|youtubeId,poster,credit,embeddable:true}.",
+ "updated": "2026-10-29",
+ "note": "Member workout videos. 2026-10-21: third-party videos removed; GLP1 Life Coach Ava (AI-generated instructor) classes are added only after human safety review (first two approved by Mitchell 2026-10-21; Full-Body Bodyweight approved 2026-10-29). Entry shape: {id,title,cat,mins,level,source:'bunny'|'archive'|'youtube',bunnyLibrary+bunnyId|src|youtubeId,poster,credit,embeddable:true}.",
  "categories": {
   "warmup": "Warm-up",
   "cooldown": "Cool-down",
   "walking": "Walking",
   "chair": "Chair-based",
+  "fullbody": "Full body",
   "cardio": "Low-impact cardio",
   "strength": "Beginner strength",
   "band": "Resistance band",
@@ -225,6 +226,129 @@
    ],
    "approved": "Approved by Mitchell 2026-10-21",
    "embeddable": true
+  },
+  {
+   "id": "ai-fullbody-15",
+   "title": "Full-Body Bodyweight",
+   "cat": "fullbody",
+   "mins": 15,
+   "level": "Intermediate",
+   "intensity": "Moderate",
+   "equipment": "None",
+   "source": "bunny",
+   "bunnyLibrary": 786067,
+   "bunnyId": "72b49255-3a23-47de-9662-ab6381701565",
+   "hls": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/playlist.m3u8",
+   "captions": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/captions/en.vtt",
+   "poster": "media/ava/ai-fullbody-15.jpg",
+   "channel": "Coach Ava",
+   "instructor": "coach-ava",
+   "aiGenerated": true,
+   "credit": "GLP1 Life · Coach Ava (AI-generated instructor)",
+   "access": "free",
+   "description": "A 15-minute full-body bodyweight workout with no equipment: squats, lunges, push-ups, planks and core moves, with an easier option for every exercise. Warm up first with a separate warm-up.",
+   "exercises": [
+    {
+     "name": "Bodyweight Squats",
+     "start": 28,
+     "end": 73,
+     "type": "exercise",
+     "easier": "Only go halfway down, or hold a chair for balance."
+    },
+    {
+     "name": "Knee Push-ups",
+     "start": 94,
+     "end": 139,
+     "type": "exercise",
+     "easier": "Do them against a wall instead."
+    },
+    {
+     "name": "Reverse Lunges",
+     "start": 160,
+     "end": 205,
+     "type": "exercise",
+     "easier": "Make the step shorter and only dip a little, or hold a wall."
+    },
+    {
+     "name": "Glute Bridges",
+     "start": 226,
+     "end": 271,
+     "type": "exercise",
+     "easier": "Lift only a little way, or pause at the top for a breath."
+    },
+    {
+     "name": "Standing Knee Drives",
+     "start": 292,
+     "end": 337,
+     "type": "exercise",
+     "easier": "March instead, with lower knees."
+    },
+    {
+     "name": "Forearm Plank",
+     "start": 359,
+     "end": 404,
+     "type": "exercise",
+     "easier": "Drop your knees to the floor, or hold for shorter bursts."
+    },
+    {
+     "name": "Squat to Calf Raise",
+     "start": 426,
+     "end": 471,
+     "type": "exercise",
+     "easier": "Skip the calf raise, or keep a hand on the wall."
+    },
+    {
+     "name": "Push-ups",
+     "start": 493,
+     "end": 538,
+     "type": "exercise",
+     "easier": "Knees down, or use the wall."
+    },
+    {
+     "name": "Side Lunges",
+     "start": 560,
+     "end": 605,
+     "type": "exercise",
+     "easier": "Make the step smaller and only bend a little."
+    },
+    {
+     "name": "Bird Dog",
+     "start": 627,
+     "end": 672,
+     "type": "exercise",
+     "easier": "Move just the arms, or just the legs."
+    },
+    {
+     "name": "Standing Cross Crunches",
+     "start": 693,
+     "end": 738,
+     "type": "exercise",
+     "easier": "Lift the knee lower and go slower."
+    },
+    {
+     "name": "Sumo Squats",
+     "start": 759,
+     "end": 804,
+     "type": "exercise",
+     "easier": "Narrow the stance and only go halfway."
+    },
+    {
+     "name": "Low-Impact Skaters",
+     "start": 825,
+     "end": 870,
+     "type": "exercise",
+     "easier": "Make it a side step touch."
+    },
+    {
+     "name": "Recover & Breathe",
+     "start": 870,
+     "end": 900,
+     "type": "cooldown",
+     "easier": ""
+    }
+   ],
+   "approved": "Approved by Mitchell 2026-10-29",
+   "embeddable": true
   }
  ],
  "instructors": {
@@ -236,7 +360,8 @@
    "specialities": [
     "Beginner walking",
     "Chair-based exercise",
-    "Low-impact movement"
+    "Low-impact movement",
+    "Bodyweight workouts"
    ]
   }
  }

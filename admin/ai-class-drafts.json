@@ -1,5 +1,5 @@
 {
- "note": "AI class drafts. Classes are added to the member library only after human safety review. ai-walk-15 and ai-seated-10: approved by Mitchell 2026-10-21, published. ai-fullbody-15: awaiting safety review (hidden draft, not in library-videos.json).",
+ "note": "AI class drafts. Classes are added to the member library only after human safety review. ai-walk-15 and ai-seated-10: approved by Mitchell 2026-10-21, published. ai-fullbody-15: approved by Mitchell 2026-10-29, published.",
  "instructor": {
   "id": "coach-ava",
   "name": "Coach Ava",
@@ -424,11 +424,11 @@
    "instructor": "coach-ava",
    "aiGenerated": true,
    "access": "free",
-   "status": "Awaiting safety review",
-   "published": false,
+   "status": "Approved by Mitchell 2026-10-29, published",
+   "published": true,
    "thumb": "ai-drafts/ai-fullbody-15.jpg",
    "video": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/playlist.m3u8",
-   "videoNote": "Draft (29 Oct): 41 unique chained AI clips, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 183.3 MiB / 192.2 MB. Hosted on Bunny Stream; hidden draft, NOT in library-videos.json until Mitchell approves.",
+   "videoNote": "Draft (29 Oct): 41 unique chained AI clips, no repeated footage; 15:00 exact; 1080p (upscaled from 720p AI clips) MP4 183.3 MiB / 192.2 MB. Hosted on Bunny Stream; approved by Mitchell 2026-10-29 13:25 GMT and published to members (library-videos.json).",
    "subtitles": "https://vz-e201ca15-f9a.b-cdn.net/72b49255-3a23-47de-9662-ab6381701565/captions/en.vtt",
    "trackCompletion": true,
    "timeline": [

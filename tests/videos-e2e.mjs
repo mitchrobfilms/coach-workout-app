@@ -1,18 +1,19 @@
 // Video class library: member list = GLP1 Life Coach Ava (AI-generated instructor) classes on Bunny Stream, published only after
-// human safety review (first two approved by Mitchell 2026-10-21). Checks tiles, course banner, in-app Bunny player + class info
+// human safety review (first two approved by Mitchell 2026-10-21; Full-Body Bodyweight 2026-10-29). Checks tiles, course banner, in-app Bunny player + class info
 // (AI label in info, never "qualified"), completion tracking, and Cast (web: hidden for Bunny; APK: Android screen-mirror panel).
 import { chromium, devices } from 'playwright-core';
 import fs from 'fs';
 const URL = process.argv[2] || 'http://localhost:8765/', OUT = '/workspace/shots/glp1life', TAG = process.argv[3] || 'videos';
 let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`); if (!c) fail++; };
 const lib = JSON.parse(fs.readFileSync(new globalThis.URL('../library-videos.json', import.meta.url)));
-const GUID = { 'ai-seated-10': '39c7e26d-3e2e-4c21-a611-92b840da3713', 'ai-walk-15': '67ddaa1e-c96b-44bb-bf99-467c3c10c445' };
-ok(lib.videos.length === 2 && lib.videos.every(v => v.source === 'bunny' && GUID[v.id] === v.bunnyId && v.access === 'free' && v.level === 'Beginner'), 'library: 2 free Beginner Bunny classes with the approved GUIDs');
-ok(lib.videos.find(v => v.id === 'ai-seated-10')?.cat === 'chair' && lib.videos.find(v => v.id === 'ai-walk-15')?.cat === 'walking' && lib.categories.chair === 'Chair-based', 'tiles: Chair-based + Walking');
+const GUID = { 'ai-seated-10': '39c7e26d-3e2e-4c21-a611-92b840da3713', 'ai-walk-15': '67ddaa1e-c96b-44bb-bf99-467c3c10c445', 'ai-fullbody-15': '72b49255-3a23-47de-9662-ab6381701565' };
+const LEVEL = { 'ai-seated-10': 'Beginner', 'ai-walk-15': 'Beginner', 'ai-fullbody-15': 'Intermediate' };
+ok(lib.videos.length === 3 && lib.videos.every(v => v.source === 'bunny' && GUID[v.id] === v.bunnyId && v.access === 'free' && v.level === LEVEL[v.id]), 'library: 3 free Bunny classes (2 Beginner, 1 Intermediate) with the approved GUIDs');
+ok(lib.videos.find(v => v.id === 'ai-seated-10')?.cat === 'chair' && lib.videos.find(v => v.id === 'ai-walk-15')?.cat === 'walking' && lib.videos.find(v => v.id === 'ai-fullbody-15')?.cat === 'fullbody' && lib.categories.chair === 'Chair-based' && lib.categories.fullbody === 'Full body', 'tiles: Chair-based + Walking + Full body');
 ok(!JSON.stringify(lib.videos).match(/youtube|archive\.org|Melissa|supersededGuid/i), 'no third-party / superseded entries');
 ok(!/qualified (instructor|coach|trainer)|certified|registered/i.test(JSON.stringify(lib.instructors)) && /AI-generated instructor/.test(lib.instructors['coach-ava'].label), 'Coach Ava: AI label, never called qualified');
 const drafts = JSON.parse(fs.readFileSync(new globalThis.URL('../admin/ai-class-drafts.json', import.meta.url)));
-ok(drafts.classes.filter(c => c.published).length === 2 && drafts.classes.filter(c => c.published).every(c => c.published && /Approved by Mitchell 2026-10-21, published/.test(c.status) && lib.videos.some(v => v.bunnyId === c.bunny.guid)), 'admin drafts marked approved + published, GUIDs match');
+ok(drafts.classes.filter(c => c.published).length === 3 && drafts.classes.filter(c => c.published).every(c => c.published && /Approved by Mitchell 2026-10-(21|29), published/.test(c.status) && lib.videos.some(v => v.bunnyId === c.bunny.guid)), 'admin drafts marked approved + published, GUIDs match');
 const pending = drafts.classes.filter(c => !c.published);
 ok(pending.every(c => /Awaiting safety review/.test(c.status) && !lib.videos.some(v => v.id === c.id || (c.bunny && v.bunnyId === c.bunny.guid))), `unreviewed drafts (${pending.map(c => c.id).join(', ') || 'none'}) are "Awaiting safety review" and NOT in the member library`);
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', args: ['--autoplay-policy=no-user-gesture-required', '--disable-http2'] /* box network coalesces assets.mediadelivery.net onto the iframe host's HTTP/2 connection -> 404s */ }); const ctx = await b.newContext({ ...devices['Pixel 5'], serviceWorkers: 'block' }); const p = await ctx.newPage();
@@ -26,7 +27,7 @@ await p.evaluate(() => window.__kova.switchTab('workouts')); await p.waitForTime
 ok(await p.$eval('#dock [data-tab=workouts]', e => /Fitness/.test(e.textContent)), 'Fitness tab in bottom nav');
 ok(await p.$eval('#fitCourse', e => !!e.offsetParent && /GLP1 Life Course/.test(e.textContent)), 'course banner visible on Fitness');
 const tiles = await p.$$eval('#videoLib .vtile', l => l.map(t => t.textContent.replace(/\s+/g, ' ')));
-ok(tiles.length === 2 && tiles.some(t => /Chair-based/.test(t)) && tiles.some(t => /Walking/.test(t)), 'Fitness shows 2 tiles: ' + tiles.join(' | '));
+ok(tiles.length === 3 && tiles.some(t => /Chair-based/.test(t)) && tiles.some(t => /Walking/.test(t)) && tiles.some(t => /Full body/.test(t)), 'Fitness shows 3 tiles: ' + tiles.join(' | '));
 ok(!(await p.$('#vSoon')), 'no coming-soon card');
 await p.$eval('#videoLib', e => e.scrollIntoView({ block: 'center' })); await p.waitForTimeout(300);
 await p.screenshot({ path: `${OUT}/${TAG}-tiles.png` });
@@ -54,5 +55,10 @@ await p.evaluate(() => { window.__castOpened = 0; window.Capacitor = { isNativeP
 await p.click('#videoLib [data-video="ai-seated-10"]'); await p.waitForTimeout(400);
 ok(!(await p.$eval('#videoCast', e => e.hidden)), 'APK: Cast to TV (screen mirroring) shown'); await p.click('#videoCast'); await p.waitForTimeout(300);
 ok(await p.evaluate(() => window.__castOpened) === 1, 'APK: opens Android Cast panel'); await p.click('#videoClose');
+await p.click('#vBack'); await p.click('#videoLib [data-vcat="fullbody"]'); await p.click('#videoLib [data-video="ai-fullbody-15"]'); await p.waitForTimeout(800);
+ok((await p.$eval('#videoFrame', e => e.src)).includes('iframe.mediadelivery.net/embed/786067/' + GUID['ai-fullbody-15']), 'full-body class opens in-app Bunny embed');
+const fi = await p.textContent('#videoModal'); ok(/Intermediate/.test(fi) && /Full body/.test(fi) && /AI-generated instructor/.test(fi) && (await p.$$eval('.avaex li', l => l.length)) >= 13, 'full-body info: Intermediate, Full body, AI label, 13+ moves');
+await p.evaluate(() => { window.__kova.videoTime = 0; }); await p.waitForFunction(() => window.__kova.videoTime > 3, null, { timeout: 25000 }).catch(() => {});
+const ft = await p.evaluate(() => window.__kova.videoTime || 0); ok(ft > 3, `full-body class is playing (player time ${ft.toFixed(1)} s)`); await p.screenshot({ path: `${OUT}/${TAG}-fullbody-playing.png` }); await p.click('#videoClose');
 ok(!errs.length, 'no page errors ' + errs.join('|'));
 await b.close(); console.log(fail ? `${fail} FAILED` : 'ALL VIDEO LIBRARY TESTS PASSED'); process.exit(fail ? 1 : 0);
