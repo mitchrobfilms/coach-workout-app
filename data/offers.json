@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-01T02:23:46.502Z",
+ "updated": "2026-11-02T02:37:41.421Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-11-01T02:23:46.502Z",
+   "checked": "2026-11-02T02:37:41.421Z",
    "note": "",
    "items": [
     {
@@ -312,168 +312,6 @@
      "protein": 20,
      "kcal100": 200,
      "tag": "pork"
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000512423",
-     "name": "Halloween Churros",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "205 g",
-     "price": 0.99,
-     "was": 2.99,
-     "perKg": 4.8,
-     "promo": "Save 66% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-halloween-churros-000000000000512423",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000682263",
-     "name": "Halloween Mozzarella Sticks",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "200 g",
-     "price": 0.99,
-     "was": 1.99,
-     "perKg": 4.95,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-halloween-mozzarella-sticks-000000000000682263",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000760820",
-     "name": "Breaded Chicken Bats",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "350 g",
-     "price": 1.49,
-     "was": 2.99,
-     "perKg": 4.26,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-breaded-chicken-bats-000000000000760820",
-     "from": null,
-     "to": null,
-     "protein": 20,
-     "kcal100": 150,
-     "tag": "chicken"
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000760833",
-     "name": "Charcoal Bun Beef & Pork Sliders",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "518 g",
-     "price": 2.69,
-     "was": 5.49,
-     "perKg": 5.19,
-     "promo": "Save 51% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-charcoal-bun-beef-pork-sliders-000000000000760833",
-     "from": null,
-     "to": null,
-     "protein": 20,
-     "kcal100": 200,
-     "tag": "pork"
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000760853",
-     "name": "Scream Face Garlic Bread",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "235 g",
-     "price": 0.89,
-     "was": 1.79,
-     "perKg": 3.79,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-scream-face-garlic-bread-000000000000760853",
-     "from": null,
-     "to": null,
-     "protein": 9,
-     "kcal100": 250,
-     "tag": "carb"
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000000764489",
-     "name": "Halloween Mac & Cheese",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "400 g",
-     "price": 0.99,
-     "was": 1.99,
-     "perKg": 2.48,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-halloween-mac-cheese-000000000000764489",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000405015005",
-     "name": "Frankenstein Halloween Macarons",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "96 g",
-     "price": 1.49,
-     "was": 2.99,
-     "perKg": 15.5,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-frankenstein-halloween-macarons-000000000405015005",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000741313001",
-     "name": "Pumpkin Moneybags",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "180 g",
-     "price": 0.99,
-     "was": 1.99,
-     "perKg": 5.5,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-pumpkin-moneybags-000000000741313001",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
-    },
-    {
-     "store": "aldi",
-     "source": "Super Weekly Offers",
-     "id": "000000000741313002",
-     "name": "Bone Crackers",
-     "brand": "HALLOWEEN AAAHMAZING",
-     "size": "180 g",
-     "price": 0.99,
-     "was": 1.99,
-     "perKg": 5.5,
-     "promo": "Save 50% · While Stock Lasts",
-     "url": "https://www.aldi.co.uk/product/halloween-aaahmazing-bone-crackers-000000000741313002",
-     "from": null,
-     "to": null,
-     "protein": null,
-     "kcal100": null,
-     "tag": null
     }
    ],
    "pages": [
@@ -483,13 +321,13 @@
     },
     {
      "path": "/super-weekly-offers",
-     "result": "21 items"
+     "result": "12 items"
     }
    ]
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-11-01T02:23:46.502Z",
+   "checked": "2026-11-02T02:37:41.421Z",
    "note": "",
    "items": [
     {
@@ -3843,6 +3681,24 @@
     {
      "store": "lidl",
      "source": "Leaflet 29/10-04/11",
+     "id": "11112587",
+     "name": "Barbie / Hot Wheels Advent Calendar",
+     "brand": "BARBIE",
+     "size": "",
+     "price": 17.99,
+     "was": null,
+     "perKg": null,
+     "promo": "Leaflet",
+     "url": "https://www.lidl.co.uk/p/barbie-hot-wheels-advent-calendar/p11112587",
+     "from": "2026-10-29",
+     "to": "2026-11-04",
+     "protein": null,
+     "kcal100": null,
+     "tag": null
+    },
+    {
+     "store": "lidl",
+     "source": "Leaflet 29/10-04/11",
      "id": "12238216",
      "name": "Story Book Advent Calendar",
      "brand": "",
@@ -5660,7 +5516,7 @@
     },
     {
      "path": "leaflet 29-10-04-11-lidl-weekly",
-     "result": "111 items"
+     "result": "112 items"
     },
     {
      "path": "leaflet 05-11-11-11-lidl-weekly",
@@ -5670,7 +5526,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-11-01T02:23:46.502Z",
+   "checked": "2026-11-02T02:37:41.421Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
