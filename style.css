@@ -691,7 +691,7 @@ button.danger:active{background:#b42318!important}
 .vmeta{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;text-align:left}
 .vgrid2 .vmini b{font-size:1.05rem;line-height:1.25;white-space:normal;display:block}
 .vgrid2 .vmini small{font-size:.85rem;color:#3d3456}
-.lsheet{max-height:min(78dvh,calc(var(--vh) - 88px - var(--sat) - var(--sab)));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.lsheet{bottom:calc(100px + var(--sab));max-height:calc(var(--vh) - 240px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .dock button{position:relative;min-height:56px;touch-action:manipulation}
 .dock button span{font-size:.68rem}
 .dock button.active{color:#146b38}
@@ -700,6 +700,19 @@ button.danger:active{background:#b42318!important}
 @media (max-width:359px){.dock button span{font-size:.62rem}.vtname{font-size:1.15rem}.studiohero{grid-template-columns:96px 1fr}.studiohero img{width:96px}}
 @media (min-width:700px){.vtiles,.vgrid2,.features{grid-template-columns:1fr 1fr}.medacts{grid-template-columns:1fr 1fr 1fr}.medacts .primary{grid-column:auto}}
 @media (min-width:1100px){.vtiles{grid-template-columns:1fr 1fr 1fr}}
+
+/* Stage 3: More menu as grouped rows */
+.lhead{position:sticky;top:0;z-index:1;display:grid;grid-template-columns:1fr auto;align-items:center;gap:8px;background:#fff;padding-bottom:8px}
+.lhead .lgrab{grid-column:1/-1}
+.lhead h3{margin:0;text-align:left}
+.moreclose{min-height:48px;min-width:72px;margin:0;border-radius:14px;font-weight:800;background:#fff;color:#3a1a5a;border:2px solid #3a1a5a}
+.moregroups{display:flex;flex-direction:column;gap:16px}
+.moregroups h4{margin:0 2px 8px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#5b2a86}
+.moregroups section{display:flex;flex-direction:column;gap:8px}
+.morerow{display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;min-height:64px;margin:0;padding:10px 12px;text-align:left;text-decoration:none;border-radius:16px;background:#fff;border:1px solid #e8e0f1;color:#2a1740}
+.morerow .lctext b{color:#2a1740}
+.morerow .lctext small{color:#3d3456}
+.morerow:focus-visible,.moreclose:focus-visible{outline:3px solid #146b38;outline-offset:3px}
 
 /* Stage 2: Food and Progress, same purple / green language as Home */
 .medhero .medkicker,.fdhero .medkicker{color:#b9f5cf}

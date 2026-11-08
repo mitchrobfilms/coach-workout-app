@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=46">
+<link rel="stylesheet" href="style.css?v=47">
 </head>
 <body>
 <header class="topbar">
@@ -421,29 +421,46 @@
   <button type="button" data-tab="progress"><i aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><path d="M8 15l4-5 3 3 5-7"/></svg></i><span>Progress</span></button>
   <button type="button" class="orb" id="orbBtn" aria-label="More" aria-expanded="false" aria-controls="launcher"><i aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.2" fill="currentColor" stroke="none"/></svg></i><span>More</span></button>
 </nav>
-<div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-label="All sections">
-  <div class="lgrab"></div><h3>More</h3>
-  <div class="lgrid">
-    <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
-    <button type="button" data-tab="prices"><i>💷</i><span>Compare prices</span></button>
-    <button type="button" data-tab="diary"><i>📸</i><span>Photo diary</span></button>
-    <button type="button" data-tab="food"><i>🍽️</i><span>Food check-in</span></button>
-    <button type="button" data-tab="prep"><i>🍱</i><span>Meal plan</span></button>
-    <button type="button" data-tab="classes"><i>🎓</i><span>GLP1 Life Course</span></button><button type="button" data-tab="community"><i>💬</i><span>Community</span></button>
-    <button type="button" data-tab="trainers"><i>🏋️</i><span>Personal Trainers</span></button>
-    <button type="button" data-tab="member"><i>⭐</i><span>Membership</span></button>
-    <button type="button" data-tab="shop"><i>🛒</i><span>Shop</span></button>
-    <button type="button" data-tab="aldi"><i><span class="ostore aldi">Aldi</span></i><span>Aldi</span></button>
-    <button type="button" data-tab="lidl"><i><span class="ostore lidl">Lidl</span></i><span>Lidl</span></button>
-        <button type="button" data-tab="progress" data-lscroll="injCard"><i>💉</i><span>Injection log</span></button>
-    <button type="button" data-tab="progress" data-lscroll="certList"><i>🏆</i><span>Certificates</span></button>
-    <button type="button" data-tab="settings"><i>⚙️</i><span>Settings</span></button>
-  </div></div></div>
+<div class="launcher" id="launcher" hidden><div class="lsheet" role="dialog" aria-modal="true" aria-labelledby="moreTitle">
+  <div class="lhead">
+    <div class="lgrab" aria-hidden="true"></div>
+    <h3 id="moreTitle">More</h3>
+    <button type="button" class="moreclose" id="moreClose">Close</button>
+  </div>
+  <div class="moregroups">
+    <section aria-labelledby="moreHealth"><h4 id="moreHealth">Health</h4>
+      <button type="button" class="morerow" data-tab="progress" data-lscroll="injCard"><span class="lcicon" aria-hidden="true">💉</span><span class="lctext"><b>Injection log</b><small>The full log, reminder and sites. What you type is stored as you entered it.</small></span></button>
+      <button type="button" class="morerow" data-tab="progress" data-lscroll="certList"><span class="lcicon" aria-hidden="true">🏆</span><span class="lctext"><b>Certificates</b><small>Milestones from your saved weigh-ins.</small></span></button>
+    </section>
+    <section aria-labelledby="moreLearn"><h4 id="moreLearn">Learn</h4>
+      <button type="button" class="morerow" data-tab="classes"><span class="lcicon" aria-hidden="true">🎓</span><span class="lctext"><b>GLP1 Life Course</b><small>7 modules and 20 lessons.</small></span></button>
+      <button type="button" class="morerow" data-tab="community"><span class="lcicon" aria-hidden="true">💬</span><span class="lctext"><b>Community</b><small>Posts from other members.</small></span></button>
+      <button type="button" class="morerow" data-tab="trainers"><span class="lcicon" aria-hidden="true">🏋️</span><span class="lctext"><b>Personal Trainers</b><small>Message a trainer. Admins can manage the list from that page.</small></span></button>
+      <a class="morerow" id="moreAdmin" href="admin/" hidden><span class="lcicon" aria-hidden="true">🛠️</span><span class="lctext"><b>Admin</b><small>Trainers, codes and drafts. Shown only for an admin account.</small></span></a>
+    </section>
+    <section aria-labelledby="moreShop"><h4 id="moreShop">Food and shops</h4>
+      <button type="button" class="morerow" data-tab="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Photo diary</b><small>Photo plus a description, or text only.</small></span></button>
+      <button type="button" class="morerow" data-tab="food"><span class="lcicon" aria-hidden="true">🍽️</span><span class="lctext"><b>Food check-in</b><small>A note of what you ate.</small></span></button>
+      <button type="button" class="morerow" data-tab="prep"><span class="lcicon" aria-hidden="true">🍱</span><span class="lctext"><b>Meal plan</b><small>Ideas and a shopping list for your store.</small></span></button>
+      <button type="button" class="morerow" data-tab="shop"><span class="lcicon" aria-hidden="true">📖</span><span class="lctext"><b>Recipes</b><small>Methods, sources and this week's list.</small></span></button>
+      <button type="button" class="morerow" data-tab="prices"><span class="lcicon" aria-hidden="true">💷</span><span class="lctext"><b>Compare prices</b><small>Aldi, Lidl and typical Asda prices.</small></span></button>
+      <button type="button" class="morerow" data-tab="aldi"><span class="lcicon" aria-hidden="true">🏷️</span><span class="lctext"><b>Aldi</b><small>Offers and the Aldi price list.</small></span></button>
+      <button type="button" class="morerow" data-tab="lidl"><span class="lcicon" aria-hidden="true">🏷️</span><span class="lctext"><b>Lidl</b><small>This week, next week, and prices seen in store.</small></span></button>
+    </section>
+    <section aria-labelledby="moreAccount"><h4 id="moreAccount">Account</h4>
+      <button type="button" class="morerow" data-tab="settings"><span class="lcicon" aria-hidden="true">⚙️</span><span class="lctext"><b>Settings</b><small>Account, name and preferences.</small></span></button>
+      <button type="button" class="morerow" data-tab="settings" data-lscroll="helpCard"><span class="lcicon" aria-hidden="true">💬</span><span class="lctext"><b>Help</b><small>support@glp1life.co.uk</small></span></button>
+      <a class="morerow" href="privacy.html"><span class="lcicon" aria-hidden="true">🔒</span><span class="lctext"><b>Privacy</b><small>How your information is stored.</small></span></a>
+      <button type="button" class="morerow" data-tab="member"><span class="lcicon" aria-hidden="true">⭐</span><span class="lctext"><b>Membership</b><small>Included while the app is private. Opens the existing screen for review.</small></span></button>
+    </section>
+  </div>
+  <button type="button" data-ltile="coach" hidden><i>🎙️</i><span>Coach</span></button>
+</div></div>
 <button id="talkBtn" class="talk" hidden>🎙️ Tap to talk</button>
 <button type="button" class="updatetoast" id="updateToast" hidden>🔄 Update available, tap to refresh</button>
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=45"></script>
+<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=46"></script>
 </body>
 </html>

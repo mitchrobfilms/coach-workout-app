@@ -529,12 +529,36 @@ function switchTab(t) {
 const buzz = () => { try { navigator.vibrate?.(12); } catch {} };
 function moveDockInd() { const on = document.querySelector('#dock [data-tab].active'), ind = $('dockInd'); if (!ind) return; if (!on) { ind.style.opacity = 0; return; } const d = $('dock').getBoundingClientRect(), r = on.getBoundingClientRect(); ind.style.opacity = 1; ind.style.width = r.width + 'px'; ind.style.transform = `translateX(${r.left - d.left}px)`; }
 addEventListener('resize', moveDockInd); requestAnimationFrame(moveDockInd);
-function openLauncher(on) { const l = $('launcher'); if (on) { l.hidden = false; requestAnimationFrame(() => l.classList.add('open')); } else { l.classList.remove('open'); setTimeout(() => { if (!l.classList.contains('open')) l.hidden = true; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220); } $('orbBtn').setAttribute('aria-expanded', on); $('orbBtn').classList.toggle('open', on); }
+function moreItems() { return [...$('launcher').querySelectorAll('button, a')].filter(el => !el.hidden && el.getClientRects().length); }
+function openLauncher(on) {
+  const l = $('launcher');
+  if (on) {
+    l.hidden = false;
+    const sheet = l.querySelector('.lsheet'); if (sheet) sheet.scrollTop = 0;
+    requestAnimationFrame(() => { l.classList.add('open'); $('moreClose')?.focus(); });
+  } else {
+    const back = l.contains(document.activeElement);
+    l.classList.remove('open');
+    setTimeout(() => { if (!l.classList.contains('open')) l.hidden = true; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220);
+    if (back) $('orbBtn')?.focus();
+  }
+  $('orbBtn').setAttribute('aria-expanded', on ? 'true' : 'false');
+  $('orbBtn').classList.toggle('open', on);
+}
 window.__reta = Object.assign(window.__reta || {}, { openLauncher });
 document.querySelectorAll('#dock [data-tab]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false); switchTab(b.dataset.tab); scrollTo(0, 0); });
-$('orbBtn').onclick = () => { buzz(); openLauncher($('launcher').hidden || !$('launcher').classList.contains('open')); };
-$('launcher').onclick = e => { if (e.target.id === 'launcher') openLauncher(false); };
-addEventListener('keydown', e => { if (e.key === 'Escape' && !$('launcher').hidden) openLauncher(false); });
+$('orbBtn').onclick = () => { buzz(); const open = $('launcher').hidden || !$('launcher').classList.contains('open'); openLauncher(open); if (open) queueMicrotask(() => { try { renderTrainers(); } catch {} }); };
+$('launcher').onclick = e => { if (e.target.closest('.lsheet')) return; openLauncher(false); };
+$('moreClose').onclick = e => { e.stopPropagation(); openLauncher(false); };
+addEventListener('keydown', e => {
+  const l = $('launcher'); if (!l || l.hidden || !l.classList.contains('open')) return;
+  if (e.key === 'Escape') { e.preventDefault(); openLauncher(false); return; }
+  if (e.key !== 'Tab') return;
+  const items = moreItems(); if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
 document.querySelectorAll('#launcher [data-tab], #launcher [data-ltile]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false);
   if (b.dataset.ltile === 'coach' && !FEATURES.voice) { switchTab('workout'); scrollTo(0, 0); return; }
   if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "voice" or tap Talk'); return; }
@@ -1856,6 +1880,7 @@ async function renderTrainers() {
   catch { trainers = JSON.parse(localStorage.getItem('glp1life.trainers') || '[]'); }
   try { trIsAdmin = cloud.user ? await (await fetch(`${TR_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: trHead(), body: '{}' })).json() === true : false; } catch { trIsAdmin = false; }
   $('trainerAdmin').hidden = !trIsAdmin;
+  if ($('moreAdmin')) $('moreAdmin').hidden = !trIsAdmin;
   $('trainerList').innerHTML = trainers.length ? trainers.map(t => `<div class="card trcard">
     <div class="trtop">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="" class="trphoto">` : '<div class="trphoto ph">🏋️</div>'}<div><h3>${esc(t.name)}</h3>${t.virtual_pt ? '<span class="vbadge">Virtual PT available</span>' : ''}${t.area ? `<p class="small muted">📍 ${esc(t.area)}</p>` : ''}${!t.active ? '<p class="small muted">Hidden from users</p>' : ''}</div></div>
     ${t.specialties?.length ? `<ul class="trtags" aria-label="Specialties">${t.specialties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}

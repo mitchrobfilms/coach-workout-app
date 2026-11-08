@@ -53,8 +53,8 @@ await p.mouse.wheel(0, 3000); await p.waitForTimeout(400); ok(await p.evaluate((
 ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'nav: Home/Fitness/Food/Progress + More');
 const db = await p.$$eval('#dock button', l => l.map(b => b.getBoundingClientRect().height)); ok(db.every(h => h >= 48), 'dock touch targets ' + db.map(Math.round).join(','));
 await p.click('#dock [data-tab=progress]'); await p.waitForTimeout(450);
-await p.click('#orbBtn'); await p.waitForTimeout(400); ok(await p.isVisible('#launcher .lgrid'), 'orb opens launcher');
-const tiles = await p.$$eval('#launcher .lgrid button span:last-child', l => l.map(x => x.textContent)); ok(['Coach', 'Aldi', 'Lidl', 'Compare prices', 'Injection log', 'Certificates', 'Settings', 'Membership'].every(t => tiles.includes(t)), 'launcher tiles: ' + tiles.join(', '));
+await p.click('#orbBtn'); await p.waitForTimeout(400); ok(await p.isVisible('#launcher .moregroups'), 'orb opens launcher');
+const moreTxt = await p.textContent('#launcher'); ok(['Coach', 'Aldi', 'Lidl', 'Compare prices', 'Injection log', 'Certificates', 'Settings', 'Membership'].every(t => moreTxt.includes(t)), 'launcher destinations present');
 if (OUT) await p.screenshot({ path: `${OUT}/nav-launcher-open.png` });
 await p.click('#launcher [data-lscroll=injCard]'); await p.waitForTimeout(700); ok(await p.isVisible('#tab-progress') && await p.isHidden('#launcher'), 'Injection log tile opens progress');
 await p.click('#orbBtn'); await p.waitForTimeout(350); await p.mouse.click(200, 120); await p.waitForTimeout(350); ok(await p.isHidden('#launcher'), 'tap outside closes launcher');
