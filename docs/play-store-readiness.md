@@ -45,7 +45,7 @@ You can also open certificates, the GLP1 Life Course, the member community, and 
 
 GLP1 Life is not a medical device and does not diagnose, treat, cure, or prevent any medical condition. Talk to your GP or prescriber about medical decisions.
 
-Membership payments are not on. Nothing in the app charges a card or starts a Google Play subscription. A complimentary code, if an admin has created one for your account, is not a purchase.
+Membership payments are not on. Nothing in the app charges a card. Google Play purchases stay off. A complimentary code, if an admin has created one for your account, is not a purchase.
 
 Do not add prices, “free”, rankings, or a claim that a person is a licensed instructor. Aldi and Lidl offers are the live shop feeds. Asda figures in the app are labelled typical prices, not a live Asda feed.
 
@@ -72,7 +72,7 @@ Declarations below are a draft for the owner to check. Unknowns are marked. Do n
 | Shop prices | Aldi and Lidl pages and local price files | The app requests public shop data. Member profile fields are not added to those requests in the client. | Retailer logs of the device IP. |
 | Camera preview for form check | Stays on the phone | `getUserMedia` is called with `audio: false`. The privacy page says the video is not uploaded. | |
 | Microphone | Not in the `PLAY=1` manifest | Instructor voice is off unless a local feature flag is set. | Do not declare microphone collection for the Play build unless the uploaded bundle’s manifest still contains `RECORD_AUDIO`. |
-| Payments | Not collected | Stripe checkout returns disabled and refuses a live secret. Play Billing is not in the shell. A client receipt does not grant access. | When billing is eventually turned on, purchase tokens and subscription state will be new Data safety items. |
+| Payments | Not collected | Stripe checkout returns disabled and refuses a live secret. Google Play purchases stay inactive. The Play screen has no checkout link. A client receipt does not grant access. | If a permitted programme is later enrolled, the programme's transaction reports become new Data safety items. |
 | Advertising id, analytics SDK | Not found in app code | No ads SDK in the app source. | GitHub Pages, Supabase, and the WebView may still log IP addresses. Say so only after the owner checks those dashboards. |
 | Crash logs | Not found as a shipped SDK | | Play’s own Android vitals exist after install. That is separate from an in-app crash SDK. |
 
@@ -90,23 +90,61 @@ The shell requests `android.permission.health.READ_STEPS` only, removes the othe
 
 The app does not sell prescription drugs and does not offer a dose calculator. Keep it that way. Do not add peptide or supplier links.
 
-## Testing track, once the account type is known
+## Account
 
-[App testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465) and [Create and set up your app](https://support.google.com/googleplay/android-developer/answer/9859152):
+Mitchell created a new **personal** Google Play developer account on 8 November 2026. This is not an organisation account. Verification status is not known.
 
-- Personal account created after 13 November 2023: production and pre-registration stay off until a **closed** test has at least 12 testers opted in continuously for the preceding 14 days. The owner then applies for production and answers the test, app, and readiness questions. Review is usually seven days or less and can ask for more testing. Internal testing does not meet this requirement. Open testing is available only after production access.
-- Personal account created on or before 13 November 2023: that 12-tester gate does not apply. Confirm the creation date in Play Console.
-- Organization account: the same article does not apply the 12-tester gate. Confirm the account type in Play Console before planning a launch.
+The closed-test rule for personal accounts created after 13 November 2023 therefore applies: [App testing requirements for new personal developer accounts](https://support.google.com/googleplay/android-developer/answer/14151465).
 
-Closed and production tracks need the Data safety form, a privacy policy, the health declaration, content rating, and a signed app bundle. Internal testing can start before setup is finished and, while the app is only on that track, does not need the Data safety form. This change does not create any track.
+- Production and pre-registration stay off until a **closed** test has at least 12 testers opted in continuously for the preceding 14 days. The owner then applies for production and answers the test, app, and readiness questions. Review is usually seven days or less and can ask for more testing.
+- Internal testing does not meet that requirement. Open testing is available only after production access.
+- A tester who drops out before 14 continuous days does not count.
+
+Identity verification, a public developer email, a phone number, and Android device verification are separate requirements for a new personal account. Whether this account has finished them is unknown.
+
+- [Verify your developer identity information](https://support.google.com/googleplay/android-developer/answer/10841920)
+- [Device verification requirements for new developer accounts](https://support.google.com/googleplay/android-developer/answer/14316361)
+- [Get started with Play Console](https://support.google.com/googleplay/android-developer/answer/6112435)
+
+Closed and production tracks need the Data safety form, a privacy policy, the health declaration, content rating, and a signed app bundle. Internal testing can start before app setup is finished and, while the app is only on that track, does not need the Data safety form. This change does not create any track.
 
 Provide Play reviewers with a working demo login when the app is submitted. Do not send a live member password.
+
+## Payments: Stripe is the preference, Play purchases stay off
+
+On 8 November 2026 the owner said all payments will go via Stripe. This branch does not add a Play Billing plugin, does not start a Play purchase, and does not enrol in a billing programme. Stripe checkout also stays off, and a live Stripe key is refused. No charge was created.
+
+### Verified from the official pages read on 8 November 2026
+
+[Payments](https://support.google.com/googleplay/android-developer/answer/9858738) says a Play-distributed app that takes payment for digital features, and it names fitness subscriptions as an example, must use Google Play's billing system unless section 3, 8, or 9 applies. Section 4 forbids leading users inside the app to another payment method. That includes links, webviews, advertisements, and sign-up flows.
+
+[Understanding Google Play's payments policy](https://support.google.com/googleplay/android-developer/answer/10281818) says email and other channels **outside** the app may describe other ways to pay. Inside the app, that steering is not allowed unless an enrolled programme applies. The same page says a consumption-only app does not sell digital access inside the app, and a person can sign in and use something already paid for elsewhere. It also says a consumption-only app may mention a website purchase **without a direct link**. Play Billing is described as unavailable only in listed countries, and the United Kingdom is not described that way.
+
+[Understanding user choice billing](https://support.google.com/googleplay/android-developer/answer/13821247) names the United Kingdom. For the UK, the published category is a non-gaming mobile or tablet app. The programme adds another billing system **alongside** Google Play Billing. The page states a 10% service fee on the first US$1 million of annual earnings and on recurring transactions when the user pays with the alternative system. Other transactions are referred to a separate fee article. Enrolment is in Play Console, with programme terms and the alternative billing APIs. The same page says a standalone alternative billing system, without also offering Play Billing, is an option for the European Economic Area. Its API table lists "alternative billing only" for the EEA, not the United Kingdom.
+
+[Enrolling in the billing choice programme](https://support.google.com/googleplay/android-developer/answer/17161464) lists the United Kingdom with an availability date of 30 June 2026. It says users must be offered Google Play Billing alongside either in-app alternative billing or external web links. Where that programme's in-app alternative fee table applies, the published rates are 10% for auto-renewing subscriptions, 10% on the first US$1 million, 20% for other transactions from new installs, and 25% for other transactions from existing installs. Authorised transactions are reported within 24 hours through the billing choice APIs. Enrolment on that page is Settings > Billing choice, accept the terms, integrate the APIs, opt in each app, and provide management URLs. The table retrieved on 8 November 2026 did not fill the United Kingdom cells under "Alternative billing" and "External web links".
+
+[Learn about Google Play and alternative billing systems](https://support.google.com/googleplay/answer/11174377) tells users in the United Kingdom that they have a choice of billing systems. It says an alternative system without that choice is described for EEA users.
+
+None of those pages says a UK app may use Stripe as the only in-app payment method. User choice and the billing choice programme both keep Google Play Billing in the choice. Alternative billing without that choice is the EEA programme, not the UK one.
+
+### Unknown for this account
+
+- Whether Play Console will offer this new personal account the United Kingdom under user choice, external web links, or alternative billing only. The published pages do not put the UK in the alternative-billing-only list.
+- Whether enrolment can start before identity, phone, and device verification are complete.
+- Whether this app would be accepted into the non-gaming user-choice category. The published category fits a non-gaming mobile app. Acceptance is a Console decision.
+- The Apps Experience fee reduction, with enrolment from 1 September 2026 and UK users from 30 September 2026, is a fee programme. It does not remove the Play Billing choice. Whether this app qualifies is unknown.
+- Stripe's own processing fees are not a Google Play fee.
+
+### What stays in this build
+
+The Play install remains consumption-only. It does not sell a membership, it does not link to Stripe, and it does not use the consumption-only sentence that mentions a website purchase. Complimentary codes are grants, not card charges. Website Stripe, outside the Play app, is the owner's stated payment method and is not connected to a live charge here. Turning on Play Billing, or adding an in-app Stripe link, waits until the owner has enrolled in a programme Console actually offers and has accepted that programme's requirement to show Play Billing next to Stripe.
 
 ## Release checklist
 
 Owner actions before any upload:
 
-1. Confirm the Play developer account type and, for a personal account, whether it was created after 13 November 2023.
+1. The account is a new personal account created on 8 November 2026. Finish identity, email, phone, and Android device verification, then run the closed test of 12 testers for 14 continuous days before applying for production. Verification status is still unknown.
 2. Confirm `com.glp1life.app` is the package name to keep forever.
 3. Create the app in Play Console. Do not upload a bundle yet.
 4. Create an upload key outside this repo (RSA 2048-bit or stronger). Let Google generate the app signing key on the first release ([Use Play App Signing](https://support.google.com/googleplay/android-developer/answer/9842756)). New apps are enrolled in Play App Signing. Register every Google-held signing certificate fingerprint, including quantum-ready hybrid keys if Console shows them, in Supabase, Google, and `.well-known/assetlinks.json`. The fingerprint already in that file has not been matched to a Play signing key.
@@ -116,8 +154,8 @@ Owner actions before any upload:
 8. Install Android SDK 36 and run `PLAY=1 ./android-build/build.sh`. Inspect the merged manifest for `targetSdkVersion` 36, `READ_STEPS` only, and no `REQUEST_INSTALL_PACKAGES` or `READ_MEDIA_IMAGES`. [Photo and video permissions](https://support.google.com/googleplay/android-developer/answer/9888170) need a declaration if `READ_MEDIA_IMAGES` is still present. Also check native libraries for [16 KB page size](https://developer.android.com/guide/practices/page-sizes).
 9. Sign the bundle with the upload key on a machine the owner controls. Replace the asset-links fingerprint only after Play shows the real signing certificates.
 10. Put demo screenshots, the listing text above, and a demo account in the draft listing. Do not use live member data.
-11. If the account needs the new-personal-account test, run a closed test with 12 opted-in testers for 14 continuous days, then apply for production. If it does not, internal testing is still the right first upload when the owner is ready.
-12. Turn on Play Billing only after a subscription and base plan exist, license testers are set, and the server verifies `purchaseToken` with the Play Developer API. A client receipt must not grant access. There is no Play Billing plugin in this shell. Do not add a website checkout link inside the Play app ([Payments](https://support.google.com/googleplay/android-developer/answer/9858738), [FAQ](https://support.google.com/googleplay/android-developer/answer/10281818)).
+11. Run that closed test only after the owner chooses to upload. Internal testing can come first and does not replace the 12-tester closed test.
+12. Leave Google Play purchases off. Do not add an in-app Stripe link unless the owner enrols in a programme Console shows for the United Kingdom and accepts that programme's requirement to offer Play Billing beside Stripe. Website Stripe stays outside the Play app, and it is not live in this branch.
 
 ## Official pages
 
@@ -139,4 +177,10 @@ Owner actions before any upload:
 - Play Billing overview, updated 2026-10-23 UTC. https://developer.android.com/google/play/billing
 - Play Billing security, updated 2026-10-20 UTC. https://developer.android.com/google/play/billing/security
 - Payments policy. https://support.google.com/googleplay/android-developer/answer/9858738
-- Payments FAQ, including where Play Billing is required. https://support.google.com/googleplay/android-developer/answer/10281818
+- Payments FAQ, including consumption-only apps and off-app email. https://support.google.com/googleplay/android-developer/answer/10281818
+- User choice billing, including the UK and the EEA-only standalone option. https://support.google.com/googleplay/android-developer/answer/13821247
+- Billing choice programme, fees, and 24-hour reporting. https://support.google.com/googleplay/android-developer/answer/17161464
+- Alternative billing enrolment screen, where the country list depends on the option selected. https://support.google.com/googleplay/android-developer/answer/14245100
+- Consumer explanation of UK choice versus EEA standalone billing. https://support.google.com/googleplay/answer/11174377
+- New personal account identity verification. https://support.google.com/googleplay/android-developer/answer/10841920
+- Android device verification for new personal accounts. https://support.google.com/googleplay/android-developer/answer/14316361

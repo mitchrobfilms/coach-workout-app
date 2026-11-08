@@ -54,7 +54,7 @@ ok(acceptTokenOnce('tok', tokens) && !acceptTokenOnce('tok', tokens), 'the same 
 ok(playConfigStatus({}).checkout === 'disabled', 'Play billing stays off without Console setup');
 
 const play = describeSurface(true);
-ok(play.provider === 'google_play' && play.checkout === 'disabled' && play.stripeLink === false && !/https?:\/\//.test(play.reason), 'Play build does not link to Stripe');
+ok(play.provider === 'google_play' && play.checkout === 'disabled' && play.playBilling === 'inactive' && play.stripeLink === false && !/https?:\/\//.test(play.reason), 'Play purchases stay inactive and do not link to Stripe');
 const web = describeSurface(false);
 ok(web.provider === 'stripe' && web.checkout === 'disabled' && web.stripeLink === false, 'web checkout stays off');
 ok(hasRealPremium(ent, now) && !hasRealPremium({ kind: 'none' }, now), 'real premium is separate from preview');

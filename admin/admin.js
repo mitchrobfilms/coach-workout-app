@@ -46,7 +46,7 @@ document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { docum
 function paintPayStatus() {
   const s = stripeCheckoutStatus(), p = playConfigStatus();
   const el = $('stripeStatus'); if (!el) return;
-  el.innerHTML = `<p><b>Stripe sandbox:</b> checkout ${esc(s.checkout)}. ${s.live_key_refused || s.reason === 'live_key_refused' ? 'A live key is refused.' : 'No sandbox key is configured.'} Tax is off.</p><p><b>Google Play:</b> billing ${esc(p.checkout)}. ${esc(p.reason)}. The Play app must not be sent to Stripe.</p>`;
+  el.innerHTML = `<p><b>Stripe sandbox:</b> checkout ${esc(s.checkout)}. ${s.live_key_refused || s.reason === 'live_key_refused' ? 'A live key is refused.' : 'No sandbox key is configured.'} Tax is off.</p><p><b>Google Play purchases:</b> ${esc(p.checkout)} (${esc(p.reason)}). They stay off. This screen does not link to a Stripe checkout.</p>`;
 }
 let accessRows = [];
 function drawAccess() {

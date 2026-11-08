@@ -1906,9 +1906,9 @@ function paintBilling() {
   const mode = $('billingMode'), note = $('billingNote'), setup = $('billingSetup');
   if (!mode) return;
   if (s.provider === 'google_play') {
-    mode.textContent = 'Google Play Billing is the payment path for this app. It is not configured, so nothing can be bought here.';
-    note.textContent = 'Stripe Checkout is not offered in the Play-distributed app. A complimentary code, if you already have one, is not a purchase and does not start a Play subscription.';
-    setup.textContent = 'Still needed before any Play test: confirmed package name, a subscription and base plan in Play Console, license testers on an internal track, and a service account for server verification and real-time notifications.';
+    mode.textContent = 'No payment is taken in this install. Google Play purchases stay off.';
+    note.textContent = 'Stripe is not offered here, and there is no link to a checkout. A complimentary code, if you already have one, is not a purchase.';
+    setup.textContent = 'The owner prefers Stripe for payments. Offering Stripe inside this Play install is waiting on a Play policy decision. Nothing here starts a charge.';
   } else {
     mode.textContent = 'Web payments are planned with Stripe hosted Checkout in sandbox mode. Checkout is off. No sandbox secret or price is configured, and the live Pepvexia account is not used.';
     note.textContent = 'The prices shown on the old cards are not a confirmed charge. Tax is not turned on. A complimentary code is separate and does not start a paid subscription.';
