@@ -278,8 +278,8 @@ body{padding-bottom:calc(84px + var(--sab))}
 .stat2 small{color:var(--mut);font-size:.85rem}.stat2 b{font-size:1.45rem;line-height:1.2;overflow-wrap:anywhere}.stat2.hl b{color:var(--teal)}.stat2.wide{grid-column:1/-1}
 .stat2 .good{color:var(--teal)}.stat2 .up{color:var(--warn)}
 .bar{height:14px;background:rgba(255,255,255,.1);border-radius:999px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--teal2),var(--teal));border-radius:999px}
-.wchart{width:100%;height:auto;display:block}.wchart .line{fill:none;stroke:var(--teal);stroke-width:3;stroke-linejoin:round}.wchart .dot{fill:var(--teal)}
-.wchart .grid line{stroke:rgba(255,255,255,.12)}.wchart text{fill:var(--mut);font-size:11px}.wchart .goal{stroke:var(--warn);stroke-dasharray:6 5;stroke-width:2}.wchart .goaltxt{fill:var(--warn)}
+.wchart{width:100%;height:auto;display:block}.wchart .line{fill:none;stroke:#5b2a86;stroke-width:3;stroke-linejoin:round}.wchart .dot{fill:#1f8a4c}
+.wchart .grid line{stroke:#e4d8f2}.wchart text{fill:#3d3456;font-size:12px}.wchart .goal{stroke:#146b38;stroke-dasharray:6 5;stroke-width:2}.wchart .goaltxt{fill:#146b38;font-weight:700}
 .milestones{list-style:none;padding:0;margin:0}.milestones li{padding:10px 0;border-bottom:1px solid var(--line);font-size:1.02rem}.milestones li.done{color:var(--teal);font-weight:700}
 .wlist li{align-items:center;gap:8px}.wbtns{display:flex;gap:6px}.wbtns button{min-height:48px;padding:8px 12px}
 .wedit{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%}.wedit input{width:100%}
@@ -580,7 +580,7 @@ button.danger:active{background:#b42318!important}
 .wrowck{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:10px 2px;margin:0}.wrowck:first-child{border-top:0}
 .wrowck .wi{font-size:1.3rem}.wrowck .wt{flex:1;display:flex;flex-direction:column}.wrowck small{color:var(--mut)}
 .wrowck .wtick{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:var(--lav);color:var(--mut);font-weight:900}.wrowck.done .wtick{background:var(--green);color:#fff}
-.rcredit{font-size:11px;color:#6b6478;margin:14px 0 0;line-height:1.4}.rcredit a{color:inherit;text-decoration:underline}
+.rcredit{font-size:.9rem;color:#3d3456;margin:14px 0 0;line-height:1.45}.rcredit a{color:#3a1a5a;font-weight:700;text-decoration:underline}
 .smash{display:inline-block;font-size:.7rem;font-weight:800;color:#fff;background:var(--green,#2fa36b);border-radius:99px;padding:1px 7px;vertical-align:middle}
 .mini.water .wtop>i{font-size:1.3rem}.mini.water .wtop{align-items:flex-start}#waterL{font-size:1.1rem;white-space:nowrap}#waterL .smash{display:block;width:max-content;margin-top:3px}
 #stepsCard{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:6px}#stepsCard>span{display:flex;flex-direction:column}
@@ -700,3 +700,64 @@ button.danger:active{background:#b42318!important}
 @media (max-width:359px){.dock button span{font-size:.62rem}.vtname{font-size:1.15rem}.studiohero{grid-template-columns:96px 1fr}.studiohero img{width:96px}}
 @media (min-width:700px){.vtiles,.vgrid2,.features{grid-template-columns:1fr 1fr}.medacts{grid-template-columns:1fr 1fr 1fr}.medacts .primary{grid-column:auto}}
 @media (min-width:1100px){.vtiles{grid-template-columns:1fr 1fr 1fr}}
+
+/* Stage 2: Food and Progress, same purple / green language as Home */
+.medhero .medkicker,.fdhero .medkicker{color:#b9f5cf}
+.foodhero{margin:0 0 14px}
+.hublist .linkcard{min-height:76px;border-radius:18px}
+.hublist .lcicon{background:#efe7f8}
+#tab-food textarea{min-height:72px;font-size:16px;border-radius:14px}
+#tab-food #analyseBtn{min-height:52px;border-radius:16px}
+#tab-food .streakrow .stat{min-height:84px}
+.fdhero{display:block;background:#3a1a5a;color:#fff;border-left:6px solid #1f8a4c;border-radius:22px;padding:18px 16px;margin:0 0 14px}
+.fdhero h2,.fdhero p{color:#fff;opacity:1}
+.fdhero h2{margin:2px 0 6px;font-size:1.35rem}
+.fdhero p{margin:0;font-size:.98rem;line-height:1.4;color:#f4eefe}
+.fdcard{padding:16px;border-radius:18px}
+.fdnav button{min-width:48px;min-height:48px;border-radius:14px;font-weight:800}
+.fdnav b{font-size:1.15rem}
+.fdtot{gap:8px}
+.fdtot>div{background:#f6f1fb;border-radius:14px;padding:10px 4px}
+.fdtot>div.p{background:#e5f6ec}
+.fdtot b{font-size:1.05rem;color:#2a1740}
+.fdtot>div.p b{color:#146b38}
+.fdtot small{color:#3d3456;font-size:.78rem}
+.fdest{color:#2a1740}
+.fdbtns{gap:10px}
+.fdbtns label,.fdbtns .fdtype{min-height:52px;font-size:1rem;border-radius:14px}
+.fdbtns label.primary{background:#3a1a5a}
+.fdrow{min-height:84px;padding:12px;border-radius:18px;border:1px solid var(--line)}
+.fdthumb{width:72px;height:72px;flex-basis:72px;border-radius:14px}
+.fdmac{color:#146b38;font-size:.95rem}
+.fdnums{grid-template-columns:repeat(3,1fr);gap:8px}
+.fdnums label{font-size:.8rem;color:#3d3456;font-weight:700}
+.fdnums input{min-height:48px;font-size:16px;border-radius:10px}
+.fdnums label:nth-child(3){color:#146b38}
+.fdnums label:nth-child(3) input{border:2px solid #146b38}
+.fdname{min-height:48px;font-size:16px}
+.fdx{min-width:48px;min-height:48px}
+.fdportion button{min-height:48px}
+.fdmeal select{min-height:48px;font-size:16px}
+.fdnote textarea,#fdEdNote,#fdNote{font-size:16px;min-height:72px}
+.fdrecheck{min-height:48px;font-size:1rem}
+.fdact button{min-height:48px;font-size:1rem}
+.fdsheet .sheet{border-radius:22px 22px 0 0}
+#tab-progress button{min-height:48px}
+#tab-progress .segtabs{padding:5px;border-radius:16px;background:#efe7f8}
+#tab-progress .segtabs button{min-height:48px;color:#3a1a5a}
+#tab-progress .segtabs button.on{background:#146b38;color:#fff}
+#tab-progress > .card,#progSummary .stat2{border-radius:18px}
+#progSummary .stat2{padding:14px;min-height:88px;background:#fff}
+#progSummary .stat2.hl{background:#f3fbf6;border-color:#b7e4c7;border-left:6px solid #1f8a4c}
+#progSummary .stat2.hl b{color:#146b38}
+#progChartCard{border-left:6px solid #5b2a86}
+#injCard{border-left:6px solid #5b2a86}
+#injCard input,#injCard select,#injCard textarea,#tab-progress #goalInput,#tab-progress #heightInput,#waterGoalSel{min-height:48px;font-size:16px}
+#tab-progress .weightform{border:0;background:transparent;padding:0}
+#weightInput{min-height:56px;font-size:1.5rem;border:2px solid #d9cce8;border-radius:14px}
+#tab-progress .seg button.on{background:#146b38;color:#fff;border-color:#146b38}
+#tab-progress h2.pagehead{margin-top:18px}
+#tab-progress > h2.pagehead:first-of-type{margin-top:6px}
+#progWorkouts{margin-top:22px}
+.recipe{border-radius:18px}
+.recipe h4{font-size:1.15rem;color:#2a1740}

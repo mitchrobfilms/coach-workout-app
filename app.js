@@ -1713,8 +1713,9 @@ function renderHome() {
 }
 // Home tile: today's food from the photo diary (estimates)
 function renderFoodToday() {
-  const el = $('foodTodayCard'); if (!el) return; const t = store.get('cloud.foodDays', {})[todayKey()], goal = 90, pct = t ? Math.min(100, Math.round(t.protein_g / goal * 100)) : 0;
-  el.innerHTML = `<div class="ftrow"><i>🍽️</i><span class="ftmain"><small>Today's food <em>estimate</em></small><b>${t ? `${t.kcal.toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein` : 'No meals logged yet'}</b><small>${t ? `${t.n} meal${t.n === 1 ? '' : 's'} · protein guide ~${goal} g a day` : 'Snap a meal for an instant estimate'}</small></span><span class="ftcta">📸</span></div>${t ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
+  const el = $('foodTodayCard'); const t = store.get('cloud.foodDays', {})[todayKey()], goal = 90, pct = t ? Math.min(100, Math.round(t.protein_g / goal * 100)) : 0;
+  if (el) el.innerHTML = `<div class="ftrow"><i>🍽️</i><span class="ftmain"><small>Today's food <em>estimate</em></small><b>${t ? `${t.kcal.toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein` : 'No meals logged yet'}</b><small>${t ? `${t.n} meal${t.n === 1 ? '' : 's'} · protein guide ~${goal} g a day` : 'Snap a meal for an instant estimate'}</small></span><span class="ftcta">📸</span></div>${t ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
+  const hub = $('foodHubToday'); if (hub) hub.textContent = t ? `${t.n} meal${t.n === 1 ? '' : 's'} logged today · about ${Math.round(t.kcal).toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein (estimate)` : 'No meals logged yet today';
 }
 const sortInjL = l => l.slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 // Track: segment tabs + body site map
@@ -1821,7 +1822,7 @@ function markDock(t) {
   document.querySelectorAll('#dock [data-tab]').forEach(b => { const on = b.dataset.tab === dock; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   const orb = $('orbBtn'); if (!orb) return; orb.classList.toggle('active', !dock); if (dock) orb.removeAttribute('aria-current'); else orb.setAttribute('aria-current', 'page');
 }
-switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); markDock(t); };
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); markDock(t); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);

@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=45">
+<link rel="stylesheet" href="style.css?v=46">
 </head>
 <body>
 <header class="topbar">
@@ -153,7 +153,12 @@
 <!-- FOOD HUB -->
 <section id="tab-foodhub" class="tab">
   <h2 class="pagehead">Food</h2>
-  <p class="studioled">Photo checks, recipes and Aldi and Lidl prices. Everything here is included. Nothing is locked.</p>
+  <div class="medhero foodhero">
+    <p class="medkicker">Meals</p>
+    <h3>Photo, text or both</h3>
+    <p class="meddose" id="foodHubToday">No meals logged yet today</p>
+    <p class="mednote">Add a photo plus a description, or type the meal on its own. Correct protein and calories yourself, then save. Recipes, Aldi and Lidl stay included.</p>
+  </div>
   <div class="hublist" id="foodHub">
     <button type="button" class="linkcard" data-goto="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Photo diary</b><small>Photo plus a description, or text only. Correct protein yourself and the total updates.</small></span></button>
     <button type="button" class="linkcard" data-goto="food"><span class="lcicon" aria-hidden="true">🍽️</span><span class="lctext"><b>Food check-in</b><small>Jot down what you ate, without weighing it.</small></span></button>
@@ -166,7 +171,9 @@
 </section>
 <!-- FOOD TAB -->
 <section id="tab-food" class="tab">
-  <button type="button" class="linkcard fdcta" data-goto="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Food photo diary</b><small>Snap a meal for an instant calorie and protein estimate</small></span></button>
+  <h2 class="pagehead">Food check-in</h2>
+  <p class="studioled">A note of what you ate, without weighing it. For an estimate you can edit, use the photo diary.</p>
+  <button type="button" class="linkcard fdcta" data-goto="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Food photo diary</b><small>Photo plus a description, or text only. Correct protein yourself.</small></span></button>
   <button class="primary big shopcta" data-goshop>🛒 What to buy this week: recipes and shopping lists</button>
   <div class="card"><p>What did you eat today? Just jot it down, no need to weigh anything.</p></div>
   <div class="streakrow"><div class="stat"><div class="num" id="foodStreak">0</div><div>day streak</div></div><div class="stat"><div class="num" id="foodScoreToday">–</div><div>today's score /10</div></div></div>
@@ -210,7 +217,8 @@
 
 <!-- MEAL PREP TAB -->
 <section id="tab-prep" class="tab">
-  <h2 class="pagehead">Meal Plan Builder</h2>
+  <h2 class="pagehead">Meal plan</h2>
+  <p class="studioled">High-protein ideas for the store you pick. Recipe sources stay on each recipe. This is general food guidance, not medical advice.</p>
   <div class="segtabs" id="mealSeg"><button type="button" class="on" data-mseg="myplan">My Plan</button><button type="button" data-mseg="glpCard">Build Plan</button><button type="button" data-mseg="shop">Shopping List</button></div>
   <div class="card" id="myPlan"></div>
   <div class="shophead"><h2>🛒 Build a batch-prep plan &amp; shopping list</h2><p class="small muted">For people on GLP-1 medicines (e.g. retatrutide, semaglutide, tirzepatide) or anyone who wants high-protein, small-portion meals. General healthy-eating guidance only, not medical or dosing advice.</p></div>
@@ -315,7 +323,7 @@
 <!-- PROGRESS TAB -->
 <section id="tab-progress" class="tab">
   <h2 class="pagehead">Progress</h2>
-  <p class="studioled">Weight, the injection log you type in yourself, reminders and certificates. This is a log only. Follow your GP or prescriber. No dosing advice.</p>
+  <p class="studioled">Weigh-ins, the injection log you type in, your water goal and completed workouts. Charts use only what you have saved. This is a log only. Follow your GP or prescriber. No dosing advice.</p>
   <div class="segtabs" id="trackSeg"><button type="button" class="on" data-seg="progSummary">Weight</button><button type="button" data-seg="injCard">Injections</button><button type="button" data-seg="bodySites">Body Sites</button></div>
   <div id="progSummary"></div>
   <div class="card"><h3>Log a weigh-in</h3>
@@ -361,8 +369,11 @@
   <div class="card"><h3>🏅 Milestones</h3><ul class="milestones" id="milestoneList"></ul></div>
   <div class="card"><h3>All weigh-ins</h3><p class="small muted">Tap Edit to fix a typo, or Delete to remove an entry.</p><ul class="list wlist" id="weightList"></ul></div>
   <div id="backupCard" hidden aria-hidden="true"><p id="saveStatus"></p><button type="button" id="backupBtn"></button><button type="button" id="restoreBtn"></button><input type="file" id="restoreFile" hidden><p id="lastBackup"></p></div>
-  <h2>Workouts</h2><ul class="list" id="sessionList"></ul>
-  <h2>Food check-ins</h2><ul class="list" id="foodList"></ul>
+  <h2 class="pagehead" id="progWorkouts">Workouts</h2>
+  <p class="studioled">Sessions and completed classes you have logged.</p>
+  <ul class="list" id="sessionList"></ul>
+  <h2 class="pagehead">Food check-ins</h2>
+  <ul class="list" id="foodList"></ul>
 </section>
 
 <!-- SETTINGS TAB -->
@@ -433,6 +444,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=44"></script>
+<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=45"></script>
 </body>
 </html>
