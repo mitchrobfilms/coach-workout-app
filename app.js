@@ -22,8 +22,8 @@ import { welcomeLine, stepStartLines, halfwayLine, tenLine, countInLine, layerLi
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
-import { paymentSurface, startPlatformPurchase } from './billing.js';
-import { withPreview } from './membership-core.js';
+import { paymentSurface, startPlatformPurchase, restorePlatformPurchases } from './billing.js';
+import { withPreview, activeMembership } from './membership-core.js';
 
 const MP_VER = '1.1.1';
 const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
@@ -1901,14 +1901,21 @@ function shareUI(p) {
     box.querySelectorAll('[data-share]').forEach(cb => cb.onchange = async () => { const s = { ...p.share, [cb.dataset.share]: cb.checked };
       try { p.share = await rpcF('set_share', { s }); toast(cb.checked ? 'Sharing on' : 'Sharing off'); shareUI(p); } catch (x) { cb.checked = !cb.checked; toast(x.message); } }); });
 }
-function paintBilling() {
-  const s = paymentSurface();
+function paintBilling(state) {
+  const fixture = window.__kova?.playFixture || null;
+  const entitled = activeMembership(state);
+  const s = paymentSurface({ configured: fixture?.configured === true, entitled, env: fixture?.env || {} });
   const mode = $('billingMode'), note = $('billingNote'), setup = $('billingSetup');
   if (!mode) return;
+  const actions = $('playActions');
+  if (actions) actions.hidden = s.provider !== 'google_play';
+  if ($('playSubscribe')) { $('playSubscribe').hidden = s.checkout === 'already_entitled'; $('playSubscribe').disabled = s.checkout !== 'ready'; }
+  if ($('playRestore')) $('playRestore').disabled = s.checkout === 'not_configured';
+  if ($('playProduct')) $('playProduct').textContent = fixture?.fixture ? `Fixture product: ${fixture.productId}. This is not a Play Console id.` : '';
   if (s.provider === 'google_play') {
-    mode.textContent = 'No payment is taken in this install. Google Play purchases stay off.';
+    mode.textContent = s.checkout === 'already_entitled' ? `Membership is already on this account (${s.source}). Google Play will not start another subscription.` : s.checkout === 'ready' ? 'Google Play Billing can start a subscription once the server credentials and Console product are confirmed.' : 'Google Play Billing is the payment method for this install. Purchases stay unavailable until the Console subscription id and the server credentials are set.';
     note.textContent = 'Stripe is not offered here, and there is no link to a checkout. A complimentary code, if you already have one, is not a purchase.';
-    setup.textContent = 'The owner prefers Stripe for payments. Offering Stripe inside this Play install is waiting on a Play policy decision. Nothing here starts a charge.';
+    setup.textContent = fixture?.fixture ? 'This screen is a labelled fixture. Google has not been called and no purchase has completed.' : 'No Play Console product id is set in this build. No test purchase has been run.';
   } else {
     mode.textContent = 'Web payments are planned with Stripe hosted Checkout in sandbox mode. Checkout is off. No sandbox secret or price is configured, and the live Pepvexia account is not used.';
     note.textContent = 'The prices shown on the old cards are not a confirmed charge. Tax is not turned on. A complimentary code is separate and does not start a paid subscription.';
@@ -1927,6 +1934,11 @@ function paintPreview(state) {
   if (banner) banner.textContent = `Admin preview: viewing as ${view.preview === 'free' ? 'Free' : 'Premium'}. Your real access is unchanged, and the app stays unlocked.`;
   if (line) line.textContent = view.preview === 'free' ? 'The Premium column is only highlighted as a preview. Nothing is locked.' : 'The Premium column is highlighted. This is still not a charge.';
 }
+async function verifyPlayToken(token) {
+  const r = await fetch(`${TR_URL}/functions/v1/play-verify`, { method: 'POST', headers: trHead(), body: JSON.stringify({ purchaseToken: token }) });
+  const j = await r.json().catch(() => ({}));
+  return { ...j, granted: j.granted === true && j.fixture !== true };
+}
 async function renderMembership() {
   paintBilling();
   const msg = $('accessCodeMsg');
@@ -1934,6 +1946,7 @@ async function renderMembership() {
   try {
     const s = await rpcF('membership_state');
     paintPreview(s);
+    paintBilling(s);
     if (msg && !msg.dataset.hold) msg.textContent = s?.complimentary ? 'A complimentary grant is already on this account. It is not a paid subscription.' : 'No code exists until an admin creates one.';
   } catch { if ($('adminPreview')) $('adminPreview').hidden = true; }
 }
@@ -1970,6 +1983,15 @@ for (const [id, mode] of [['previewFree', 'free'], ['previewPremium', 'premium']
     catch (x) { const el = $('previewState'); if (el) el.textContent = x.message || 'Preview is only available to an admin.'; }
   });
 }
+$('playSubscribe')?.addEventListener('click', async () => {
+  const fixture = window.__kova.playFixture || {};
+  const result = await startPlatformPurchase({ productId: fixture.productId || '', basePlanId: fixture.basePlanId || '', userId: cloud.user?.id || '', verify: verifyPlayToken });
+  if ($('playResult')) $('playResult').textContent = result.reason === 'pending' ? 'Payment is pending. Access has not been granted. This is not a completed purchase.' : result.granted ? 'Google verified this purchase.' : (result.reason || 'Purchase was not granted.');
+});
+$('playRestore')?.addEventListener('click', async () => {
+  const result = await restorePlatformPurchases({ verify: verifyPlayToken });
+  if ($('playResult')) $('playResult').textContent = result.granted ? 'A purchase was restored after server verification.' : 'No verified purchase was restored.';
+});
 window.__kova.startPlatformPurchase = startPlatformPurchase;
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 

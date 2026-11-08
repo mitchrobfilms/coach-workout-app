@@ -56,9 +56,23 @@ mkdir -p android/app/src/main/res/values
 grep -q health_connect_privacy_policy_url android/app/src/main/res/values/strings.xml || sed -i "s#</resources>#    <string name=\"health_connect_privacy_policy_url\">${APP_ORIGIN}privacy.html</string>\n</resources>#" android/app/src/main/res/values/strings.xml
 # Sideload builds can install a GitHub APK. Play builds keep cast settings only and must not ship that installer.
 J=android/app/src/main/java/com/glp1life/app
-if [ "$PLAY" = 1 ]; then cp "$ROOT/android-build/native/ApkUpdaterPlay.java" $J/ApkUpdaterPlugin.java
+if [ "$PLAY" = 1 ]; then
+  cp "$ROOT/android-build/native/ApkUpdaterPlay.java" $J/ApkUpdaterPlugin.java
+  cp "$ROOT/android-build/native/PlayBillingPlugin.java" $J/PlayBillingPlugin.java
 else cp "$ROOT/android-build/native/ApkUpdaterPlugin.java" $J/; fi
-cat > $J/MainActivity.java <<X
+if [ "$PLAY" = 1 ]; then cat > $J/MainActivity.java <<'X'
+package com.glp1life.app;
+import android.os.Bundle;
+import com.getcapacitor.BridgeActivity;
+public class MainActivity extends BridgeActivity {
+  @Override public void onCreate(Bundle b) {
+    registerPlugin(ApkUpdaterPlugin.class);
+    registerPlugin(PlayBillingPlugin.class);
+    super.onCreate(b);
+  }
+}
+X
+else cat > $J/MainActivity.java <<'X'
 package com.glp1life.app;
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
@@ -66,6 +80,7 @@ public class MainActivity extends BridgeActivity {
   @Override public void onCreate(Bundle b) { registerPlugin(ApkUpdaterPlugin.class); super.onCreate(b); }
 }
 X
+fi
 mkdir -p android/app/src/main/res/xml; cat > android/app/src/main/res/xml/file_paths.xml <<X
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android"><external-path name="my_images" path="." /><cache-path name="my_cache_images" path="." /><files-path name="files" path="." /></paths>
@@ -74,6 +89,9 @@ sed -i "s/minSdkVersion = [0-9]*/minSdkVersion = 26/; s/compileSdkVersion = [0-9
 grep -q 'targetSdkVersion = 36' android/variables.gradle || { echo 'targetSdkVersion was not set to 36'; exit 1; }
 grep -q 'compileSdkVersion = 36' android/variables.gradle || { echo 'compileSdkVersion was not set to 36'; exit 1; }
 sed -i "s/versionCode [0-9]*/versionCode $CODE/; s/versionName \"[^\"]*\"/versionName \"$VER\"/" android/app/build.gradle
+if [ "$PLAY" = 1 ]; then
+  grep -q 'com.android.billingclient:billing' android/app/build.gradle || sed -i '/dependencies {/a\    implementation "com.android.billingclient:billing:8.3.0"' android/app/build.gradle
+fi
 if find android -name '*.jks' -o -name '*.keystore' | grep -q .; then echo 'refusing to build: a keystore is in the project'; exit 1; fi
 # adaptive launcher icon (background gradient + centred leaf in safe zone + monochrome for themed icons)
 R=android/app/src/main/res

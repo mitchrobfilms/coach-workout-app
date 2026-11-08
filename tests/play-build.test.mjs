@@ -15,6 +15,7 @@ ok(/if play:[\s\S]*REQUEST_INSTALL_PACKAGES/.test(sh) && sh.includes("os.environ
 ok(!/keytool|keystore\.jks|storePassword/.test(sh), 'the build script does not create a signing identity');
 ok(sh.includes("echo 'refusing to build: a keystore is in the project'"), 'a keystore in the project stops the build');
 ok(sh.includes('com.glp1life.app'), 'package name stays the existing candidate');
+ok(sh.includes('com.android.billingclient:billing:8.3.0') && sh.includes('PlayBillingPlugin.java'), 'the Play build adds Billing library 8.3.0');
 ok(!play.includes('downloadAndInstall') && !play.includes('REQUEST_INSTALL_PACKAGES'), 'the Play plugin does not install an APK');
 ok(play.includes('openCastSettings'), 'the Play plugin still opens cast settings');
 ok(updateChannel({}) === 'play', 'a shell without the installer is treated as Play');

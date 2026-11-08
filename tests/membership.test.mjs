@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { validateCodeCreate, evaluateRedemption, withPreview, assertAdmin, hasRealPremium } from '../membership-core.js';
+import { validateCodeCreate, evaluateRedemption, withPreview, assertAdmin, hasRealPremium, activeMembership } from '../membership-core.js';
 import { verifyStripeSignature, entitlementFromStripeEvent, stripeCheckoutStatus } from '../stripe-billing.js';
 import { interpretPlaySubscription, rtdnAction, acceptTokenOnce, playConfigStatus } from '../play-billing-core.js';
 import { describeSurface } from '../billing.js';
@@ -51,10 +51,13 @@ ok(interpretPlaySubscription({ purchaseToken: 'tok', subscriptionState: 'SUBSCRI
 ok(rtdnAction(2).grant === false, 'a Play renewal notice only asks the server to refresh');
 const tokens = new Set();
 ok(acceptTokenOnce('tok', tokens) && !acceptTokenOnce('tok', tokens), 'the same Play token is stored once');
-ok(playConfigStatus({}).checkout === 'disabled', 'Play billing stays off without Console setup');
+ok(playConfigStatus({}).checkout === 'not_configured', 'Play billing stays unavailable without Console setup');
+ok(playConfigStatus({ PLAY_PACKAGE_NAME: 'com.glp1life.app', PLAY_SUBSCRIPTION_ID: 'set-in-console', PLAY_BASE_PLAN_ID: 'set-in-console', GOOGLE_PLAY_SERVICE_ACCOUNT: '{}' }).checkout === 'ready', 'Play billing can run only when server credentials exist');
 
 const play = describeSurface(true);
-ok(play.provider === 'google_play' && play.checkout === 'disabled' && play.playBilling === 'inactive' && play.stripeLink === false && !/https?:\/\//.test(play.reason), 'Play purchases stay inactive and do not link to Stripe');
+ok(play.provider === 'google_play' && play.checkout === 'not_configured' && play.playBilling === 'standard' && play.stripeLink === false && !/https?:\/\//.test(play.reason), 'Play Billing is the Android method and stays unavailable without credentials');
+ok(describeSurface(true, { entitled: { kind: 'stripe', status: 'active', ends_at: '2026-12-01T00:00:00Z' } }).checkout === 'already_entitled', 'an active Stripe membership suppresses a Play purchase');
+ok(activeMembership({ play: { kind: 'play', state: 'SUBSCRIPTION_STATE_PENDING' } }, now) == null, 'a pending Play purchase is not membership');
 const web = describeSurface(false);
 ok(web.provider === 'stripe' && web.checkout === 'disabled' && web.stripeLink === false, 'web checkout stays off');
 ok(hasRealPremium(ent, now) && !hasRealPremium({ kind: 'none' }, now), 'real premium is separate from preview');

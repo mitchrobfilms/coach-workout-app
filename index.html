@@ -292,7 +292,8 @@
 <section id="tab-member" class="tab">
   <h2 class="pagehead">Membership Plans</h2>
   <div class="card unlocked"><b>⭐ All features stay unlocked while the app is private.</b><p class="small muted" style="margin:4px 0 0">No payment is taken. The cards below are not a confirmed price and are not sent to Stripe or Google Play.</p></div>
-  <div class="card" id="billingStatus"><h3>Payments</h3><p id="billingMode"></p><p class="small" id="billingNote"></p><p class="small muted" id="billingSetup"></p></div>
+  <div class="card" id="billingStatus"><h3>Payments</h3><p id="billingMode"></p><p class="small" id="billingNote"></p><p class="small muted" id="billingSetup"></p>
+    <div id="playActions" hidden><p class="small" id="playProduct"></p><button type="button" id="playSubscribe" disabled>Subscribe with Google Play</button><button type="button" id="playRestore" disabled>Restore purchases</button><p class="small" id="playResult"></p></div></div>
   <div class="card" id="adminPreview" hidden>
     <p class="previewbanner" id="previewBanner">Admin preview. This does not change your membership or anyone else's.</p>
     <div class="row" role="group" aria-label="Admin preview">
@@ -476,6 +477,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=48"></script>
+<script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=49"></script>
 </body>
 </html>

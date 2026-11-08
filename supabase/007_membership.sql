@@ -59,7 +59,16 @@ create table if not exists public.play_purchases (
   state text not null,
   ends_at timestamptz,
   acknowledged boolean not null default false,
+  obfuscated_account_id text,
+  linked_purchase_token text,
+  last_event_at timestamptz,
   updated_at timestamptz not null default now()
+);
+create table if not exists public.play_notifications (
+  message_id text primary key,
+  purchase_token text,
+  published_at timestamptz not null,
+  created_at timestamptz not null default now()
 );
 alter table public.access_codes enable row level security;
 alter table public.access_redemptions enable row level security;
@@ -67,7 +76,8 @@ alter table public.admin_preview enable row level security;
 alter table public.stripe_subscriptions enable row level security;
 alter table public.stripe_events enable row level security;
 alter table public.play_purchases enable row level security;
-revoke all on public.access_codes, public.access_redemptions, public.admin_preview, public.stripe_subscriptions, public.stripe_events, public.play_purchases from anon, authenticated;
+alter table public.play_notifications enable row level security;
+revoke all on public.access_codes, public.access_redemptions, public.admin_preview, public.stripe_subscriptions, public.stripe_events, public.play_purchases, public.play_notifications from anon, authenticated;
 
 create or replace function public.admin_create_access_code(p_lifetime boolean, p_duration_days int, p_max_redemptions int, p_redeem_by timestamptz, p_label text)
 returns json language plpgsql security definer set search_path = '' as $$
@@ -152,8 +162,11 @@ begin
     'complimentary', (select json_build_object('kind', 'complimentary', 'lifetime', c.lifetime, 'ends_at', r.ends_at)
       from public.access_redemptions r join public.access_codes c on c.id = r.code_id
       where r.user_id = auth.uid() and (c.lifetime or r.ends_at > now()) order by r.redeemed_at desc limit 1),
-    'stripe', (select json_build_object('kind', 'stripe', 'status', s.status, 'ends_at', s.ends_at) from public.stripe_subscriptions s where s.user_id = auth.uid()),
-    'play', (select json_build_object('kind', 'play', 'state', p.state, 'ends_at', p.ends_at) from public.play_purchases p where p.user_id = auth.uid() order by p.updated_at desc limit 1)
+    'stripe', (select json_build_object('kind', 'stripe', 'status', s.status, 'ends_at', s.ends_at) from public.stripe_subscriptions s
+      where s.user_id = auth.uid() and (s.status in ('active', 'trialing') or (s.status = 'canceled' and s.ends_at > now()))),
+    'play', (select json_build_object('kind', 'play', 'state', p.state, 'ends_at', p.ends_at) from public.play_purchases p
+      where p.user_id = auth.uid() and (p.state in ('SUBSCRIPTION_STATE_ACTIVE', 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD') or (p.state = 'SUBSCRIPTION_STATE_CANCELED' and p.ends_at > now()))
+      order by p.updated_at desc limit 1)
   );
 end $$;
 

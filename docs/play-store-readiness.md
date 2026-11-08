@@ -110,9 +110,9 @@ Closed and production tracks need the Data safety form, a privacy policy, the he
 
 Provide Play reviewers with a working demo login when the app is submitted. Do not send a live member password.
 
-## Payments: Stripe is the preference, Play purchases stay off
+## Payments: Google Play Billing on Android, Stripe on the website
 
-On 8 November 2026 the owner said all payments will go via Stripe. This branch does not add a Play Billing plugin, does not start a Play purchase, and does not enrol in a billing programme. Stripe checkout also stays off, and a live Stripe key is refused. No charge was created.
+On 8 November 2026 the owner approved Google payments as well as Stripe. The Play-distributed app uses standard Google Play Billing for a digital membership. The website keeps Stripe. This branch does not enrol in an alternative-billing programme and does not put Stripe inside the Play app. No Play Console submission, service account, product id, or charge exists yet. Purchases stay unavailable until those are set. A client token is not treated as a completed purchase.
 
 ### Verified from the official pages read on 8 November 2026
 
@@ -136,9 +136,13 @@ None of those pages says a UK app may use Stripe as the only in-app payment meth
 - The Apps Experience fee reduction, with enrolment from 1 September 2026 and UK users from 30 September 2026, is a fee programme. It does not remove the Play Billing choice. Whether this app qualifies is unknown.
 - Stripe's own processing fees are not a Google Play fee.
 
-### What stays in this build
+### What this build contains
 
-The Play install remains consumption-only. It does not sell a membership, it does not link to Stripe, and it does not use the consumption-only sentence that mentions a website purchase. Complimentary codes are grants, not card charges. Website Stripe, outside the Play app, is the owner's stated payment method and is not connected to a live charge here. Turning on Play Billing, or adding an in-app Stripe link, waits until the owner has enrolled in a programme Console actually offers and has accepted that programme's requirement to show Play Billing next to Stripe.
+`PLAY=1 ./android-build/build.sh` adds Play Billing library 8.3.0 and `PlayBillingPlugin`. The plugin can launch a subscription and restore purchases. It does not acknowledge a purchase. Acknowledgement belongs to `supabase/functions/play-verify`, which calls `purchases.subscriptionsv2` and acknowledges only after a grant. `supabase/functions/play-rtdn` requires a Google bearer token, ignores duplicate and older notifications, and re-queries Google instead of trusting the notification type. Both functions return not configured, and do not call Google, when `PLAY_PACKAGE_NAME`, `PLAY_SUBSCRIPTION_ID`, `PLAY_BASE_PLAN_ID`, or `GOOGLE_PLAY_SERVICE_ACCOUNT` is missing. Those values are not invented here. The package candidate remains `com.glp1life.app` and must be confirmed in Console.
+
+One membership is shared. An active complimentary grant, Stripe subscription, or Play subscription suppresses another Play purchase prompt. Admin preview stays visual. Complimentary codes stay. Website Stripe checkout stays off until a sandbox key, price id, and webhook secret exist. A live Stripe key is refused.
+
+This machine has Java 21 and no Android SDK, so the billing adapter was not compiled. No keystore was created. Billing library 9.1.0 was published on 18 June 2026; this adapter uses the 8.3.0 purchase APIs (`queryProductDetailsAsync`, `launchBillingFlow`). https://developer.android.com/google/play/billing/release-notes https://developer.android.com/google/play/billing/security
 
 ## Release checklist
 
@@ -155,7 +159,7 @@ Owner actions before any upload:
 9. Sign the bundle with the upload key on a machine the owner controls. Replace the asset-links fingerprint only after Play shows the real signing certificates.
 10. Put demo screenshots, the listing text above, and a demo account in the draft listing. Do not use live member data.
 11. Run that closed test only after the owner chooses to upload. Internal testing can come first and does not replace the 12-tester closed test.
-12. Leave Google Play purchases off. Do not add an in-app Stripe link unless the owner enrols in a programme Console shows for the United Kingdom and accepts that programme's requirement to offer Play Billing beside Stripe. Website Stripe stays outside the Play app, and it is not live in this branch.
+12. Create the subscription and base plan in Play Console, put the real ids and a Play Developer API service account in the server environment, and add license testers. Do not ship until `play-verify` has been called against Google for a license-test purchase. Do not add Stripe inside the Play app. Website Stripe still needs its own sandbox key, price id, and webhook secret.
 
 ## Official pages
 

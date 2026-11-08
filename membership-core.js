@@ -47,3 +47,33 @@ export function hasRealPremium(entitlement, now = new Date()) {
   if (!entitlement.endsAt) return false;
   return entitlement.active !== false && new Date(entitlement.endsAt).getTime() > +now;
 }
+
+// One real entitlement, from complimentary access, Stripe, or Play. Admin preview is not an input.
+export function realEntitlement(record, now = new Date()) {
+  if (!record) return null;
+  if (record.kind === 'stripe') {
+    const status = record.status;
+    const endsAt = record.ends_at || record.endsAt || null;
+    const active = status === 'active' || status === 'trialing' || (status === 'canceled' && endsAt && new Date(endsAt).getTime() > +now);
+    return active ? { kind: 'stripe', active: true, lifetime: false, endsAt } : null;
+  }
+  if (record.kind === 'play') {
+    const state = record.state || record.subscriptionState || '';
+    const endsAt = record.ends_at || record.endsAt || null;
+    const active = state === 'SUBSCRIPTION_STATE_ACTIVE' || state === 'SUBSCRIPTION_STATE_IN_GRACE_PERIOD' || (state === 'SUBSCRIPTION_STATE_CANCELED' && endsAt && new Date(endsAt).getTime() > +now);
+    return active ? { kind: 'play', active: true, lifetime: false, endsAt, state } : null;
+  }
+  if (record.kind === 'complimentary' || record.lifetime != null || record.ends_at || record.endsAt) {
+    const shaped = { kind: 'complimentary', active: record.active !== false, lifetime: record.lifetime === true, endsAt: record.ends_at || record.endsAt || null };
+    return hasRealPremium(shaped, now) ? shaped : null;
+  }
+  return null;
+}
+
+export function activeMembership(state, now = new Date()) {
+  for (const record of [state?.complimentary, state?.stripe, state?.play]) {
+    const hit = realEntitlement(record, now);
+    if (hit) return hit;
+  }
+  return null;
+}

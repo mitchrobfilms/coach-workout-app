@@ -61,8 +61,22 @@ await p.evaluate(() => { window.Capacitor = { isNativePlatform: () => true, Plug
 await p.evaluate(() => window.__kova.switchTab('member'));
 await p.waitForTimeout(300);
 const playTxt = await p.textContent('#billingStatus');
-ok(/stay off/.test(playTxt) && !/https?:\/\//.test(playTxt) && !/buy on the website/i.test(playTxt) && !/stripe\.com/i.test(playTxt), 'Play view stays inactive and does not steer to a checkout');
-await p.locator('#billingStatus').screenshot({ path: OUT + '/membership_play_disabled.png' });
+ok(/Google Play Billing is the payment method/.test(playTxt) && /unavailable/.test(playTxt) && !/https?:\/\//.test(playTxt) && !/buy on the website/i.test(playTxt) && !/stripe\.com/i.test(playTxt), 'Play Billing is named and does not steer to Stripe');
+ok(await p.locator('#playSubscribe').isDisabled(), 'subscribe stays disabled without a Console product');
+await p.locator('#billingStatus').screenshot({ path: OUT + '/play_not_configured.png' });
+await p.evaluate(() => { window.__kova.playFixture = { configured: true, fixture: true, productId: 'fixture.not.a.console.id', basePlanId: 'fixture-base' }; window.Capacitor.Plugins.PlayBilling = { purchase: async () => ({ pending: true, fixture: true, purchaseToken: 'fixture-token' }), restore: async () => ({ purchaseTokens: [] }) }; });
+state.play = { kind: 'play', state: 'SUBSCRIPTION_STATE_ACTIVE', ends_at: '2026-12-01T00:00:00Z' };
+await p.evaluate(() => window.__kova.switchTab('member'));
+await p.waitForTimeout(300);
+ok(/already on this account/.test(await p.textContent('#billingMode')) && await p.locator('#playSubscribe').isHidden(), 'an active Play membership hides a second subscription');
+await p.locator('#billingStatus').screenshot({ path: OUT + '/play_already_entitled.png' });
+state.play = null;
+await p.evaluate(() => window.__kova.switchTab('member'));
+await p.waitForTimeout(200);
+await p.locator('#playSubscribe').click();
+await p.waitForTimeout(200);
+ok(/pending/i.test(await p.textContent('#playResult')) && /not been granted/i.test(await p.textContent('#playResult')), 'a pending fixture does not grant access');
+await p.locator('#billingStatus').screenshot({ path: OUT + '/play_pending_fixture.png' });
 await phone.close();
 
 let creates = 0, lastCreate = null, listed = [];
