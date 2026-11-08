@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-07T02:57:39.040Z",
+ "updated": "2026-11-08T02:35:27.562Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-11-07T02:57:39.040Z",
+   "checked": "2026-11-08T02:35:27.562Z",
    "note": "",
    "items": [
     {
@@ -375,9 +375,9 @@
      "brand": "ASHFIELDS",
      "size": "850 g",
      "price": 4.99,
-     "was": null,
+     "was": 5.99,
      "perKg": 5.87,
-     "promo": "While Stock Lasts",
+     "promo": "Save 16% · While Stock Lasts",
      "url": "https://www.aldi.co.uk/product/ashfields-pork-loin-joint-with-sage-onion-000000000000773533",
      "from": null,
      "to": null,
@@ -393,9 +393,9 @@
      "brand": "ASHFIELDS",
      "size": "750 g",
      "price": 4.49,
-     "was": null,
+     "was": 4.99,
      "perKg": 5.99,
-     "promo": "While Stock Lasts",
+     "promo": "Save 10% · While Stock Lasts",
      "url": "https://www.aldi.co.uk/product/ashfields-pork-belly-joint-000000000000775167",
      "from": null,
      "to": null,
@@ -435,7 +435,7 @@
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-11-07T02:57:39.040Z",
+   "checked": "2026-11-08T02:35:27.562Z",
    "note": "",
    "items": [
     {
@@ -604,7 +604,7 @@
      "store": "lidl",
      "source": "Lidl Plus offers",
      "id": "11307574",
-     "name": "XXL Basted Pork Loin Joint",
+     "name": "- XXL Basted Pork Loin Joint",
      "brand": "",
      "size": "1500/2100 g",
      "price": 4.99,
@@ -4716,7 +4716,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-11-07T02:57:39.040Z",
+   "checked": "2026-11-08T02:35:27.562Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
