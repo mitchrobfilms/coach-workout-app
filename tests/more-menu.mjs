@@ -9,14 +9,15 @@ let fail = 0; const ok = (c, m) => { console.log(`${c ? 'ok  ' : 'FAIL'} ${m}`);
 const NAMES = ['Injection log', 'Certificates', 'GLP1 Life Course', 'Community', 'Personal Trainers', 'Photo diary', 'Food check-in', 'Meal plan', 'Recipes', 'Compare prices', 'Aldi', 'Lidl', 'Settings', 'Help', 'Privacy', 'Membership'];
 async function signedIn(p) {
   await p.goto(URL + '?t=' + Date.now(), { waitUntil: 'domcontentloaded' });
-  if (await p.isVisible('#wCreate')) await p.click('#wCreate');
-  if (await p.isVisible('#regName')) {
+  await p.waitForFunction(() => window.__kova?.switchTab);
+  if (await p.locator('#authScreen:not([hidden])').count()) {
+    await p.locator('#wCreate').click({ force: true });
     await p.fill('#regName', 'More'); await p.fill('#regEmail', `more${Date.now()}@example.com`); await p.fill('#regSecret', 'password123');
-    await Promise.all([p.waitForNavigation({ waitUntil: 'domcontentloaded' }), p.click('#regBtn')]);
+    await p.locator('#regBtn').click({ force: true });
+    await p.waitForFunction(() => document.getElementById('authScreen')?.hidden);
   }
-  await p.waitForTimeout(700);
-  if (await p.isVisible('#obSkip')) await p.click('#obSkip');
-  await p.waitForTimeout(250);
+  if (await p.locator('#onboard:not([hidden])').count()) await p.locator('#obSkip').click({ force: true });
+  await p.waitForFunction(() => getComputedStyle(document.getElementById('dock')).display !== 'none');
 }
 const b = await chromium.launch({ executablePath: '/usr/bin/google-chrome', headless: true });
 const phone = await b.newContext({ ...devices['Pixel 7'], locale: 'en-GB', serviceWorkers: 'block' });

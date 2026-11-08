@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=48">
+<link rel="stylesheet" href="style.css?v=49">
 </head>
 <body>
 <header class="topbar">
@@ -163,6 +163,7 @@
     <button type="button" class="linkcard" data-goto="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Photo diary</b><small>Photo plus a description, or text only. Correct protein yourself and the total updates.</small></span></button>
     <button type="button" class="linkcard" data-goto="food"><span class="lcicon" aria-hidden="true">🍽️</span><span class="lctext"><b>Food check-in</b><small>Jot down what you ate, without weighing it.</small></span></button>
     <button type="button" class="linkcard" data-goto="prep"><span class="lcicon" aria-hidden="true">🍱</span><span class="lctext"><b>Meal plan</b><small>High-protein ideas and a shopping list for your store.</small></span></button>
+    <button type="button" class="linkcard" data-goto="ukplan"><span class="lcicon" aria-hidden="true">🗓️</span><span class="lctext"><b>UK meal planner</b><small>Draft week of original recipes. You type any shop prices yourself.</small></span></button>
     <button type="button" class="linkcard" data-goto="shop"><span class="lcicon" aria-hidden="true">📖</span><span class="lctext"><b>Recipes and shopping</b><small>Methods, cook mode and this week's list.</small></span></button>
     <button type="button" class="linkcard" data-goto="prices"><span class="lcicon" aria-hidden="true">💷</span><span class="lctext"><b>Compare prices</b><small>Aldi, Lidl and typical Asda prices, food only.</small></span></button>
     <button type="button" class="linkcard" data-goto="aldi"><span class="lcicon" aria-hidden="true">🏷️</span><span class="lctext"><b>Aldi offers and prices</b><small>This week's offers and the Aldi price list.</small></span></button>
@@ -215,6 +216,7 @@
 </section>
 <div class="overlay drivemodal" id="driveModal" hidden><div class="drivebox"><div class="row between"><b id="driveTitle">Full class</b><button type="button" id="driveClose">✕ Close</button></div><div class="drivewrap"><iframe id="driveFrame" title="Full class video" allow="autoplay; fullscreen; encrypted-media" allowfullscreen></iframe></div><p class="small muted">Tap play. Google Drive may ask you to tap twice to start.</p></div></div>
 
+<section id="tab-ukplan" class="tab"><h2 class="pagehead">UK meal planner</h2><div id="ukPlanRoot"></div></section>
 <!-- MEAL PREP TAB -->
 <section id="tab-prep" class="tab">
   <h2 class="pagehead">Meal plan</h2>
@@ -458,6 +460,7 @@
       <button type="button" class="morerow" data-tab="diary"><span class="lcicon" aria-hidden="true">📸</span><span class="lctext"><b>Photo diary</b><small>Photo plus a description, or text only.</small></span></button>
       <button type="button" class="morerow" data-tab="food"><span class="lcicon" aria-hidden="true">🍽️</span><span class="lctext"><b>Food check-in</b><small>A note of what you ate.</small></span></button>
       <button type="button" class="morerow" data-tab="prep"><span class="lcicon" aria-hidden="true">🍱</span><span class="lctext"><b>Meal plan</b><small>Ideas and a shopping list for your store.</small></span></button>
+      <button type="button" class="morerow" data-tab="ukplan"><span class="lcicon" aria-hidden="true">🗓️</span><span class="lctext"><b>UK meal planner</b><small>Draft recipes and your own shop prices. Not on the live site until reviewed.</small></span></button>
       <button type="button" class="morerow" data-tab="shop"><span class="lcicon" aria-hidden="true">📖</span><span class="lctext"><b>Recipes</b><small>Methods, sources and this week's list.</small></span></button>
       <button type="button" class="morerow" data-tab="prices"><span class="lcicon" aria-hidden="true">💷</span><span class="lctext"><b>Compare prices</b><small>Aldi, Lidl and typical Asda prices.</small></span></button>
       <button type="button" class="morerow" data-tab="aldi"><span class="lcicon" aria-hidden="true">🏷️</span><span class="lctext"><b>Aldi</b><small>Offers and the Aldi price list.</small></span></button>
@@ -477,6 +480,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=49"></script>
+<script type="module" src="planner.js?v=2"></script><script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=50"></script>
 </body>
 </html>

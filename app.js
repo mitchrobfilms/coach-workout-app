@@ -1842,13 +1842,13 @@ renderCompare = function () {
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
 (window.__kova ||= {}).switchTab = t => switchTab(t);
-const DOCK_TAB = { workout: 'workout', workouts: 'workouts', foodhub: 'foodhub', food: 'foodhub', diary: 'foodhub', prep: 'foodhub', shop: 'foodhub', prices: 'foodhub', aldi: 'foodhub', lidl: 'foodhub', progress: 'progress' };
+const DOCK_TAB = { workout: 'workout', workouts: 'workouts', foodhub: 'foodhub', food: 'foodhub', diary: 'foodhub', prep: 'foodhub', shop: 'foodhub', prices: 'foodhub', aldi: 'foodhub', lidl: 'foodhub', ukplan: 'foodhub', progress: 'progress' };
 function markDock(t) {
   const dock = DOCK_TAB[t] || '';
   document.querySelectorAll('#dock [data-tab]').forEach(b => { const on = b.dataset.tab === dock; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   const orb = $('orbBtn'); if (!orb) return; orb.classList.toggle('active', !dock); if (dock) orb.removeAttribute('aria-current'); else orb.setAttribute('aria-current', 'page');
 }
-switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); markDock(t); };
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); if (t === 'ukplan') window.__kova.renderUkPlan?.(); markDock(t); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);
