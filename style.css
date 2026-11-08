@@ -638,3 +638,65 @@ button.danger:active{background:#b42318!important}
 .fdnoimg{display:flex;align-items:center;justify-content:center;height:100%;font-size:2.6rem}
 .fdtotp{font-weight:700;color:#1d6b3d}
 .fded .fdact{position:sticky;bottom:calc(-18px - var(--sab));background:var(--card);padding:10px 0 calc(8px + var(--sab));margin-bottom:calc(-18px - var(--sab));z-index:2;box-shadow:0 -8px 12px -10px rgba(0,0,0,.25)}
+
+/* Stage 1: five tabs, Home, Fitness Studio */
+.studioled{color:#2a1740;font-size:1rem;line-height:1.45;margin:0 0 12px}
+.shorth{margin:16px 0 8px;font-size:1.05rem}
+.medhero{background:#3a1a5a;color:#fff;border:0;border-left:6px solid #1f8a4c;padding:18px 16px 16px}
+.medhero h3,.medhero p,.medhero span{color:#fff}
+.medkicker{margin:0;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#b9f5cf}
+.medhero h3{margin:2px 0 6px;font-size:1.35rem}
+.medname{margin:0;font-size:1.2rem;font-weight:800}
+.meddose{margin:4px 0 0;font-size:1.05rem;font-weight:700}
+.meddose span,.medwhen,.mednote{font-weight:500}
+.medwhen{margin:6px 0 0}
+.mednote{margin:8px 0 0;font-size:.95rem;line-height:1.4}
+.medacts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+.medacts .primary{grid-column:1/-1}
+.medacts button{min-height:48px;margin:0;font-weight:800;border-radius:14px}
+.medhero .primary{background:#fff;color:#3a1a5a}
+.medhero button:not(.primary){background:transparent;color:#fff;border:2px solid #fff}
+.studiohero{display:grid;grid-template-columns:118px 1fr;width:100%;margin:12px 0;padding:0;border:0;border-radius:22px;overflow:hidden;background:#2a1740;color:#fff;text-align:left;min-height:132px;box-shadow:0 10px 24px rgba(42,23,64,.22)}
+.studiohero img{width:118px;height:100%;min-height:132px;object-fit:cover}
+.studiohero span{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:14px 16px}
+.studiohero small{font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#b9f5cf;font-size:.78rem}
+.studiohero b{font-size:1.25rem;line-height:1.2;color:#fff}
+.studiohero em{font-style:normal;color:#f4eefe;font-size:.95rem;line-height:1.35}
+.features{grid-template-columns:1fr 1fr;gap:10px}
+.feat{flex-direction:row;justify-content:flex-start;align-items:center;text-align:left;gap:10px;padding:10px 12px;font-size:.95rem;line-height:1.25;min-height:64px;white-space:normal}
+.feat i{flex:none}
+.hublist{display:flex;flex-direction:column;gap:10px}
+.hublist .linkcard{margin:0}
+.vsearch{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:.95rem;margin:0 0 12px;color:#2a1740}
+.vsearch input{min-height:48px;border:1px solid #d9cce8;border-radius:14px;padding:10px 12px;background:#fff;color:#1f1534;font-weight:500}
+#vFacets{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:8px;margin:0 0 8px;padding-bottom:6px;scrollbar-width:none}
+#vFacets .chip{min-height:44px;font-weight:700;flex:0 0 auto}
+#vFacets .chip.on{background:#146b38;border-color:#146b38;color:#fff}
+.vrowhead .chip{min-height:44px}
+.vtiles{grid-template-columns:1fr;gap:14px}
+.vtile{aspect-ratio:16/9;min-height:168px;border-radius:20px}
+.vtile img{object-position:center 30%}
+.vtile::after{background:linear-gradient(to top,rgba(20,8,32,.92) 0%,rgba(20,8,32,.55) 22%,rgba(20,8,32,0) 48%)}
+.vtname{left:16px;bottom:38px;font-size:1.35rem;line-height:1.15;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.vtcount{left:16px;bottom:14px;font-size:.98rem;font-weight:700}
+.vtile.vempty{background:#3a1a5a;border-left:6px solid #1f8a4c}
+.vtile.vempty::after{background:linear-gradient(160deg,rgba(255,255,255,.06),transparent 40%)}
+.vemptycat{padding:18px 16px}
+.vemptycat h3{margin:0 0 6px;color:#3a1a5a}
+.vemptycat p{margin:0;color:#2a1740}
+.vcathead{margin:8px 0}
+.vgrid2{grid-template-columns:1fr}
+.vgrid2 .vmini{display:flex;flex-direction:row;align-items:center;gap:12px;max-width:none;padding:8px;border-radius:18px;min-height:96px}
+.vgrid2 .vmini .vthumb{flex:0 0 46%;width:46%}
+.vmeta{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;text-align:left}
+.vgrid2 .vmini b{font-size:1.05rem;line-height:1.25;white-space:normal;display:block}
+.vgrid2 .vmini small{font-size:.85rem;color:#3d3456}
+.lsheet{max-height:min(78dvh,calc(var(--vh) - 88px - var(--sat) - var(--sab)));overflow-y:auto;-webkit-overflow-scrolling:touch}
+.dock button{position:relative;min-height:56px;touch-action:manipulation}
+.dock button span{font-size:.68rem}
+.dock button.active{color:#146b38}
+.dock button.active::before{content:"";position:absolute;top:1px;left:16%;right:16%;height:3px;border-radius:3px;background:#5b2a86}
+.dock button:focus-visible,.vtile:focus-visible,#vFacets .chip:focus-visible,.hublist .linkcard:focus-visible,.studiohero:focus-visible,.medacts button:focus-visible{outline:3px solid #146b38;outline-offset:3px}
+@media (max-width:359px){.dock button span{font-size:.62rem}.vtname{font-size:1.15rem}.studiohero{grid-template-columns:96px 1fr}.studiohero img{width:96px}}
+@media (min-width:700px){.vtiles,.vgrid2,.features{grid-template-columns:1fr 1fr}.medacts{grid-template-columns:1fr 1fr 1fr}.medacts .primary{grid-column:auto}}
+@media (min-width:1100px){.vtiles{grid-template-columns:1fr 1fr 1fr}}

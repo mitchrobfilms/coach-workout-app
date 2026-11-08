@@ -25,9 +25,11 @@ await p.$eval('#waterCard', e => e.scrollIntoView({ block: 'center' })); await p
 await p.click('#waterMinus'); await p.waitForTimeout(150); ok(/1\.0 \/ 2\.5 L/.test(await p.textContent('#waterCard')), 'hydration -500 ml undo');
 ok(await p.evaluate(() => { const k = Object.keys(localStorage).find(k => /\.daily$/.test(k)); return Object.values(JSON.parse(localStorage[k])).some(v => v.waterMl === 1000); }), 'stored as ml in daily (cloud-synced key)');
 ok(await p.isVisible('#setRemBtn'), 'next injection card with reminder button');
-ok(await p.$$eval('#weekChecks .wck', l => l.length) === 5, 'this week checks'); ok(await p.$eval('#weekChecks [data-wck=weigh]', e => e.classList.contains('done')), 'weigh check done');
-ok(await p.$$eval('#features .feat', l => l.length) === 11, 'feature row (11 incl. Personal Trainers)');
-ok(await p.$$eval('#dock button', l => l.map(b => b.textContent.trim()).join(',')) === 'Home,Track,Meals,Classes,More', 'bottom nav Home/Track/Meals/Classes/More');
+ok(await p.$$eval('#weekChecks .wrowck', l => l.length) === 5, 'this week checks'); ok(await p.$eval('#weekChecks [data-wk="1"]', e => e.classList.contains('done')), 'weigh check done');
+ok(await p.$$eval('#features .feat', l => l.length) === 12, 'home shortcuts still reach every existing tool');
+ok(await p.$$eval('#dock button', l => l.map(b => b.textContent.trim()).join(',')) === 'Home,Fitness,Food,Progress,More', 'bottom nav Home/Fitness/Food/Progress/More');
+ok(await p.isVisible('#nextInjCard') && /injection log/i.test(await p.textContent('#nextInjCard')) && await p.isVisible('#logInjBtn') && await p.isVisible('#openInjBtn'), 'medication log is prominent on Home');
+ok(/3 published classes/.test(await p.textContent('#homeStudio')), 'Home Fitness Studio entry names the real class count');
 await shot('01-home');
 await nav(p, 'progress'); await p.evaluate(() => scrollTo(0, 0)); ok(await p.$$eval('#trackSeg button', l => l.length) === 3, 'Track segment tabs'); await shot('02-tracker');
 await p.click('#trackSeg [data-seg=bodySites]'); await p.waitForTimeout(600); ok(await p.$$eval('#bodyFig svg', l => l.length) === 3, 'body site figures'); await shot('02b-body-sites');

@@ -50,7 +50,7 @@ ok(/Lidl only publishes offer prices online|Lidl products/.test(await p.textCont
 ok(await p.isVisible('#lidlManual'), 'in-store prices card');
 await p.mouse.wheel(0, 3000); await p.waitForTimeout(400); ok(await p.evaluate(() => scrollY > 500), 'Lidl list scrolls');
 // Dock + launcher
-ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'nav: Home/Track/Meals/Classes + More');
+ok(await count('#dock [data-tab]') === 4 && await p.isVisible('#orbBtn'), 'nav: Home/Fitness/Food/Progress + More');
 const db = await p.$$eval('#dock button', l => l.map(b => b.getBoundingClientRect().height)); ok(db.every(h => h >= 48), 'dock touch targets ' + db.map(Math.round).join(','));
 await p.click('#dock [data-tab=progress]'); await p.waitForTimeout(450);
 await p.click('#orbBtn'); await p.waitForTimeout(400); ok(await p.isVisible('#launcher .lgrid'), 'orb opens launcher');

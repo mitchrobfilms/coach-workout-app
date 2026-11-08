@@ -13,7 +13,7 @@ import { findWake, nextDelay } from './voice.js';
 import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { renderCourse, drawCourseCert } from './course.js';
-import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup } from './videos.js';
+import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup, publishedVideos } from './videos.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -1675,7 +1675,7 @@ function renderHome() {
   $('greet').textContent = greeting();
   const w = sortEntries(store.get('weights', [])), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
   const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
-  $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>
+  $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Progress'}</small></div></div>
     <div class="ringrow">${ringSVG(pct)}<div class="down"><b>${lbsDown} lbs</b><span>down</span><p class="small muted">${w.length ? `Since ${new Date(w[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}</p></div></div>`;
   if (!goal) $('wCard').insertAdjacentHTML('beforeend', `<div class="goalprompt"><span class="small">Set a goal weight to see your progress ring.</span><button type="button" class="primary" id="setGoalBtn">Set goal</button></div>`);
   $('wCard').onclick = e => { if (e.target.closest('#setGoalBtn')) { e.stopPropagation(); switchTab('settings'); setTimeout(() => { const g = $('goalInput'); g?.scrollIntoView({ block: 'center' }); g?.focus(); }, 80); return; } switchTab('progress'); };
@@ -1688,10 +1688,17 @@ function renderHome() {
   renderFoodToday();
   $('stepsCard').onclick = () => openStepsSheet(); window._manualSteps = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
-  $('nextInjCard').innerHTML = `<div class="row between"><div><h3>💉 Next injection</h3><p style="margin:0"><b>${esc(last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged')}</b>${last?.dose ? `<br>${esc(last.dose)} ${esc(last.unit || '')} <small class="muted">(your last logged dose)</small>` : ''}</p>
-    <p class="small" style="margin:6px 0 0">📅 ${nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set'}</p></div>
-    <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
-  $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+  const medName = last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged';
+  const when = nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set';
+  $('nextInjCard').innerHTML = `<p class="medkicker">Medication</p><h3>Your injection log</h3><p class="medname">${esc(medName)}</p>
+    <p class="meddose">${last?.dose ? `${esc(last.dose)} ${esc(last.unit || '')} <span>last dose you entered</span>` : `<span>${last ? 'Dose not recorded on the last entry' : 'Nothing logged yet'}</span>`}</p>
+    <p class="medwhen">Next reminder · ${esc(when)}</p>
+    <p class="mednote">Log only what you were prescribed. This is not dosing advice. Follow your GP or prescriber.</p>
+    <div class="medacts"><button type="button" class="primary" id="logInjBtn">Log injection</button><button type="button" id="openInjBtn">Open full log</button><button type="button" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div>`;
+  const goInj = focus => { switchTab('progress'); setTimeout(() => { ($(focus) || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); };
+  $('logInjBtn').onclick = e => { e.stopPropagation(); goInj('injForm'); };
+  $('openInjBtn').onclick = e => { e.stopPropagation(); goInj('injCard'); };
+  $('setRemBtn').onclick = e => { e.stopPropagation(); goInj('injSchedule'); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
   const wGoal = waterGoal(settings), waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
   const mealDays = new Set([...Object.keys(store.get('food', {})), ...Object.keys(store.get('cloud.foodDays', {}))].filter(d => d >= ws)).size, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
@@ -1808,7 +1815,13 @@ renderCompare = function () {
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
 (window.__kova ||= {}).switchTab = t => switchTab(t);
-switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes', 'workouts'].includes(t)); document.querySelectorAll('#dock [data-tab=workouts]').forEach(b => b.classList.toggle('active', t === 'workouts' || t === 'classes')); };
+const DOCK_TAB = { workout: 'workout', workouts: 'workouts', foodhub: 'foodhub', food: 'foodhub', diary: 'foodhub', prep: 'foodhub', shop: 'foodhub', prices: 'foodhub', aldi: 'foodhub', lidl: 'foodhub', progress: 'progress' };
+function markDock(t) {
+  const dock = DOCK_TAB[t] || '';
+  document.querySelectorAll('#dock [data-tab]').forEach(b => { const on = b.dataset.tab === dock; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const orb = $('orbBtn'); if (!orb) return; orb.classList.toggle('active', !dock); if (dock) orb.removeAttribute('aria-current'); else orb.setAttribute('aria-current', 'page');
+}
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); markDock(t); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);
@@ -1902,7 +1915,12 @@ function videoCast(videoEl, btn, v) {
 }
 const vClose = new MutationObserver(() => { const m = $('videoModal'); if (m?.hidden && sessionCastSrc) setCastSource(sessionCastSrc); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast, onComplete: videoCompleted }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
-function renderVideoIdeas() { const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3); el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>🎬 Ideas for you</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="classes">All video classes ›</button>` : ''; el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab)); }
+function renderVideoIdeas() {
+  const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3), n = publishedVideos().length;
+  const meta = $('homeStudioMeta'); if (meta) meta.textContent = n ? `${n} published ${n === 1 ? 'class' : 'classes'} · chair, walking and full body` : 'No published classes yet';
+  el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>Published classes</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="workouts">Open Fitness Studio</button>` : '';
+  el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab));
+}
 loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); renderVideoIdeas(); window.__kova.videosReady = true; });
 
 /* ---------- TV: Google Cast ---------- */

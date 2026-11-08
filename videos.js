@@ -1,6 +1,6 @@
 // Video class library (library-videos.json, fetched fresh each launch so the list updates without an app release).
-// The member list is currently empty (third-party videos removed 2026-10-21); GLP1 Life Coach Ava classes are added here after
-// human safety review. Player/Cast code is kept: <video> sources (e.g. Bunny Stream / archive) are Google-Cast-able;
+// Member classes are GLP1 Life Coach Ava videos after a person has checked them. Unpublished drafts stay out of this file.
+// Player/Cast code is kept: <video> sources (e.g. Bunny Stream / archive) are Google-Cast-able;
 // YouTube would play only in the official embed player (youtube-nocookie). No download/re-host.
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let LIB = null;
@@ -16,24 +16,80 @@ export function videoCard(v) {
   return `<button type="button" class="vcard" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span></span><span class="vtxt"><b>${esc(v.title)}</b><small>${esc(v.credit)}</small></span></button>`;
 }
 const ORDER = ['warmup', 'cooldown', 'walking', 'chair', 'fullbody', 'cardio', 'strength', 'band', 'dumbbell', 'core', 'dance', 'yoga', 'pilates', 'stretch', 'recovery', 'breathing'];
-const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span>${isDone(v.id) ? '<span class="vdone">✓ Done</span>' : ''}</span><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || v.credit?.split(',')[0] || '')}</small><small>${esc(v.level || 'Beginner')}${v.chair ? ' · 🪑 Chair-friendly' : v.equipment && v.equipment !== 'None' ? ' · ' + esc(v.equipment) : ''}</small></button>`;
+// Warm-up and cool-down stay as their own categories. They are not inserted into a class, and they have no video until one is published.
+const STRUCTURAL = {
+  warmup: 'Warm-up is its own category. It is not built into a class, and there is no published warm-up video yet.',
+  cooldown: 'Cool-down is its own category. It is not added onto a class, and there is no published cool-down video yet.',
+};
+// Filters use fields that already exist on a published class. They never invent a class.
+const FACETS = [
+  { id: 'all', label: 'All' },
+  { id: 'beginner', label: 'Beginner', test: v => v.level === 'Beginner' },
+  { id: 'intermediate', label: 'Intermediate', test: v => v.level === 'Intermediate' },
+  { id: 'chair', label: 'Chair', test: v => v.chair === true },
+  { id: 'equipment-none', label: 'No equipment', test: v => !v.equipment || v.equipment === 'None' },
+  { id: 'low', label: 'Low intensity', test: v => v.intensity === 'Low' },
+  { id: 'moderate', label: 'Moderate', test: v => v.intensity === 'Moderate' },
+  { id: '10', label: '10 min', test: v => Number(v.mins) === 10 },
+  { id: '15', label: '15 min', test: v => Number(v.mins) === 15 },
+];
+let facet = 'all', query = '';
+const facetOk = v => { const f = FACETS.find(x => x.id === facet); return !f?.test || f.test(v); };
+const queryOk = v => {
+  const q = query.trim().toLowerCase(); if (!q) return true;
+  const cat = LIB?.categories?.[v.cat] || '';
+  return [v.title, v.level, v.intensity, v.equipment, v.description, cat, `${v.mins} min`].join(' ').toLowerCase().includes(q);
+};
+const published = () => (LIB?.videos || []).filter(v => v.embeddable);
+export const publishedVideos = published;
+const matchedVideos = () => published().filter(v => facetOk(v) && queryOk(v));
+const metaLine = v => [v.level || 'Beginner', v.intensity, v.chair ? 'Chair' : (v.equipment && v.equipment !== 'None' ? v.equipment : 'No equipment')].filter(Boolean).map(esc).join(' · ');
+const mini = v => `<button type="button" class="vmini" data-video="${esc(v.id)}"><span class="vthumb"><img src="${esc(v.poster)}" alt="" loading="lazy" decoding="async"><span class="vmins">${v.mins} min</span>${isDone(v.id) ? '<span class="vdone">✓ Done</span>' : ''}</span><span class="vmeta"><b>${esc(v.title)}</b><small class="vby">${esc(v.channel || '')}</small><small>${metaLine(v)}</small></span></button>`;
 const COMING_SOON = `<div class="card vsoon" id="vSoon"><span class="vsicon" aria-hidden="true">🎬</span><h3>New Coach Ava classes coming soon</h3><p>We're creating brand-new GLP1 Life follow-along classes with Coach Ava, our AI-generated instructor, from gentle seated sessions to easy walks. Each one is checked by a person before it appears here.</p><p class="small muted">In the meantime, keep moving with a gentle walk and check out the GLP1 Life Course above.</p></div>`;
-// Netflix-style rows per category; "See all" opens that category as a grid.
+const facetBar = () => `<div class="vchips" id="vFacets" role="toolbar" aria-label="Filter classes">${FACETS.map(f => `<button type="button" class="chip${facet === f.id ? ' on' : ''}" data-facet="${esc(f.id)}" aria-pressed="${facet === f.id}">${esc(f.label)}</button>`).join('')}</div><label class="vsearch">Search classes<input type="search" id="vSearch" value="${esc(query)}" placeholder="Title, level or equipment" aria-label="Search classes" enterkeyhint="search" autocomplete="off"></label>`;
+function bindStudio(el) {
+  el.querySelectorAll('[data-facet]').forEach(b => b.onclick = () => { facet = b.dataset.facet; renderVideoLib(el, { filter: el.dataset.vfilter || '' }); });
+  const s = el.querySelector('#vSearch');
+  if (s) s.oninput = () => { query = s.value; const pos = s.selectionStart; renderVideoLib(el, { filter: el.dataset.vfilter || '' }); const n = el.querySelector('#vSearch'); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch {} } };
+}
+function emptyNote(title, text) { return `<div class="card vemptycat"><h3>${esc(title)}</h3><p>${esc(text)}</p></div>`; }
+// Category picture tiles open the classes in that category. Empty catalogue categories stay hidden.
 export function renderVideoLib(el, { filter = '' } = {}) {
   if (!LIB) { el.innerHTML = '<p class="small muted">Video classes load when you\'re online.</p>'; return; }
-  const cats = LIB.categories || {}, vids = (LIB.videos || []).filter(v => v.embeddable);
+  const cats = LIB.categories || {}, vids = published();
   if (!vids.length) { el.innerHTML = COMING_SOON; return; }
-  const keys = [...ORDER.filter(k => cats[k]), ...Object.keys(cats).filter(k => !ORDER.includes(k))];
+  el.dataset.vfilter = filter || '';
+  const matched = matchedVideos();
+  const filtering = facet !== 'all' || !!query.trim();
   if (filter) {
-    const list = vids.filter(v => v.cat === filter);
-    el.innerHTML = `<div class="vrowhead"><button type="button" class="chip" id="vBack">← All workouts</button></div><h3>${esc(cats[filter])} <span class="small muted">${list.length}</span></h3><div class="vgrid2">${list.map(mini).join('')}</div>`;
+    const list = matched.filter(v => v.cat === filter);
+    const bare = STRUCTURAL[filter] && !vids.some(v => v.cat === filter);
+    const body = bare ? emptyNote('No video in this category', STRUCTURAL[filter])
+      : list.length ? `<div class="vgrid2">${list.map(mini).join('')}</div>`
+        : emptyNote('No matching class', `Nothing published in ${cats[filter] || 'this category'} matches these filters.`);
+    el.innerHTML = `${facetBar()}<div class="vrowhead"><button type="button" class="chip" id="vBack">← All categories</button></div><h3 class="vcathead">${esc(cats[filter] || filter)} <span class="small muted">${list.length} ${list.length === 1 ? 'class' : 'classes'}</span></h3>${body}`;
     el.querySelector('#vBack').onclick = () => { renderVideoLib(el); el.scrollIntoView({ block: 'start' }); };
+    bindStudio(el);
     return;
   }
-  // Netflix-style category tiles (image + name + count); tap opens that category's grid.
-  el.innerHTML = `<div class="vtiles">${keys.map(k => { const list = vids.filter(v => v.cat === k); if (!list.length) return '';
-    return `<button type="button" class="vtile" data-vcat="${k}"><img src="${esc(list.find(v => v.source === 'youtube')?.poster || list[0].poster)}" alt="" loading="lazy" decoding="async"><span class="vtname">${esc(cats[k])}</span><span class="vtcount">${list.length} ${list.length === 1 ? 'class' : 'classes'}</span></button>`; }).join('')}</div>`;
+  const keys = [...ORDER.filter(k => cats[k]), ...Object.keys(cats).filter(k => !ORDER.includes(k))];
+  const withClasses = keys.filter(k => vids.some(v => v.cat === k));
+  const structural = ['warmup', 'cooldown'].filter(k => cats[k] && !vids.some(v => v.cat === k));
+  const tiles = [...withClasses, ...structural].map(k => {
+    if (STRUCTURAL[k] && !vids.some(v => v.cat === k)) {
+      if (facet !== 'all') return '';
+      const q = query.trim().toLowerCase();
+      const name = (cats[k] || k).toLowerCase();
+      if (q && !name.includes(q) && !k.includes(q)) return '';
+      return `<button type="button" class="vtile vempty" data-vcat="${esc(k)}"><span class="vtname">${esc(cats[k])}</span><span class="vtcount">No class video yet</span></button>`;
+    }
+    const list = matched.filter(v => v.cat === k);
+    if (!list.length) return '';
+    return `<button type="button" class="vtile" data-vcat="${esc(k)}"><img src="${esc(list[0].poster)}" alt="" loading="lazy" decoding="async"><span class="vtname">${esc(cats[k])}</span><span class="vtcount">${list.length} ${list.length === 1 ? 'class' : 'classes'}</span></button>`;
+  }).join('');
+  el.innerHTML = `${facetBar()}${tiles ? `<div class="vtiles">${tiles}</div>` : emptyNote('No matching class', 'No published class matches these filters.')}`;
   el.querySelectorAll('[data-vcat]').forEach(b => b.onclick = () => { renderVideoLib(el, { filter: b.dataset.vcat }); el.scrollIntoView({ block: 'start' }); });
+  bindStudio(el);
 }
 // Player sheet
 const WARM = { chair: ['Seated marching', 'Arm circles', 'Shoulder rolls', 'Seated side reaches', 'Ankle circles'], def: ['March on the spot', 'Arm circles', 'Shoulder rolls', 'Hip circles', 'Side steps'] };
