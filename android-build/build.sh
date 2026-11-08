@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 # Builds the GLP1 Life Android app (Capacitor 8 + Health Connect steps) from the static web app in this repo.
+# Default: unsigned sideload APK (GitHub release updater, REQUEST_INSTALL_PACKAGES).
+# Play listing prep: PLAY=1 ./android-build/build.sh
+#   unsigned Android App Bundle, targetSdk 36, no sideload installer, no photo-library permission.
+#   Does not create or read a keystore. Do not upload this bundle.
 set -euo pipefail
+PLAY=${PLAY:-0}
 ROOT=$(cd "$(dirname "$0")/.." && pwd); W=$ROOT/android-build/work; rm -rf "$W"; mkdir -p "$W/www"; cd "$W"
 # The app loads the live site (auto-updates, ~100 MB of class media stays online and is cached by the service worker).
 # www/ only holds an offline fallback page + the Health Connect privacy policy.
@@ -21,28 +26,38 @@ J
 npx cap add android >/dev/null
 npx cap sync android >/dev/null
 M=android/app/src/main/AndroidManifest.xml
-python3 - "$M" <<'PY'
-import sys,re
-p=sys.argv[1]; s=open(p).read()
+PLAY="$PLAY" python3 - "$M" <<'PY'
+import os, sys
+p=sys.argv[1]; s=open(p).read(); play=os.environ.get('PLAY')=='1'
 if 'xmlns:tools' not in s: s=s.replace('<manifest ','<manifest xmlns:tools="http://schemas.android.com/tools" ',1)
 keep={'READ_STEPS'}
 types=['STEPS','DISTANCE','ACTIVE_CALORIES_BURNED','HEART_RATE','WEIGHT','SLEEP','RESPIRATORY_RATE','OXYGEN_SATURATION','RESTING_HEART_RATE','HEART_RATE_VARIABILITY','EXERCISE','TOTAL_CALORIES_BURNED','BASAL_METABOLIC_RATE','BODY_FAT','HEIGHT','BLOOD_PRESSURE','BLOOD_GLUCOSE','BODY_TEMPERATURE','BASAL_BODY_TEMPERATURE','FLOORS_CLIMBED','HYDRATION','NUTRITION','MINDFULNESS','VO2_MAX','SPEED','POWER','ELEVATION_GAINED','LEAN_BODY_MASS','BONE_MASS','SKIN_TEMPERATURE','PLANNED_EXERCISE','WHEELCHAIR_PUSHES','CYCLING_PEDALING_CADENCE','STEPS_CADENCE']
-perms=['<uses-permission android:name="android.permission.CAMERA"/>','<uses-permission android:name="android.permission.RECORD_AUDIO"/>','<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>','<uses-permission android:name="android.permission.health.READ_STEPS"/>']
+perms=['<uses-permission android:name="android.permission.CAMERA"/>','<uses-permission android:name="android.permission.health.READ_STEPS"/>']
+if play:
+  for n in ('RECORD_AUDIO','MODIFY_AUDIO_SETTINGS','REQUEST_INSTALL_PACKAGES','READ_MEDIA_IMAGES','READ_MEDIA_VIDEO','READ_EXTERNAL_STORAGE','WRITE_EXTERNAL_STORAGE','SCHEDULE_EXACT_ALARM'):
+    perms.append(f'<uses-permission android:name="android.permission.{n}" tools:node="remove"/>')
+else:
+  perms+=['<uses-permission android:name="android.permission.RECORD_AUDIO"/>','<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>','<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>','<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>','<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>']
 for t in types:
   for rw in ('READ','WRITE'):
     n=f'{rw}_{t}'
     if n not in keep: perms.append(f'<uses-permission android:name="android.permission.health.{n}" tools:node="remove"/>')
 perms.append('<uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY" tools:node="remove"/>')
-perms+=['<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>','<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>','<uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.VIBRATE"/>','<uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>','<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>','<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29"/>']
+perms.append('<uses-permission android:name="android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND" tools:node="remove"/>')
+perms+=['<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>','<uses-permission android:name="android.permission.VIBRATE"/>']
 perms.append('<uses-feature android:name="android.hardware.camera" android:required="false"/>')
 perms.append('<queries><package android:name="com.google.android.apps.healthdata"/><intent><action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/></intent></queries>')
 s=s.replace('<application','\n    '.join(perms)+'\n    <application',1)
+alias='''<activity-alias android:name="ViewPermissionUsageActivity" android:exported="true" android:targetActivity=".MainActivity" android:permission="android.permission.START_VIEW_PERMISSION_USAGE"><intent-filter><action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/><category android:name="android.intent.category.HEALTH_PERMISSIONS"/></intent-filter></activity-alias>'''
+if 'ViewPermissionUsageActivity' not in s: s=s.replace('</application>', alias+'\n    </application>', 1)
 open(p,'w').write(s)
 PY
 mkdir -p android/app/src/main/res/values
 grep -q health_connect_privacy_policy_url android/app/src/main/res/values/strings.xml || sed -i "s#</resources>#    <string name=\"health_connect_privacy_policy_url\">${APP_ORIGIN}privacy.html</string>\n</resources>#" android/app/src/main/res/values/strings.xml
-# in-app updater plugin (download release APK + open installer via FileProvider)
-J=android/app/src/main/java/com/glp1life/app; cp "$ROOT/android-build/native/ApkUpdaterPlugin.java" $J/
+# Sideload builds can install a GitHub APK. Play builds keep cast settings only and must not ship that installer.
+J=android/app/src/main/java/com/glp1life/app
+if [ "$PLAY" = 1 ]; then cp "$ROOT/android-build/native/ApkUpdaterPlay.java" $J/ApkUpdaterPlugin.java
+else cp "$ROOT/android-build/native/ApkUpdaterPlugin.java" $J/; fi
 cat > $J/MainActivity.java <<X
 package com.glp1life.app;
 import android.os.Bundle;
@@ -55,8 +70,11 @@ mkdir -p android/app/src/main/res/xml; cat > android/app/src/main/res/xml/file_p
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android"><external-path name="my_images" path="." /><cache-path name="my_cache_images" path="." /><files-path name="files" path="." /></paths>
 X
-sed -i "s/minSdkVersion = [0-9]*/minSdkVersion = 26/" android/variables.gradle
+sed -i "s/minSdkVersion = [0-9]*/minSdkVersion = 26/; s/compileSdkVersion = [0-9]*/compileSdkVersion = 36/; s/targetSdkVersion = [0-9]*/targetSdkVersion = 36/" android/variables.gradle
+grep -q 'targetSdkVersion = 36' android/variables.gradle || { echo 'targetSdkVersion was not set to 36'; exit 1; }
+grep -q 'compileSdkVersion = 36' android/variables.gradle || { echo 'compileSdkVersion was not set to 36'; exit 1; }
 sed -i "s/versionCode [0-9]*/versionCode $CODE/; s/versionName \"[^\"]*\"/versionName \"$VER\"/" android/app/build.gradle
+if find android -name '*.jks' -o -name '*.keystore' | grep -q .; then echo 'refusing to build: a keystore is in the project'; exit 1; fi
 # adaptive launcher icon (background gradient + centred leaf in safe zone + monochrome for themed icons)
 R=android/app/src/main/res
 for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do cp "$ROOT"/icons/android/mipmap-$d/*.png $R/mipmap-$d/; done
@@ -82,5 +100,13 @@ cat > $R/values/styles.xml <<X
   <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen"><item name="android:background">#5b2a86</item></style>
 </resources>
 X
-cd android && chmod +x gradlew && ./gradlew --no-daemon -q assembleRelease
-echo "$W/android/app/build/outputs/apk/release/app-release-unsigned.apk"
+cd android && chmod +x gradlew
+if [ "$PLAY" = 1 ]; then
+  ./gradlew --no-daemon -q bundleRelease
+  B=$(find app/build/outputs/bundle/release -name '*.aab' -print -quit)
+  echo "$B"
+  echo 'Unsigned Play bundle. Not a production signature. Do not upload it.'
+else
+  ./gradlew --no-daemon -q assembleRelease
+  echo "$W/android/app/build/outputs/apk/release/app-release-unsigned.apk"
+fi

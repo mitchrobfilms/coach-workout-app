@@ -774,3 +774,7 @@ button.danger:active{background:#b42318!important}
 #progWorkouts{margin-top:22px}
 .recipe{border-radius:18px}
 .recipe h4{font-size:1.15rem;color:#2a1740}
+.previewbanner{margin:0 0 10px;padding:10px 12px;border-radius:14px;background:#3a1a5a;color:#fff;font-weight:700}
+#tab-member[data-preview="free"] .plan2{outline:3px dashed #5b2a86;opacity:.72}
+#tab-member[data-preview="premium"] .plan2{outline:3px solid #146b38}
+#billingStatus{border-left:6px solid #1f8a4c}

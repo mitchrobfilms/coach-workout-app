@@ -8,7 +8,7 @@
 <title>GLP1 Life</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<link rel="stylesheet" href="style.css?v=47">
+<link rel="stylesheet" href="style.css?v=48">
 </head>
 <body>
 <header class="topbar">
@@ -291,7 +291,22 @@
 <!-- MEMBERSHIP TAB -->
 <section id="tab-member" class="tab">
   <h2 class="pagehead">Membership Plans</h2>
-  <div class="card unlocked"><b>⭐ All Plus features unlocked while in private testing.</b><p class="small muted" style="margin:4px 0 0">No payments are taken. Plans below are a preview only.</p></div>
+  <div class="card unlocked"><b>⭐ All features stay unlocked while the app is private.</b><p class="small muted" style="margin:4px 0 0">No payment is taken. The cards below are not a confirmed price and are not sent to Stripe or Google Play.</p></div>
+  <div class="card" id="billingStatus"><h3>Payments</h3><p id="billingMode"></p><p class="small" id="billingNote"></p><p class="small muted" id="billingSetup"></p></div>
+  <div class="card" id="adminPreview" hidden>
+    <p class="previewbanner" id="previewBanner">Admin preview. This does not change your membership or anyone else's.</p>
+    <div class="row" role="group" aria-label="Admin preview">
+      <button type="button" id="previewFree">View as Free</button>
+      <button type="button" id="previewPremium">View as Premium</button>
+      <button type="button" id="previewOff">Turn preview off</button>
+    </div>
+    <p class="small" id="previewState"></p>
+  </div>
+  <div class="card" id="codeCard"><h3>Complimentary code</h3>
+    <p class="small">A code from GLP1 Life grants Premium on your signed-in account. It does not take a card and does not start a Stripe or Google Play subscription.</p>
+    <form id="accessCodeForm" class="row" novalidate><input id="accessCodeInput" autocomplete="off" placeholder="Enter code" aria-label="Complimentary code" style="text-transform:uppercase;flex:1"><button class="primary" type="submit">Redeem</button></form>
+    <p class="small" id="accessCodeMsg">No code exists until an admin creates one. Nothing is generated on this screen.</p>
+  </div>
   <div class="plans">
     <div class="card plan1"><h3>Free Forever</h3><p class="price">£0</p><p class="small muted">Essential GLP-1 support</p><ul class="ticks"><li>Weight tracking</li><li>Injection log</li><li>Medication reminders</li><li>Side-effect diary</li><li>Basic recipes</li><li>Community access</li></ul><button type="button" class="big" disabled>Included</button></div>
     <div class="card plan2"><span class="bestv">Best Value</span><h3>GLP1 <i>Life</i> Plus</h3><p class="price">£5<small>/month</small></p><p class="small muted">or £45/year · Full app experience</p><ul class="ticks"><li>Everything in Free</li><li>Aldi, Lidl &amp; Asda price comparison</li><li>Weekly offers &amp; deal search</li><li>Unlimited meal plans</li><li>Recipes &amp; cooking guides</li><li>Classes &amp; workshops</li><li>Advanced reports</li><li>Basket cost comparison</li><li>Priority new features</li></ul><button type="button" class="primary big" id="plusBtn">✓ Unlocked (private testing)</button></div>
@@ -461,6 +476,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="native.js?v=43"></script><script type="module" src="app.js?v=46"></script>
+<script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=47"></script>
 </body>
 </html>

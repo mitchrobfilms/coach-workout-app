@@ -6,7 +6,7 @@
   <form id="lf"><label>Email<input id="le" type="email" autocomplete="username" required></label><label>Password<input id="lp" type="password" autocomplete="current-password" required></label><p class="err" id="lerr" hidden></p><button class="primary">Sign in</button></form></section>
 <section id="denied" class="card narrow" hidden><h1>Not an admin</h1><p>You're signed in as <b id="who"></b>, but this account isn't an admin.</p></section>
 <section id="app" hidden>
-  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button><button data-v="aidrafts">AI class drafts</button><button data-v="mod">Community <span id="modCount"></span></button></nav>
+  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="access">Access codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button><button data-v="aidrafts">AI class drafts</button><button data-v="mod">Community <span id="modCount"></span></button></nav>
   <div id="v-trainers" class="grid">
     <div><div class="row between"><h2>Trainers</h2><button class="primary" id="new">+ Add trainer</button></div><p class="muted small">Drag ↑ ↓ to reorder. Hidden trainers don't show in the app.</p><ul id="list" class="list"></ul></div>
     <div class="card" id="editor"><h2 id="etitle">Add trainer</h2>
@@ -31,6 +31,33 @@
       <label>Expires <small class="muted">optional</small><input id="pexp" type="date"></label>
       <p class="err" id="perr" hidden></p><button class="primary">Create code</button></form>
       <h3>Redeemed by</h3><div id="pusers" class="small muted">Tap a code to see who used it.</div></div>
+  </div>
+  <div id="v-access" hidden>
+    <h2>Complimentary Premium codes</h2>
+    <p class="small muted">These codes are not a Stripe subscription and not a Google Play purchase. No code is created until you press Create. The raw code is shown once. Checkout stays off until a Stripe sandbox and a Play Console subscription exist. Paid price and tax are not confirmed.</p>
+    <div class="card" id="stripeStatus"></div>
+    <div class="grid">
+      <form id="acForm" class="card" novalidate>
+        <h3>Create a code</h3>
+        <label>Days of Premium <input id="acDays" type="number" min="1" max="3650" inputmode="numeric" placeholder="e.g. 30"></label>
+        <label><input type="checkbox" id="acLife"> Lifetime access (explicit). Leave days empty.</label>
+        <label>How many people can redeem it *<input id="acMax" type="number" min="1" max="100000" inputmode="numeric" placeholder="Required"></label>
+        <label>Redeem by <small class="muted">optional</small><input id="acBy" type="datetime-local"></label>
+        <label>Label <small class="muted">optional, not the code</small><input id="acLabel" maxlength="80" placeholder="e.g. March welcome"></label>
+        <p class="err" id="acErr" hidden></p>
+        <button class="primary" type="submit">Create code</button>
+      </form>
+      <div>
+        <div class="card" id="acOnce" hidden>
+          <p><b>Copy this code now.</b> It is not stored in the list and will not be shown again.</p>
+          <p id="acPlain" class="code"></p>
+          <button type="button" id="acCopy">Copy code</button>
+          <p class="small" id="acFixture" hidden>Fixture only. This code was not created in the live database.</p>
+        </div>
+        <h3>Codes</h3>
+        <ul id="acList" class="list"></ul>
+      </div>
+    </div>
   </div>
   <div id="v-comm" hidden><h2>Trainer commission</h2>
     <p class="small muted">£2 per active monthly client + £20 per yearly client whose start/renewal falls in the month. <b>No payment processing yet</b> — invoice trainers yourself and mark paid here (Stripe later).</p>

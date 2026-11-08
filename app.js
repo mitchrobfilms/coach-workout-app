@@ -22,6 +22,8 @@ import { welcomeLine, stepStartLines, halfwayLine, tenLine, countInLine, layerLi
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
+import { paymentSurface, startPlatformPurchase } from './billing.js';
+import { withPreview } from './membership-core.js';
 
 const MP_VER = '1.1.1';
 const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
@@ -1899,8 +1901,45 @@ function shareUI(p) {
     box.querySelectorAll('[data-share]').forEach(cb => cb.onchange = async () => { const s = { ...p.share, [cb.dataset.share]: cb.checked };
       try { p.share = await rpcF('set_share', { s }); toast(cb.checked ? 'Sharing on' : 'Sharing off'); shareUI(p); } catch (x) { cb.checked = !cb.checked; toast(x.message); } }); });
 }
+function paintBilling() {
+  const s = paymentSurface();
+  const mode = $('billingMode'), note = $('billingNote'), setup = $('billingSetup');
+  if (!mode) return;
+  if (s.provider === 'google_play') {
+    mode.textContent = 'Google Play Billing is the payment path for this app. It is not configured, so nothing can be bought here.';
+    note.textContent = 'Stripe Checkout is not offered in the Play-distributed app. A complimentary code, if you already have one, is not a purchase and does not start a Play subscription.';
+    setup.textContent = 'Still needed before any Play test: confirmed package name, a subscription and base plan in Play Console, license testers on an internal track, and a service account for server verification and real-time notifications.';
+  } else {
+    mode.textContent = 'Web payments are planned with Stripe hosted Checkout in sandbox mode. Checkout is off. No sandbox secret or price is configured, and the live Pepvexia account is not used.';
+    note.textContent = 'The prices shown on the old cards are not a confirmed charge. Tax is not turned on. A complimentary code is separate and does not start a paid subscription.';
+    setup.textContent = 'Still needed: a Stripe sandbox (test) key, a sandbox price id, and a sandbox webhook secret. A live key is refused.';
+  }
+}
+let membershipView = null;
+function paintPreview(state) {
+  const box = $('adminPreview'), banner = $('previewBanner'), line = $('previewState');
+  const view = withPreview({ entitlement: state?.complimentary || state?.stripe || state?.play || null, previewMode: state?.preview, isAdmin: state?.is_admin === true });
+  membershipView = view;
+  if (!box) return;
+  box.hidden = state?.is_admin !== true;
+  document.getElementById('tab-member')?.setAttribute('data-preview', view.preview || '');
+  if (!view.preview) { if (banner) banner.textContent = 'Admin preview is off. This does not change your membership or anyone else\'s.'; if (line) line.textContent = ''; return; }
+  if (banner) banner.textContent = `Admin preview: viewing as ${view.preview === 'free' ? 'Free' : 'Premium'}. Your real access is unchanged, and the app stays unlocked.`;
+  if (line) line.textContent = view.preview === 'free' ? 'The Premium column is only highlighted as a preview. Nothing is locked.' : 'The Premium column is highlighted. This is still not a charge.';
+}
+async function renderMembership() {
+  paintBilling();
+  const msg = $('accessCodeMsg');
+  if (!cloud.user) { if ($('adminPreview')) $('adminPreview').hidden = true; if (msg) msg.textContent = 'Sign in to your cloud account to redeem a code. No code exists until an admin creates one.'; return; }
+  try {
+    const s = await rpcF('membership_state');
+    paintPreview(s);
+    if (msg && !msg.dataset.hold) msg.textContent = s?.complimentary ? 'A complimentary grant is already on this account. It is not a paid subscription.' : 'No code exists until an admin creates one.';
+  } catch { if ($('adminPreview')) $('adminPreview').hidden = true; }
+}
 async function renderPlan() {
   const st = $('promoStatus'); if (!st) return;
+  renderMembership();
   if (!cloud.user) { st.textContent = 'Got a code from your personal trainer? Sign in to Cloud backup (Settings) first, then enter it here to get GLP1 Life Plus free.'; shareUI({}); return; }
   try { const p = await rpcF('my_plan'); store.set('cloud.plan', p);
     if (p.plan === 'plus') { const by = p.by_trainer ? `Included by ${esc(p.trainer)}` : `Plus included${p.trainer ? ` with ${esc(p.trainer)}` : ''}`;
@@ -1915,6 +1954,23 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
   try { const code = $('promoCode').value; let j = await rpcF('redeem_promo', { p_code: code });
     if (j.needs_consent) { if (!await consent(j.trainer)) return err('Not joined — joining with a trainer code needs your consent to share.'); j = await rpcF('redeem_promo', { p_code: code, p_consent: true }); }
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
+$('accessCodeForm')?.addEventListener('submit', async e => {
+  e.preventDefault(); const err = m => { const el = $('accessCodeMsg'); if (el) { el.dataset.hold = '1'; el.textContent = m; } };
+  if (!cloud.user) return err('Sign in to your cloud account first. Redeeming does not start a payment.');
+  try {
+    const j = await rpcF('redeem_access_code', { p_code: $('accessCodeInput').value });
+    $('accessCodeInput').value = '';
+    err(j?.lifetime ? 'Complimentary Premium is on this account. It does not start a paid subscription.' : `Complimentary Premium is on this account until ${j?.ends_at ? new Date(j.ends_at).toLocaleDateString('en-GB') : 'the date the server set'}. It does not start a paid subscription.`);
+    renderMembership();
+  } catch (x) { err(x.message || 'That code could not be redeemed.'); }
+});
+for (const [id, mode] of [['previewFree', 'free'], ['previewPremium', 'premium'], ['previewOff', 'off']]) {
+  $(id)?.addEventListener('click', async () => {
+    try { const j = await rpcF('admin_set_preview', { p_mode: mode }); paintPreview({ is_admin: true, preview: j.preview === 'off' ? null : j.preview, complimentary: membershipView?.entitlement }); }
+    catch (x) { const el = $('previewState'); if (el) el.textContent = x.message || 'Preview is only available to an admin.'; }
+  });
+}
+window.__kova.startPlatformPurchase = startPlatformPurchase;
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 
 /* ---------- Video class library (library-videos.json; member list empty until Coach Ava classes pass safety review) ---------- */

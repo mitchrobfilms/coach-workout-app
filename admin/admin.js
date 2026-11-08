@@ -5,7 +5,7 @@ const toast = m => { $('toast').textContent = m; $('toast').hidden = false; clea
 let ses = JSON.parse(sessionStorage.getItem('glp1admin') || 'null'), list = [];
 const H = (extra = {}) => ({ apikey: SB_KEY, 'content-type': 'application/json', ...(ses ? { authorization: 'Bearer ' + ses.access_token } : {}), ...extra });
 async function api(path, o = {}) { const r = await fetch(SB_URL + path, { ...o, headers: H(o.headers) }); const t = await r.text(); const j = t ? JSON.parse(t) : null; if (!r.ok) throw new Error(j?.message || j?.msg || j?.error_description || 'HTTP ' + r.status); return j; }
-import { normWa } from './admin-util.js'; export { normWa };
+import { normWa } from './admin-util.js'; import { validateCodeCreate } from '../membership-core.js'; import { stripeCheckoutStatus } from '../stripe-billing.js'; import { playConfigStatus } from '../play-billing-core.js'; export { normWa };
 const waLink = t => `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hi ${String(t.name || '').split(' ')[0]}, I found you on GLP1 Life and I'd like to know your prices for personal training${t.virtual_pt ? ' (virtual is fine)' : ''}.`)}`;
 const card = t => `<div class="tr"><div class="top">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="">` : '<div class="ph">🏋️</div>'}<div><h3>${esc(t.name || 'Trainer name')}</h3>${t.virtual_pt ? '<span class="vb">Virtual PT available</span>' : ''}${t.area ? `<div class="small muted">📍 ${esc(t.area)}</div>` : ''}</div></div>${(t.specialties || []).map(s => `<span class="chip">${esc(s)}</span>`).join('')}${t.glp1_support ? `<p class="small"><b>GLP-1 support:</b> ${esc(t.glp1_support)}</p>` : ''}${t.whatsapp ? `<a class="wa" href="${waLink(t)}" target="_blank" rel="noopener">💬 Message on WhatsApp for prices</a>` : '<p class="small err">Add a WhatsApp number</p>'}</div>`;
 async function start() {
@@ -42,7 +42,35 @@ $('f').onsubmit = async e => { e.preventDefault(); const err = m => { $('ferr').
     toast('✅ Saved'); await load(); fill();
   } catch (x) { err(x.message); } };
 $('del').onclick = async () => { if (!confirm('Delete this trainer?')) return; await api(`/rest/v1/trainers?id=eq.${$('id').value}`, { method: 'DELETE' }); await load(); fill(); toast('Deleted'); };
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); $('v-trainers').hidden = b.dataset.v !== 'trainers'; $('v-classes').hidden = b.dataset.v !== 'classes'; $('v-aidrafts').hidden = b.dataset.v !== 'aidrafts'; if (b.dataset.v === 'aidrafts') loadAiDrafts(); $('v-mod').hidden = b.dataset.v !== 'mod'; if (b.dataset.v === 'mod') loadMod(); $('v-promos').hidden = b.dataset.v !== 'promos'; $('v-comm').hidden = b.dataset.v !== 'comm'; if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); });
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); ['trainers', 'classes', 'aidrafts', 'mod', 'promos', 'comm', 'access'].forEach(v => { const el = $('v-' + v); if (el) el.hidden = b.dataset.v !== v; }); if (b.dataset.v === 'aidrafts') loadAiDrafts(); if (b.dataset.v === 'mod') loadMod(); if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); if (b.dataset.v === 'access') loadAccess(); });
+function paintPayStatus() {
+  const s = stripeCheckoutStatus(), p = playConfigStatus();
+  const el = $('stripeStatus'); if (!el) return;
+  el.innerHTML = `<p><b>Stripe sandbox:</b> checkout ${esc(s.checkout)}. ${s.live_key_refused || s.reason === 'live_key_refused' ? 'A live key is refused.' : 'No sandbox key is configured.'} Tax is off.</p><p><b>Google Play:</b> billing ${esc(p.checkout)}. ${esc(p.reason)}. The Play app must not be sent to Stripe.</p>`;
+}
+let accessRows = [];
+function drawAccess() {
+  $('acList').innerHTML = accessRows.length ? accessRows.map(c => `<li class="${c.active && !c.revoked_at ? '' : 'off'}"><span class="grow"><b>···· ${esc(c.code_hint)}</b><br><small class="muted">${esc(c.label || 'No label')} · ${c.lifetime ? 'Lifetime' : esc(c.duration_days) + ' days'} · ${c.used}/${c.max_redemptions}${c.redeem_by ? ' · redeem by ' + esc(c.redeem_by) : ''}${c.revoked_at ? ' · revoked' : ''}</small></span>${c.revoked_at ? '' : `<button type="button" class="danger" data-acrev="${esc(c.id)}">Revoke</button>`}</li>`).join('') : '<li class="muted">No codes yet. Nothing is created until you press Create.</li>';
+  $('acList').querySelectorAll('[data-acrev]').forEach(b => b.onclick = async () => { if (!confirm('Revoke this code? New redemptions stop. People who already redeemed keep the access they were given.')) return; await api('/rest/v1/rpc/admin_revoke_access_code', { method: 'POST', body: JSON.stringify({ p_id: b.dataset.acrev }) }); toast('Revoked'); loadAccess(); });
+}
+async function loadAccess() {
+  paintPayStatus();
+  try { accessRows = await api('/rest/v1/rpc/admin_list_access_codes', { method: 'POST', body: '{}' }) || []; }
+  catch { accessRows = []; }
+  drawAccess();
+}
+$('acLife')?.addEventListener('change', () => { $('acDays').disabled = $('acLife').checked; if ($('acLife').checked) $('acDays').value = ''; });
+$('acForm')?.addEventListener('submit', async e => {
+  e.preventDefault(); const show = m => { $('acErr').textContent = m || ''; $('acErr').hidden = !m; }; show('');
+  const check = validateCodeCreate({ lifetime: $('acLife').checked, durationDays: $('acDays').value, maxRedemptions: $('acMax').value, redeemBy: $('acBy').value || null });
+  if (!check.ok) return show(check.errors[0]);
+  try {
+    const j = await api('/rest/v1/rpc/admin_create_access_code', { method: 'POST', body: JSON.stringify({ p_lifetime: check.lifetime, p_duration_days: check.durationDays, p_max_redemptions: check.maxRedemptions, p_redeem_by: $('acBy').value ? new Date($('acBy').value).toISOString() : null, p_label: $('acLabel').value.trim() }) });
+    $('acPlain').textContent = j.code || ''; $('acOnce').hidden = !j.code; $('acFixture').hidden = j.fixture !== true;
+    $('acForm').reset(); $('acDays').disabled = false; toast('Code created. Copy it now.'); loadAccess();
+  } catch (x) { show(x.message || 'The database is not ready for codes yet. Nothing was created.'); }
+});
+$('acCopy')?.addEventListener('click', async () => { const t = $('acPlain').textContent; if (!t) return; try { await navigator.clipboard.writeText(t); toast('Copied'); } catch { toast('Select the code and copy it'); } });
 async function loadClasses() { try { const l = await (await fetch('../library.json?v=' + Date.now())).json(); $('classes').innerHTML = `<p>${l.classes.length} classes in the library:</p><ul>${l.classes.map(c => `<li><b>${esc(c.title)}</b> <span class="muted">${esc(c.category)} · ${Math.round(c.duration / 60)} min</span></li>`).join('')}</ul>`; } catch { $('classes').textContent = 'Could not load library.json'; } }
 let promos = [], usage = [], selPromo = null;
 async function loadPromos() {
