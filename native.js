@@ -6,6 +6,8 @@ const C = window.Capacitor, P = C?.Plugins || {};
 export const native = !!C?.isNativePlatform?.();
 const REL = 'https://api.github.com/repos/mitchrobfilms/coach-workout-app/releases/latest';
 export const codeFromTag = t => { const m = /^apk-v\d+\.\d+\.(\d+)$/.exec(t || ''); return m ? +m[1] : 0; };
+// A shell with canInstall is the sideload APK. A Play shell has cast only and must not fetch or open an APK.
+export const updateChannel = plugins => (typeof plugins?.ApkUpdater?.canInstall === 'function' ? 'sideload' : 'play');
 function setInsets(i) { if (!i) return; const r = document.documentElement.style; r.setProperty('--sat-fb', `${Math.max(0, i.top | 0)}px`); r.setProperty('--sab-fb', `${Math.max(0, i.bottom | 0)}px`); }
 async function insets() {
   document.documentElement.classList.add('native');
@@ -24,7 +26,7 @@ function banner(rel, code) {
   b.querySelector('#apkGo').onclick = async () => {
     const go = b.querySelector('#apkGo'), U = P.ApkUpdater, asset = rel.assets?.find(a => /\.apk$/.test(a.name));
     const url = asset?.browser_download_url || 'https://github.com/mitchrobfilms/coach-workout-app/releases/latest/download/GLP1-Life.apk';
-    if (!U) return P.Browser ? P.Browser.open({ url }) : (location.href = url);
+    if (typeof U?.downloadAndInstall !== 'function') { go.textContent = 'Use Google Play'; return; }
     try {
       if (!(await U.canInstall()).allowed) { go.textContent = 'Allow, then tap again'; await U.openInstallSettings(); return; }
       go.disabled = true; go.textContent = 'Downloading…'; const h = await U.addListener('progress', p => { go.textContent = `Downloading ${p.percent}%`; });
@@ -34,6 +36,7 @@ function banner(rel, code) {
 }
 export async function checkUpdate({ force = false } = {}) {
   if (!native || !P.App) return null;
+  if (updateChannel(P) === 'play') { window.__kova && (window.__kova.apk = { channel: 'play' }); return { channel: 'play' }; }
   try {
     const info = await P.App.getInfo(), have = +info.build || 0;
     const r = await fetch(REL, { headers: { Accept: 'application/vnd.github+json' }, cache: 'no-store' }); if (!r.ok) return null;
@@ -47,6 +50,13 @@ export async function checkUpdate({ force = false } = {}) {
 export const WEB_VERSION = 'web v38';
 async function updRow(manual) {
   const info = document.getElementById('updInfo'), btn = document.getElementById('updCheck'); if (!info) return;
+  if (native && updateChannel(P) === 'play') {
+    let version = '';
+    try { version = (await P.App.getInfo()).version; } catch {}
+    info.textContent = `Installed${version ? ': ' + version : ''}. Google Play delivers updates for this install. This app does not download a separate APK.`;
+    btn.textContent = '🔄 Check for updates';
+    return;
+  }
   if (!native) {
     info.textContent = `GLP1 Life ${WEB_VERSION}. Website updates install automatically.`;
     if (manual) { btn.textContent = 'Checking…'; try { const reg = await navigator.serviceWorker?.getRegistration(); await reg?.update(); } catch {} btn.textContent = '🔄 Check for updates'; info.textContent = `GLP1 Life ${WEB_VERSION}. You're up to date (new versions load automatically).`; }

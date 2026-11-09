@@ -54,7 +54,7 @@ export function makeFoodDiary({ cloud, store, toast, onChange = () => {} }) {
   async function render() {
     const el = root(); if (!el) return;
     const s = await getStatus();
-    const intro = `<div class="fdhero"><span class="fdicon">📸</span><div><h2>Food photo diary</h2><p class="small">Snap your meal or type what you ate for an instant estimate of calories, protein, carbs, fat and fibre, with friendly tips.</p></div></div>`;
+    const intro = `<div class="fdhero"><div><p class="medkicker">Food diary</p><h2>Photo or a description</h2><p>Snap a meal and add words, or type the meal on its own. Correct protein and calories yourself. Estimates only.</p></div></div>`;
     if (s.signin) { el.innerHTML = intro + `<div class="card"><p>Sign in to your GLP1 Life account to use the photo diary. Your photos are stored privately in your account.</p><button type="button" class="primary" data-gotab2="settings">Go to account</button></div>`; return; }
     if (!s.ready) { el.innerHTML = intro + `<div class="card fdsoon"><span class="pill">Coming soon</span><p>${s.offline ? "You're offline. Connect to the internet to check a meal photo." : 'Photo checks are being switched on. You can keep using the food check-in in the meantime.'}</p><button type="button" class="primary" disabled>📷 Snap a meal</button></div>`; return; }
     try { await load(); } catch (e) { el.innerHTML = intro + `<div class="card"><p>Couldn't load your diary: ${esc(e.message)}</p></div>`; return; }

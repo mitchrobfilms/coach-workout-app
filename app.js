@@ -13,7 +13,7 @@ import { findWake, nextDelay } from './voice.js';
 import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { renderCourse, drawCourseCert } from './course.js';
-import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup } from './videos.js';
+import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup, publishedVideos } from './videos.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -22,6 +22,8 @@ import { welcomeLine, stepStartLines, halfwayLine, tenLine, countInLine, layerLi
 import { PREP_RECIPES, MEAL_SECTIONS, PREP_STORE_NOTES, SAFETY, buildWeek } from './prep.js';
 import { RECIPES, STORES, storeBasics, buildList, fmtQty, shopKey, AISLES } from './shopping.js';
 import { MEALS, analyseDay, dayKey, streak, PICKER_FOODS, fussyIdeas, READY_MEALS, LABEL_GUIDE, COUNTRIES, detectCountry, readyMealTip, filterByDislikes, MEAL_IDEAS, mentionsDisliked } from './food.js';
+import { paymentSurface, startPlatformPurchase, restorePlatformPurchases } from './billing.js';
+import { withPreview, activeMembership } from './membership-core.js';
 
 const MP_VER = '1.1.1';
 const MP_URL = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${MP_VER}`;
@@ -529,12 +531,36 @@ function switchTab(t) {
 const buzz = () => { try { navigator.vibrate?.(12); } catch {} };
 function moveDockInd() { const on = document.querySelector('#dock [data-tab].active'), ind = $('dockInd'); if (!ind) return; if (!on) { ind.style.opacity = 0; return; } const d = $('dock').getBoundingClientRect(), r = on.getBoundingClientRect(); ind.style.opacity = 1; ind.style.width = r.width + 'px'; ind.style.transform = `translateX(${r.left - d.left}px)`; }
 addEventListener('resize', moveDockInd); requestAnimationFrame(moveDockInd);
-function openLauncher(on) { const l = $('launcher'); if (on) { l.hidden = false; requestAnimationFrame(() => l.classList.add('open')); } else { l.classList.remove('open'); setTimeout(() => { if (!l.classList.contains('open')) l.hidden = true; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220); } $('orbBtn').setAttribute('aria-expanded', on); $('orbBtn').classList.toggle('open', on); }
+function moreItems() { return [...$('launcher').querySelectorAll('button, a')].filter(el => !el.hidden && el.getClientRects().length); }
+function openLauncher(on) {
+  const l = $('launcher');
+  if (on) {
+    l.hidden = false;
+    const sheet = l.querySelector('.lsheet'); if (sheet) sheet.scrollTop = 0;
+    requestAnimationFrame(() => { l.classList.add('open'); $('moreClose')?.focus(); });
+  } else {
+    const back = l.contains(document.activeElement);
+    l.classList.remove('open');
+    setTimeout(() => { if (!l.classList.contains('open')) l.hidden = true; }, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 220);
+    if (back) $('orbBtn')?.focus();
+  }
+  $('orbBtn').setAttribute('aria-expanded', on ? 'true' : 'false');
+  $('orbBtn').classList.toggle('open', on);
+}
 window.__reta = Object.assign(window.__reta || {}, { openLauncher });
 document.querySelectorAll('#dock [data-tab]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false); switchTab(b.dataset.tab); scrollTo(0, 0); });
-$('orbBtn').onclick = () => { buzz(); openLauncher($('launcher').hidden || !$('launcher').classList.contains('open')); };
-$('launcher').onclick = e => { if (e.target.id === 'launcher') openLauncher(false); };
-addEventListener('keydown', e => { if (e.key === 'Escape' && !$('launcher').hidden) openLauncher(false); });
+$('orbBtn').onclick = () => { buzz(); const open = $('launcher').hidden || !$('launcher').classList.contains('open'); openLauncher(open); if (open) queueMicrotask(() => { try { renderTrainers(); } catch {} }); };
+$('launcher').onclick = e => { if (e.target.closest('.lsheet')) return; openLauncher(false); };
+$('moreClose').onclick = e => { e.stopPropagation(); openLauncher(false); };
+addEventListener('keydown', e => {
+  const l = $('launcher'); if (!l || l.hidden || !l.classList.contains('open')) return;
+  if (e.key === 'Escape') { e.preventDefault(); openLauncher(false); return; }
+  if (e.key !== 'Tab') return;
+  const items = moreItems(); if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
 document.querySelectorAll('#launcher [data-tab], #launcher [data-ltile]').forEach(b => b.onclick = () => { buzz(); if (sess) return toast('Finish or end the workout first'); openLauncher(false);
   if (b.dataset.ltile === 'coach' && !FEATURES.voice) { switchTab('workout'); scrollTo(0, 0); return; }
   if (b.dataset.ltile === 'coach') { switchTab('workout'); scrollTo(0, 0); $('talkBtn').hidden = false; $('talkBtn').scrollIntoView?.({ block: 'center' }); toast('🎙️ Say "voice" or tap Talk'); return; }
@@ -1675,7 +1701,7 @@ function renderHome() {
   $('greet').textContent = greeting();
   const w = sortEntries(store.get('weights', [])), cur = w.length ? w[w.length - 1].kg : null, start = w.length ? w[0].kg : null, goal = settings.goalKg || null;
   const pct = cur != null && goal && start > goal ? Math.round((start - cur) / (start - goal) * 100) : 0, lbsDown = cur != null ? Math.max(0, Math.round((start - cur) * KG_LB)) : 0;
-  $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Track'}</small></div></div>
+  $('wCard').innerHTML = `<div class="wrow"><div><small>Current weight</small><b>${cur != null ? stlb(cur) : '–'}</b><small>${cur != null ? cur.toFixed(1) + ' kg' : 'Log a weigh-in'}</small></div><div style="text-align:right"><small>Goal</small><b>${goal ? stlb(goal) : '–'}</b><small>${goal ? goal.toFixed(1) + ' kg' : 'Set in Progress'}</small></div></div>
     <div class="ringrow">${ringSVG(pct)}<div class="down"><b>${lbsDown} lbs</b><span>down</span><p class="small muted">${w.length ? `Since ${new Date(w[0].date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}</p></div></div>`;
   if (!goal) $('wCard').insertAdjacentHTML('beforeend', `<div class="goalprompt"><span class="small">Set a goal weight to see your progress ring.</span><button type="button" class="primary" id="setGoalBtn">Set goal</button></div>`);
   $('wCard').onclick = e => { if (e.target.closest('#setGoalBtn')) { e.stopPropagation(); switchTab('settings'); setTimeout(() => { const g = $('goalInput'); g?.scrollIntoView({ block: 'center' }); g?.focus(); }, 80); return; } switchTab('progress'); };
@@ -1688,10 +1714,17 @@ function renderHome() {
   renderFoodToday();
   $('stepsCard').onclick = () => openStepsSheet(); window._manualSteps = () => { const v = prompt('Steps today (from your phone\'s health app):', t.steps || ''); if (v == null) return; const n = parseInt(String(v).replace(/\D/g, ''), 10); if (isNaN(n)) return; const d = store.get('daily', {}); (d[todayKey()] ||= {}).steps = n; store.set('daily', d); renderHome(); };
   const sch = store.get('injectSchedule', null), l = store.get('injections', []), last = l.length ? sortInjL(l).at(-1) : null, nd = nextDue(sch, l);
-  $('nextInjCard').innerHTML = `<div class="row between"><div><h3>💉 Next injection</h3><p style="margin:0"><b>${esc(last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged')}</b>${last?.dose ? `<br>${esc(last.dose)} ${esc(last.unit || '')} <small class="muted">(your last logged dose)</small>` : ''}</p>
-    <p class="small" style="margin:6px 0 0">📅 ${nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set'}</p></div>
-    <button type="button" class="primary" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div><p class="small muted" style="margin:6px 0 0">Log only. Follow your GP or prescriber's instructions.</p>`;
-  $('setRemBtn').onclick = e => { e.stopPropagation(); switchTab('progress'); setTimeout(() => ($('injSchedule') || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+  const medName = last ? (last.med === 'Other' ? last.custom || 'Medication' : last.med) : 'No injections logged';
+  const when = nd ? nd.toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'No reminder set';
+  $('nextInjCard').innerHTML = `<p class="medkicker">Medication</p><h3>Your injection log</h3><p class="medname">${esc(medName)}</p>
+    <p class="meddose">${last?.dose ? `${esc(last.dose)} ${esc(last.unit || '')} <span>last dose you entered</span>` : `<span>${last ? 'Dose not recorded on the last entry' : 'Nothing logged yet'}</span>`}</p>
+    <p class="medwhen">Next reminder · ${esc(when)}</p>
+    <p class="mednote">Log only what you were prescribed. This is not dosing advice. Follow your GP or prescriber.</p>
+    <div class="medacts"><button type="button" class="primary" id="logInjBtn">Log injection</button><button type="button" id="openInjBtn">Open full log</button><button type="button" id="setRemBtn">${sch ? 'Edit reminder' : 'Set reminder'}</button></div>`;
+  const goInj = focus => { switchTab('progress'); setTimeout(() => { ($(focus) || $('injCard'))?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 80); };
+  $('logInjBtn').onclick = e => { e.stopPropagation(); goInj('injForm'); };
+  $('openInjBtn').onclick = e => { e.stopPropagation(); goInj('injCard'); };
+  $('setRemBtn').onclick = e => { e.stopPropagation(); goInj('injSchedule'); };
   const ws = weekStartISO(), inWeek = iso => iso && iso.slice(0, 10) >= ws, wk = store.get('weekChecks', {})[ws] || {};
   const wGoal = waterGoal(settings), waterDays = Object.entries(store.get('daily', {})).filter(([d, v]) => d >= ws && waterMl(v) >= wGoal).length;
   const mealDays = new Set([...Object.keys(store.get('food', {})), ...Object.keys(store.get('cloud.foodDays', {}))].filter(d => d >= ws)).size, injN = l.filter(e => inWeek(e.at)).length, weighN = w.filter(x => inWeek(x.date)).length;
@@ -1706,8 +1739,9 @@ function renderHome() {
 }
 // Home tile: today's food from the photo diary (estimates)
 function renderFoodToday() {
-  const el = $('foodTodayCard'); if (!el) return; const t = store.get('cloud.foodDays', {})[todayKey()], goal = 90, pct = t ? Math.min(100, Math.round(t.protein_g / goal * 100)) : 0;
-  el.innerHTML = `<div class="ftrow"><i>🍽️</i><span class="ftmain"><small>Today's food <em>estimate</em></small><b>${t ? `${t.kcal.toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein` : 'No meals logged yet'}</b><small>${t ? `${t.n} meal${t.n === 1 ? '' : 's'} · protein guide ~${goal} g a day` : 'Snap a meal for an instant estimate'}</small></span><span class="ftcta">📸</span></div>${t ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
+  const el = $('foodTodayCard'); const t = store.get('cloud.foodDays', {})[todayKey()], goal = 90, pct = t ? Math.min(100, Math.round(t.protein_g / goal * 100)) : 0;
+  if (el) el.innerHTML = `<div class="ftrow"><i>🍽️</i><span class="ftmain"><small>Today's food <em>estimate</em></small><b>${t ? `${t.kcal.toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein` : 'No meals logged yet'}</b><small>${t ? `${t.n} meal${t.n === 1 ? '' : 's'} · protein guide ~${goal} g a day` : 'Snap a meal for an instant estimate'}</small></span><span class="ftcta">📸</span></div>${t ? `<div class="bar"><i style="width:${pct}%"></i></div>` : ''}`;
+  const hub = $('foodHubToday'); if (hub) hub.textContent = t ? `${t.n} meal${t.n === 1 ? '' : 's'} logged today · about ${Math.round(t.kcal).toLocaleString('en-GB')} kcal · ${Math.round(t.protein_g)} g protein (estimate)` : 'No meals logged yet today';
 }
 const sortInjL = l => l.slice().sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 // Track: segment tabs + body site map
@@ -1808,7 +1842,13 @@ renderCompare = function () {
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
 (window.__kova ||= {}).switchTab = t => switchTab(t);
-switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); document.querySelectorAll('#dock [data-tab]').forEach(b => b.classList.toggle('active', b.dataset.tab === t)); $('orbBtn').classList.toggle('active', !['workout', 'progress', 'prep', 'classes', 'workouts'].includes(t)); document.querySelectorAll('#dock [data-tab=workouts]').forEach(b => b.classList.toggle('active', t === 'workouts' || t === 'classes')); };
+const DOCK_TAB = { workout: 'workout', workouts: 'workouts', foodhub: 'foodhub', food: 'foodhub', diary: 'foodhub', prep: 'foodhub', shop: 'foodhub', prices: 'foodhub', aldi: 'foodhub', lidl: 'foodhub', ukplan: 'foodhub', progress: 'progress' };
+function markDock(t) {
+  const dock = DOCK_TAB[t] || '';
+  document.querySelectorAll('#dock [data-tab]').forEach(b => { const on = b.dataset.tab === dock; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const orb = $('orbBtn'); if (!orb) return; orb.classList.toggle('active', !dock); if (dock) orb.removeAttribute('aria-current'); else orb.setAttribute('aria-current', 'page');
+}
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); if (t === 'ukplan') window.__kova.renderUkPlan?.(); markDock(t); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);
@@ -1842,6 +1882,7 @@ async function renderTrainers() {
   catch { trainers = JSON.parse(localStorage.getItem('glp1life.trainers') || '[]'); }
   try { trIsAdmin = cloud.user ? await (await fetch(`${TR_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: trHead(), body: '{}' })).json() === true : false; } catch { trIsAdmin = false; }
   $('trainerAdmin').hidden = !trIsAdmin;
+  if ($('moreAdmin')) $('moreAdmin').hidden = !trIsAdmin;
   $('trainerList').innerHTML = trainers.length ? trainers.map(t => `<div class="card trcard">
     <div class="trtop">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="" class="trphoto">` : '<div class="trphoto ph">🏋️</div>'}<div><h3>${esc(t.name)}</h3>${t.virtual_pt ? '<span class="vbadge">Virtual PT available</span>' : ''}${t.area ? `<p class="small muted">📍 ${esc(t.area)}</p>` : ''}${!t.active ? '<p class="small muted">Hidden from users</p>' : ''}</div></div>
     ${t.specialties?.length ? `<ul class="trtags" aria-label="Specialties">${t.specialties.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
@@ -1860,8 +1901,58 @@ function shareUI(p) {
     box.querySelectorAll('[data-share]').forEach(cb => cb.onchange = async () => { const s = { ...p.share, [cb.dataset.share]: cb.checked };
       try { p.share = await rpcF('set_share', { s }); toast(cb.checked ? 'Sharing on' : 'Sharing off'); shareUI(p); } catch (x) { cb.checked = !cb.checked; toast(x.message); } }); });
 }
+function paintBilling(state) {
+  const fixture = window.__kova?.playFixture || null;
+  const entitled = activeMembership(state);
+  const s = paymentSurface({ configured: fixture?.configured === true, entitled, env: fixture?.env || {} });
+  const mode = $('billingMode'), note = $('billingNote'), setup = $('billingSetup');
+  if (!mode) return;
+  const actions = $('playActions');
+  if (actions) actions.hidden = s.provider !== 'google_play';
+  if ($('playSubscribe')) { $('playSubscribe').hidden = s.checkout === 'already_entitled'; $('playSubscribe').disabled = s.checkout !== 'ready'; }
+  if ($('playRestore')) $('playRestore').disabled = s.checkout === 'not_configured';
+  if ($('playProduct')) $('playProduct').textContent = fixture?.fixture ? `Fixture product: ${fixture.productId}. This is not a Play Console id.` : '';
+  if (s.provider === 'google_play') {
+    mode.textContent = s.checkout === 'already_entitled' ? `Membership is already on this account (${s.source}). Google Play will not start another subscription.` : s.checkout === 'ready' ? 'Google Play Billing can start a subscription once the server credentials and Console product are confirmed.' : 'Google Play Billing is the payment method for this install. Purchases stay unavailable until the Console subscription id and the server credentials are set.';
+    note.textContent = 'Stripe is not offered here, and there is no link to a checkout. A complimentary code, if you already have one, is not a purchase.';
+    setup.textContent = fixture?.fixture ? 'This screen is a labelled fixture. Google has not been called and no purchase has completed.' : 'No Play Console product id is set in this build. No test purchase has been run.';
+  } else {
+    mode.textContent = 'Web payments are planned with Stripe hosted Checkout in sandbox mode. Checkout is off. No sandbox secret or price is configured, and the live Pepvexia account is not used.';
+    note.textContent = 'The prices shown on the old cards are not a confirmed charge. Tax is not turned on. A complimentary code is separate and does not start a paid subscription.';
+    setup.textContent = 'Still needed: a Stripe sandbox (test) key, a sandbox price id, and a sandbox webhook secret. A live key is refused.';
+  }
+}
+let membershipView = null;
+function paintPreview(state) {
+  const box = $('adminPreview'), banner = $('previewBanner'), line = $('previewState');
+  const view = withPreview({ entitlement: state?.complimentary || state?.stripe || state?.play || null, previewMode: state?.preview, isAdmin: state?.is_admin === true });
+  membershipView = view;
+  if (!box) return;
+  box.hidden = state?.is_admin !== true;
+  document.getElementById('tab-member')?.setAttribute('data-preview', view.preview || '');
+  if (!view.preview) { if (banner) banner.textContent = 'Admin preview is off. This does not change your membership or anyone else\'s.'; if (line) line.textContent = ''; return; }
+  if (banner) banner.textContent = `Admin preview: viewing as ${view.preview === 'free' ? 'Free' : 'Premium'}. Your real access is unchanged, and the app stays unlocked.`;
+  if (line) line.textContent = view.preview === 'free' ? 'The Premium column is only highlighted as a preview. Nothing is locked.' : 'The Premium column is highlighted. This is still not a charge.';
+}
+async function verifyPlayToken(token) {
+  const r = await fetch(`${TR_URL}/functions/v1/play-verify`, { method: 'POST', headers: trHead(), body: JSON.stringify({ purchaseToken: token }) });
+  const j = await r.json().catch(() => ({}));
+  return { ...j, granted: j.granted === true && j.fixture !== true };
+}
+async function renderMembership() {
+  paintBilling();
+  const msg = $('accessCodeMsg');
+  if (!cloud.user) { if ($('adminPreview')) $('adminPreview').hidden = true; if (msg) msg.textContent = 'Sign in to your cloud account to redeem a code. No code exists until an admin creates one.'; return; }
+  try {
+    const s = await rpcF('membership_state');
+    paintPreview(s);
+    paintBilling(s);
+    if (msg && !msg.dataset.hold) msg.textContent = s?.complimentary ? 'A complimentary grant is already on this account. It is not a paid subscription.' : 'No code exists until an admin creates one.';
+  } catch { if ($('adminPreview')) $('adminPreview').hidden = true; }
+}
 async function renderPlan() {
   const st = $('promoStatus'); if (!st) return;
+  renderMembership();
   if (!cloud.user) { st.textContent = 'Got a code from your personal trainer? Sign in to Cloud backup (Settings) first, then enter it here to get GLP1 Life Plus free.'; shareUI({}); return; }
   try { const p = await rpcF('my_plan'); store.set('cloud.plan', p);
     if (p.plan === 'plus') { const by = p.by_trainer ? `Included by ${esc(p.trainer)}` : `Plus included${p.trainer ? ` with ${esc(p.trainer)}` : ''}`;
@@ -1876,6 +1967,32 @@ $('promoForm').onsubmit = async e => { e.preventDefault(); const err = m => { $(
   try { const code = $('promoCode').value; let j = await rpcF('redeem_promo', { p_code: code });
     if (j.needs_consent) { if (!await consent(j.trainer)) return err('Not joined — joining with a trainer code needs your consent to share.'); j = await rpcF('redeem_promo', { p_code: code, p_consent: true }); }
     toast(`🎉 Plus included${j.trainer ? ' by ' + j.trainer : ''}`); $('promoCode').value = ''; renderPlan(); } catch (x) { err(x.message); } };
+$('accessCodeForm')?.addEventListener('submit', async e => {
+  e.preventDefault(); const err = m => { const el = $('accessCodeMsg'); if (el) { el.dataset.hold = '1'; el.textContent = m; } };
+  if (!cloud.user) return err('Sign in to your cloud account first. Redeeming does not start a payment.');
+  try {
+    const j = await rpcF('redeem_access_code', { p_code: $('accessCodeInput').value });
+    $('accessCodeInput').value = '';
+    err(j?.lifetime ? 'Complimentary Premium is on this account. It does not start a paid subscription.' : `Complimentary Premium is on this account until ${j?.ends_at ? new Date(j.ends_at).toLocaleDateString('en-GB') : 'the date the server set'}. It does not start a paid subscription.`);
+    renderMembership();
+  } catch (x) { err(x.message || 'That code could not be redeemed.'); }
+});
+for (const [id, mode] of [['previewFree', 'free'], ['previewPremium', 'premium'], ['previewOff', 'off']]) {
+  $(id)?.addEventListener('click', async () => {
+    try { const j = await rpcF('admin_set_preview', { p_mode: mode }); paintPreview({ is_admin: true, preview: j.preview === 'off' ? null : j.preview, complimentary: membershipView?.entitlement }); }
+    catch (x) { const el = $('previewState'); if (el) el.textContent = x.message || 'Preview is only available to an admin.'; }
+  });
+}
+$('playSubscribe')?.addEventListener('click', async () => {
+  const fixture = window.__kova.playFixture || {};
+  const result = await startPlatformPurchase({ productId: fixture.productId || '', basePlanId: fixture.basePlanId || '', userId: cloud.user?.id || '', verify: verifyPlayToken });
+  if ($('playResult')) $('playResult').textContent = result.reason === 'pending' ? 'Payment is pending. Access has not been granted. This is not a completed purchase.' : result.granted ? 'Google verified this purchase.' : (result.reason || 'Purchase was not granted.');
+});
+$('playRestore')?.addEventListener('click', async () => {
+  const result = await restorePlatformPurchases({ verify: verifyPlayToken });
+  if ($('playResult')) $('playResult').textContent = result.granted ? 'A purchase was restored after server verification.' : 'No verified purchase was restored.';
+});
+window.__kova.startPlatformPurchase = startPlatformPurchase;
 { const sw0 = switchTab; switchTab = t => { sw0(t); if (t === 'member' || t === 'settings') renderPlan(); }; }
 
 /* ---------- Video class library (library-videos.json; member list empty until Coach Ava classes pass safety review) ---------- */
@@ -1902,7 +2019,12 @@ function videoCast(videoEl, btn, v) {
 }
 const vClose = new MutationObserver(() => { const m = $('videoModal'); if (m?.hidden && sessionCastSrc) setCastSource(sessionCastSrc); });
 document.addEventListener('click', e => { const b = e.target.closest('[data-video]'); if (!b) return; const r = openVideo(videoById(b.dataset.video), { onCastSource: videoCast, onComplete: videoCompleted }); const m = $('videoModal'); if (m) vClose.observe(m, { attributes: true, attributeFilter: ['hidden'] }); (window.__kova.videoOpens ||= []).push([b.dataset.video, r]); });
-function renderVideoIdeas() { const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3); el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>🎬 Ideas for you</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="classes">All video classes ›</button>` : ''; el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab)); }
+function renderVideoIdeas() {
+  const el = $('videoIdeas'); if (!el) return; const ideas = pickIdeas(3), n = publishedVideos().length;
+  const meta = $('homeStudioMeta'); if (meta) meta.textContent = n ? `${n} published ${n === 1 ? 'class' : 'classes'} · chair, walking and full body` : 'No published classes yet';
+  el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>Published classes</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="workouts">Open Fitness Studio</button>` : '';
+  el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab));
+}
 loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); renderVideoIdeas(); window.__kova.videosReady = true; });
 
 /* ---------- TV: Google Cast ---------- */
