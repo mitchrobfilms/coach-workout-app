@@ -61,6 +61,14 @@ await page.locator('#ukShop h3').scrollIntoViewIfNeeded();
 await page.screenshot({ path: OUT + '/uk_planner_shops.png' });
 const prefix = await page.evaluate(() => { const id = localStorage.getItem('kova.auth.current'); return id ? `kova.u.${id}.` : 'kova.'; });
 ok(await page.evaluate(prefix => localStorage.getItem(prefix + 'ukPlanner') && !localStorage.getItem('kova.u.other.ukPlanner'), prefix), 'the plan stays on this account');
+await page.click('#ukGenerate');
+ok(/Sign in to Cloud backup/.test(await page.textContent('#ukGenMsg')), 'generation asks for cloud sign-in and leaves the drafts in place');
+await page.route('**/functions/v1/meal-generate', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, recipe: { id: 'ai-fixture-lemon', title: 'Fixture lemon chicken', meal: 'dinner', minutes: 25, servings: 2, ai: true, ingredients: [{ id: 'ai-chicken-0', name: 'Chicken thigh', qty: 160, unit: 'g', imperial: '5.6 oz', aisle: 'AI meal', form: 'as-sold' }], steps: ['Cook the chicken until cooked through.'], proteinLabel: 'Not calculated. Nutrition figures from the model are discarded.', swaps: [], optional: [], safety: 'leftovers' } }) }));
+await page.evaluate(prefix => localStorage.setItem(prefix + 'cloud.session', JSON.stringify({ access_token: 'fixture', user: { id: '00000000-0000-4000-8000-0000000000aa', email: 'fixture@example.test' } })), prefix);
+await page.click('#ukGenerate');
+await page.waitForTimeout(400);
+ok(/Fixture lemon chicken/.test(await page.textContent('#ukPlanRoot')) && /check ingredients for allergies/.test(await page.textContent('#ukPlanRoot')), 'a generated meal is added with the allergy note');
+await page.screenshot({ path: OUT + '/uk_planner_ai_fixture.png' });
 await phone.close();
 
 const desk = await browser.newContext({ viewport: { width: 1280, height: 800 }, locale: 'en-GB', serviceWorkers: 'block' });

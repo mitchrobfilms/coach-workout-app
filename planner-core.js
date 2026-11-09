@@ -169,7 +169,7 @@ export function scaleAmount(qty, baseServings, portions) {
   return Math.round((Number(qty) || 0) * servings / base);
 }
 
-export function shoppingLines(week, recipes, { portions = 2, pantry = {}, prefs = {} } = {}) {
+export function shoppingLines(week, recipes, { portions = 2, pantry = {}, prefs = {}, extras = [] } = {}) {
   const byId = new Map(recipes.map(recipe => [recipe.id, recipe]));
   const totals = new Map();
   for (const day of week?.days || []) {
@@ -178,12 +178,21 @@ export function shoppingLines(week, recipes, { portions = 2, pantry = {}, prefs 
       const recipe = slot && byId.get(slot.id);
       if (!recipe) continue;
       for (const line of usedIngredients(recipe, prefs)) {
-        const key = ingredientKey(line.id);
+        const key = line.name ? `ai:${line.id}:${line.unit || 'g'}` : ingredientKey(line.id);
         const item = INGREDIENTS[line.id];
-        const current = totals.get(key) || { key, id: line.id, name: item?.name || line.id, aisle: item?.aisle || 'Other', unit: item?.unit || 'g', form: item?.form || 'as-sold', qty: 0 };
+        const current = totals.get(key) || { key, id: line.id, name: line.name || item?.name || line.id, aisle: line.aisle || item?.aisle || 'Other', unit: line.unit || item?.unit || 'g', form: line.form || item?.form || 'as-sold', qty: 0 };
         current.qty += scaleAmount(line.qty, recipe.servings, portions);
         totals.set(key, current);
       }
+    }
+  }
+  for (const recipe of extras) {
+    for (const line of usedIngredients(recipe, prefs)) {
+      const key = line.name ? `ai:${line.id}:${line.unit || 'g'}` : ingredientKey(line.id);
+      const item = INGREDIENTS[line.id];
+      const current = totals.get(key) || { key, id: line.id, name: line.name || item?.name || line.id, aisle: line.aisle || item?.aisle || 'AI meal', unit: line.unit || item?.unit || 'g', form: line.form || item?.form || 'as-sold', qty: 0 };
+      current.qty += scaleAmount(line.qty, recipe.servings, portions);
+      totals.set(key, current);
     }
   }
   return [...totals.values()].map(line => {

@@ -2,6 +2,8 @@
 import { getAuth } from './auth.js';
 import { SHOPS, SAFETY, INGREDIENTS, eligibleRecipes, buildWeek, swapSlot, shoppingLines, costSummary, parseAmount, readPlanner, writePlanner, usedIngredients, seasoningSwaps } from './planner-core.js';
 import { RECIPES, RECIPE_COUNT, recipeById } from './planner-recipes.js';
+import { SB_URL, SB_KEY } from './cloud.js';
+import { rememberGenerated } from './meal-generate-core.js';
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const EXCLUDES = ['gluten', 'dairy', 'egg', 'fish', 'peanut', 'soy', 'sesame', 'sulphites', 'celery'];
@@ -23,7 +25,8 @@ function render() {
   const data = load();
   const week = data.week || buildWeek(RECIPES, data.prefs, data);
   data.week = week;
-  const lines = shoppingLines(week, RECIPES, { portions: data.prefs.portions, pantry: data.pantry, prefs: data.prefs });
+  const catalogue = [...RECIPES, ...(data.generated || [])];
+  const lines = shoppingLines(week, catalogue, { portions: data.prefs.portions, pantry: data.pantry, prefs: data.prefs, extras: data.generated || [] });
   const prices = data.prices[data.shop] || {};
   const summary = costSummary(lines, prices);
   const shop = SHOPS.find(item => item.id === data.shop) || SHOPS[0];
@@ -65,9 +68,13 @@ function render() {
       <fieldset><legend>Leave out</legend>${excludes}</fieldset>
       <button type="button" class="primary" id="ukBuild">Build week</button>
       <button type="button" id="ukRegen">Regenerate</button>
-      <p class="small muted">Saved on this phone for this account. Not copied to the cloud.</p>
+      <button type="button" id="ukGenerate">Generate new meal</button>
+      <p class="small" id="ukGenMsg"></p>
+      <p class="small muted">Saved on this phone for this account. Not copied to the cloud. Generated meals are kept with it.</p>
     </div>
-    <div class="card"><h3>Seven days</h3><p class="small">${esc(SAFETY.leftovers)}</p>${days}</div>
+    <div class="card"><h3>Seven days</h3><p class="small">${esc(SAFETY.leftovers)}</p>
+      ${(data.generated || []).map(recipe => `<p><b>Added meal</b> ${esc(recipe.title)} <span class="small">AI-generated, check ingredients for allergies. Not kitchen-tested.</span></p><button type="button" data-ukopen="${esc(recipe.id)}">Recipe</button>`).join('')}
+      ${days}</div>
     <div class="card" id="ukRecipe"></div>
     <div class="card" id="ukShop"><h3>Shopping</h3>
       <p class="small">Choose a shop, then type a pack weight and the price you saw. An empty price stays unknown. It is not treated as free or as the cheapest. A loyalty price is kept separate from the ordinary price.</p>
@@ -98,6 +105,7 @@ function render() {
     const [day, meal] = button.dataset.ukswap.split(':');
     persist({ ...data, week: swapSlot(data.week, RECIPES, data.prefs, Number(day), meal) });
   });
+  document.getElementById('ukGenerate').onclick = () => generate(data, prefsFromForm());
   root.querySelectorAll('[data-ukopen]').forEach(button => button.onclick = () => showRecipe(button.dataset.ukopen, data.prefs.portions, data.prefs));
   root.querySelectorAll('[data-ukshop]').forEach(button => button.onclick = () => persist({ ...data, shop: button.dataset.ukshop }));
   root.querySelectorAll('[data-ukpantry]').forEach(box => box.onchange = () => persist({ ...data, pantry: { ...data.pantry, [box.dataset.ukpantry]: box.checked } }));
@@ -114,16 +122,46 @@ function render() {
   if (!INGREDIENTS.oats || eligibleRecipes(RECIPES, {}).length !== RECIPE_COUNT) return;
 }
 
+function findRecipe(id) {
+  return recipeById(id) || (load().generated || []).find(recipe => recipe.id === id) || null;
+}
+
+async function generate(data, prefs) {
+  const message = document.getElementById('ukGenMsg');
+  const session = JSON.parse(localStorage.getItem(auth.dataPrefix() + 'cloud.session') || 'null');
+  if (!session?.access_token) { if (message) message.textContent = 'Sign in to Cloud backup in Settings before generating a meal. The 18 drafts are still here.'; return; }
+  if (message) message.textContent = 'Generating a meal…';
+  try {
+    const response = await fetch(`${SB_URL}/functions/v1/meal-generate`, { method: 'POST', headers: { apikey: SB_KEY, authorization: 'Bearer ' + session.access_token, 'content-type': 'application/json' }, body: JSON.stringify({ meal: 'dinner', exclude: prefs.exclude, gentle: prefs.gentle }) });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.recipe) { if (message) message.textContent = payload.message || 'Meal generator is not available yet. The draft recipes are still here.'; return; }
+    const next = rememberGenerated({ ...data, prefs }, payload.recipe);
+    save(next);
+    render();
+    const note = document.getElementById('ukGenMsg');
+    if (note) note.textContent = 'AI-generated, check ingredients for allergies. Not kitchen-tested or dietitian-approved.';
+    showRecipe(payload.recipe.id, prefs.portions, prefs);
+  } catch { if (message) message.textContent = 'Meal generator is not available yet. The draft recipes are still here.'; }
+}
+
 function showRecipe(id, portions, prefs) {
   const box = document.getElementById('ukRecipe');
-  const recipe = recipeById(id);
+  const recipe = findRecipe(id);
   if (!box || !recipe) return;
   const safety = SAFETY[recipe.safety] || '';
   const swaps = seasoningSwaps(recipe, prefs);
   const lessFat = (recipe.swaps || []).filter(swap => swap.when === 'less-fat');
   box.innerHTML = `<h3>${esc(recipe.title)}</h3><p class="small">Original draft · ${recipe.minutes} minutes for the method, not scaled with portions · ${portions} portions · ${recipe.vegetarian ? 'vegetarian' : 'not vegetarian'}${recipe.batch ? ' · batch-friendly if you freeze extra portions the same day' : ''}</p>
     <p class="small">Nutrition unavailable. It needs a checked CoFID mapping and is not estimated here. Seasoning is not a treatment.</p>
-    <ul>${usedIngredients(recipe, prefs).map(line => `<li>${esc(INGREDIENTS[line.id].name)}: ${Math.round(line.qty * portions / recipe.servings)}${INGREDIENTS[line.id].unit} (${INGREDIENTS[line.id].form})</li>`).join('')}</ul>
+    <ul>${usedIngredients(recipe, prefs).map(line => {
+      const item = INGREDIENTS[line.id];
+      const name = line.name || item?.name || line.id;
+      const unit = line.unit || item?.unit || 'g';
+      const qty = Math.round(line.qty * portions / recipe.servings);
+      const imperial = line.imperial ? ` · ${line.imperial}` : '';
+      return `<li>${esc(name)}: ${qty}${esc(unit)}${esc(imperial)} (${esc(line.form || item?.form || 'as-sold')})</li>`;
+    }).join('')}</ul>
+    ${recipe.ai ? `<p class="small">${esc(recipe.proteinLabel || 'Not calculated.')} AI-generated, check ingredients for allergies.</p>` : ''}
     ${swaps.length ? `<p class="small"><b>For the setting you chose:</b> ${swaps.map(swap => esc(swap.text)).join(' ')}</p>` : ''}
     ${lessFat.length ? `<p class="small"><b>Less added fat, if you want it:</b> ${lessFat.map(swap => esc(swap.text)).join(' ')}</p>` : ''}
     <ol>${recipe.steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol>
