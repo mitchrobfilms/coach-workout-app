@@ -119,6 +119,23 @@ async function loadMod() {
   $('modBlocked').innerHTML = q.blocked.map(x => `<li><b>${esc(x.author || '?')}</b> <small class="muted">${when(x.at)} · ${esc(x.kind)} · ${esc(x.reason)}</small><br>${esc(x.excerpt)}</li>`).join('') || '<li class="muted">None.</li>';
   document.querySelectorAll('[data-mk]').forEach(b => b.onclick = async () => { if (['delete', 'ban'].includes(b.dataset.ma) && !confirm(`${b.dataset.ma} — are you sure?`)) return;
     try { await rpc('community_mod', { p_kind: b.dataset.mk, p_id: b.dataset.mid, p_action: b.dataset.ma }); toast('Done'); loadMod(); } catch (e) { toast(e.message); } });
+  loadChatQueue();
+}
+async function loadChatQueue() {
+  const note = $('chatQueueNote'); if (!note) return;
+  try {
+    const q = await rpc('community_chat_queue');
+    note.textContent = 'Messages held by the chat filter, and reports from members.';
+    const B = (k, id, a, label) => `<button data-ck="${k}" data-cid="${id}" data-ca="${a}">${label}</button>`;
+    const item = (title, body, btns) => `<li class="card"><p><b>${esc(title)}</b></p><p>${esc(body || '')}</p><div class="row">${btns}</div></li>`;
+    $('chatHeld').innerHTML = (q.held || []).map(x => item(`${x.author || 'Member'} · ${x.reason || 'held'}`, x.body, B('message', x.id, 'approve', 'Approve') + B('message', x.id, 'delete', 'Delete') + B('user', x.user_id, 'mute', 'Mute 24h') + B('user', x.user_id, 'ban', 'Ban'))).join('') || '<li class="muted">Nothing held.</li>';
+    $('chatReports').innerHTML = (q.reports || []).map(x => item(`${x.author || 'Member'} · reported`, `${x.reason || ''}\n${x.body || ''}`, B('report', x.id, 'dismiss', 'Dismiss') + B('message', x.message_id, 'delete', 'Delete message') + (x.user_id ? B('user', x.user_id, 'mute', 'Mute 24h') + B('user', x.user_id, 'ban', 'Ban') : ''))).join('') || '<li class="muted">No open reports.</li>';
+    document.querySelectorAll('[data-ck]').forEach(b => b.onclick = async () => { if (['delete', 'ban'].includes(b.dataset.ca) && !confirm(`${b.dataset.ca} — are you sure?`)) return;
+      try { await rpc('community_chat_moderate', { p_kind: b.dataset.ck, p_id: b.dataset.cid, p_action: b.dataset.ca }); toast('Done'); loadChatQueue(); } catch (e) { toast(e.message); } });
+  } catch (e) {
+    if (/PGRST202|schema cache|community_chat_queue/i.test(e.message)) { note.textContent = 'Chat reports will show here after migration 009_community.sql is applied. Nothing has been changed on the server.'; $('chatHeld').innerHTML = ''; $('chatReports').innerHTML = ''; return; }
+    note.textContent = e.message;
+  }
 }
 $('modGroupF').onsubmit = async e => { e.preventDefault(); try { await rpc('community_add_group', { p_name: $('modGName').value, p_desc: $('modGDesc').value }); $('modGroupF').reset(); toast('Group added'); loadMod(); } catch (x) { toast(x.message); } };
 
