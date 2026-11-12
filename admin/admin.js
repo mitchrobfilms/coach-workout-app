@@ -5,7 +5,7 @@ const toast = m => { $('toast').textContent = m; $('toast').hidden = false; clea
 let ses = JSON.parse(sessionStorage.getItem('glp1admin') || 'null'), list = [];
 const H = (extra = {}) => ({ apikey: SB_KEY, 'content-type': 'application/json', ...(ses ? { authorization: 'Bearer ' + ses.access_token } : {}), ...extra });
 async function api(path, o = {}) { const r = await fetch(SB_URL + path, { ...o, headers: H(o.headers) }); const t = await r.text(); const j = t ? JSON.parse(t) : null; if (!r.ok) throw new Error(j?.message || j?.msg || j?.error_description || 'HTTP ' + r.status); return j; }
-import { normWa } from './admin-util.js'; import { validateCodeCreate } from '../membership-core.js'; import { stripeCheckoutStatus } from '../stripe-billing.js'; import { playConfigStatus } from '../play-billing-core.js'; export { normWa };
+import { normWa } from './admin-util.js'; import { validateCodeCreate } from '../membership-core.js'; import { stripeCheckoutStatus } from '../stripe-billing.js'; import { playConfigStatus } from '../play-billing-core.js'; import { londonToUtc, formatLondon } from '../fitness-core.js'; export { normWa };
 const waLink = t => `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hi ${String(t.name || '').split(' ')[0]}, I found you on GLP1 Life and I'd like to know your prices for personal training${t.virtual_pt ? ' (virtual is fine)' : ''}.`)}`;
 const card = t => `<div class="tr"><div class="top">${t.photo_url ? `<img src="${esc(t.photo_url)}" alt="">` : '<div class="ph">🏋️</div>'}<div><h3>${esc(t.name || 'Trainer name')}</h3>${t.virtual_pt ? '<span class="vb">Virtual PT available</span>' : ''}${t.area ? `<div class="small muted">📍 ${esc(t.area)}</div>` : ''}</div></div>${(t.specialties || []).map(s => `<span class="chip">${esc(s)}</span>`).join('')}${t.glp1_support ? `<p class="small"><b>GLP-1 support:</b> ${esc(t.glp1_support)}</p>` : ''}${t.whatsapp ? `<a class="wa" href="${waLink(t)}" target="_blank" rel="noopener">💬 Message on WhatsApp for prices</a>` : '<p class="small err">Add a WhatsApp number</p>'}</div>`;
 async function start() {
@@ -42,7 +42,7 @@ $('f').onsubmit = async e => { e.preventDefault(); const err = m => { $('ferr').
     toast('✅ Saved'); await load(); fill();
   } catch (x) { err(x.message); } };
 $('del').onclick = async () => { if (!confirm('Delete this trainer?')) return; await api(`/rest/v1/trainers?id=eq.${$('id').value}`, { method: 'DELETE' }); await load(); fill(); toast('Deleted'); };
-document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); ['trainers', 'classes', 'aidrafts', 'mod', 'promos', 'comm', 'access'].forEach(v => { const el = $('v-' + v); if (el) el.hidden = b.dataset.v !== v; }); if (b.dataset.v === 'aidrafts') loadAiDrafts(); if (b.dataset.v === 'mod') loadMod(); if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); if (b.dataset.v === 'access') loadAccess(); });
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => { document.querySelectorAll('.tabs button').forEach(x => x.classList.toggle('on', x === b)); ['trainers', 'classes', 'aidrafts', 'mod', 'promos', 'comm', 'access', 'live'].forEach(v => { const el = $('v-' + v); if (el) el.hidden = b.dataset.v !== v; }); if (b.dataset.v === 'aidrafts') loadAiDrafts(); if (b.dataset.v === 'mod') loadMod(); if (b.dataset.v === 'comm') loadComm(); if (b.dataset.v === 'classes') loadClasses(); if (b.dataset.v === 'promos') loadPromos(); if (b.dataset.v === 'access') loadAccess(); if (b.dataset.v === 'live') loadLive(); });
 function paintPayStatus() {
   const s = stripeCheckoutStatus(), p = playConfigStatus();
   const el = $('stripeStatus'); if (!el) return;
@@ -126,3 +126,20 @@ async function loadAiDrafts() { const el = $('aiDraftList'); el.textContent = 'L
   try { const d = await (await fetch('ai-class-drafts.json?' + Date.now())).json(); const esc = t => String(t ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     el.innerHTML = d.classes.map(c => `<div class="card" style="display:flex;gap:16px;align-items:flex-start;margin:12px 0"><img src="${esc(c.thumb)}" alt="" style="width:220px;border-radius:12px"><div><h3 style="margin:0">${esc(c.title)} · ${c.minutes} min</h3><p class="small">${esc(c.difficulty)} · ${esc(c.category)} · ${esc(c.equipment)} · ${c.access === 'premium' ? 'Premium' : 'Free'}</p><p>${esc(c.description)}</p><p class="small"><b>Instructor:</b> ${esc(d.instructor.name)} <span style="background:#ede4ff;color:#5b2bb5;border-radius:6px;padding:1px 6px">${esc(d.instructor.label)}</span></p><p class="small"><b>Status:</b> <span style="color:${c.published ? '#2e9d5b' : '#b45309'}">${esc(c.status)}</span> · ${c.published ? 'live for members' : 'not published'} · ${c.timeline.length} timeline steps</p><p class="small muted">${esc(c.videoNote)}</p>${c.bunny && c.bunny.guid ? `<div style="position:relative;padding-top:56.25%;margin-top:8px;border-radius:12px;overflow:hidden;background:#000"><iframe src="https://iframe.mediadelivery.net/embed/${encodeURIComponent(c.bunny.libraryId)}/${encodeURIComponent(c.bunny.guid)}?autoplay=false&preload=false" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0" allow="encrypted-media;picture-in-picture;fullscreen" allowfullscreen title="Preview: ${esc(c.title)}"></iframe></div>` : '<p class="small"><i>Preview not available yet: video not uploaded to Bunny Stream.</i></p>'}</div></div>`).join('');
   } catch (e) { el.textContent = 'Could not load drafts: ' + e.message; } }
+
+async function loadLive() {
+  const list = $('lvList'); if (!list) return;
+  try {
+    const rows = await rpc('fitness_live_list');
+    list.innerHTML = (rows || []).map(s => `<li><span class="grow"><b>${esc(s.title)}</b><br><small class="muted">${esc(s.coach)} · ${esc(s.level)} · ${s.durationMin} min · ${esc(formatLondon(s.startsAt))} · ${esc(s.phase)} · ${esc(s.provider)}</small></span><button type="button" data-lvcancel="${esc(s.id)}">Cancel</button></li>`).join('') || '<li class="muted">No classes scheduled. If the fitness migration is not applied yet, nothing is stored.</li>';
+    list.querySelectorAll('[data-lvcancel]').forEach(b => b.onclick = async () => { if (!confirm('Cancel this class?')) return; try { await rpc('fitness_live_cancel', { p_id: b.dataset.lvcancel }); toast('Cancelled'); loadLive(); } catch (e) { toast(e.message); } });
+  } catch (e) { list.innerHTML = `<li class="muted">${esc(e.message)}. Nothing was changed.</li>`; }
+}
+$('liveForm')?.addEventListener('submit', async e => {
+  e.preventDefault(); const err = m => { $('lvErr').textContent = m; $('lvErr').hidden = !m; }; err('');
+  try {
+    const starts = londonToUtc($('lvStarts').value);
+    await rpc('fitness_live_save', { p_title: $('lvTitle').value.trim(), p_coach: $('lvCoach').value.trim(), p_starts: starts, p_level: $('lvLevel').value, p_duration: +$('lvMins').value, p_focus: $('lvFocus').value.trim() || 'full', p_provider: $('lvProvider').value, p_bunny: $('lvBunny').value.trim() || null, p_hls: $('lvHls').value.trim() || null, p_replay: $('lvReplay').value.trim() || null });
+    $('liveForm').reset(); toast('Class scheduled'); loadLive();
+  } catch (x) { err(x.message || 'Not saved. The fitness migration may not be applied yet.'); }
+});

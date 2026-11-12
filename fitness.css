@@ -1,0 +1,43 @@
+/* Fitness studio. GLP1 Life purple, not a copy of any other training app. */
+.fx{margin:0 0 8px}
+.fxbanner{background:#3a1a5a;color:#fff;border-radius:16px;padding:12px 14px;margin:0 0 12px}
+.fxbanner b{display:block;margin-bottom:4px}
+.fxlinks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.fxlinks button,.fxday{text-align:left;border-radius:16px;background:#fff;border:1px solid var(--line);padding:12px;font-weight:700}
+.fxlinks button small,.fxcard small,.fxrow small,.fxrest small{display:block;font-weight:500;color:var(--mut);margin-top:2px}
+.fxhero{background:linear-gradient(145deg,#5b2a86,#7a3fb0 70%,#2e9d5b);color:#fff;border-radius:20px;padding:16px;margin:8px 0}
+.fxhero small,.fxhero .fxquiet{color:rgba(255,255,255,.88);font-weight:500}
+.fxhero button{background:#fff;color:#5b2a86;border:0;font-weight:800}
+.fxcount{font-size:2.5rem;font-weight:800;letter-spacing:.03em;font-variant-numeric:tabular-nums;line-height:1;margin:6px 0}
+.fxcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:8px 0}
+.fxcard > button,.fxhero > button{width:100%;margin-top:8px}
+.fxrow{display:flex;justify-content:space-between;gap:8px;align-items:center;width:100%;text-align:left;margin:6px 0}
+.fxchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+.fxchips button,.fxback{border-radius:999px;padding:8px 12px;background:#fff}
+.fxchips button.on{background:#5b2a86;color:#fff;border-color:#5b2a86}
+.fxback{margin:0 0 8px;font-weight:700;color:#5b2a86}
+.fxweek{display:flex;flex-direction:column;gap:6px}
+.fxweek button,.fxrest{border-radius:14px;padding:10px 12px;text-align:left;background:#fff;border:1px solid var(--line)}
+.fxrest{color:var(--mut)}
+.fxnow{outline:2px solid #5b2a86}
+.fxbar{height:8px;border-radius:99px;background:rgba(255,255,255,.2);overflow:hidden;margin:8px 0}
+.fxbar i{display:block;height:100%;background:#e7d4fb;border-radius:99px}
+.fxplayer{position:fixed;inset:0;z-index:70;background:#2a1740;color:#fff;display:flex;flex-direction:column;padding:calc(14px + var(--sat)) 16px calc(14px + var(--sab));overflow:auto}
+.fxplayer h2{margin:8px 0 4px;font-size:1.7rem}
+.fxplayer .fxphase{letter-spacing:.08em;text-transform:uppercase;font-size:.75rem;color:#e7d4fb;font-weight:800}
+.fxplayer .fxclock{font-size:3rem;font-weight:800;font-variant-numeric:tabular-nums;margin:0}
+.fxplayer button{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+.fxplayer button.primary{background:#fff;color:#5b2a86;border:0}
+.fxplayer .fxnote{color:#f3e9ff}
+.fxstage{background:#1a1028;border-radius:16px;min-height:150px;display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;color:#fff;margin:8px 0}
+.fxstage iframe,.fxstage video{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;background:#000}
+.fxchat{max-height:240px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.fxmsg{background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px 10px}
+.fxmsg b{color:#5b2a86}
+.fxsample{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;background:#efe7f8;color:#5b2a86;border-radius:99px;padding:1px 6px;margin-left:4px}
+.fxgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.fxgrid div,.fxbadge{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.fxgrid b{display:block;font-size:1.3rem;color:#5b2a86}
+.fxbadge.off{opacity:.45}
+.fxarticle p{margin:8px 0}
+@media(max-width:420px){.fxgrid{grid-template-columns:1fr 1fr}}

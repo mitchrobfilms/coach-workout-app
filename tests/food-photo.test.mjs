@@ -55,6 +55,6 @@ t('editor: manual edits never lost (live input, flush before save, no full re-re
   assert.ok(/check\(photo \? \{ path: photo, text \} : \{ text \}\)/.test(f), 're-check sends the description with the same photo');
 });
 t('edge function accepts text with or without a photo and keeps one quota', () => { const s = readFileSync('supabase/functions/food-photo/index.ts', 'utf8'); assert.ok(/if \(!path && !text\)/.test(s) && /hintPrompt\(text, !!img\)/.test(s) && (s.match(/claim_food_photo/g) || []).length === 1); });
-t('service worker cache bumped', () => assert.ok(/glp1life-v5\d/.test(readFileSync('sw.js', 'utf8'))));
+t('service worker cache bumped', () => assert.ok(/glp1life-v6\d/.test(readFileSync('sw.js', 'utf8'))));
 t('migration: food_diary.note', () => assert.ok(/add column if not exists note text/.test(readFileSync('supabase/006_food_notes.sql', 'utf8'))));
 console.log(`${n} food-photo tests passed`);
