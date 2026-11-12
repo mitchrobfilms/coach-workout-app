@@ -1761,11 +1761,11 @@ const SUPPORT = [
   ['🩺', 'Managing Side Effects', 'Practical tips for nausea, constipation and low energy.', ['Eat slowly, stop at the first sign of fullness, and choose smaller meals.', 'Bland, lower-fat foods (toast, rice, chicken, yoghurt) are often easier when queasy.', 'Sip water through the day: aim for 6–8 glasses. Add fibre gradually for constipation.', 'Seek urgent help for severe tummy pain, persistent vomiting or signs of dehydration, and tell your GP or prescriber about anything that worries you.']],
   ['🥗', 'Nutrition for GLP-1', 'Protein first, high-fibre and balanced meals.', ['Aim for protein at every meal (around 25–40 g) to help protect muscle.', 'Fill half your plate with veg or salad; add a fist of carbs if you can manage it.', 'Use the Meal Plan Builder for high-protein, small-portion ideas with Aldi, Lidl and Asda prices.']],
   ['🧠', 'Mindset & Motivation', 'Build healthy habits that last.', ['Track small wins: weigh-ins, water, steps and workouts all count.', 'Expect plateaus; they are normal. Focus on the trend, not one day.', 'Tick "Mindset" on your Home screen each week you take time to reflect.']],
-  ['👥', 'Member Community', 'Connect with others on the same journey.', ['A members\' community is coming soon. For now, share progress with friends using your milestone certificates.']]];
+  ['👥', 'Member Community', 'Chat in sections for food, fitness, wins and announcements.', ['Be kind. No selling or sourcing medicines or peptides, no supplier links or numbers, and no dosing instructions.', 'Nothing here replaces your GP, prescriber or pharmacist. Open Community from Home or More.']]];
 function renderSupport() {
   if (!$('supportCards')) return;
   $('supportCards').innerHTML = SUPPORT.map(([i, t, d], k) => `<div class="card scard"><div class="sic">${i}</div><div><h3>${t}</h3><p class="small muted">${d}</p></div><button type="button" class="primary" data-sup="${k}">${k === 4 ? 'Join' : 'Open'}</button></div>`).join('');
-  $('supportCards').querySelectorAll('[data-sup]').forEach(b => b.onclick = () => { const [i, t, d, pts] = SUPPORT[+b.dataset.sup]; openSheet(`<div class="rhero" style="background:var(--lav)">${i}</div><div class="rbody"><h2>${t}</h2><p class="muted">${d}</p><ul>${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul>${+b.dataset.sup === 4 ? '<button type="button" class="primary big" disabled>Coming soon</button>' : ''}<p class="small muted">General information only, not medical advice. Check with your GP or prescriber.</p></div>`); });
+  $('supportCards').querySelectorAll('[data-sup]').forEach(b => b.onclick = () => { if (+b.dataset.sup === 4) { switchTab('community'); scrollTo(0, 0); return; } const [i, t, d, pts] = SUPPORT[+b.dataset.sup]; openSheet(`<div class="rhero" style="background:var(--lav)">${i}</div><div class="rbody"><h2>${t}</h2><p class="muted">${d}</p><ul>${pts.map(p => `<li>${esc(p)}</li>`).join('')}</ul><p class="small muted">General information only, not medical advice. Check with your GP or prescriber.</p></div>`); });
 }
 function openSheet(html) { $('recipeBody').innerHTML = html; $('recipeModal').hidden = false; $('recipeModal').scrollTop = 0; }
 $('recipeClose').onclick = () => { $('recipeModal').hidden = true; }; $('recipeModal').onclick = e => { if (e.target.id === 'recipeModal') $('recipeModal').hidden = true; };
@@ -1842,13 +1842,14 @@ renderCompare = function () {
 $('plusBtn').onclick = () => toast('⭐ All Plus features unlocked while in private testing. Paid plans: coming soon.');
 const _switchTab = switchTab;
 (window.__kova ||= {}).switchTab = t => switchTab(t);
+let communityChat = null;
 const DOCK_TAB = { workout: 'workout', workouts: 'workouts', foodhub: 'foodhub', food: 'foodhub', diary: 'foodhub', prep: 'foodhub', shop: 'foodhub', prices: 'foodhub', aldi: 'foodhub', lidl: 'foodhub', ukplan: 'foodhub', progress: 'progress' };
 function markDock(t) {
   const dock = DOCK_TAB[t] || '';
   document.querySelectorAll('#dock [data-tab]').forEach(b => { const on = b.dataset.tab === dock; b.classList.toggle('active', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
   const orb = $('orbBtn'); if (!orb) return; orb.classList.toggle('active', !dock); if (dock) orb.removeAttribute('aria-current'); else orb.setAttribute('aria-current', 'page');
 }
-switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') community.load(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); if (t === 'ukplan') window.__kova.renderUkPlan?.(); markDock(t); };
+switchTab = function (t) { _switchTab(t); if (t === 'diary') foodDiary.render(); if (t === 'community') communityChat?.open(); else communityChat?.pause(); if (t === 'workout') renderHome(); if (t === 'progress') renderBodySites(); if (t === 'classes') renderSupport(); if (t === 'prep') renderMyPlan(); if (t === 'trainers') renderTrainers(); if (t === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); if (t === 'foodhub') renderFoodToday(); if (t === 'ukplan') window.__kova.renderUkPlan?.(); markDock(t); };
 document.addEventListener('click', e => { const g = e.target.closest?.('[data-goto]'); if (!g) return; buzz?.(); switchTab(g.dataset.goto); if (g.dataset.goto === 'workouts' && $('videoLib')) renderVideoLib($('videoLib')); scrollTo(0, 0); });
 settings.plan = 'plus'; // private testing: everyone gets Plus
 renderHome(); renderSupport(); renderMyPlan(); renderBodySites(); setTimeout(() => foodDiary.refreshToday().then(renderFoodToday), 1200);
@@ -2060,12 +2061,22 @@ syncSteps(true); addEventListener('visibilitychange', () => { if (!document.hidd
 
 /* ---------- Community ---------- */
 import { makeCommunity } from './community.js';
+import { makeCommunityChat } from './community-chat.js';
+import { readPlanner, writePlanner } from './planner-core.js';
+import { rememberGenerated } from './meal-generate-core.js';
 const weekDays = () => { const out = []; const d = new Date(); const dow = (d.getDay() + 6) % 7; for (let i = 0; i <= dow; i++) { const x = new Date(d); x.setDate(d.getDate() - dow + i); out.push(localDay(x)); } return out; };
 const community = makeCommunity({ rpc: rpcF, toast: (m, ms) => toast(m, ms), root: $('communityRoot'), sbUrl: TR_URL, sbKey: TR_KEY,
   token: () => JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null')?.access_token || '', uid: () => cloud.user?.id,
   certificates: () => store.get('certificates', []),
   stats: () => { const days = weekDays(), daily = store.get('daily', {}), goal = waterGoal(settings), ses = new Set(store.get('sessions', []).map(s => String(s.date || s.at || '').slice(0, 10)));
     return { hydrationDays: days.filter(d => waterMl(daily[d]) >= goal).length, activeDays: days.filter(d => ses.has(d)).length }; } });
+communityChat = makeCommunityChat({ rpc: rpcF, toast: (m, ms) => toast(m, ms), root: $('communityRoot'), sbUrl: TR_URL, sbKey: TR_KEY,
+  token: () => JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null')?.access_token || '', uid: () => cloud.user?.id,
+  openPosts: () => community.load(), openSettings: () => switchTab('settings'),
+  progress: () => { const t = store.get('daily', {})[todayKey()] || {}; return { steps: t.steps || 0, waterMl: t.waterMl || 0 }; },
+  openRecipe: id => { switchTab('prep'); setTimeout(() => { try { glpRecipe(id); } catch {} }, 80); },
+  saveMemberRecipe: recipe => { const data = readPlanner(localStorage, PREFIX) || {}; writePlanner(localStorage, PREFIX, rememberGenerated(data, recipe)); toast('Saved to your meal planner'); switchTab('ukplan'); } });
+(window.__kova ||= {}).openCommunityChat = view => communityChat.open(view);
 
 /* ---------- GLP1 Life Classes: GLP-1 weight-loss course ---------- */
 function renderCourseUI() {

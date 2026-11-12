@@ -15,6 +15,7 @@ const ago = iso => { const s = (Date.now() - Date.parse(iso)) / 1000; return s <
 const DOSE_RE = /\b\d+(\.\d+)?\s?(mg|mcg|ml|iu|units?|clicks?)\b|\b(dose|dosage|dosing|titrat\w*)\b/i;
 export function makeCommunity({ rpc, toast, root, sbUrl, sbKey, token, uid, certificates = () => [], stats = () => ({}) }) {
   const S = { me: null, groups: [], view: 'feed', group: null, kind: null };
+  root.addEventListener('click', e => { if (e.target.closest('#cmToChat')) window.__kova?.openCommunityChat?.(); });
   const $ = sel => root.querySelector(sel);
   const photoUrl = p => p ? `${sbUrl}/storage/v1/object/public/community/${p.split('/').map(encodeURIComponent).join('/')}` : '';
   const say = v => { if (v?.action === 'block') { showRule(v.message); return false; } if (v?.action === 'hold') toast('⏳ ' + v.message, 5000); if (v?.suspended) toast('Your community account is suspended pending review.', 6000); return true; };
@@ -26,7 +27,7 @@ export function makeCommunity({ rpc, toast, root, sbUrl, sbKey, token, uid, cert
     if (!S.groups.length) try { const r = await fetch(`${sbUrl}/rest/v1/community_groups?select=id,name,description,slug&order=sort`, { headers: { apikey: sbKey, authorization: 'Bearer ' + token() } }); S.groups = r.ok ? await r.json() : []; } catch {}
     render();
   }
-  const header = () => `<div class="cmhead"><h2 class="pagehead">💬 Community</h2><p class="small muted">Support, wins and recipes from members on the same journey. No live sessions.</p><div class="cmrule" role="note">🛡️ <b>Community rule:</b> ${esc(RULE)}</div></div><div class="cmrulemsg" id="cmRuleMsg" role="alertdialog" hidden></div>`;
+  const header = () => `<div class="cmhead"><button type="button" class="linkbtn" id="cmToChat">‹ Community chat</button><h2 class="pagehead">💬 Community</h2><p class="small muted">Support, wins and recipes from members on the same journey. No live sessions.</p><div class="cmrule" role="note">🛡️ <b>Community rule:</b> ${esc(RULE)}</div></div><div class="cmrulemsg" id="cmRuleMsg" role="alertdialog" hidden></div>`;
   function renderJoin() {
     root.innerHTML = `${header()}<div class="card cmguide"><h3>Community guidelines</h3><p class="small muted">Please read these before your first post.</p><ul class="cmglist">${GUIDELINES.map(([i, t, d]) => `<li><span>${i}</span><div><b>${esc(t)}</b><p class="small">${esc(d)}</p></div></li>`).join('')}</ul>
       <label>Display name (shown instead of your email)<input id="cmName" maxlength="30" autocomplete="nickname" placeholder="e.g. Sia from Leeds"></label>

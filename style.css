@@ -783,8 +783,127 @@ button.danger:active{background:#b42318!important}
 .ukline{border-top:1px solid #eadff5;padding:8px 0}
 #tab-ukplan .ukprefs label{display:block;margin:6px 0}
 #tab-ukplan input[type="number"],#tab-ukplan input[inputmode="decimal"]{width:7rem;padding:8px;border-radius:10px;border:1px solid #d9c9ea}
+
 .ukdraft{background:#3a1a5a;color:#fff;border-radius:16px;padding:12px 14px;font-weight:700}
 .ukday{border-top:1px solid #eadff5;padding:8px 0}
 .ukline{border-top:1px solid #eadff5;padding:8px 0}
 #tab-ukplan .ukprefs label{display:block;margin:6px 0}
 #tab-ukplan input[type="number"],#tab-ukplan input[inputmode="decimal"]{width:7rem;padding:8px;border-radius:10px;border:1px solid #d9c9ea}
+
+/* Community chat (WhatsApp-style, GLP1 Life colours) */
+.commhome{display:flex;gap:12px;align-items:center;width:100%;text-align:left;margin:10px 0}
+.commhome .lcicon{flex:none}
+.commhometext{min-width:0;flex:1}
+.commhome small,.commhome em{display:block;color:var(--mut);font-style:normal;font-size:.85rem}
+.commhome b{display:block;font-size:1.05rem}
+#tab-community.active .waapp{display:flex;flex-direction:column;height:calc(var(--vh) - 172px - var(--sab) - var(--sat));min-height:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.wahead{display:flex;gap:8px;align-items:center;padding:10px 12px;background:#5b2a86;color:#fff;flex:none}
+.wahead h2,.wahead b{margin:0;font-size:1.05rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wahead .wakicker,.wahead small,.wahead .wame{margin:0;color:rgba(255,255,255,.82);font-size:.75rem}
+.waheadtext{min-width:0;flex:1}
+.waheadtext small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.waheadacts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.waheadacts button,.waback{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);min-height:36px;padding:4px 8px;font-size:.8rem}
+.waback{font-size:1.4rem;line-height:1;padding:0 12px}
+.wapin{background:#efe7f8;color:#3a1a5a;padding:8px 12px;font-size:.82rem;line-height:1.35;flex:none}
+.walist{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
+.warow{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:#fff;padding:12px;min-height:72px}
+.waemoji{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:#efe7f8;font-size:1.35rem;flex:none}
+.wamid{flex:1;min-width:0}
+.watop{display:flex;gap:6px;align-items:baseline}
+.watop b{font-size:1rem}
+.watop time{margin-left:auto;color:var(--mut);font-size:.75rem;white-space:nowrap}
+.warow:has(.wabadge) time{color:#146b38;font-weight:800}
+.wapreview{display:block;color:var(--mut);font-size:.85rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.watag{font-style:normal;font-size:.68rem;background:#efe7f8;color:#5b2a86;border-radius:999px;padding:1px 6px;font-weight:800}
+.wabadge{background:#2e9d5b;color:#fff;border-radius:999px;min-width:22px;height:22px;padding:0 6px;display:grid;place-items:center;font-size:.75rem;font-weight:800;flex:none}
+.wathread{flex:1;overflow:auto;padding:12px 10px 8px;display:flex;flex-direction:column;gap:8px;background:#efe7f8}
+.waday{align-self:center;background:rgba(255,255,255,.9);color:var(--mut);border-radius:999px;padding:3px 10px;font-size:.75rem;font-weight:700}
+.wabubble{display:flex;gap:6px;align-items:flex-end;max-width:100%}
+.wabubble.out{flex-direction:row-reverse}
+.waav{width:32px;height:32px;border-radius:50%;background:#5b2a86;color:#fff;display:grid;place-items:center;font-size:.72rem;font-weight:800;flex:none}
+.wabub{max-width:min(78%,340px);background:#fff;border-radius:16px 16px 16px 4px;padding:6px 8px 4px;box-shadow:0 1px 1px rgba(31,21,52,.08)}
+.wabubble.out .wabub{background:#d8f5e3;border-radius:16px 16px 4px 16px}
+.waname{display:block;color:#5b2a86;font-size:.78rem}
+.watext{margin:.15rem 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.wabub time{display:block;text-align:right;color:var(--mut);font-size:.68rem}
+.waquote{margin:0 0 4px;padding:4px 8px;border-left:3px solid #5b2a86;background:rgba(91,42,134,.08);border-radius:8px;font-size:.8rem}
+.waquote span{display:block;color:var(--mut)}
+.wareacts{display:flex;gap:4px;flex-wrap:wrap}
+.wareacts button,.wareactpick button{border:0;background:rgba(255,255,255,.85);border-radius:999px;min-height:28px;padding:2px 8px}
+.wareacts button.on{outline:2px solid #2e9d5b}
+.waimg{display:block;width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:4px 0;background:#e6f5ec}
+.waheld{margin:0 0 4px;background:#fff4e0;color:#8a5200;border-radius:8px;padding:4px 6px;font-size:.78rem}
+.wamore{border:0;background:transparent;color:var(--mut);min-width:28px;min-height:32px;padding:0 4px;align-self:center}
+.wacompose{flex:none;background:#fff;border-top:1px solid var(--line);padding:8px}
+.wainput{display:flex;gap:6px;align-items:center}
+#waText{flex:1;width:auto;min-width:0;margin:0;border-radius:999px;padding:10px 14px}
+.wacompose .primary{margin:0;border-radius:999px;min-height:44px}
+.wareply,.waphoto,.wanote{font-size:.82rem;color:#5b2a86;display:flex;justify-content:space-between;gap:8px;align-items:center;padding:0 4px 6px}
+.wanote{color:#8a5200}
+.washeet{position:fixed;inset:0;z-index:70;background:rgba(31,21,52,.35);display:flex;align-items:flex-end;justify-content:center}
+.washeetbox{width:min(520px,100%);background:#fff;border-radius:18px 18px 0 0;padding:12px 12px calc(12px + var(--sab));display:flex;flex-direction:column;gap:8px}
+.washeetbox button{text-align:left;min-height:44px}
+.wareactpick{display:flex;gap:6px;justify-content:space-between}
+.wasecs{list-style:none;margin:0;padding:0 0 12px;overflow:auto;flex:1;min-height:0}
+.wasec{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--line)}
+.wasec > span:nth-child(2){flex:1;min-width:140px}
+.wasec small{display:block;color:var(--mut)}
+.wasec.arch{opacity:.6}
+.wasectools{display:flex;gap:4px;flex-wrap:wrap}
+.wasectools button{min-height:36px;padding:6px 8px}
+[data-wa-view="admin"] .card{margin:8px;padding:8px 10px}
+[data-wa-view="admin"] .card h3{margin:4px 0}
+[data-wa-view="admin"] .card label{margin:.2rem 0}
+.waqueue{overflow:auto;flex:1;min-height:0;padding:0 12px 16px}
+.waqueue .row{flex-wrap:wrap}
+.waqueue .row button{flex:1 1 calc(50% - 6px);min-width:0}
+.waqueue h3{margin:12px 0 6px}
+.walist.plain{overflow:visible;flex:none}
+.wasoon{margin:12px}
+.walink{align-self:center;border:0;background:transparent;color:#5b2a86;font-weight:700}
+#tab-community .card label{display:block;margin:.5rem 0}
+#tab-community .card input:not([type=checkbox]){width:100%;box-sizing:border-box}
+.waapp{position:relative}
+.wavoice{display:flex;gap:8px;align-items:center;width:220px;border:0;background:transparent;padding:4px 0}
+.wawave{display:flex;align-items:flex-end;gap:2px;height:28px;flex:1}
+.wawave i{display:block;width:3px;border-radius:2px;background:#5b2a86}
+.wabubble.out .wawave i{background:#146b38}
+.wawave{background:linear-gradient(90deg,#2e9d5b var(--play,0%),transparent var(--play,0%))}
+.waplay{width:28px;height:28px;border-radius:50%;background:#5b2a86;color:#fff;display:grid;place-items:center;font-size:.8rem}
+.warec{display:flex;gap:8px;align-items:center;padding:6px}
+.wadot{width:10px;height:10px;border-radius:50%;background:#d64545}
+.wapinbar{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:#fff;color:#5b2a86;padding:8px 12px}
+.wapinbar span{color:var(--txt);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wapoll{display:flex;flex-direction:column;gap:6px;min-width:200px}
+.wapollopt{position:relative;overflow:hidden;text-align:left;display:flex;justify-content:space-between;min-height:40px}
+.wapollopt i{position:absolute;left:0;top:0;bottom:0;background:rgba(46,157,91,.2)}
+.wapollopt.on{outline:2px solid #2e9d5b}
+.wachal{margin:8px;padding:10px;background:#fff;border-radius:14px}
+.waboard{list-style:none;padding:0;margin:8px 0}
+.waboard li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line)}
+.waboard li.me{font-weight:800}
+.wawin{margin:0 0 4px;color:#146b38;font-weight:800}
+.wabubble.win .wabub{outline:2px solid #2e9d5b}
+.waceleb{position:absolute;inset:40px 10px auto;display:flex;justify-content:space-around;font-size:1.8rem;pointer-events:none}
+.watyping{margin:0;padding:4px 12px;color:#5b2a86;font-size:.85rem;background:#efe7f8}
+.watick{font-style:normal;color:#6c6382;margin-left:4px}
+.watick.seen{color:#146b38}
+.wamention{color:#5b2a86;font-weight:800}
+.wamentions{display:flex;gap:6px;flex-wrap:wrap;padding:4px 8px}
+.wamentions button{min-height:36px}
+button.waav{padding:0;border:0;min-height:32px}
+.waav.big{width:64px;height:64px;font-size:1.4rem}
+.wawelcome{margin:8px 12px;padding:10px 12px;background:#efe7f8;border-radius:14px}
+.wabuddy h3{margin-top:0}
+.warecipe{display:block;width:100%;text-align:left;background:#e6f5ec;border:0}
+.warecipe small{display:block;color:#146b38}
+.wastickers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+.wasticker{min-height:72px;background:#fff}
+.wasticker svg,.wasticker.show svg{width:48px;height:48px}
+.wasticker.show{display:inline-grid;place-items:center;background:transparent;border:0;padding:0}
+.wabadges{display:flex;gap:6px;flex-wrap:wrap;padding:0;list-style:none}
+.wabadges li{background:#efe7f8;border-radius:999px;padding:4px 10px;font-weight:700}
+.waqs{list-style:none;padding:0}
+.waq{padding:8px 0;border-top:1px solid var(--line)}
+.watrans{background:#efe7f8;border-radius:12px;padding:8px}

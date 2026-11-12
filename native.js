@@ -71,3 +71,11 @@ async function updRow(manual) {
 function wireUpd() { const b = document.getElementById('updCheck'); if (b && !b.onclick) { b.onclick = () => updRow(true); updRow(false); } }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wireUpd); else wireUpd();
 if (native) { insets(); statusBar(); setTimeout(checkUpdate, 2500); document.addEventListener('visibilitychange', () => document.visibilityState === 'visible' && checkUpdate()); }
+
+// TODO(FCM): Android push is not available yet. There is no google-services.json and no Firebase
+// project for GLP1 Life. When those exist, register @capacitor/push-notifications here and POST the
+// device token through community_push_save with p_kind 'fcm'. Until then, community alerts use Web
+// Push in the browser (VAPID keys live only in Supabase secrets, not in this file).
+export async function registerNativePush() {
+  return { ok: false, reason: 'fcm_not_configured' };
+}

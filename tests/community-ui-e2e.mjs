@@ -22,7 +22,9 @@ try {
   await p.goto(URL, { waitUntil: 'load' }); await p.waitForTimeout(1200);
   await p.click('#wCreate'); await p.fill('#regName', 'Sia'); await p.fill('#regEmail', E); await p.fill('#regSecret', PW); await p.click('#regBtn'); await p.waitForLoadState('load'); await p.waitForTimeout(2500);
   if (await p.isVisible('#obSkip')) await p.click('#obSkip');
-  await p.evaluate(() => window.__kova.switchTab('community')); await p.waitForSelector('#cmJoin', { timeout: 15000 });
+  await p.evaluate(() => window.__kova.switchTab('community')); await p.waitForSelector('#cmJoin, #waPosts, #waJoin', { timeout: 15000 });
+  if (await p.locator('#waPosts').count()) await p.click('#waPosts');
+  await p.waitForSelector('#cmJoin', { timeout: 15000 });
   ok(/No questions or advice on mixing, reconstituting or dosing medication or peptides\. No buying, selling or sourcing medication\./.test(await p.textContent('#communityRoot')), 'rule text in header');
   await p.screenshot({ path: `${OUT}/community-guidelines.png`, fullPage: true });
   await p.fill('#cmName', 'Sia'); await p.click('#cmJoin'); ok(await p.isVisible('#cmJoinErr'), 'must tick agreement');
