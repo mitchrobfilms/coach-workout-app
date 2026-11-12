@@ -207,7 +207,7 @@ export function bubbleHtml(m) {
   const held = m.status === 'held';
   const voice = m.kind === 'voice' ? `<button type="button" class="wavoice" data-play="${esc(m.id)}" aria-label="Play voice note"><span class="waplay">▶</span><span class="wawave">${Array.from({ length: 14 }, (_, i) => `<i style="height:${30 + ((i * 17) % 60)}%"></i>`).join('')}</span><small>0:${String(m.audio_seconds || 0).padStart(2, '0')}</small></button>` : '';
   return `<article class="wabubble ${mine ? 'out' : 'in'}${held ? ' held' : ''}${m.kind === 'win' ? ' win' : ''}" data-mid="${esc(m.id)}" id="msg-${esc(m.id)}">
-    ${mine ? '' : `<span class="waav" aria-hidden="true">${esc(m.initials || initials(m.author))}</span>`}
+    ${mine ? '' : `<button type="button" class="waav" data-profile="${esc(m.user_id || '')}" aria-label="Profile of ${esc(m.author || 'member')}">${esc(m.initials || initials(m.author))}</button>`}
     <div class="wabub">
       ${mine ? '' : `<b class="waname">${esc(m.author || 'Member')}</b>`}
       ${m.kind === 'win' ? '<p class="wawin">Milestone</p>' : ''}
@@ -215,7 +215,7 @@ export function bubbleHtml(m) {
       ${quoteHtml(m.reply)}
       ${voice}
       ${m.body && m.kind !== 'poll' ? `<p class="watext">${richText(m.body)}</p>` : ''}
-      ${m.poll_html || ''}
+      ${m.poll_html || ''}${m.card_html || ''}
       ${m.image ? `<img class="waimg" alt="Photo attached to this message" ${m.image.startsWith('data:image/') || m.image.startsWith('blob:') ? `src="${esc(m.image)}"` : `data-path="${esc(m.image)}"`}>` : ''}
       ${reactionsHtml(m)}
       <time datetime="${esc(m.created_at)}">${esc(m.clock || chatTime(m.created_at))}${tickHtml(m)}</time>

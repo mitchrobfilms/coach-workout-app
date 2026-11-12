@@ -2071,7 +2071,8 @@ const community = makeCommunity({ rpc: rpcF, toast: (m, ms) => toast(m, ms), roo
 communityChat = makeCommunityChat({ rpc: rpcF, toast: (m, ms) => toast(m, ms), root: $('communityRoot'), sbUrl: TR_URL, sbKey: TR_KEY,
   token: () => JSON.parse(localStorage.getItem(PREFIX + 'cloud.session') || 'null')?.access_token || '', uid: () => cloud.user?.id,
   openPosts: () => community.load(), openSettings: () => switchTab('settings'),
-  progress: () => { const t = store.get('daily', {})[todayKey()] || {}; return { steps: t.steps || 0, waterMl: t.waterMl || 0 }; } });
+  progress: () => { const t = store.get('daily', {})[todayKey()] || {}; return { steps: t.steps || 0, waterMl: t.waterMl || 0 }; },
+  openRecipe: id => { switchTab('prep'); setTimeout(() => { try { glpRecipe(id); } catch {} }, 80); } });
 (window.__kova ||= {}).openCommunityChat = view => communityChat.open(view);
 
 /* ---------- GLP1 Life Classes: GLP-1 weight-loss course ---------- */

@@ -11,6 +11,10 @@ import {
   searchMessages, pollView, pollHtml, castVote, validOptions, challengeHtml, pinBarHtml, settingsHtml, searchHtml, dmListHtml,
   mentionBoxHtml, recordBarHtml, enrichDemo, dmAllowed, waveform,
 } from './community-chat-extra.js';
+import {
+  moreDemo, welcomeHtml, buddyHtml, promptHtml, qaHtml, profileHtml, scheduleHtml, stickerHtml, translateHtml,
+  recipeButton, stickerInline, demoTranslate, allowText, QA_NOTICE,
+} from './community-more.js';
 
 export function demoMode(search = '') {
   const q = new URLSearchParams(String(search).replace(/^\?/, ''));
@@ -210,9 +214,9 @@ function demoBackend(state) {
   };
 }
 
-export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search, progress }) {
+export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search, progress, openRecipe }) {
   const mode = demoMode(search ?? (typeof location !== 'undefined' ? location.search : ''));
-  const state = mode ? enrichDemo(demoState()) : null;
+  const state = mode ? moreDemo(enrichDemo(demoState())) : null;
   if (state) {
     state.me.is_admin = mode === 'admin' || mode === 'reports' || mode === 'queue';
     state.mutes = { casey: '2026-11-12T12:00:00.000Z' };
@@ -266,6 +270,15 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     if (view === 'poll' || view === 'typing') return renderChat('gen');
     if (view === 'challenge') return renderChat('fit');
     if (view === 'wins') { S.celebrate = true; return renderChat('wins'); }
+    if (view === 'buddy') return showBuddy();
+    if (view === 'prompt') { root.innerHTML = promptHtml(state?.prompts?.[0] || { hour: 8, minute: 0, body: 'How are you feeling today?' }); return; }
+    if (view === 'recipe') { S.focus = '.warecipe'; return renderChat(state ? 'food' : S.sectionId); }
+    if (view === 'qa') return showQa();
+    if (view === 'profile') return showProfile(state ? 'ava' : null);
+    if (view === 'schedule') { root.innerHTML = scheduleHtml(state?.scheduled?.[0]); return; }
+    if (view === 'stickers') { root.innerHTML = stickerHtml(); return; }
+    if (view === 'translate') return showTranslate(false);
+    if (view === 'welcome') return renderList();
     if (view === 'chat') return renderChat(state ? 'food' : S.sectionId);
     return renderList();
   }
@@ -283,7 +296,8 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     return (messages || []).map(m => {
       const poll = polls.find(p => p.message_id === m.id || p.id === m.poll_id);
       const mine = !!(m.mine || m.user_id === S.me?.user_id);
-      return { ...m, mine, poll_html: poll ? pollCard(poll) : (m.poll_html || ''), ticks: mine ? (m.ticks || state?.readers?.[section] || 0) : 0, pinned: !!(state?.pins || []).some(p => p.message_id === m.id) || !!m.pinned };
+      const card = m.card?.type === 'sticker' ? stickerInline(m.card.id) : recipeButton(m.card);
+      return { ...m, mine, poll_html: poll ? pollCard(poll) : (m.poll_html || ''), card_html: card, ticks: mine ? (m.ticks || state?.readers?.[section] || 0) : 0, pinned: !!(state?.pins || []).some(p => p.message_id === m.id) || !!m.pinned };
     });
   }
   async function renderList() {
@@ -291,6 +305,7 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     try { S.rows = (await be.sections()).map(mapSection).filter(s => !s.archived); }
     catch (e) { await failOpen(e); return; }
     root.innerHTML = listHtml(S.rows, { pinned: S.me?.pinned || PINNED, admin: admin(), name: S.me?.display_name || '' });
+    if (state?.welcome && !state.welcome.dismissed) root.querySelector('.wapin')?.insertAdjacentHTML('afterend', welcomeHtml(state.welcome));
     paintHome();
     listen();
   }
@@ -417,6 +432,15 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     if (t.id === 'waPosts') { pause(); openPosts?.(); return; }
     if (t.id === 'waSettings') { openSettings?.(); return; }
     if (t.id === 'waBack') return S.dmId ? renderDms() : renderList();
+    if (t.id === 'waWelcomeOk') { if (state?.welcome) state.welcome.dismissed = true; return renderList(); }
+    if (t.id === 'waBuddyEnd') { if (state) state.pair = null; return showBuddy(); }
+    if (t.id === 'waRemind' && state?.event) { state.event.reminded = true; say('We will remind you. This Q&A is not medical advice.'); return showQa(); }
+    if (t.id === 'waDoTranslate') return showTranslate(true);
+    if (t.dataset.recipe) { openRecipe?.(t.dataset.recipe); return; }
+    if (t.dataset.profile) return showProfile(t.dataset.profile);
+    if (t.dataset.sticker) { say('Sticker added to your next message'); return; }
+    if (t.dataset.up && state?.event) { const q = state.event.questions.find(x => x.id === t.dataset.up); if (q) q.votes += 1; return showQa(); }
+    if (t.dataset.answered && state?.event) { const q = state.event.questions.find(x => x.id === t.dataset.answered); if (q) q.answered = true; return showQa(); }
     if (t.id === 'waSearch') return renderSearch('');
     if (t.id === 'waDms') return renderDms();
     if (t.id === 'waPrefs') return renderPrefs();
@@ -454,6 +478,10 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     if (e.target.id === 'waDmNew') { e.preventDefault(); return openDmName($('#waDmName')?.value || ''); }
     if (e.target.id === 'waDmForm') { e.preventDefault(); return sendDm(); }
     if (e.target.dataset.log) { e.preventDefault(); const show = root.querySelector(`[data-board="${e.target.dataset.log}"]`)?.checked !== false; const n = Number(e.target.n?.value || 0); await soft(() => be.logChallenge(e.target.dataset.log, n, show), null); return renderChat(S.sectionId); }
+    if (e.target.id === 'waBuddyIn') { e.preventDefault(); const text = e.target.text?.value || ''; const gate = allowText(text); if (!gate.ok) return say(gate.result.message); if (state?.pair) state.pair.checkin = { author: state.me.display_name, body: text, at: new Date().toISOString() }; return showBuddy(); }
+    if (e.target.id === 'waBuddyOpt' || e.target.id === 'waBuddyAsk') { e.preventDefault(); const goal = e.target.goal?.value || e.target.who?.value || ''; const gate = allowText(goal); if (!gate.ok) return say(gate.result.message); say(e.target.id === 'waBuddyAsk' ? 'Request sent' : 'You are on the opt-in list'); return; }
+    if (e.target.id === 'waAsk') { e.preventDefault(); const q = e.target.q?.value || ''; const gate = allowText(q); if (!gate.ok) return say(gate.result.message); state?.event?.questions.push({ id: 'q' + Date.now(), author: state.me.display_name, body: q, votes: 0, answered: false, mine: true }); return showQa(); }
+    if (e.target.id === 'waSched') { e.preventDefault(); const body = e.target.body?.value || ''; const gate = allowText(body); if (!gate.ok) return say(gate.result.message); say('Scheduled. It will send when the daily job runs.'); return; }
   });
   root.addEventListener('input', e => {
     if (e.target.id !== 'waText') return;
@@ -484,6 +512,17 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     openMenu(bubble.dataset.mid);
   });
 
+  function showBuddy() { root.innerHTML = buddyHtml(state?.pair, state?.me?.user_id || 'me'); }
+  function showQa() { root.innerHTML = qaHtml(state?.event || { title: 'Q&A', starts_at: '2026-11-11T18:00', questions: [], reminded: false }); }
+  function showProfile(id) {
+    const profile = state?.profiles?.[id] || state?.profiles?.ava;
+    if (!profile) { say('Profile opens after the next database update.'); return; }
+    root.innerHTML = profileHtml(profile);
+  }
+  function showTranslate(run) {
+    const original = 'Clothes fit better this week. I kept the walks going.';
+    root.innerHTML = translateHtml(original, run ? demoTranslate(original) : null);
+  }
   async function renderPrefs() {
     S.screen = 'settings';
     const s = await soft(() => be.settings(), { read_receipts: true, dms_enabled: true, notify: 'all' });

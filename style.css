@@ -892,3 +892,18 @@ button.danger:active{background:#b42318!important}
 .wamention{color:#5b2a86;font-weight:800}
 .wamentions{display:flex;gap:6px;flex-wrap:wrap;padding:4px 8px}
 .wamentions button{min-height:36px}
+button.waav{padding:0;border:0;min-height:32px}
+.waav.big{width:64px;height:64px;font-size:1.4rem}
+.wawelcome{margin:8px 12px;padding:10px 12px;background:#efe7f8;border-radius:14px}
+.wabuddy h3{margin-top:0}
+.warecipe{display:block;width:100%;text-align:left;background:#e6f5ec;border:0}
+.warecipe small{display:block;color:#146b38}
+.wastickers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+.wasticker{min-height:72px;background:#fff}
+.wasticker svg,.wasticker.show svg{width:48px;height:48px}
+.wasticker.show{display:inline-grid;place-items:center;background:transparent;border:0;padding:0}
+.wabadges{display:flex;gap:6px;flex-wrap:wrap;padding:0;list-style:none}
+.wabadges li{background:#efe7f8;border-radius:999px;padding:4px 10px;font-weight:700}
+.waqs{list-style:none;padding:0}
+.waq{padding:8px 0;border-top:1px solid var(--line)}
+.watrans{background:#efe7f8;border-radius:12px;padding:8px}

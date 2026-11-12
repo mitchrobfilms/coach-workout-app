@@ -102,6 +102,21 @@ try {
   await p.screenshot({ path: OUT + '/community_search.png' });
   await feature('dm', 'community_dm_list.png', '[data-wa-view="dms"]');
   await feature('dmchat', 'community_dm_chat.png', '[data-wa-view="dmchat"]');
+  await feature('buddy', 'community_buddy.png', '[data-wa-view="buddy"]');
+  await feature('prompt', 'community_daily_prompt.png', '[data-wa-view="prompt"]');
+  await feature('recipe', 'community_recipe_card.png', '.warecipe');
+  await feature('qa', 'community_qa.png', '[data-wa-view="qa"]');
+  ok(/not medical advice/i.test(await p.textContent('#communityRoot')), 'Q&A shows the wellbeing notice');
+  await feature('profile', 'community_profile.png', '[data-wa-view="profile"]');
+  await feature('schedule', 'community_scheduled.png', '[data-wa-view="schedule"]');
+  await feature('stickers', 'community_stickers.png', '[data-wa-view="stickers"]');
+  ok(/GIF_API_KEY/.test(await p.textContent('#communityRoot')), 'GIF picker names the secret and stays off');
+  await feature('translate', 'community_translate.png', '#waDoTranslate');
+  await p.click('#waDoTranslate');
+  await p.waitForTimeout(200);
+  ok(/Demo French/.test(await p.textContent('#communityRoot')), 'translation is labelled as a demo');
+  await p.screenshot({ path: OUT + '/community_translate_result.png' });
+  await feature('welcome', 'community_welcome.png', '.wawelcome');
 
   await p.setViewportSize({ width: 360, height: 740 });
   await p.goto(url, { waitUntil: 'domcontentloaded' });
