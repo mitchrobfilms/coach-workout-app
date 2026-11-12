@@ -798,12 +798,12 @@ button.danger:active{background:#b42318!important}
 .commhome b{display:block;font-size:1.05rem}
 #tab-community.active .waapp{display:flex;flex-direction:column;height:calc(var(--vh) - 172px - var(--sab) - var(--sat));min-height:0;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
 .wahead{display:flex;gap:8px;align-items:center;padding:10px 12px;background:#5b2a86;color:#fff;flex:none}
-.wahead h2,.wahead b{margin:0;font-size:1.05rem;color:#fff}
+.wahead h2,.wahead b{margin:0;font-size:1.05rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wahead .wakicker,.wahead small,.wahead .wame{margin:0;color:rgba(255,255,255,.82);font-size:.75rem}
 .waheadtext{min-width:0;flex:1}
 .waheadtext small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .waheadacts{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
-.waheadacts button,.waback{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);min-height:36px;padding:6px 10px}
+.waheadacts button,.waback{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.35);min-height:36px;padding:4px 8px;font-size:.8rem}
 .waback{font-size:1.4rem;line-height:1;padding:0 12px}
 .wapin{background:#efe7f8;color:#3a1a5a;padding:8px 12px;font-size:.82rem;line-height:1.35;flex:none}
 .walist{list-style:none;margin:0;padding:0;overflow:auto;flex:1}
@@ -864,3 +864,31 @@ button.danger:active{background:#b42318!important}
 .walink{align-self:center;border:0;background:transparent;color:#5b2a86;font-weight:700}
 #tab-community .card label{display:block;margin:.5rem 0}
 #tab-community .card input:not([type=checkbox]){width:100%;box-sizing:border-box}
+.waapp{position:relative}
+.wavoice{display:flex;gap:8px;align-items:center;width:220px;border:0;background:transparent;padding:4px 0}
+.wawave{display:flex;align-items:flex-end;gap:2px;height:28px;flex:1}
+.wawave i{display:block;width:3px;border-radius:2px;background:#5b2a86}
+.wabubble.out .wawave i{background:#146b38}
+.wawave{background:linear-gradient(90deg,#2e9d5b var(--play,0%),transparent var(--play,0%))}
+.waplay{width:28px;height:28px;border-radius:50%;background:#5b2a86;color:#fff;display:grid;place-items:center;font-size:.8rem}
+.warec{display:flex;gap:8px;align-items:center;padding:6px}
+.wadot{width:10px;height:10px;border-radius:50%;background:#d64545}
+.wapinbar{display:flex;gap:8px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:#fff;color:#5b2a86;padding:8px 12px}
+.wapinbar span{color:var(--txt);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wapoll{display:flex;flex-direction:column;gap:6px;min-width:200px}
+.wapollopt{position:relative;overflow:hidden;text-align:left;display:flex;justify-content:space-between;min-height:40px}
+.wapollopt i{position:absolute;left:0;top:0;bottom:0;background:rgba(46,157,91,.2)}
+.wapollopt.on{outline:2px solid #2e9d5b}
+.wachal{margin:8px;padding:10px;background:#fff;border-radius:14px}
+.waboard{list-style:none;padding:0;margin:8px 0}
+.waboard li{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line)}
+.waboard li.me{font-weight:800}
+.wawin{margin:0 0 4px;color:#146b38;font-weight:800}
+.wabubble.win .wabub{outline:2px solid #2e9d5b}
+.waceleb{position:absolute;inset:40px 10px auto;display:flex;justify-content:space-around;font-size:1.8rem;pointer-events:none}
+.watyping{margin:0;padding:4px 12px;color:#5b2a86;font-size:.85rem;background:#efe7f8}
+.watick{font-style:normal;color:#6c6382;margin-left:4px}
+.watick.seen{color:#146b38}
+.wamention{color:#5b2a86;font-weight:800}
+.wamentions{display:flex;gap:6px;flex-wrap:wrap;padding:4px 8px}
+.wamentions button{min-height:36px}

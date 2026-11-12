@@ -74,6 +74,35 @@ try {
   ok(/cheaper pens/.test(queue) && /Casey/.test(queue) && /Held for review/.test(queue), 'reports queue shows held messages and a mute');
   await p.screenshot({ path: OUT + '/community_reports_queue.png' });
 
+  await p.goto(url, { waitUntil: 'domcontentloaded' });
+  await p.waitForFunction(() => window.__kova?.openCommunityChat);
+  if (await p.locator('#onboard:not([hidden])').count()) await p.locator('#obSkip').click({ force: true });
+  await p.evaluate(() => window.__kova.switchTab('community'));
+  await p.waitForSelector('[data-wa-view="list"]');
+  const feature = async (view, file, probe) => {
+    await p.evaluate(v => window.__kova.openCommunityChat(v), view);
+    await p.waitForTimeout(350);
+    ok(await p.locator(probe).count() > 0, `${file} shows ${probe}`);
+    await p.screenshot({ path: `${OUT}/${file}` });
+  };
+  await feature('voice', 'community_voice_note.png', '.wavoice');
+  ok(await p.locator('#waRec').count() === 1, 'hold-to-record bar is visible');
+  await feature('pin', 'community_pinned.png', '.wapinbar');
+  await feature('poll', 'community_poll.png', '.wapoll');
+  await feature('challenge', 'community_challenge.png', '.wachal');
+  await feature('wins', 'community_wins.png', '.wawin');
+  ok(await p.locator('.waceleb').count() === 1, 'wins post shows a celebration');
+  await feature('typing', 'community_typing_receipts.png', '.watyping');
+  ok(/Seen by/.test(await p.content()) || await p.locator('.watick').count() > 0, 'read ticks are shown');
+  await feature('notify', 'community_notification_settings.png', '#waReceipts');
+  await feature('mention', 'community_mentions_search.png', '#waMentions');
+  await p.evaluate(() => window.__kova.openCommunityChat('search'));
+  await p.waitForTimeout(300);
+  ok(/chilli/i.test(await p.textContent('#communityRoot')), 'search lists matching messages');
+  await p.screenshot({ path: OUT + '/community_search.png' });
+  await feature('dm', 'community_dm_list.png', '[data-wa-view="dms"]');
+  await feature('dmchat', 'community_dm_chat.png', '[data-wa-view="dmchat"]');
+
   await p.setViewportSize({ width: 360, height: 740 });
   await p.goto(url, { waitUntil: 'domcontentloaded' });
   await p.waitForFunction(() => window.__kova?.switchTab);

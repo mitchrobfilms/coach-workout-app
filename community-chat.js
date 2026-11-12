@@ -6,6 +6,11 @@ import {
   canPost, composerNote, rateOk, moveSection, toggleReaction, decorateSections, listHtml, chatHtml, threadHtml,
   adminHtml, queueHtml, menuHtml, signInHtml, soonHtml, guidelinesHtml, demoState, visibleMessages, pageMessages,
 } from './community-chat-core.js';
+import {
+  VOICE_MAX_BYTES, VOICE_MAX_SECONDS, voiceClock, voiceOk, pickRecorderMime, mentionSuggestions, applyMention,
+  searchMessages, pollView, pollHtml, castVote, validOptions, challengeHtml, pinBarHtml, settingsHtml, searchHtml, dmListHtml,
+  mentionBoxHtml, recordBarHtml, enrichDemo, dmAllowed, waveform,
+} from './community-chat-extra.js';
 
 export function demoMode(search = '') {
   const q = new URLSearchParams(String(search).replace(/^\?/, ''));
@@ -46,6 +51,34 @@ function liveBackend({ rpc, sbUrl, sbKey, token, uid }) {
     async reorder(ids) { return call('community_chat_reorder', { p_ids: ids }); },
     async queue() { return call('community_chat_queue'); },
     async moderate(kind, id, action) { return call('community_chat_moderate', { p_kind: kind, p_id: id, p_action: action }); },
+    async pins(section) { return call('community_chat_pins', { p_section: section }); },
+    async pin(id, on) { return call('community_chat_pin', { p_message: id, p_on: on }); },
+    async polls(section) { return call('community_chat_polls', { p_section: section }); },
+    async vote(poll, option) { return call('community_chat_poll_vote', { p_poll: poll, p_option: option }); },
+    async closePoll(poll) { return call('community_chat_poll_close', { p_poll: poll }); },
+    async createPoll(section, question, options) { return call('community_chat_poll_create', { p_section: section, p_question: question, p_options: options }); },
+    async challenges(section) { return call('community_week_list', { p_section: section }); },
+    async logChallenge(id, progress, show) { return call('community_week_log', { p_id: id, p_progress: progress, p_show: show }); },
+    async members() { return call('community_chat_members'); },
+    async search(query, section) { return call('community_chat_search', { p_query: query, p_section: section }); },
+    async settings() { return call('community_chat_settings_get'); },
+    async saveSettings(patch) { return call('community_chat_settings_set', patch); },
+    async dmList() { return call('community_dm_list'); },
+    async dmOpen(name) { return call('community_dm_open', { p_name: name }); },
+    async dmHistory(id) { return call('community_dm_history', { p_thread: id }); },
+    async dmSend(id, body) { return call('community_dm_send', { p_thread: id, p_body: body }); },
+    async dmReport(id, reason) { return call('community_dm_report', { p_message: id, p_reason: reason }); },
+    async dmQueue() { return call('community_dm_queue'); },
+    async savePush(sub) { return call('community_push_save', sub); },
+    async voice(section, path, seconds) { return call('community_chat_voice', { p_section: section, p_path: path, p_seconds: seconds }); },
+    async uploadVoice(blob) {
+      if (!blob || blob.size > VOICE_MAX_BYTES) throw new Error('That voice note is over 1 MB.');
+      const ext = /ogg/.test(blob.type) ? 'ogg' : /mp4|m4a/.test(blob.type) ? 'm4a' : 'webm';
+      const path = `${uid()}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const r = await fetch(`${sbUrl}/storage/v1/object/community-voice/${path}`, { method: 'POST', headers: { apikey: sbKey, authorization: 'Bearer ' + token(), 'content-type': blob.type || 'audio/webm', 'x-upsert': 'false' }, body: blob });
+      if (!r.ok) throw new Error('Voice note upload failed');
+      return path;
+    },
     async upload(file) {
       if (!file) return null;
       if (file.size > IMAGE_MAX) throw new Error('Photo is over 2 MB');
@@ -135,6 +168,39 @@ function demoBackend(state) {
       else if (kind === 'user' && action === 'ban') { state.banned = [...new Set([...(state.banned || []), id])]; }
       else if (kind === 'user' && action === 'restore') { delete state.mutes[id]; state.banned = (state.banned || []).filter(x => x !== id); }
     },
+    async pins(section) { return (state.pins || []).filter(p => p.section_id === section).map(p => state.messages.find(m => m.id === p.message_id)).filter(Boolean); },
+    async pin(id, on) {
+      if (!state.me.is_admin) throw new Error('admin only');
+      const m = find(id); if (!m) return;
+      m.pinned = !!on;
+      state.pins = (state.pins || []).filter(p => p.message_id !== id);
+      if (on) state.pins.push({ section_id: m.section_id, message_id: id });
+    },
+    async polls(section) { return (state.polls || []).filter(p => p.section_id === section).map(p => ({ ...pollView(p, state.votes), mine: p.user_id === state.me.user_id || state.me.is_admin })); },
+    async vote(poll, option) { state.votes = castVote(state.votes, { pollId: poll, userId: state.me.user_id, optionId: option }); },
+    async closePoll(poll) { const p = state.polls.find(x => x.id === poll); if (p) p.closed = true; },
+    async createPoll(section, question, options) {
+      const opts = validOptions(options); if (!opts) throw new Error('A poll needs 2 to 6 options.');
+      const judged = classifyChat(question + ' ' + opts.join(' ')); if (judged.action === 'hold') return judged;
+      const id = 'poll-' + Math.random().toString(36).slice(2, 6);
+      state.polls.push({ id, section_id: section, question, closed: false, options: opts.map((label, i) => ({ id: id + i, label })) });
+      state.messages.push({ id: 'm-' + id, section_id: section, user_id: state.me.user_id, author: state.me.display_name, mine: true, kind: 'poll', body: question, poll_id: id, status: 'visible', created_at: new Date().toISOString(), reactions: {}, my_reactions: [] });
+      return { action: 'ok', id };
+    },
+    async challenges(section) { return (state.challenges || []).filter(c => c.section_id === section); },
+    async logChallenge(id, progress, show) { const c = state.challenges.find(x => x.id === id); const e = c?.entries.find(x => x.user_id === state.me.user_id); if (e) { e.progress = progress; e.show_board = show; } else c?.entries.push({ user_id: state.me.user_id, name: state.me.display_name, progress, show_board: show }); },
+    async members() { return state.members || []; },
+    async search(query, section) { return searchMessages(state.messages, query, { sectionId: section }); },
+    async settings() { return state.settings; },
+    async saveSettings(patch) { Object.assign(state.settings, { read_receipts: patch.p_receipts ?? state.settings.read_receipts, dms_enabled: patch.p_dms ?? state.settings.dms_enabled, notify: patch.p_notify || state.settings.notify }); return state.settings; },
+    async dmList() { return state.dms || []; },
+    async dmOpen(name) { const person = (state.members || []).find(p => p.name.toLowerCase() === name.trim().toLowerCase()); if (!person) throw new Error('No member with that display name.'); const gate = dmAllowed({ self: person.id === state.me.user_id, blocked: state.blocks.includes(person.id), recipientDms: person.dms_enabled !== false }); if (!gate.ok) throw new Error(gate.reason); let row = state.dms.find(d => d.user_id === person.id); if (!row) { row = { id: 'dm-' + person.id, user_id: person.id, name: person.name, preview: '', at: 'Now', unread: 0 }; state.dms.unshift(row); state.dmMessages[row.id] = []; } return row.id; },
+    async dmHistory(id) { return state.dmMessages[id] || []; },
+    async dmSend(id, body) { const judged = classifyChat(body); const msg = { id: 'd' + Math.random().toString(36).slice(2, 6), user_id: state.me.user_id, author: state.me.display_name, mine: true, body, status: judged.action === 'hold' ? 'held' : 'visible', created_at: new Date().toISOString(), ticks: 0 }; (state.dmMessages[id] ||= []).push(msg); const row = state.dms.find(d => d.id === id); if (row) row.preview = 'You: ' + body; return { ...judged, id: msg.id }; },
+    async dmReport(id, reason) { state.reports.push({ id: 'rdm-' + id, message_id: id, dm_id: id, reason, body: 'Reported direct message', author: 'Member', at: new Date().toISOString() }); },
+    async dmQueue() { return state.reports.filter(r => r.dm_id); },
+    async savePush() { state.push = true; },
+    async uploadVoice(blob) { const err = voiceOk({ size: blob.size, seconds: blob.seconds }); if (err) throw new Error(err); return 'data:audio/webm;base64,demo'; },
     async upload(file) {
       if (!file) return null;
       if (file.size > IMAGE_MAX) throw new Error('Photo is over 2 MB');
@@ -144,9 +210,9 @@ function demoBackend(state) {
   };
 }
 
-export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search }) {
+export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search, progress }) {
   const mode = demoMode(search ?? (typeof location !== 'undefined' ? location.search : ''));
-  const state = mode ? demoState() : null;
+  const state = mode ? enrichDemo(demoState()) : null;
   if (state) {
     state.me.is_admin = mode === 'admin' || mode === 'reports' || mode === 'queue';
     state.mutes = { casey: '2026-11-12T12:00:00.000Z' };
@@ -184,14 +250,44 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     catch (e) { await failOpen(e); return; }
     if (S.me && S.me.signed_in === false) { root.innerHTML = signInHtml(); return; }
     if (!S.me?.guidelines) { root.innerHTML = guidelinesHtml(); return; }
+    S.recording = view === 'voice';
+    S.celebrate = view === 'wins';
+    S.mention = view === 'mention';
+    S.focus = view === 'poll' ? '.wapoll' : '';
     if (view === 'admin') return renderAdmin();
     if (view === 'queue' || view === 'reports') return renderQueue();
+    if (view === 'settings' || view === 'notify') return renderPrefs();
+    if (view === 'search') return renderSearch(state ? 'chilli' : '');
+    if (view === 'mention') { S.mention = true; return renderChat('food'); }
+    if (view === 'dm') return renderDms();
+    if (view === 'dmchat') return renderDm(state ? 'dm-priya' : null);
+    if (view === 'voice') { S.recording = true; return renderChat(state ? 'gen' : S.sectionId); }
+    if (view === 'pin') return renderChat('ann');
+    if (view === 'poll' || view === 'typing') return renderChat('gen');
+    if (view === 'challenge') return renderChat('fit');
+    if (view === 'wins') { S.celebrate = true; return renderChat('wins'); }
     if (view === 'chat') return renderChat(state ? 'food' : S.sectionId);
     return renderList();
   }
 
+  async function soft(fn, fallback) {
+    try { return await fn(); } catch (e) { if (chatUnavailable(e) !== 'error') return fallback; return fallback; }
+  }
+  function pollCard(p) {
+    const view = p.options?.some(o => o.pct != null) ? p : pollView(p, state?.votes || []);
+    const votes = p.my_option ? [{ poll_id: p.id, user_id: S.me?.user_id, option_id: p.my_option }] : (state?.votes || []);
+    return pollHtml(view, { mine: !!(p.mine || admin()), meId: S.me?.user_id, votes });
+  }
+  async function decoratePage(section, messages) {
+    const polls = await soft(() => be.polls(section), []);
+    return (messages || []).map(m => {
+      const poll = polls.find(p => p.message_id === m.id || p.id === m.poll_id);
+      const mine = !!(m.mine || m.user_id === S.me?.user_id);
+      return { ...m, mine, poll_html: poll ? pollCard(poll) : (m.poll_html || ''), ticks: mine ? (m.ticks || state?.readers?.[section] || 0) : 0, pinned: !!(state?.pins || []).some(p => p.message_id === m.id) || !!m.pinned };
+    });
+  }
   async function renderList() {
-    S.screen = 'list'; S.sectionId = null; S.reply = null;
+    S.screen = 'list'; S.sectionId = null; S.reply = null; S.recording = false; S.mention = false; S.celebrate = false;
     try { S.rows = (await be.sections()).map(mapSection).filter(s => !s.archived); }
     catch (e) { await failOpen(e); return; }
     root.innerHTML = listHtml(S.rows, { pinned: S.me?.pinned || PINNED, admin: admin(), name: S.me?.display_name || '' });
@@ -205,17 +301,27 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     let page;
     try { page = await be.history(id, null); await be.read(id); }
     catch (e) { say(e.message); return; }
-    S.shown = page.messages || []; S.hasMore = !!page.has_more;
+    S.shown = await decoratePage(id, page.messages || []); S.hasMore = !!page.has_more;
     const section = (S.rows.find(s => s.id === id) || state?.sections.find(s => s.id === id) || { id, name: 'Chat', emoji: '💬' });
     const gate = canPost({ section, isAdmin: admin(), status: S.me?.status, mutedUntil: S.me?.muted_until, guidelines: !!S.me?.guidelines });
     const thread = root.querySelector('#waThread');
     const near = thread ? thread.scrollHeight - thread.scrollTop - thread.clientHeight < 120 : true;
     const prevTop = thread?.scrollTop || 0;
     root.innerHTML = chatHtml(section, { note: gate.ok ? '' : composerNote(gate), reply: S.reply, admin: admin(), hasMore: S.hasMore });
+    const pins = await soft(() => be.pins(id), []);
+    const pin = pins[0];
+    if (pin) $('#waThread').insertAdjacentHTML('beforebegin', pinBarHtml(pin));
+    const challenges = await soft(() => be.challenges(id), []);
+    if (challenges[0]) $('#waThread').insertAdjacentHTML('beforebegin', challengeHtml(challenges[0], S.me?.user_id));
+    const typing = state?.typing?.[id];
+    if (typing) $('#waThread').insertAdjacentHTML('afterend', `<p class="watyping" id="waTyping">${esc(typing)} is typing…</p>`);
+    if (S.recording) $('#waForm')?.insertAdjacentHTML('afterbegin', recordBarHtml(8));
+    if (section.kind === 'wins' || S.celebrate) root.querySelector('.waapp')?.insertAdjacentHTML('beforeend', '<div class="waceleb" aria-hidden="true">🎉 🏆 🎉 ✨ 🎊</div>');
     $('#waThread').innerHTML = (S.hasMore ? '<button type="button" class="walink" id="waOlder">Load earlier messages</button>' : '') + threadHtml(section, S.shown);
+    if (S.mention) { const box = mentionBoxHtml(mentionSuggestions(state?.members || [], '@P')); if (box) $('#waForm')?.insertAdjacentHTML('afterbegin', box); const input = $('#waText'); if (input) input.value = '@P'; }
     const box = $('#waThread');
-    const pin = () => { box.scrollTop = keepScroll && !near ? prevTop : box.scrollHeight; };
-    pin(); requestAnimationFrame(pin);
+    const pinScroll = () => { box.scrollTop = keepScroll && !near ? prevTop : box.scrollHeight; };
+    pinScroll(); requestAnimationFrame(() => { pinScroll(); const focus = S.focus && root.querySelector(S.focus); if (S.recording) root.querySelector('.wavoice')?.scrollIntoView({ block: 'center' }); else if (focus) focus.scrollIntoView({ block: 'center' }); });
     if (S.file) showFile();
     hydrate(box);
     listen();
@@ -287,7 +393,8 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
         { event: '*', schema: 'public', table: 'community_msg_reactions' },
       ] } },
     }));
-    ws.onmessage = ev => { let msg; try { msg = JSON.parse(ev.data); } catch { return; } if (msg.event === 'postgres_changes') tick(); };
+    S.ws = ws;
+    ws.onmessage = ev => { let msg; try { msg = JSON.parse(ev.data); } catch { return; } if (msg.event === 'postgres_changes') tick(); if (msg.event === 'broadcast' && msg.payload?.payload?.section === S.sectionId) { let bar = $('#waTyping'); if (!bar) { $('#waThread')?.insertAdjacentHTML('afterend', '<p class="watyping" id="waTyping"></p>'); bar = $('#waTyping'); } if (bar) bar.textContent = `${msg.payload.payload.name || 'Someone'} is typing…`; } };
     ws.onerror = () => { if (!poll) poll = setInterval(tick, 8000); };
     const beat = setInterval(() => { if (ws.readyState === 1) ws.send(JSON.stringify({ topic: 'phoenix', event: 'heartbeat', payload: {}, ref: String(++ref) })); }, 25000);
     socket = { stop() { clearInterval(beat); try { ws.close(); } catch {} socket = null; } };
@@ -309,7 +416,22 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     const t = e.target.closest('button, a'); if (!t || !root.contains(t)) return;
     if (t.id === 'waPosts') { pause(); openPosts?.(); return; }
     if (t.id === 'waSettings') { openSettings?.(); return; }
-    if (t.id === 'waBack') return renderList();
+    if (t.id === 'waBack') return S.dmId ? renderDms() : renderList();
+    if (t.id === 'waSearch') return renderSearch('');
+    if (t.id === 'waDms') return renderDms();
+    if (t.id === 'waPrefs') return renderPrefs();
+    if (t.id === 'waPoll') return openPollForm();
+    if (t.id === 'waPush') return enablePush();
+    if (t.id === 'waRecCancel') { S.recording = false; stopRec(); return renderChat(S.sectionId); }
+    if (t.id === 'waRecSend') return finishRec(true);
+    if (t.dataset.jump && t.dataset.open) { await renderChat(t.dataset.open); document.getElementById('msg-' + t.dataset.jump)?.scrollIntoView({ block: 'center' }); return; }
+    if (t.dataset.jump) { document.getElementById('msg-' + t.dataset.jump)?.scrollIntoView({ block: 'center' }); return; }
+    if (t.dataset.vote) return vote(t.dataset.vote, t.dataset.opt);
+    if (t.dataset.closePoll) { await soft(() => be.closePoll(t.dataset.closePoll), null); return renderChat(S.sectionId); }
+    if (t.dataset.mention) { const input = $('#waText'); if (input) input.value = applyMention(input.value, t.dataset.mention); $('#waMentions')?.remove(); return; }
+    if (t.dataset.dm) return renderDm(t.dataset.dm);
+    if (t.dataset.play) return playVoice(t.dataset.play);
+    if (t.dataset.sync) { const p = progress?.() || {}; const ch = (state?.challenges || []).find(c => c.id === t.dataset.sync); const value = ch?.metric === 'water' ? Math.round((p.waterMl || 0) / 500) : Math.min(ch?.target || 7, p.steps ? 1 : 0); await soft(() => be.logChallenge(t.dataset.sync, value, true), null); return renderChat(S.sectionId); }
     if (t.id === 'waAdmin') return renderAdmin();
     if (t.id === 'waQueue') return renderQueue();
     if (t.id === 'waOlder') return older().catch(err => say(err.message));
@@ -328,7 +450,24 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
   root.addEventListener('submit', async e => {
     if (e.target.id === 'waForm') { e.preventDefault(); return send(); }
     if (e.target.id === 'waSecForm') { e.preventDefault(); return saveSection(); }
+    if (e.target.id === 'waSearchForm') { e.preventDefault(); return renderSearch($('#waQuery')?.value || ''); }
+    if (e.target.id === 'waDmNew') { e.preventDefault(); return openDmName($('#waDmName')?.value || ''); }
+    if (e.target.id === 'waDmForm') { e.preventDefault(); return sendDm(); }
+    if (e.target.dataset.log) { e.preventDefault(); const show = root.querySelector(`[data-board="${e.target.dataset.log}"]`)?.checked !== false; const n = Number(e.target.n?.value || 0); await soft(() => be.logChallenge(e.target.dataset.log, n, show), null); return renderChat(S.sectionId); }
   });
+  root.addEventListener('input', e => {
+    if (e.target.id !== 'waText') return;
+    $('#waMentions')?.remove();
+    const people = mentionSuggestions(state?.members || S.members || [], e.target.value, S.me?.user_id);
+    const box = mentionBoxHtml(people);
+    if (box) e.target.closest('.wainput, form')?.insertAdjacentHTML('afterbegin', box);
+    if (state) return;
+    broadcastTyping();
+  });
+  root.addEventListener('pointerdown', e => {
+    if (e.target.id === 'waMic' || e.target.closest?.('#waMic')) { e.preventDefault(); startRec(); }
+  });
+  root.addEventListener('pointerup', e => { if (S.rec && !e.target.closest?.('#waRecCancel')) finishRec(); });
   root.addEventListener('change', e => { if (e.target.id === 'waFile') { S.file = e.target.files?.[0] || null; showFile(); } });
   root.addEventListener('pointerdown', e => {
     const bubble = e.target.closest?.('.wabubble');
@@ -345,6 +484,96 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     openMenu(bubble.dataset.mid);
   });
 
+  async function renderPrefs() {
+    S.screen = 'settings';
+    const s = await soft(() => be.settings(), { read_receipts: true, dms_enabled: true, notify: 'all' });
+    root.innerHTML = settingsHtml(s);
+    const save = () => be.saveSettings({ p_receipts: $('#waReceipts').checked, p_dms: $('#waDmsOn').checked, p_notify: $('#waNotify').value }).catch(e => say(e.message));
+    $('#waReceipts').onchange = save; $('#waDmsOn').onchange = save; $('#waNotify').onchange = save;
+  }
+  async function renderSearch(query) {
+    S.screen = 'search';
+    const hits = query ? await soft(() => be.search(query, null), []) : [];
+    root.innerHTML = searchHtml(query || '', hits, state?.sections || S.rows || []);
+  }
+  async function renderDms() {
+    S.screen = 'dms'; S.dmId = null;
+    root.innerHTML = dmListHtml(await soft(() => be.dmList(), []));
+  }
+  async function renderDm(id) {
+    if (!id) return renderDms();
+    S.screen = 'dm'; S.dmId = id;
+    const msgs = await soft(() => be.dmHistory(id), []);
+    const name = (await soft(() => be.dmList(), [])).find(d => d.id === id)?.name || 'Message';
+    root.innerHTML = `<div class="waapp wachat" data-wa-view="dmchat"><header class="wahead"><button type="button" class="waback" id="waBack" aria-label="Back to messages">‹</button><div><p class="wakicker">Direct message</p><h2>${esc(name)}</h2></div></header><div class="wathread" id="waThread">${threadHtml(null, msgs)}</div><form class="wacompose" id="waDmForm"><label class="sr" for="waDmText">Message</label><input id="waDmText" maxlength="2000" placeholder="Message"><button class="primary">Send</button></form></div>`;
+  }
+  async function openDmName(name) {
+    try { const id = await be.dmOpen(name); await renderDm(id); } catch (e) { say(e.message); }
+  }
+  async function sendDm() {
+    const body = $('#waDmText')?.value?.trim(); if (!body) return;
+    try { const v = await be.dmSend(S.dmId, body); if (v?.action === 'hold') say(v.message); await renderDm(S.dmId); } catch (e) { say(e.message); }
+  }
+  async function vote(poll, opt) { await soft(() => be.vote(poll, opt), null); return renderChat(S.sectionId); }
+  function openPollForm() {
+    const question = prompt('Poll question'); if (!question) return;
+    const raw = prompt('Options, separated by commas (2 to 6)'); if (!raw) return;
+    be.createPoll(S.sectionId, question, raw.split(',')).then(v => { if (v?.action === 'hold') say(v.message); return renderChat(S.sectionId); }).catch(e => say(e.message));
+  }
+  async function enablePush() {
+    const note = $('#waPushNote');
+    const pending = 'Web push is ready in the app. It sends after VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY and VAPID_SUBJECT are set on the server. Those values are not in the app. Android FCM is not configured yet.';
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) { if (note) note.textContent = pending; return; }
+    if (note) note.textContent = pending;
+  }
+  function playVoice(id) {
+    const btn = root.querySelector(`[data-play="${id}"]`);
+    if (!btn) return;
+    btn.classList.toggle('playing');
+    const wave = btn.querySelector('.wawave');
+    if (wave) wave.style.setProperty('--play', btn.classList.contains('playing') ? '100%' : '0%');
+  }
+  function broadcastTyping() {
+    const ws = S.ws; if (!ws || ws.readyState !== 1 || !S.sectionId) return;
+    ws.send(JSON.stringify({ topic: 'realtime:chat', event: 'broadcast', payload: { type: 'broadcast', event: 'typing', payload: { section: S.sectionId, name: S.me?.display_name || 'Someone' } }, ref: String(Date.now()) }));
+  }
+  function stopRec() {
+    clearTimeout(S.recTimer); clearInterval(S.recTick);
+    try { S.rec?.stop(); } catch {}
+    S.recStream?.getTracks()?.forEach(track => track.stop());
+    S.rec = null; S.recStream = null;
+  }
+  async function startRec() {
+    if (S.rec) return;
+    const mime = pickRecorderMime();
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined);
+      S.chunks = [];
+      rec.ondataavailable = ev => { if (ev.data?.size) S.chunks.push(ev.data); };
+      rec.start();
+      S.rec = rec; S.recStream = stream; S.recStart = Date.now();
+      S.recTimer = setTimeout(() => finishRec(true), VOICE_MAX_SECONDS * 1000);
+      if (!$('#waRec')) $('#waForm')?.insertAdjacentHTML('afterbegin', recordBarHtml(0));
+      S.recTick = setInterval(() => { const el = $('#waRecTime'); if (el) el.textContent = voiceClock((Date.now() - S.recStart) / 1000); }, 250);
+    } catch {
+      if (!$('#waRec')) $('#waForm')?.insertAdjacentHTML('afterbegin', recordBarHtml(8));
+    }
+  }
+  async function finishRec() {
+    const seconds = Math.max(1, Math.min(VOICE_MAX_SECONDS, S.recStart ? Math.round((Date.now() - S.recStart) / 1000) : 8));
+    const chunks = S.chunks || [];
+    stopRec();
+    if (state) {
+      state.messages.push({ id: 'voice-' + Date.now(), section_id: S.sectionId, user_id: state.me.user_id, author: state.me.display_name, mine: true, kind: 'voice', audio_seconds: seconds, body: '', status: 'visible', created_at: new Date().toISOString(), reactions: {}, my_reactions: [], ticks: 0 });
+      S.recording = false; return renderChat(S.sectionId);
+    }
+    const blob = chunks.length ? new Blob(chunks, { type: 'audio/webm' }) : null;
+    if (!blob) return;
+    if (blob.size > VOICE_MAX_BYTES) return say('That voice note is over 1 MB. Try a shorter one.');
+    try { const path = await be.uploadVoice(blob); await be.voice(S.sectionId, path, seconds); } catch (e) { say(e.message); }
+    S.recording = false; return renderChat(S.sectionId);
+  }
   async function react(id, emoji) {
     try { await be.react(id, emoji); $('#waSheet')?.remove(); if (S.screen === 'chat') await renderChat(S.sectionId, { keepScroll: true }); }
     catch (err) { say(err.message); }
@@ -379,6 +608,7 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
       if (t.dataset.act === 'block') { if (!confirm('Block this member? You will not see each other in the chat.')) return; await be.block(t.dataset.user, true); say('Blocked'); return renderChat(S.sectionId); }
       if (t.dataset.act === 'delete') { if (!confirm('Delete this message?')) return; await be.remove(id); return renderChat(S.sectionId); }
       if (t.dataset.act === 'mute') { await be.moderate('user', t.dataset.user, 'mute'); say('Muted for 24 hours'); return; }
+      if (t.dataset.act === 'pin') { await be.pin(id, !message.pinned); return renderChat(S.sectionId); }
       if (t.dataset.act === 'ban') { if (!confirm('Ban this member from the community?')) return; await be.moderate('user', t.dataset.user, 'ban'); say('Member banned'); return renderChat(S.sectionId); }
     } catch (err) { say(err.message); }
   }

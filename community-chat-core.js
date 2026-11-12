@@ -166,7 +166,7 @@ export function toggleReaction(message, emoji) {
 export function previewLine(message, meId) {
   if (!message) return '';
   const who = message.user_id === meId ? 'You' : (message.author || 'Member');
-  const body = String(message.body || '').trim() || (message.image ? 'Photo' : '');
+  const body = message.kind === 'voice' ? 'Voice note' : (String(message.body || '').trim() || (message.image ? 'Photo' : ''));
   return `${who}: ${body}`.slice(0, 120);
 }
 
@@ -194,19 +194,31 @@ function reactionsHtml(m) {
   return `<div class="wareacts">${keys.map(e => `<button type="button" data-react="${esc(e)}" data-mid="${esc(m.id)}" class="${(m.my_reactions || []).includes(e) ? 'on' : ''}" aria-pressed="${(m.my_reactions || []).includes(e)}">${e} ${m.reactions[e]}</button>`).join('')}</div>`;
 }
 
+function richText(body) {
+  return esc(body).replace(/@([A-Za-z][\w'.-]{0,28})/g, '<span class="wamention">@$1</span>');
+}
+function tickHtml(m) {
+  if (!m.mine || !m.ticks) return '';
+  const n = Number(m.ticks) || 0;
+  return `<i class="watick${n > 0 ? ' seen' : ''}" aria-label="${n > 0 ? `Seen by ${n}` : 'Delivered'}">✓✓</i>`;
+}
 export function bubbleHtml(m) {
   const mine = !!m.mine;
   const held = m.status === 'held';
-  return `<article class="wabubble ${mine ? 'out' : 'in'}${held ? ' held' : ''}" data-mid="${esc(m.id)}">
+  const voice = m.kind === 'voice' ? `<button type="button" class="wavoice" data-play="${esc(m.id)}" aria-label="Play voice note"><span class="waplay">▶</span><span class="wawave">${Array.from({ length: 14 }, (_, i) => `<i style="height:${30 + ((i * 17) % 60)}%"></i>`).join('')}</span><small>0:${String(m.audio_seconds || 0).padStart(2, '0')}</small></button>` : '';
+  return `<article class="wabubble ${mine ? 'out' : 'in'}${held ? ' held' : ''}${m.kind === 'win' ? ' win' : ''}" data-mid="${esc(m.id)}" id="msg-${esc(m.id)}">
     ${mine ? '' : `<span class="waav" aria-hidden="true">${esc(m.initials || initials(m.author))}</span>`}
     <div class="wabub">
       ${mine ? '' : `<b class="waname">${esc(m.author || 'Member')}</b>`}
+      ${m.kind === 'win' ? '<p class="wawin">Milestone</p>' : ''}
       ${held ? '<p class="waheld">Held for review. Only you can see this.</p>' : ''}
       ${quoteHtml(m.reply)}
-      ${m.body ? `<p class="watext">${esc(m.body)}</p>` : ''}
+      ${voice}
+      ${m.body && m.kind !== 'poll' ? `<p class="watext">${richText(m.body)}</p>` : ''}
+      ${m.poll_html || ''}
       ${m.image ? `<img class="waimg" alt="Photo attached to this message" ${m.image.startsWith('data:image/') || m.image.startsWith('blob:') ? `src="${esc(m.image)}"` : `data-path="${esc(m.image)}"`}>` : ''}
       ${reactionsHtml(m)}
-      <time datetime="${esc(m.created_at)}">${esc(m.clock || chatTime(m.created_at))}</time>
+      <time datetime="${esc(m.created_at)}">${esc(m.clock || chatTime(m.created_at))}${tickHtml(m)}</time>
     </div>
     <button type="button" class="wamore" data-menu="${esc(m.id)}" aria-label="Message actions">⋯</button>
   </article>`;
@@ -227,7 +239,7 @@ export function listHtml(rows, { pinned = PINNED, admin = false, name = '' } = {
     </button></li>`).join('');
   return `<div class="waapp" data-wa-view="list">
     <header class="wahead"><div><p class="wakicker">Community</p><h2>GLP1 Life</h2>${name ? `<p class="wame">Posting as ${esc(name)}</p>` : ''}</div>
-      <div class="waheadacts">${admin ? '<button type="button" id="waAdmin">Manage</button><button type="button" id="waQueue">Reports</button>' : ''}<button type="button" id="waPosts">Posts</button></div></header>
+      <div class="waheadacts">${admin ? '<button type="button" id="waAdmin">Manage</button><button type="button" id="waQueue">Reports</button>' : ''}<button type="button" id="waSearch">Search</button><button type="button" id="waDms">Messages</button><button type="button" id="waPrefs">Settings</button><button type="button" id="waPosts">Posts</button></div></header>
     <div class="wapin" role="note"><b>Guidelines.</b> ${esc(pinned)}</div>
     <ul class="walist">${items}</ul>
   </div>`;
@@ -257,13 +269,13 @@ export function chatHtml(section, { note = '', reply = null, admin = false, hasM
     <header class="wahead"><button type="button" class="waback" id="waBack" aria-label="Back to sections">‹</button>
       <span class="waemoji" aria-hidden="true">${esc(section.emoji || '💬')}</span>
       <div class="waheadtext"><b>${esc(section.name)}</b><small>${esc(section.description || '')}</small></div>
-      ${admin ? '<button type="button" id="waQueue">Reports</button>' : ''}</header>
+      ${admin ? '<button type="button" id="waQueue">Reports</button>' : ''}<button type="button" id="waPrefs">Settings</button></header>
     ${section.announce_only ? '<p class="wapin">Only admins can post in this section. Everyone can read.</p>' : ''}
     <div class="wathread" id="waThread">${hasMore ? '<button type="button" class="walink" id="waOlder">Load earlier messages</button>' : ''}</div>
     <form class="wacompose" id="waForm">
       <div class="wareply" id="waReply" ${reply ? '' : 'hidden'}>${reply ? `<span>Replying to <b>${esc(reply.author || 'message')}</b></span><button type="button" id="waReplyClear" aria-label="Cancel reply">✕</button>` : ''}</div>
       <div class="waphoto" id="waPhotoName" hidden></div>
-      ${note ? `<p class="wanote">${esc(note)}</p>` : `<div class="wainput"><button type="button" id="waPhoto" aria-label="Add a photo">📷</button><input id="waFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><label class="sr" for="waText">Message</label><input id="waText" maxlength="2000" autocomplete="off" placeholder="Message" enterkeyhint="send"><button class="primary" id="waSend" aria-label="Send">Send</button></div>`}
+      ${note ? `<p class="wanote">${esc(note)}</p>` : `<div class="wainput"><button type="button" id="waPhoto" aria-label="Add a photo">📷</button><input id="waFile" type="file" accept="image/jpeg,image/png,image/webp" hidden><button type="button" id="waMic" aria-label="Hold to record a voice note">🎤</button><button type="button" id="waPoll" aria-label="Create a poll">📊</button><label class="sr" for="waText">Message</label><input id="waText" maxlength="2000" autocomplete="off" placeholder="Message" enterkeyhint="send"><button class="primary" id="waSend" aria-label="Send">Send</button></div>`}
     </form>
   </div>`;
 }
@@ -302,6 +314,7 @@ export function menuHtml(message, { admin = false } = {}) {
     <button type="button" data-act="copy" data-mid="${esc(message.id)}">Copy</button>
     <button type="button" data-act="report" data-mid="${esc(message.id)}">Report</button>
     ${block}${del}
+    ${admin ? `<button type="button" data-act="pin" data-mid="${esc(message.id)}">${message.pinned ? 'Unpin' : 'Pin in this section'}</button>` : ''}
     ${admin && message.user_id && !message.mine ? `<button type="button" data-act="mute" data-user="${esc(message.user_id)}">Mute 24h</button><button type="button" data-act="ban" data-user="${esc(message.user_id)}">Ban member</button>` : ''}
     <button type="button" data-act="close">Close</button>
   </div></div>`;
