@@ -3,11 +3,14 @@
 // Server copies are in supabase/011_community_more.sql. GIF and translate providers
 // stay off until their secrets exist. No peptide shop or supplier features.
 import { esc, classifyChat } from './community-chat-core.js';
+import { imperialFor } from './meal-generate-core.js';
 
 export const GIF_SECRET = 'GIF_API_KEY';
 export const TRANSLATE_LIMIT = 20;
 export const WELCOME = 'Welcome to GLP1 Life Community. Be kind. No selling or sourcing medicines or peptides, no supplier links or numbers, no dosing instructions, and nothing here replaces your GP, prescriber or pharmacist.';
 export const QA_NOTICE = 'This Q&A is general wellbeing support from members and admins. It is not medical advice. Ask your GP, prescriber or pharmacist about your treatment.';
+export const RECIPE_LABEL = 'Member recipe, check ingredients for allergies';
+export const MEMBER_TAGS = ['high-protein', 'mild'];
 
 export const STICKERS = [
   ['wave', 'Hello', '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#efe7f8"/><path d="M16 36c6 8 26 8 32 0" fill="none" stroke="#5b2a86" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="26" r="3" fill="#5b2a86"/><circle cx="42" cy="26" r="3" fill="#5b2a86"/></svg>'],
@@ -94,6 +97,75 @@ export function translateAllowed(used, limit = TRANSLATE_LIMIT) {
   return used < limit;
 }
 
+export function validateMemberRecipe(raw) {
+  const title = String(raw?.title || '').trim();
+  const steps = (Array.isArray(raw?.steps) ? raw.steps : []).map(step => String(step || '').trim()).filter(Boolean);
+  const tags = [...new Set((Array.isArray(raw?.tags) ? raw.tags : []).filter(tag => MEMBER_TAGS.includes(tag)))];
+  const ingredients = [];
+  for (const row of Array.isArray(raw?.ingredients) ? raw.ingredients : []) {
+    const name = String(row?.name || '').trim();
+    const quantity = Number(row?.quantity);
+    const unit = String(row?.unit || '').trim().toLowerCase();
+    if (name.length < 2 || !Number.isFinite(quantity) || quantity <= 0 || quantity > 5000 || !['g', 'ml'].includes(unit)) continue;
+    ingredients.push({ name: name.slice(0, 80), quantity, unit, imperial: imperialFor(quantity, unit) });
+  }
+  const blob = [title, ...ingredients.map(row => row.name), ...steps, ...tags].join('\n');
+  const judged = classifyChat(blob);
+  if (/\b(reconstitut|bac water|dosage calculator|how much (peptide|sema|tirz))\b/i.test(blob)) {
+    return { ok: false, held: true, message: 'This is held for review and is not in the chat.' };
+  }
+  if (!judged || judged.action !== 'ok') return { ok: false, held: true, message: judged?.message || 'This recipe cannot be posted.' };
+  if (title.length < 3 || title.length > 80) return { ok: false, message: 'Give the recipe a short title.' };
+  if (!ingredients.length || ingredients.length > 20) return { ok: false, message: 'Add ingredients in grams or millilitres.' };
+  if (!steps.length || steps.length > 12) return { ok: false, message: 'Add at least one step.' };
+  return { ok: true, recipe: { title, ingredients, steps: steps.map(step => step.slice(0, 300)), tags, photo: raw?.photo || null } };
+}
+
+export function toMemberPlannerRecipe(recipe, id = 'member') {
+  return {
+    id: `member-${id}`,
+    title: recipe.title,
+    meal: 'dinner',
+    minutes: 25,
+    servings: 2,
+    vegetarian: false,
+    vegan: false,
+    gentle: recipe.tags?.includes('mild') || false,
+    spice: 'none',
+    ai: false,
+    member: true,
+    tags: recipe.tags || [],
+    optional: [],
+    swaps: [],
+    ingredients: recipe.ingredients.map((row, index) => ({
+      id: `member-${index}`,
+      name: row.name,
+      qty: row.quantity,
+      unit: row.unit,
+      aisle: 'Member recipe',
+      form: 'as-sold',
+      imperial: row.imperial || imperialFor(row.quantity, row.unit),
+    })),
+    steps: recipe.steps,
+    storageNote: 'Cool leftovers within 2 hours and eat them within 48 hours.',
+    safety: 'leftovers',
+    proteinLabel: RECIPE_LABEL,
+  };
+}
+
+export function memberRecipeCardHtml(recipe) {
+  const tags = (recipe.tags || []).map(tag => `<i class="watag">${esc(tag === 'mild' ? 'Mild for nausea' : 'High protein')}</i>`).join(' ');
+  return `<button type="button" class="warecipe member" data-member="${esc(recipe.id)}"><b>${esc(recipe.title)}</b><small>${esc(RECIPE_LABEL)}</small>${tags}</button>`;
+}
+
+export function memberRecipeHtml(recipe) {
+  const tags = (recipe.tags || []).map(tag => `<i class="watag">${esc(tag === 'mild' ? 'Mild for nausea' : 'High protein')}</i>`).join(' ');
+  const rows = recipe.ingredients.map(row => `<li>${esc(row.name)}: ${row.quantity} ${esc(row.unit)} · ${esc(row.imperial)}</li>`).join('');
+  const steps = recipe.steps.map(step => `<li>${esc(step)}</li>`).join('');
+  const photo = recipe.photo ? `<img class="waimg" alt="" src="${esc(recipe.photo)}">` : '';
+  return `<div class="waapp" data-wa-view="member-recipe">${head(recipe.title, recipe.author || 'Member recipe')}${photo}<article class="card"><p class="warecipe-label">${esc(RECIPE_LABEL)}</p>${tags}<button type="button" class="primary" id="waSaveRecipe">Save to meal planner</button><button type="button" data-report="${esc(recipe.message_id || '')}">Report recipe</button><h3>Ingredients</h3><ul>${rows}</ul><h3>Steps</h3><ol>${steps}</ol></article></div>`;
+}
+
 export function stickerById(id) {
   return STICKERS.find(s => s[0] === id) || null;
 }
@@ -132,6 +204,19 @@ export function moreDemo(state) {
     me: { id: 'me', name: 'Mitchell', bio: 'New here. Taking the walks one day at a time.', joined: '2026-10-20', badges: badgeList({ streak: 7, wins: 0, challenges: 0 }) },
   };
   state.scheduled = [{ id: 'sch1', section_id: 'ann', body: 'Friday reminder: the wellbeing Q&A is at 6pm UK. It is not medical advice.', send_at: '2026-11-13T18:00:00Z', sent_at: null }];
+  const member = validateMemberRecipe({
+    title: 'Turkey mince and spinach bowl',
+    tags: ['high-protein', 'mild'],
+    photo: 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="140"><rect width="320" height="140" rx="16" fill="#e6f5ec"/><circle cx="160" cy="70" r="36" fill="#2e9d5b"/></svg>'),
+    ingredients: [{ name: 'Turkey mince', quantity: 150, unit: 'g' }, { name: 'Plain yoghurt', quantity: 40, unit: 'ml' }, { name: 'Spinach', quantity: 80, unit: 'g' }],
+    steps: ['Cook the turkey mince until it is cooked through and no longer pink.', 'Stir in the spinach until it wilts.', 'Serve with the yoghurt.'],
+  }).recipe;
+  state.memberRecipe = { ...member, id: 'mr1', author: 'Priya', message_id: 'gmember' };
+  state.messages.push({
+    id: 'gmember', section_id: 'food', user_id: 'priya', author: 'Priya', body: 'A bowl I make when I want something mild.',
+    status: 'visible', created_at: '2026-11-11T09:12:00Z', reactions: {}, my_reactions: [], reply: null, image: null,
+    card: { type: 'member-recipe', id: 'mr1' },
+  });
   state.gif = gifPicker({ apiKey: '' });
   state.translations = {};
   return state;

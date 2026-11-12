@@ -105,6 +105,8 @@ try {
   await feature('buddy', 'community_buddy.png', '[data-wa-view="buddy"]');
   await feature('prompt', 'community_daily_prompt.png', '[data-wa-view="prompt"]');
   await feature('recipe', 'community_recipe_card.png', '.warecipe');
+  await feature('member-recipe', 'community_member_recipe.png', '[data-wa-view="member-recipe"]');
+  ok(/150 g/.test(await p.textContent('#communityRoot')) && /oz/.test(await p.textContent('#communityRoot')) && /Member recipe, check ingredients for allergies/.test(await p.textContent('#communityRoot')), 'member recipe shows metric, imperial and the allergy label');
   await feature('qa', 'community_qa.png', '[data-wa-view="qa"]');
   ok(/not medical advice/i.test(await p.textContent('#communityRoot')), 'Q&A shows the wellbeing notice');
   await feature('profile', 'community_profile.png', '[data-wa-view="profile"]');

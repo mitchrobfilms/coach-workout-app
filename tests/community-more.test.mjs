@@ -1,6 +1,7 @@
 import {
   allowText, matchWaiting, endPair, duePrompt, eventPhase, toggleUpvote, badgeList, dueScheduled,
   gifPicker, demoTranslate, translateAllowed, moreDemo, WELCOME, QA_NOTICE, GIF_SECRET, TRANSLATE_LIMIT,
+  validateMemberRecipe, toMemberPlannerRecipe, RECIPE_LABEL,
 } from '../community-more.js';
 import { demoState } from '../community-chat-core.js';
 import { enrichDemo } from '../community-chat-extra.js';
@@ -41,7 +42,20 @@ ok(demo.welcome.body === WELCOME && demo.pair.hi.name === 'Ava', 'demo buddy and
 ok(demo.messages.some(m => m.card?.id === 'o-skyrberry'), 'demo shares a real meal-planner recipe');
 ok(demo.event.questions.length === 2 && demo.profiles.ava.badges.length >= 2, 'demo Q&A and profile badges');
 ok(demo.gif.enabled === false, 'demo GIF provider is disabled');
+const bowl = validateMemberRecipe({
+  title: 'Turkey mince and spinach bowl',
+  tags: ['high-protein', 'mild', 'not-a-tag'],
+  ingredients: [{ name: 'Turkey mince', quantity: 150, unit: 'g' }, { name: 'Yoghurt', quantity: 40, unit: 'ml' }],
+  steps: ['Cook the turkey mince until it is cooked through and no longer pink.'],
+});
+ok(bowl.ok && bowl.recipe.ingredients[0].imperial.includes('oz') && bowl.recipe.tags.join(',') === 'high-protein,mild', 'member recipe keeps metric, imperial and known tags');
+ok(!validateMemberRecipe({ title: 'Pen', ingredients: [{ name: 'Powder', quantity: 1, unit: 'g' }], steps: ['Mix bac water into the vial.'] }).ok, 'mixing instructions are not posted');
+const saved = toMemberPlannerRecipe(bowl.recipe, 'mr1');
+ok(saved.member && !saved.ai && saved.proteinLabel === RECIPE_LABEL && saved.ingredients[0].qty === 150, 'saving uses the meal planner shape and the allergy label');
 
+const memberSql = fs.readFileSync(new URL('../supabase/012_member_recipes.sql', import.meta.url), 'utf8');
+ok(!/\bdrop\s+table\b/i.test(memberSql) && memberSql.includes('community_member_recipes') && memberSql.includes('community_chat_classify'), 'member recipe migration is filtered and non-destructive');
+ok(!/create table[\s\S]{0,80}dose|reconstitution calculator/i.test(memberSql), 'the migration does not add a dosage calculator');
 const sql = fs.readFileSync(new URL('../supabase/011_community_more.sql', import.meta.url), 'utf8');
 ok(!/\bdrop\s+table\b/i.test(sql) && sql.includes('NOT APPLIED') && sql.includes('Europe/London'), 'migration is non-destructive and documents UK time');
 ok(!/peptide shop|add to basket|checkout/i.test(sql), 'migration has no shop or ordering feature');

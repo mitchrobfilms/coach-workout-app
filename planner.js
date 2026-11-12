@@ -73,7 +73,7 @@ function render() {
       <p class="small muted">Saved on this phone for this account. Not copied to the cloud. Generated meals are kept with it.</p>
     </div>
     <div class="card"><h3>Seven days</h3><p class="small">${esc(SAFETY.leftovers)}</p>
-      ${(data.generated || []).map(recipe => `<p><b>Added meal</b> ${esc(recipe.title)} <span class="small">AI-generated, check ingredients for allergies. Not kitchen-tested.</span></p><button type="button" data-ukopen="${esc(recipe.id)}">Recipe</button>`).join('')}
+      ${(data.generated || []).map(recipe => `<p><b>Added meal</b> ${esc(recipe.title)} <span class="small">${recipe.member ? 'Member recipe, check ingredients for allergies.' : 'AI-generated, check ingredients for allergies. Not kitchen-tested.'}</span></p><button type="button" data-ukopen="${esc(recipe.id)}">Recipe</button>`).join('')}
       ${days}</div>
     <div class="card" id="ukRecipe"></div>
     <div class="card" id="ukShop"><h3>Shopping</h3>
@@ -161,7 +161,7 @@ function showRecipe(id, portions, prefs) {
       const imperial = line.imperial ? ` · ${line.imperial}` : '';
       return `<li>${esc(name)}: ${qty}${esc(unit)}${esc(imperial)} (${esc(line.form || item?.form || 'as-sold')})</li>`;
     }).join('')}</ul>
-    ${recipe.ai ? `<p class="small">${esc(recipe.proteinLabel || 'Not calculated.')} AI-generated, check ingredients for allergies.</p>` : ''}
+    ${recipe.member ? `<p class="small">${esc(recipe.proteinLabel || 'Member recipe, check ingredients for allergies.')}</p>` : recipe.ai ? `<p class="small">${esc(recipe.proteinLabel || 'Not calculated.')} AI-generated, check ingredients for allergies.</p>` : ''}
     ${swaps.length ? `<p class="small"><b>For the setting you chose:</b> ${swaps.map(swap => esc(swap.text)).join(' ')}</p>` : ''}
     ${lessFat.length ? `<p class="small"><b>Less added fat, if you want it:</b> ${lessFat.map(swap => esc(swap.text)).join(' ')}</p>` : ''}
     <ol>${recipe.steps.map(step => `<li>${esc(step)}</li>`).join('')}</ol>

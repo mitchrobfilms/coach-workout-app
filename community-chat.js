@@ -13,7 +13,7 @@ import {
 } from './community-chat-extra.js';
 import {
   moreDemo, welcomeHtml, buddyHtml, promptHtml, qaHtml, profileHtml, scheduleHtml, stickerHtml, translateHtml,
-  recipeButton, stickerInline, demoTranslate, allowText, QA_NOTICE,
+  recipeButton, stickerInline, memberRecipeCardHtml, memberRecipeHtml, toMemberPlannerRecipe, demoTranslate, allowText,
 } from './community-more.js';
 
 export function demoMode(search = '') {
@@ -214,7 +214,7 @@ function demoBackend(state) {
   };
 }
 
-export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search, progress, openRecipe }) {
+export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, openPosts, openSettings, search, progress, openRecipe, saveMemberRecipe }) {
   const mode = demoMode(search ?? (typeof location !== 'undefined' ? location.search : ''));
   const state = mode ? moreDemo(enrichDemo(demoState())) : null;
   if (state) {
@@ -273,6 +273,7 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     if (view === 'buddy') return showBuddy();
     if (view === 'prompt') { root.innerHTML = promptHtml(state?.prompts?.[0] || { hour: 8, minute: 0, body: 'How are you feeling today?' }); return; }
     if (view === 'recipe') { S.focus = '.warecipe'; return renderChat(state ? 'food' : S.sectionId); }
+    if (view === 'member-recipe') { root.innerHTML = state?.memberRecipe ? memberRecipeHtml(state.memberRecipe) : ''; return; }
     if (view === 'qa') return showQa();
     if (view === 'profile') return showProfile(state ? 'ava' : null);
     if (view === 'schedule') { root.innerHTML = scheduleHtml(state?.scheduled?.[0]); return; }
@@ -296,7 +297,7 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     return (messages || []).map(m => {
       const poll = polls.find(p => p.message_id === m.id || p.id === m.poll_id);
       const mine = !!(m.mine || m.user_id === S.me?.user_id);
-      const card = m.card?.type === 'sticker' ? stickerInline(m.card.id) : recipeButton(m.card);
+      const card = m.card?.type === 'sticker' ? stickerInline(m.card.id) : m.card?.type === 'member-recipe' && state?.memberRecipe ? memberRecipeCardHtml(state.memberRecipe) : recipeButton(m.card);
       return { ...m, mine, poll_html: poll ? pollCard(poll) : (m.poll_html || ''), card_html: card, ticks: mine ? (m.ticks || state?.readers?.[section] || 0) : 0, pinned: !!(state?.pins || []).some(p => p.message_id === m.id) || !!m.pinned };
     });
   }
@@ -437,6 +438,8 @@ export function makeCommunityChat({ rpc, toast, root, sbUrl, sbKey, token, uid, 
     if (t.id === 'waRemind' && state?.event) { state.event.reminded = true; say('We will remind you. This Q&A is not medical advice.'); return showQa(); }
     if (t.id === 'waDoTranslate') return showTranslate(true);
     if (t.dataset.recipe) { openRecipe?.(t.dataset.recipe); return; }
+    if (t.dataset.member) { if (state?.memberRecipe) root.innerHTML = memberRecipeHtml(state.memberRecipe); return; }
+    if (t.id === 'waSaveRecipe') { const saved = state?.memberRecipe ? toMemberPlannerRecipe(state.memberRecipe, state.memberRecipe.id) : null; if (saved) saveMemberRecipe?.(saved); say('Saved to your meal planner'); return; }
     if (t.dataset.profile) return showProfile(t.dataset.profile);
     if (t.dataset.sticker) { say('Sticker added to your next message'); return; }
     if (t.dataset.up && state?.event) { const q = state.event.questions.find(x => x.id === t.dataset.up); if (q) q.votes += 1; return showQa(); }
