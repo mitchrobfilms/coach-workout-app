@@ -14,6 +14,7 @@ import { healthConnectAvailable, healthConnectSteps } from './health.js';
 import { initCast, castClick, setCastSource, follow as castFollow, castState, initTvMode } from './cast.js';
 import { renderCourse, drawCourseCert } from './course.js';
 import { loadVideos, renderVideoLib, openVideo, videoById, videoCard, pickIdeas, setDoneLookup, publishedVideos } from './videos.js';
+import { mountFitness } from './fitness.js';
 import { parseWeight as parseWeightText, fmtWeight } from './weight.js';
 import { buildLibrary, isNewClass, METRIC, kcal as metKcal, classKcal, recommend, PunchCounter, RhythmMeter, HoldTracker, makePilates } from './classes.js';
 import { MusicPlayer, styleFor } from './music.js';
@@ -56,7 +57,7 @@ let restoredFromIdb = 0;
 requestPersist().then(p => { window.__kova && (window.__kova.persisted = p); });
 // Feature flags. Instructor voice (recorded lines, TTS, 'voice' wake word + mic) and the on-screen AI trainer
 // (avatar, name badge, talking/lip-sync clip) are OFF for now; flip here (or localStorage features JSON) to bring them back.
-const FEATURES = Object.assign({ voice: false, trainerOnScreen: false, formCheckDefault: false }, (() => { try { return JSON.parse(localStorage.getItem('glp1life.features') || '{}'); } catch { return {}; } })());
+const FEATURES = Object.assign({ voice: false, trainerOnScreen: false, formCheckDefault: false, healthConnectWrite: false }, (() => { try { return JSON.parse(localStorage.getItem('glp1life.features') || '{}'); } catch { return {}; } })());
 (window.__kova ||= {}).features = FEATURES;
 document.documentElement.classList.toggle('novoice', !FEATURES.voice); document.documentElement.classList.toggle('notrainer', !FEATURES.trainerOnScreen);
 const settings = Object.assign({ formCheck: !!FEATURES.formCheckDefault, name: user?.name || '', trainer: 'm', onboarded: false, speech: true, beeps: true, llm: false, llmUrl: '', llmModel: '', llmKey: '', glp1: false, fussy: false, likes: [], dislikes: [], country: 'auto' }, store.get('settings', {}));
@@ -2003,6 +2004,7 @@ function videoCompleted(v, how) {
   const d = store.get('videosDone', {}); d[v.id] = { at: new Date().toISOString(), how, n: (d[v.id]?.n || 0) + 1 }; store.set('videosDone', d);
   const h = store.get('sessions', []); h.push({ date: new Date().toISOString(), totals: {}, minutes: v.mins, completed: true, video: v.id, title: v.title }); store.set('sessions', h);
   toast(`🎉 ${v.title} completed. Great work!`); renderProgress?.();
+  window.__kova?.fitness?.noteVideo?.(v);
   document.querySelectorAll(`[data-video="${v.id}"] .vthumb`).forEach(t => t.querySelector('.vdone') || t.insertAdjacentHTML('beforeend', '<span class="vdone">✓ Done</span>'));
 }
 function castMsg(r) {
@@ -2025,6 +2027,14 @@ function renderVideoIdeas() {
   el.hidden = !ideas.length; el.innerHTML = ideas.length ? `<h3>Published classes</h3><div class="vgrid">${ideas.map(videoCard).join('')}</div><button type="button" class="linkbtn" data-gotab="workouts">Open Fitness Studio</button>` : '';
   el.querySelectorAll('[data-gotab]').forEach(b => b.onclick = () => switchTab(b.dataset.gotab));
 }
+mountFitness({
+  hub: $('fitHub'), studio: $('fitStudio'), store, toast: m => toast(m), demo: qs.get('fitdemo') === '1', speed: SPEED,
+  beeps: () => settings.beeps !== false, weightKg: () => latestKg() || 75, healthWriteEnabled: () => !!FEATURES.healthConnectWrite,
+  cloudUser: () => cloud.user, rpc: (name, body) => rpcF(name, body),
+  vapidPublicKey: () => window.__GLP1_VAPID_PUBLIC_KEY || '',
+  streamConfig: () => ({ bunnyLiveLibraryId: window.__GLP1_BUNNY_LIVE_LIBRARY_ID || '' }),
+  openVideo: id => { const v = videoById(id); if (!v) return toast('That class is not available.'); openVideo(v, { onCastSource: videoCast, onComplete: videoCompleted }); },
+});
 loadVideos().then(() => { if ($('videoLib')) renderVideoLib($('videoLib')); renderVideoIdeas(); window.__kova.videosReady = true; });
 
 /* ---------- TV: Google Cast ---------- */

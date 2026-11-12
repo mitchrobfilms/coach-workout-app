@@ -9,6 +9,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png"><link rel="icon" sizes="any" href="favicon.ico"><link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="style.css?v=49">
+<link rel="stylesheet" href="fitness.css?v=1">
 </head>
 <body>
 <header class="topbar">
@@ -189,10 +190,13 @@
 
 <!-- FITNESS STUDIO -->
 <section id="tab-workouts" class="tab">
-  <h2 class="pagehead">Fitness Studio</h2>
-  <p class="studioled">Follow-along classes with Coach Ava, an AI-generated instructor. A person checks each class before it is published. There are no live classes.</p>
+  <div id="fitHub"></div>
+  <div id="fitStudio">
+  <h2 class="pagehead">Coach Ava classes</h2>
+  <p class="studioled">Follow-along classes with Coach Ava, an AI-generated instructor. A person checks each class before it is published.</p>
   <div id="videoLib"></div>
   <button type="button" class="coursebanner" data-goto="classes" id="fitCourse"><span class="cbicon">🎓</span><span><b>GLP1 Life Course</b><small>7 modules · 20 lessons · certificate</small><em>Open the course ›</em></span></button>
+  </div>
 </section>
 <!-- CLASSES TAB -->
 <section id="tab-classes" class="tab">
@@ -480,6 +484,6 @@
 <div class="overlay celebrate" id="celebrate" hidden><div class="sheet"><div class="confetti">🎉🏆🎉</div><h2 id="celebTitle"></h2><p id="celebText"></p><img id="celebImg" alt="Certificate preview"><button type="button" class="primary big" id="celebDl">⬇️ Download certificate</button><button type="button" class="big" id="celebShare">📤 Share</button><button type="button" class="linkbtn" id="celebClose">Close</button></div></div>
 <div class="cookmode" id="cookMode" hidden></div>
 <div id="toast" class="toast" hidden></div>
-<script type="module" src="planner.js?v=3"></script><script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=50"></script>
+<script type="module" src="planner.js?v=3"></script><script type="module" src="native.js?v=44"></script><script type="module" src="app.js?v=51"></script>
 </body>
 </html>

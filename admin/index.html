@@ -6,7 +6,7 @@
   <form id="lf"><label>Email<input id="le" type="email" autocomplete="username" required></label><label>Password<input id="lp" type="password" autocomplete="current-password" required></label><p class="err" id="lerr" hidden></p><button class="primary">Sign in</button></form></section>
 <section id="denied" class="card narrow" hidden><h1>Not an admin</h1><p>You're signed in as <b id="who"></b>, but this account isn't an admin.</p></section>
 <section id="app" hidden>
-  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="access">Access codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button><button data-v="aidrafts">AI class drafts</button><button data-v="mod">Community <span id="modCount"></span></button></nav>
+  <nav class="tabs"><button class="on" data-v="trainers">Trainers</button><button data-v="promos">Promo codes</button><button data-v="access">Access codes</button><button data-v="comm">Commission</button><button data-v="classes">Classes library</button><button data-v="aidrafts">AI class drafts</button><button data-v="live">Live classes</button><button data-v="mod">Community <span id="modCount"></span></button></nav>
   <div id="v-trainers" class="grid">
     <div><div class="row between"><h2>Trainers</h2><button class="primary" id="new">+ Add trainer</button></div><p class="muted small">Drag ↑ ↓ to reorder. Hidden trainers don't show in the app.</p><ul id="list" class="list"></ul></div>
     <div class="card" id="editor"><h2 id="etitle">Add trainer</h2>
@@ -68,6 +68,24 @@
     <h3>Groups</h3><ul id="modGroups" class="list"></ul><form id="modGroupF" class="row"><input id="modGName" placeholder="New group name" required><input id="modGDesc" placeholder="Description"><button class="primary">+ Add group</button></form>
     <h3>Blocked attempts (latest 50)</h3><ul id="modBlocked" class="list small"></ul></div>
   <div id="v-aidrafts" hidden><h2>AI class drafts <small class="muted">(review &amp; publishing)</small></h2><p class="muted">Pilot classes led by <b>Coach Ava</b>, an <b>AI-generated instructor</b>. Each class needs a human safety review before it goes live; only approved classes are in the member library.</p><div id="aiDraftList"></div></div>
+  <div id="v-live" hidden><h2>Live classes</h2>
+    <p class="muted small">Times are UK (Europe/London). Video stays off until Bunny Stream live or an https HLS address is set. No keys are stored here. The database update is <code>supabase/013_fitness_studio.sql</code> and this screen does not apply it.</p>
+    <form id="liveForm" class="card" novalidate>
+      <label>Title <input id="lvTitle" maxlength="80" required></label>
+      <label>Coach <input id="lvCoach" maxlength="60" required></label>
+      <label>Start (UK time) <input id="lvStarts" type="datetime-local" required></label>
+      <label>Level <select id="lvLevel"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select></label>
+      <label>Duration (minutes) <input id="lvMins" type="number" min="5" max="90" value="20" required></label>
+      <label>Focus <input id="lvFocus" value="full" maxlength="40"></label>
+      <label>Video <select id="lvProvider"><option value="none">Coming soon</option><option value="bunny-live">Bunny Stream live</option><option value="hls">HLS address</option></select></label>
+      <label>Bunny stream id <input id="lvBunny" placeholder="Only after a live stream exists"></label>
+      <label>HLS url <input id="lvHls" placeholder="https://…/playlist.m3u8"></label>
+      <label>Replay class id <input id="lvReplay" placeholder="ai-walk-15"></label>
+      <p class="err" id="lvErr" hidden></p>
+      <button class="primary" type="submit">Schedule class</button>
+    </form>
+    <ul id="lvList" class="list"></ul>
+  </div>
   <div id="v-classes" hidden><h2>Classes library</h2><p class="muted">The classes library is <code>library.json</code> in the GitHub repo (it updates the app automatically). Edit it on GitHub: <a href="https://github.com/mitchrobfilms/coach-workout-app/edit/main/library.json" target="_blank" rel="noopener">open library.json ↗</a></p><div id="classes"></div></div>
 </section><footer class="small muted" style="margin:30px 0;text-align:center">GLP1 Life admin · support <a href="mailto:support@glp1life.co.uk">support@glp1life.co.uk</a></footer></main><div id="toast" hidden></div>
 <script type="module" src="admin.js?v=3"></script></body></html>

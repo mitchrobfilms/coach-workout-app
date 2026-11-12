@@ -31,6 +31,10 @@ import os, sys
 p=sys.argv[1]; s=open(p).read(); play=os.environ.get('PLAY')=='1'
 if 'xmlns:tools' not in s: s=s.replace('<manifest ','<manifest xmlns:tools="http://schemas.android.com/tools" ',1)
 keep={'READ_STEPS'}
+# HEALTH_CONNECT_WRITE=1 also keeps WRITE_ACTIVE_CALORIES_BURNED for a later shell.
+# Default builds still remove it. The app flag healthConnectWrite stays off. See docs/fitness-studio.md.
+if os.environ.get('HEALTH_CONNECT_WRITE')=='1':
+  keep.add('WRITE_ACTIVE_CALORIES_BURNED')
 types=['STEPS','DISTANCE','ACTIVE_CALORIES_BURNED','HEART_RATE','WEIGHT','SLEEP','RESPIRATORY_RATE','OXYGEN_SATURATION','RESTING_HEART_RATE','HEART_RATE_VARIABILITY','EXERCISE','TOTAL_CALORIES_BURNED','BASAL_METABOLIC_RATE','BODY_FAT','HEIGHT','BLOOD_PRESSURE','BLOOD_GLUCOSE','BODY_TEMPERATURE','BASAL_BODY_TEMPERATURE','FLOORS_CLIMBED','HYDRATION','NUTRITION','MINDFULNESS','VO2_MAX','SPEED','POWER','ELEVATION_GAINED','LEAN_BODY_MASS','BONE_MASS','SKIN_TEMPERATURE','PLANNED_EXERCISE','WHEELCHAIR_PUSHES','CYCLING_PEDALING_CADENCE','STEPS_CADENCE']
 perms=['<uses-permission android:name="android.permission.CAMERA"/>','<uses-permission android:name="android.permission.health.READ_STEPS"/>']
 if play:
