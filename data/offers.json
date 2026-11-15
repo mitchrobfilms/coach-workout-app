@@ -1,10 +1,10 @@
 {
- "updated": "2026-11-14T03:25:13.075Z",
+ "updated": "2026-11-15T02:53:35.894Z",
  "highProteinMin": 10,
  "stores": {
   "aldi": {
    "status": "live",
-   "checked": "2026-11-14T03:25:13.075Z",
+   "checked": "2026-11-15T02:53:35.894Z",
    "note": "",
    "items": [
     {
@@ -561,7 +561,7 @@
   },
   "lidl": {
    "status": "live",
-   "checked": "2026-11-14T03:25:13.075Z",
+   "checked": "2026-11-15T02:53:35.894Z",
    "note": "",
    "items": [
     {
@@ -1404,7 +1404,7 @@
   },
   "asda": {
    "status": "fallback",
-   "checked": "2026-11-14T03:25:13.075Z",
+   "checked": "2026-11-15T02:53:35.894Z",
    "note": "Asda blocks automated requests (HTTP 403); we don't bypass that.",
    "items": [],
    "pages": [
